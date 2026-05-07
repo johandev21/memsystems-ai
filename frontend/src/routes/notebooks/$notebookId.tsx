@@ -14,6 +14,8 @@ export const Route = createFileRoute("/notebooks/$notebookId")({
 });
 
 function NotebookPage() {
+	const { notebookId } = Route.useParams();
+
 	return (
 		<div className="min-h-screen bg-background">
 			<AppHeader />
@@ -26,6 +28,7 @@ function NotebookPage() {
 					description={notebookData.description}
 					imageUrl={notebookData.imageUrl}
 					icon={notebookData.icon}
+					notebookId={notebookId}
 				/>
 
 				<div className="mx-auto max-w-6xl px-6 pb-12">

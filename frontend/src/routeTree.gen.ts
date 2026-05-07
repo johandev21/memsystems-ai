@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks/$notebookId'
+import { Route as NotebooksNotebookIdStudyRouteImport } from './routes/notebooks_.$notebookId.study'
 import { Route as NotebooksNotebookIdFilesFileIdRouteImport } from './routes/notebooks/$notebookId.files.$fileId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,12 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotebooksNotebookIdStudyRoute =
+  NotebooksNotebookIdStudyRouteImport.update({
+    id: '/notebooks_/$notebookId/study',
+    path: '/notebooks/$notebookId/study',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const NotebooksNotebookIdFilesFileIdRoute =
   NotebooksNotebookIdFilesFileIdRouteImport.update({
     id: '/files/$fileId',
@@ -40,12 +47,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
   '/home/': typeof HomeIndexRoute
+  '/notebooks/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
   '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
   '/home': typeof HomeIndexRoute
+  '/notebooks/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
   '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRoutesById {
@@ -53,6 +62,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
   '/home/': typeof HomeIndexRoute
+  '/notebooks_/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
   '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRouteTypes {
@@ -61,18 +71,21 @@ export interface FileRouteTypes {
     | '/'
     | '/notebooks/$notebookId'
     | '/home/'
+    | '/notebooks/$notebookId/study'
     | '/notebooks/$notebookId/files/$fileId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/notebooks/$notebookId'
     | '/home'
+    | '/notebooks/$notebookId/study'
     | '/notebooks/$notebookId/files/$fileId'
   id:
     | '__root__'
     | '/'
     | '/notebooks/$notebookId'
     | '/home/'
+    | '/notebooks_/$notebookId/study'
     | '/notebooks/$notebookId/files/$fileId'
   fileRoutesById: FileRoutesById
 }
@@ -80,6 +93,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRouteWithChildren
   HomeIndexRoute: typeof HomeIndexRoute
+  NotebooksNotebookIdStudyRoute: typeof NotebooksNotebookIdStudyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -103,6 +117,13 @@ declare module '@tanstack/react-router' {
       path: '/notebooks/$notebookId'
       fullPath: '/notebooks/$notebookId'
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebooks_/$notebookId/study': {
+      id: '/notebooks_/$notebookId/study'
+      path: '/notebooks/$notebookId/study'
+      fullPath: '/notebooks/$notebookId/study'
+      preLoaderRoute: typeof NotebooksNotebookIdStudyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notebooks/$notebookId/files/$fileId': {
@@ -130,6 +151,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRouteWithChildren,
   HomeIndexRoute: HomeIndexRoute,
+  NotebooksNotebookIdStudyRoute: NotebooksNotebookIdStudyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

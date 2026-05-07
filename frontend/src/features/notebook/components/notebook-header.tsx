@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
@@ -8,6 +9,7 @@ interface NotebookHeaderProps {
 	imageUrl?: string;
 	icon: React.ReactNode;
 	className?: string;
+	notebookId: string;
 }
 
 export function NotebookHeader({
@@ -16,6 +18,7 @@ export function NotebookHeader({
 	imageUrl,
 	icon,
 	className,
+	notebookId,
 }: NotebookHeaderProps) {
 	return (
 		<div className={cn("relative", className)}>
@@ -54,9 +57,11 @@ export function NotebookHeader({
 							{description}
 						</p>
 					</div>
-					<Button className="gap-1.5 rounded-full">
-						<Sparkles data-icon="inline-start" />
-						AI Study
+					<Button asChild className="gap-1.5 rounded-full">
+						<Link to="/notebooks/$notebookId/study" params={{ notebookId }}>
+							<Sparkles data-icon="inline-start" />
+							AI Study
+						</Link>
 					</Button>
 				</div>
 			</div>
