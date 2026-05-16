@@ -12,6 +12,7 @@ import { Button } from "#/components/ui/button";
 import { ResizablePanel, ResizablePanelGroup } from "#/components/ui/resizable";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
+import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
   component: RouteComponent,
@@ -74,10 +75,15 @@ function DesktopLayout({
           defaultSize="20%"
           panelRef={sourcesRef}
           onResize={onSyncSources}
+          className="border border-border rounded-xl overflow-hidden"
         >
-          <div className="flex flex-col h-full min-w-0 overflow-hidden bg-sidebar rounded-md">
-            <header className="flex items-center justify-between p-2 bg-muted rounded-t-md">
-              <h2 className={`font-semibold ${sourcesCollapsed ? "hidden" : ""}`}>Sources</h2>
+          <div className="flex flex-col h-full min-w-0 overflow-hidden bg-card">
+            <header className="flex items-center justify-between p-1.5 bg-muted">
+              <h2
+                className={`text-sm font-semibold ${sourcesCollapsed ? "hidden" : ""}`}
+              >
+                Sources
+              </h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -103,10 +109,14 @@ function DesktopLayout({
             <ScrollArea orientation="horizontal" className="flex-1" />
           </div>
         </ResizablePanel>
-        <ResizablePanel minSize="40%" defaultSize="60%">
+        <ResizablePanel
+          minSize="40%"
+          defaultSize="60%"
+          className="border border-border rounded-xl overflow-hidden"
+        >
           <ScrollArea
             orientation="vertical"
-            className="h-full bg-card rounded-md"
+            className="h-full bg-card"
           >
             <div className="flex flex-col items-center justify-center p-6 min-h-full">
               <span className="font-semibold">Main</span>
@@ -120,10 +130,15 @@ function DesktopLayout({
           defaultSize="20%"
           panelRef={studioRef}
           onResize={onSyncStudio}
+          className="border border-border rounded-xl overflow-hidden"
         >
-          <div className="flex flex-col h-full min-w-0 overflow-hidden bg-sidebar rounded-md">
-            <header className="flex items-center justify-between p-2 bg-muted rounded-t-md">
-              <h2 className={`font-semibold ${studioCollapsed ? "hidden" : ""}`}>Studio</h2>
+          <div className="flex flex-col h-full min-w-0 overflow-hidden bg-card">
+            <header className="flex items-center justify-between p-1.5 bg-muted">
+              <h2
+                className={`text-sm font-semibold ${studioCollapsed ? "hidden" : ""}`}
+              >
+                Studio
+              </h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -147,6 +162,11 @@ function DesktopLayout({
               </Button>
             </header>
             <ScrollArea orientation="horizontal" className="flex-1" />
+            {!studioCollapsed && (
+              <div className="p-1.5">
+                <StudyMaterialsPanel />
+              </div>
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
@@ -164,17 +184,17 @@ function MobileTabletLayout() {
           <TabsTrigger value="studio">Studio</TabsTrigger>
         </TabsList>
         <TabsContent value="sources" className="flex-1 mt-0 rounded-t-none">
-          <div className="flex h-full items-center justify-center p-6 bg-sidebar rounded-md">
+          <div className="flex h-full items-center justify-center p-6 bg-sidebar rounded-xl">
             <span className="font-semibold">Sources</span>
           </div>
         </TabsContent>
         <TabsContent value="main" className="flex-1 mt-0 rounded-t-none">
-          <div className="flex h-full items-center justify-center p-6 bg-card rounded-md">
+          <div className="flex h-full items-center justify-center p-6 bg-card rounded-xl">
             <span className="font-semibold">Main</span>
           </div>
         </TabsContent>
         <TabsContent value="studio" className="flex-1 mt-0 rounded-t-none">
-          <div className="flex h-full items-center justify-center p-6 bg-sidebar rounded-md">
+          <div className="flex h-full items-center justify-center p-6 bg-sidebar rounded-xl">
             <span className="font-semibold">Studio</span>
           </div>
         </TabsContent>

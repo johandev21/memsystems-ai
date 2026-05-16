@@ -32,7 +32,7 @@ export function NotebookCard({
 					<img
 						src={imageUrl}
 						alt={title}
-						className="h-full w-full object-cover opacity-60 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+						className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
 					/>
 				) : (
 					<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
