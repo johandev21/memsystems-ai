@@ -12,8 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks/$notebookId'
-import { Route as NotebooksNotebookIdStudyRouteImport } from './routes/notebooks_.$notebookId.study'
-import { Route as NotebooksNotebookIdFilesFileIdRouteImport } from './routes/notebooks/$notebookId.files.$fileId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,70 +28,35 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotebooksNotebookIdStudyRoute =
-  NotebooksNotebookIdStudyRouteImport.update({
-    id: '/notebooks_/$notebookId/study',
-    path: '/notebooks/$notebookId/study',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const NotebooksNotebookIdFilesFileIdRoute =
-  NotebooksNotebookIdFilesFileIdRouteImport.update({
-    id: '/files/$fileId',
-    path: '/files/$fileId',
-    getParentRoute: () => NotebooksNotebookIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
+  '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/home/': typeof HomeIndexRoute
-  '/notebooks/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
-  '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
+  '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/home': typeof HomeIndexRoute
-  '/notebooks/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
-  '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/notebooks/$notebookId': typeof NotebooksNotebookIdRouteWithChildren
+  '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/home/': typeof HomeIndexRoute
-  '/notebooks_/$notebookId/study': typeof NotebooksNotebookIdStudyRoute
-  '/notebooks/$notebookId/files/$fileId': typeof NotebooksNotebookIdFilesFileIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/notebooks/$notebookId'
-    | '/home/'
-    | '/notebooks/$notebookId/study'
-    | '/notebooks/$notebookId/files/$fileId'
+  fullPaths: '/' | '/notebooks/$notebookId' | '/home/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/notebooks/$notebookId'
-    | '/home'
-    | '/notebooks/$notebookId/study'
-    | '/notebooks/$notebookId/files/$fileId'
-  id:
-    | '__root__'
-    | '/'
-    | '/notebooks/$notebookId'
-    | '/home/'
-    | '/notebooks_/$notebookId/study'
-    | '/notebooks/$notebookId/files/$fileId'
+  to: '/' | '/notebooks/$notebookId' | '/home'
+  id: '__root__' | '/' | '/notebooks/$notebookId' | '/home/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRouteWithChildren
+  NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
   HomeIndexRoute: typeof HomeIndexRoute
-  NotebooksNotebookIdStudyRoute: typeof NotebooksNotebookIdStudyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -119,39 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/notebooks_/$notebookId/study': {
-      id: '/notebooks_/$notebookId/study'
-      path: '/notebooks/$notebookId/study'
-      fullPath: '/notebooks/$notebookId/study'
-      preLoaderRoute: typeof NotebooksNotebookIdStudyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notebooks/$notebookId/files/$fileId': {
-      id: '/notebooks/$notebookId/files/$fileId'
-      path: '/files/$fileId'
-      fullPath: '/notebooks/$notebookId/files/$fileId'
-      preLoaderRoute: typeof NotebooksNotebookIdFilesFileIdRouteImport
-      parentRoute: typeof NotebooksNotebookIdRoute
-    }
   }
 }
 
-interface NotebooksNotebookIdRouteChildren {
-  NotebooksNotebookIdFilesFileIdRoute: typeof NotebooksNotebookIdFilesFileIdRoute
-}
-
-const NotebooksNotebookIdRouteChildren: NotebooksNotebookIdRouteChildren = {
-  NotebooksNotebookIdFilesFileIdRoute: NotebooksNotebookIdFilesFileIdRoute,
-}
-
-const NotebooksNotebookIdRouteWithChildren =
-  NotebooksNotebookIdRoute._addFileChildren(NotebooksNotebookIdRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  NotebooksNotebookIdRoute: NotebooksNotebookIdRouteWithChildren,
+  NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
   HomeIndexRoute: HomeIndexRoute,
-  NotebooksNotebookIdStudyRoute: NotebooksNotebookIdStudyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

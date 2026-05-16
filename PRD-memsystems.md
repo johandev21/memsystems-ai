@@ -1120,6 +1120,7 @@ Search indexes the following:
 - [ ] File placeholder creation (empty files for each type)
 - [ ] File operations (rename, move, duplicate, delete)
 - [ ] Global search — basic implementation (notebook + file titles)
+- [ ] `/notebooks` route implementation (see [Implementation Plan: Notebooks Route](#impl-notebooks-route))
 
 ### Phase 3 — Source Ingestion (Weeks 7–9)
 
@@ -1226,7 +1227,87 @@ Search indexes the following:
 
 ---
 
-## 21. Non-Functional Requirements
+## 21. Implementation Plan: Notebooks Route
+
+### Context
+The `/notebooks` route does not exist yet. It must be created as a full listing page for all user notebooks with additional features: create button per notebook, favorite system, filter options, and search bar.
+
+### Reference Design
+See `frontend/src/routes/home/index.tsx` for layout patterns and `frontend/src/components/home/notebook-card.tsx` for the card component.
+
+### 21.1 Feature List
+
+| Feature | Description |
+|---------|-------------|
+| **Create Button** | Per-notebook create button on card (e.g., "Add file" or generation options) |
+| **Favorite System** | Star/favorite button on top-left corner of notebook card; favorites persisted per user |
+| **Filter Options** | Filter notebooks by: All, Favorites, Recently Updated |
+| **Search Bar** | Real-time search filtering notebooks by title/description |
+| **Card Title Click** | Clicking notebook title navigates to `/notebooks/$notebookId` |
+
+### 21.2 Additional PRD Suggestions
+
+Based on the existing PRD, the following features are relevant for this route:
+
+1. **Notebook CRUD** — Full create/read/update/delete of notebooks (already in Phase 2)
+2. **Subscription Limits** — Display notebook count vs plan limit (Free: 3, Pro: 15, Max: 60) with upgrade CTA
+3. **Sort Options** — Sort by: Recently Updated, Recently Created, Alphabetical, Most Files
+4. **Empty State** — Friendly empty state with "Create your first notebook" CTA when no notebooks exist
+5. **Notebook Card Enhancement** — Add favorite button overlay and per-card create button
+6. **Pagination or Infinite Scroll** — For users with many notebooks (considerate of plan limits)
+7. **Bulk Actions** — Select multiple notebooks to delete or move (optional for MVP)
+
+### 21.3 Implementation Steps
+
+1. **Create Route File** — Create `frontend/src/routes/notebooks/index.tsx` with route definition
+2. **Create NotebooksListPage Component** — Page layout matching home page structure
+3. **Add AppHeader** — Include app header with user context
+4. **Implement Search Bar** — Search input with real-time filtering using TanStack Query
+5. **Implement Filter Tabs** — Filter tabs: All / Favorites / Recent
+6. **Enhance NotebookCard** — Add favorite button (top-left star icon), per-card create button
+7. **Create/Use Zustand Store** — Add `useNotebooksStore` for favorites state (or extend existing)
+8. **Connect to Backend API** — Replace mock data with actual API calls
+9. **Handle Empty State** — Empty state component when no notebooks
+10. **Add Sort Options** — Sort dropdown (updated, created, alphabetical)
+11. **Responsive Grid** — Ensure grid layout works on mobile/tablet
+12. **Subscription Limit Display** — Show current notebook count vs plan limit
+
+### 21.4 Component Inventory
+
+| Component | File | Notes |
+|-----------|------|-------|
+| `NotebooksPage` | `routes/notebooks/index.tsx` | Main route component |
+| `NotebookCard` | `components/home/notebook-card.tsx` | Enhance with favorite button |
+| `SearchInput` | `components/ui/input.tsx` | Reuse existing shadcn input |
+| `FilterTabs` | `components/ui/tabs.tsx` | Reuse shadcn tabs |
+| `FavoriteButton` | `components/notebook/favorite-button.tsx` | New component |
+| `NotebooksEmptyState` | `components/notebooks/empty-state.tsx` | New component |
+| `SortDropdown` | `components/ui/dropdown-menu.tsx` | Reuse shadcn dropdown |
+| `CreateNotebookDialog` | `components/notebook/create-notebook-dialog.tsx` | New or refactor existing |
+
+### 21.5 Backend API Requirements
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `GET /api/notebooks` | GET | List all notebooks for user |
+| `POST /api/notebooks` | POST | Create new notebook |
+| `PATCH /api/notebooks/:id` | PATCH | Update notebook (title, description) |
+| `DELETE /api/notebooks/:id` | DELETE | Soft delete notebook |
+| `PATCH /api/notebooks/:id/favorite` | PATCH | Toggle favorite status |
+| `GET /api/notebooks?s=favorites` | GET | Filter favorites |
+
+### 21.6 Data Model Extensions
+
+```
+notebooks
+  [...]
+  is_favorite       boolean (default false)
+  favorite_at      timestamp (nullable)
+```
+
+---
+
+## 22. Non-Functional Requirements
 
 ### 21.1 Performance
 

@@ -1,36 +1,40 @@
 :root {
-  /* Notebook icon */
-  --notebook-icon: oklch(34.846% 0.00004 271.152);
+	/* Notebook icon */
+	--notebook-icon: oklch(34.846% 0.00004 271.152);
 
-  /* Home hero gradient text */
-  --gradient-text-start: oklch(56.584% 0.00006 271.152);
-  --gradient-text-end: oklch(0% 0 0);
+	/* Home hero gradient text */
+	--gradient-text-start: oklch(56.584% 0.00006 271.152);
+	--gradient-text-end: oklch(0% 0 0);
 
-  /* Heatmap activity levels */
-  --heatmap-empty: oklch(0% 0 0 / 0.05);
-  --heatmap-level-1: oklch(69.588% 0.14907 162.508 / 0.2);
-  --heatmap-level-2: oklch(69.588% 0.14907 162.508 / 0.4);
-  --heatmap-level-3: oklch(69.588% 0.14907 162.508 / 0.6);
-  --heatmap-level-4: oklch(69.588% 0.14907 162.508);
+	/* Heatmap activity levels */
+	--heatmap-empty: oklch(0% 0 0 / 0.05);
+	--heatmap-level-1: oklch(69.588% 0.14907 162.508 / 0.2);
+	--heatmap-level-2: oklch(69.588% 0.14907 162.508 / 0.4);
+	--heatmap-level-3: oklch(69.588% 0.14907 162.508 / 0.6);
+	--heatmap-level-4: oklch(69.588% 0.14907 162.508);
 }
 
 .dark {
-  /* Notebook icon */
-  --notebook-icon: oklch(80.466% 0.00009 271.152);
+	/* Notebook icon */
+	--notebook-icon: oklch(80.466% 0.00009 271.152);
 
-  /* Home hero gradient text */
-  --gradient-text-start: oklch(68.295% 0.00008 271.152);
-  --gradient-text-end: oklch(100% 0.00011 271.152);
+	/* Home hero gradient text */
+	--gradient-text-start: oklch(68.295% 0.00008 271.152);
+	--gradient-text-end: oklch(100% 0.00011 271.152);
 
-  /* Heatmap activity levels */
-  --heatmap-empty: oklch(100% 0.00011 271.152 / 0.05);
+	/* Heatmap activity levels */
+	--heatmap-empty: oklch(100% 0.00011 271.152 / 0.05);
 }
 
 .gradient-text {
-  background: linear-gradient(to right, var(--gradient-text-start), var(--gradient-text-end));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+	background: linear-gradient(
+		to right,
+		var(--gradient-text-start),
+		var(--gradient-text-end)
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 @theme inline {
