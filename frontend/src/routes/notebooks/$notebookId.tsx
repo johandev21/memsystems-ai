@@ -4,6 +4,7 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  Plus,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { RefObject } from "react";
@@ -13,6 +14,10 @@ import { ResizablePanel, ResizablePanelGroup } from "#/components/ui/resizable";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
+import { StudioResources } from "#/features/notebook/components/studio-resources";
+import { ChatEmptyState } from "#/features/notebook/components/chat-empty-state";
+import { SourcesPanel } from "#/features/notebook/components/sources-panel";
+import { AddSourceDialog } from "#/features/notebook/components/add-source-dialog";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
   component: RouteComponent,
@@ -78,35 +83,51 @@ function DesktopLayout({
           className="border border-border rounded-xl overflow-hidden"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-card">
-            <header className="flex items-center justify-between p-1.5 bg-muted">
+            <header className="flex items-center justify-between p-1.5 bg-muted min-h-[44px]">
               <h2
-                className={`text-sm font-semibold ${sourcesCollapsed ? "hidden" : ""}`}
+                className={`text-sm font-semibold pl-1.5 ${sourcesCollapsed ? "hidden" : ""}`}
               >
                 Sources
               </h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={sourcesCollapsed ? "mx-auto" : undefined}
-                aria-label={
-                  sourcesCollapsed ? "Expand Sources" : "Collapse Sources"
-                }
-                onClick={() => {
-                  if (sourcesCollapsed) {
-                    sourcesRef.current?.expand();
-                  } else {
-                    sourcesRef.current?.collapse();
-                  }
-                }}
-              >
-                {sourcesCollapsed ? (
-                  <PanelLeftOpen className="size-4" />
-                ) : (
-                  <PanelLeftClose className="size-4" />
+              <div className="flex items-center gap-0.5">
+                {!sourcesCollapsed && (
+                  <AddSourceDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      aria-label="Add Source"
+                    >
+                      <Plus className="size-4" />
+                    </Button>
+                  </AddSourceDialog>
                 )}
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={sourcesCollapsed ? "mx-auto" : "h-7 w-7"}
+                  aria-label={
+                    sourcesCollapsed ? "Expand Sources" : "Collapse Sources"
+                  }
+                  onClick={() => {
+                    if (sourcesCollapsed) {
+                      sourcesRef.current?.expand();
+                    } else {
+                      sourcesRef.current?.collapse();
+                    }
+                  }}
+                >
+                  {sourcesCollapsed ? (
+                    <PanelLeftOpen className="size-4" />
+                  ) : (
+                    <PanelLeftClose className="size-4" />
+                  )}
+                </Button>
+              </div>
             </header>
-            <ScrollArea orientation="horizontal" className="flex-1" />
+            <ScrollArea orientation="both" className="flex-1 h-full">
+              <SourcesPanel collapsed={sourcesCollapsed} />
+            </ScrollArea>
           </div>
         </ResizablePanel>
         <ResizablePanel
@@ -114,14 +135,14 @@ function DesktopLayout({
           defaultSize="60%"
           className="border border-border rounded-xl overflow-hidden"
         >
-          <ScrollArea
-            orientation="vertical"
-            className="h-full bg-card"
-          >
-            <div className="flex flex-col items-center justify-center p-6 min-h-full">
-              <span className="font-semibold">Main</span>
+          <div className="flex flex-col h-full min-w-0 overflow-hidden bg-card">
+            <header className="flex items-center justify-between p-1.5 px-3 bg-muted min-h-[44px]">
+              <h2 className="text-sm font-semibold">Chat</h2>
+            </header>
+            <div className="flex-1 flex flex-col min-h-0">
+              <ChatEmptyState />
             </div>
-          </ScrollArea>
+          </div>
         </ResizablePanel>
         <ResizablePanel
           collapsible
@@ -161,9 +182,11 @@ function DesktopLayout({
                 )}
               </Button>
             </header>
-            <ScrollArea orientation="horizontal" className="flex-1" />
+            <ScrollArea orientation="vertical" className="flex-1">
+              <StudioResources collapsed={studioCollapsed} />
+            </ScrollArea>
             {!studioCollapsed && (
-              <div className="p-1.5">
+              <div className="p-1.5 pt-0">
                 <StudyMaterialsPanel />
               </div>
             )}

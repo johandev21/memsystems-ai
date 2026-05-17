@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Maximize2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +15,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { StudyMaterialsTree, fileTreeData } from "./study-materials-tree";
+import { RESOURCES } from "./studio-resources";
 
 export function ExpandedStudyMaterials() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -52,20 +60,71 @@ export function ExpandedStudyMaterials() {
               maxSize="40"
               className="bg-card"
             >
-              <div className="flex h-full items-center justify-center p-6">
-                <span className="font-semibold text-muted-foreground">
-                  Sidebar
-                </span>
-              </div>
+              <ScrollArea orientation="both" className="h-full w-full">
+                <div className="p-4">
+                  <StudyMaterialsTree items={fileTreeData} />
+                </div>
+              </ScrollArea>
             </ResizablePanel>
 
             <ResizableHandle withHandle />
 
             <ResizablePanel defaultSize="75" className="bg-background">
-              <div className="flex h-full items-center justify-center p-6">
-                <span className="font-semibold text-muted-foreground">
-                  Main Content
+              <div className="flex h-full flex-col items-center justify-center p-6 gap-6">
+                <span className="font-mono text-sm text-muted-foreground">
+                  Generate a new study material
                 </span>
+                <div
+                  className="flex items-center gap-2"
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
+                  {RESOURCES.map((resource, i) => {
+                    const isHovered = hoveredIndex === i;
+                    return (
+                      <motion.button
+                        key={resource.label}
+                        layout
+                        onMouseEnter={() => setHoveredIndex(i)}
+                        onFocus={() => setHoveredIndex(i)}
+                        onBlur={() => setHoveredIndex(null)}
+                        className={cn(
+                          "relative flex items-center overflow-hidden rounded-full transition-colors",
+                          resource.colorClasses,
+                        )}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 35,
+                          mass: 1,
+                        }}
+                      >
+                        <motion.div
+                          layout="position"
+                          className="flex h-11 w-11 shrink-0 items-center justify-center"
+                        >
+                          <resource.icon
+                            className="h-5 w-5 opacity-90"
+                            strokeWidth={2.5}
+                          />
+                        </motion.div>
+                        <AnimatePresence mode="popLayout">
+                          {isHovered && (
+                            <motion.span
+                              layout="position"
+                              initial={{ opacity: 0, filter: "blur(4px)" }}
+                              animate={{ opacity: 1, filter: "blur(0px)" }}
+                              exit={{ opacity: 0, filter: "blur(4px)" }}
+                              transition={{ duration: 0.15 }}
+                              className="whitespace-nowrap pr-5 text-sm font-medium"
+                            >
+                              {resource.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
