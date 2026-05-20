@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { Maximize2 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -21,7 +19,6 @@ import { StudyMaterialsTree, fileTreeData } from "./study-materials-tree";
 import { RESOURCES } from "./studio-resources";
 
 export function ExpandedStudyMaterials() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <Dialog>
@@ -74,56 +71,28 @@ export function ExpandedStudyMaterials() {
                 <span className="font-mono text-sm text-muted-foreground">
                   Generate a new study material
                 </span>
-                <div
-                  className="flex items-center gap-2"
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
-                  {RESOURCES.map((resource, i) => {
-                    const isHovered = hoveredIndex === i;
-                    return (
-                      <motion.button
-                        key={resource.label}
-                        layout
-                        onMouseEnter={() => setHoveredIndex(i)}
-                        onFocus={() => setHoveredIndex(i)}
-                        onBlur={() => setHoveredIndex(null)}
-                        className={cn(
-                          "relative flex items-center overflow-hidden rounded-full transition-colors",
-                          resource.colorClasses,
-                        )}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 35,
-                          mass: 1,
-                        }}
-                      >
-                        <motion.div
-                          layout="position"
-                          className="flex h-11 w-11 shrink-0 items-center justify-center"
-                        >
-                          <resource.icon
-                            className="h-5 w-5 opacity-90"
-                            strokeWidth={2.5}
-                          />
-                        </motion.div>
-                        <AnimatePresence mode="popLayout">
-                          {isHovered && (
-                            <motion.span
-                              layout="position"
-                              initial={{ opacity: 0, filter: "blur(4px)" }}
-                              animate={{ opacity: 1, filter: "blur(0px)" }}
-                              exit={{ opacity: 0, filter: "blur(4px)" }}
-                              transition={{ duration: 0.15 }}
-                              className="whitespace-nowrap pr-5 text-sm font-medium"
-                            >
-                              {resource.label}
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
-                      </motion.button>
-                    );
-                  })}
+                <div className="flex items-center gap-2">
+                  {RESOURCES.map((resource) => (
+                    <Button
+                      key={resource.label}
+                      variant={null}
+                      size={null}
+                      className={cn(
+                        "group flex h-11 w-max max-w-11 hover:max-w-64 focus-within:max-w-64 items-center justify-start overflow-hidden rounded-full transition-all duration-300 ease-in-out outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+                        resource.colorClasses,
+                      )}
+                    >
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center">
+                        <resource.icon
+                          className="h-5 w-5 opacity-90"
+                          strokeWidth={2.5}
+                        />
+                      </div>
+                      <span className="whitespace-nowrap pr-5 text-sm font-medium opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
+                        {resource.label}
+                      </span>
+                    </Button>
+                  ))}
                 </div>
               </div>
             </ResizablePanel>

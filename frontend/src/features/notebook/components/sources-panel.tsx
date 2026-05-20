@@ -11,7 +11,6 @@ import {
   File,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { AddSourceDialog } from "./add-source-dialog";
 
 type FileType = "pdf" | "link" | "note" | "chat" | "folder";

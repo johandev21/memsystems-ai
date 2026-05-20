@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronRight, Folder, FolderOpen, type LucideIcon, HelpCircle, Brain, FileText, Map as MapIcon, Presentation, Network } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -107,8 +106,8 @@ function FileTreeItemNode({ item, depth, onToggleFolder }: { item: FileTreeItem;
         style={{ paddingLeft: `${paddingLeft}px` }}
         className={cn(
           "group relative flex w-full items-center gap-2.5 rounded-lg py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isFolder 
-            ? "text-foreground hover:bg-muted/50" 
+          isFolder
+            ? "text-foreground hover:bg-muted/50"
             : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
         )}
       >
@@ -123,7 +122,7 @@ function FileTreeItemNode({ item, depth, onToggleFolder }: { item: FileTreeItem;
         {!isFolder && <span className="w-3.5 shrink-0" />} {/* Spacer */}
 
         <Icon className={cn("h-4 w-4 shrink-0", isFolder ? "text-foreground/70" : config.className)} strokeWidth={2} />
-        
+
         <span className="truncate">{item.name}</span>
       </button>
 
