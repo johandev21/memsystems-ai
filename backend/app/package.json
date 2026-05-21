@@ -1,0 +1,25 @@
+{
+  "name": "app",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@paralleldrive/cuid2": "^3.3.0",
+    "better-auth": "^1.6.11",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-typebox": "^0.3.3",
+    "elysia": "latest",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.31.10"
+  },
+  "overrides": {
+    "@sinclair/typebox": "^0.34.0"
+  },
+  "module": "src/index.js"
+}
