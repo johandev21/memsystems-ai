@@ -23,9 +23,7 @@ function ScrollArea({
 			>
 				{children}
 			</ScrollAreaPrimitive.Viewport>
-			{(orientation === "vertical" || orientation === "both") && (
-				<ScrollBar />
-			)}
+			{(orientation === "vertical" || orientation === "both") && <ScrollBar />}
 			{(orientation === "horizontal" || orientation === "both") && (
 				<ScrollBar orientation="horizontal" />
 			)}

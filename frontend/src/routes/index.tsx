@@ -1,10 +1,10 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
-import { authClient } from "#/lib/auth-client";
+import { getSessionFn } from "#/lib/session";
 
 export const Route = createFileRoute("/")({
 	beforeLoad: async () => {
-		const { data: session } = await authClient.getSession();
+		const session = await getSessionFn();
 
 		if (session) {
 			throw redirect({ to: "/home" });

@@ -1,7 +1,4 @@
-import {
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,38 +9,38 @@ import { ExpandedStudyMaterials } from "./expanded-study-materials";
 import { StudyMaterialsTree, fileTreeData } from "./study-materials-tree";
 
 export function StudyMaterialsPanel() {
-  const [isExpanded, setIsExpanded] = useState(true);
+	const [isExpanded, setIsExpanded] = useState(true);
 
-  return (
-    <Card className="mx-auto rounded-xl w-full gap-2 flex flex-col" size="sm">
-      <div className="flex items-center justify-between px-3">
-        <span className="font-medium text-sm">Study Materials</span>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronUp className="h-4 w-4" />
-            )}
-          </Button>
-          <ExpandedStudyMaterials />
-        </div>
-      </div>
-      {isExpanded && (
-        <>
-          <Separator />
-          <ScrollArea orientation="both" className="h-[250px] w-full pr-3">
-            <CardContent className="pb-2">
-              <StudyMaterialsTree items={fileTreeData} />
-            </CardContent>
-          </ScrollArea>
-        </>
-      )}
-    </Card>
-  );
+	return (
+		<Card className="mx-auto rounded-xl w-full gap-2 flex flex-col" size="sm">
+			<div className="flex items-center justify-between px-3">
+				<span className="font-medium text-sm">Study Materials</span>
+				<div className="flex items-center gap-1">
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-6 w-6"
+						onClick={() => setIsExpanded(!isExpanded)}
+					>
+						{isExpanded ? (
+							<ChevronDown className="h-4 w-4" />
+						) : (
+							<ChevronUp className="h-4 w-4" />
+						)}
+					</Button>
+					<ExpandedStudyMaterials />
+				</div>
+			</div>
+			{isExpanded && (
+				<>
+					<Separator />
+					<ScrollArea orientation="both" className="h-[250px] w-full pr-3">
+						<CardContent className="pb-2">
+							<StudyMaterialsTree items={fileTreeData} />
+						</CardContent>
+					</ScrollArea>
+				</>
+			)}
+		</Card>
+	);
 }

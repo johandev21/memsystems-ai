@@ -1,12 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Atom, Brain, Clock, Globe, Languages } from "lucide-react";
 import { ActivityCalendar } from "#/components/home/activity-calendar";
 import { NotebookCard } from "#/components/home/notebook-card";
 import { SectionHeader } from "#/components/home/section-header";
 import { StatCard } from "#/components/home/stat-card";
 import { AppHeader } from "#/components/layout/app-header";
+import { getSessionFn } from "#/lib/session";
 
 export const Route = createFileRoute("/home/")({
+	beforeLoad: async () => {
+		const session = await getSessionFn();
+
+		if (!session) {
+			throw redirect({ to: "/login" });
+		}
+	},
 	component: HomePage,
 });
 
