@@ -11,3 +11,11 @@
 # @tanstack/virtual-file-routes(1): virtual-file-routes
 # dotenv(2): dotenv, dotenvx
 <!-- intent-skills:end -->
+
+## Frontend Context
+
+- **Working Directory**: Use `frontend/` as the working directory for UI work.
+- **Commands**: `bun install`, `bun run dev`, `bun run build`, `bun run preview`, `bun run test`, `bun run lint`, `bun run format`, `bun run check`.
+- **Generated Code**: `frontend/src/routeTree.gen.ts` is generated. Do not edit it by hand.
+- **Architecture**: `frontend/src/routes/__root.tsx` owns the app shell, theme bootstrap, and devtools.
+- **Tooling**: Biome is the formatter and linter; the config uses tabs and double quotes.

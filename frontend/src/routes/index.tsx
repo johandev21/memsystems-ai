@@ -1,16 +1,33 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
+import { authClient } from "#/lib/auth-client";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+	beforeLoad: async () => {
+		const { data: session } = await authClient.getSession();
 
-function Home() {
+		if (session) {
+			throw redirect({ to: "/home" });
+		}
+	},
+	component: LandingPage,
+});
+
+function LandingPage() {
 	return (
-		<div className="p-8">
-			<h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-			<p className="mt-4 text-lg">
-				Edit <code>src/routes/index.tsx</code> to get started.
-			</p>
-			<Button>Click here</Button>
+		<div className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
+			<div className="max-w-md text-center">
+				<h1 className="mb-4 font-heading text-5xl font-bold tracking-tight">
+					memsystems
+				</h1>
+				<p className="mb-8 text-lg text-muted-foreground">
+					AI-powered study notebooks that help you learn faster with spaced
+					repetition and intelligent assistance.
+				</p>
+				<Button asChild size="lg">
+					<Link to="/login">Get Started</Link>
+				</Button>
+			</div>
 		</div>
 	);
 }

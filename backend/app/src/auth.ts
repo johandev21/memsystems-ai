@@ -7,8 +7,16 @@ export const auth = betterAuth({
     database: drizzleAdapter(db, {
         provider: "pg",
     }),
-    basePath: "/api",
-    emailAndPassword: {
-        enabled: true,
+    baseURL: process.env.BETTER_AUTH_URL,
+    trustedOrigins: ["http://localhost:3000"],
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
+    },
+    session: {
+        expiresIn: 60 * 60 * 24 * 7,
+        updateAge: 60 * 60 * 24,
     },
 });

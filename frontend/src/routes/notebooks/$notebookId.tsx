@@ -9,15 +9,16 @@ import {
 import { useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
+import { AppHeader } from "#/components/layout/app-header";
 import { Button } from "#/components/ui/button";
 import { ResizablePanel, ResizablePanelGroup } from "#/components/ui/resizable";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
-import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
-import { StudioResources } from "#/features/notebook/components/studio-resources";
+import { AddSourceDialog } from "#/features/notebook/components/add-source-dialog";
 import { ChatEmptyState } from "#/features/notebook/components/chat-empty-state";
 import { SourcesPanel } from "#/features/notebook/components/sources-panel";
-import { AddSourceDialog } from "#/features/notebook/components/add-source-dialog";
+import { StudioResources } from "#/features/notebook/components/studio-resources";
+import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
   component: RouteComponent,
@@ -38,16 +39,19 @@ function RouteComponent() {
   };
 
   return (
-    <div className="h-[calc(100vh-32px)] m-4 scrollbar-none">
-      <DesktopLayout
-        sourcesRef={sourcesRef}
-        studioRef={studioRef}
-        sourcesCollapsed={sourcesCollapsed}
-        studioCollapsed={studioCollapsed}
-        onSyncSources={syncSources}
-        onSyncStudio={syncStudio}
-      />
-      <MobileTabletLayout />
+    <div className="flex h-screen flex-col">
+      <AppHeader />
+      <div className="flex-1 m-4 scrollbar-none overflow-hidden">
+        <DesktopLayout
+          sourcesRef={sourcesRef}
+          studioRef={studioRef}
+          sourcesCollapsed={sourcesCollapsed}
+          studioCollapsed={studioCollapsed}
+          onSyncSources={syncSources}
+          onSyncStudio={syncStudio}
+        />
+        <MobileTabletLayout />
+      </div>
     </div>
   );
 }
