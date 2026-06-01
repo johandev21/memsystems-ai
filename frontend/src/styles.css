@@ -1,10 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/merriweather";
 @import "@fontsource-variable/jetbrains-mono";
 @import "./styles/custom-theme.css";
+@import "./features/notebook/notebook.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

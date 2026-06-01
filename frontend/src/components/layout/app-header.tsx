@@ -1,5 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
 import { Button } from "#/components/ui/button";
 import {
@@ -12,23 +14,58 @@ import {
 } from "#/components/ui/dropdown-menu";
 import { authClient } from "#/lib/auth-client";
 
-export function AppHeader() {
+const TRIGGER_ZONE_HEIGHT = 20;
+
+export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
 	const user = session?.user;
+	const [isMouseNear, setIsMouseNear] = useState(!autoHide);
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const isVisible = isMouseNear || dropdownOpen;
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!autoHide) return;
+
+		const handleMouseMove = (e: MouseEvent) => {
+			const containerRect = containerRef.current?.getBoundingClientRect();
+			const containerTop = containerRect?.top ?? 0;
+			const isInTriggerZone = e.clientY - containerTop < TRIGGER_ZONE_HEIGHT;
+			const isInHeader =
+				containerRect &&
+				e.clientY >= containerRect.top &&
+				e.clientY <= containerRect.bottom &&
+				e.clientX >= containerRect.left &&
+				e.clientX <= containerRect.right;
+
+			setIsMouseNear(isInTriggerZone || isInHeader);
+		};
+
+		document.addEventListener("mousemove", handleMouseMove);
+		return () => {
+			document.removeEventListener("mousemove", handleMouseMove);
+		};
+	}, [autoHide]);
 
 	async function handleLogout() {
 		await authClient.signOut();
 		navigate({ to: "/" });
 	}
 
-	return (
-		<header className="flex items-center justify-between px-6 py-4">
+	const headerContent = (
+		<header
+			className={`flex items-center justify-between px-6 py-2 ${
+				autoHide
+					? "bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm"
+					: "bg-background border-b border-border"
+			}`}
+		>
 			<Button variant="ghost" size="icon" className="text-muted-foreground">
 				<Menu />
 				<span className="sr-only">Open menu</span>
 			</Button>
-			<DropdownMenu>
+			<DropdownMenu onOpenChange={setDropdownOpen}>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="icon" className="rounded-full">
 						<Avatar size="sm">
@@ -54,5 +91,24 @@ export function AppHeader() {
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</header>
+	);
+
+	if (!autoHide) return headerContent;
+
+	return (
+		<div ref={containerRef} className="absolute inset-x-0 top-0 z-50">
+			<AnimatePresence>
+				{isVisible && (
+					<motion.div
+						initial={{ y: "-100%" }}
+						animate={{ y: 0 }}
+						exit={{ y: "-100%" }}
+						transition={{ duration: 0.12, ease: "easeInOut" }}
+					>
+						{headerContent}
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</div>
 	);
 }

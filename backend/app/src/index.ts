@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { auth } from "./auth";
-import { aiRoutes } from "./ai";
+import { aiController } from "./features/ai/ai.controller";
 
 const betterAuth = new Elysia({ name: "better-auth" })
   .mount(auth.handler)
@@ -30,7 +30,7 @@ const app = new Elysia()
     }),
   )
   .use(betterAuth)
-  .use(aiRoutes)
+  .use(aiController)
   .listen(4000);
 
 console.log(
