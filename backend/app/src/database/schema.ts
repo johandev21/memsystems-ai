@@ -106,8 +106,10 @@ export const studyMaterials = pgTable(
 			.notNull()
 			.references(() => notebooks.id, { onDelete: "cascade" }),
 		kind: studyMaterialKindEnum("kind").notNull(),
+		title: varchar("title", { length: 200 }).notNull().default("Untitled"),
+		folderId: varchar("folder_id").references(() => studyMaterialFolders.id, { onDelete: "set null" }),
 		content: jsonb("content").notNull(),
-		originSimpleFlashcardId: varchar("origin_simple_flashcard_id"),
+		deletedAt: timestamp("deleted_at"),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
 			.defaultNow()
@@ -117,6 +119,34 @@ export const studyMaterials = pgTable(
 	(table) => [
 		index("study_materials_notebook_id_idx").on(table.notebookId),
 		index("study_materials_kind_idx").on(table.kind),
+		index("study_materials_title_idx").on(table.title),
+		index("study_materials_folder_id_idx").on(table.folderId),
+		index("study_materials_deleted_at_idx").on(table.deletedAt),
+	],
+);
+
+export const studyMaterialFolders = pgTable(
+	"study_material_folders",
+	{
+		id: varchar("id")
+			.$defaultFn(() => createId())
+			.primaryKey(),
+		notebookId: varchar("notebook_id")
+			.notNull()
+			.references(() => notebooks.id, { onDelete: "cascade" }),
+		parentId: varchar("parent_id").references((): any => studyMaterialFolders.id, { onDelete: "cascade" }),
+		name: varchar("name", { length: 200 }).notNull(),
+		deletedAt: timestamp("deleted_at"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	(table) => [
+		index("study_material_folders_notebook_id_idx").on(table.notebookId),
+		index("study_material_folders_parent_id_idx").on(table.parentId),
+		index("study_material_folders_deleted_at_idx").on(table.deletedAt),
 	],
 );
 
@@ -132,11 +162,15 @@ export const generationRequests = pgTable(
 		kind: studyMaterialKindEnum("kind").notNull(),
 		brief: text("brief").notNull().default(""),
 		sourceIds: jsonb("source_ids").$type<string[]>().notNull().default([]),
+		targetFolderId: varchar("target_folder_id").references(() => studyMaterialFolders.id, { onDelete: "set null" }),
 		status: generationStatusEnum("status").notNull().default("streaming"),
 		startedAt: timestamp("started_at").defaultNow().notNull(),
 		completedAt: timestamp("completed_at"),
 	},
-	(table) => [index("generation_requests_notebook_id_idx").on(table.notebookId)],
+	(table) => [
+		index("generation_requests_notebook_id_idx").on(table.notebookId),
+		index("generation_requests_target_folder_id_idx").on(table.targetFolderId),
+	],
 );
 
 export const notebookChatMessages = pgTable(
@@ -300,6 +334,7 @@ export const providerKeys = pgTable(
 export const notebooksRelations = relations(notebooks, ({ many }) => ({
 	sources: many(sources),
 	studyMaterials: many(studyMaterials),
+	studyMaterialFolders: many(studyMaterialFolders),
 	chatMessages: many(notebookChatMessages),
 	generationRequests: many(generationRequests),
 }));
@@ -316,7 +351,28 @@ export const studyMaterialsRelations = relations(studyMaterials, ({ one }) => ({
 		fields: [studyMaterials.notebookId],
 		references: [notebooks.id],
 	}),
+	folder: one(studyMaterialFolders, {
+		fields: [studyMaterials.folderId],
+		references: [studyMaterialFolders.id],
+	}),
 }));
+
+export const studyMaterialFoldersRelations = relations(
+	studyMaterialFolders,
+	({ one, many }) => ({
+		notebook: one(notebooks, {
+			fields: [studyMaterialFolders.notebookId],
+			references: [notebooks.id],
+		}),
+		parent: one(studyMaterialFolders, {
+			fields: [studyMaterialFolders.parentId],
+			references: [studyMaterialFolders.id],
+			relationName: "folderHierarchy",
+		}),
+		children: many(studyMaterialFolders, { relationName: "folderHierarchy" }),
+		studyMaterials: many(studyMaterials),
+	}),
+);
 
 export const generationRequestsRelations = relations(
 	generationRequests,
@@ -377,6 +433,7 @@ export const table = {
 	notebooks,
 	sources,
 	studyMaterials,
+	studyMaterialFolders,
 	generationRequests,
 	notebookChatMessages,
 	noteTypes,
