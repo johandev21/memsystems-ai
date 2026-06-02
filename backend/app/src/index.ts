@@ -3,6 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { betterAuth } from "./auth-plugin";
 import { aiController } from "./features/ai/ai.controller";
 import { devStorageController } from "./features/dev-storage/dev-storage.controller";
+import { generationModule } from "./features/generation";
 import { notebookController } from "./features/notebooks/notebook.controller";
 import { sourceController } from "./features/sources/source.controller";
 import { studyMaterialsModule } from "./features/study-materials";
@@ -23,7 +24,8 @@ const app = new Elysia()
 	.use(aiController)
 	.use(notebookController)
 	.use(sourceController)
-	.use(studyMaterialsModule);
+	.use(studyMaterialsModule)
+	.use(generationModule);
 if (isDev) app.use(devStorageController);
 app.listen(4000);
 
