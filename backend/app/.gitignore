@@ -42,3 +42,9 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
+
+# local development file storage (when S3 is not configured)
+/dev-storage
+
+# test fixtures generated on first run
+/tests/fixtures/
