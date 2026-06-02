@@ -22,20 +22,28 @@ Other kinds (YouTube, audio, images, Google Drive) are intentionally out of scop
 Uploaded files (PDF, MD, TXT, DOCX) live in S3-compatible object storage. MVP target: Cloudflare R2 in production, MinIO for local dev. The Postgres `sources` row holds the bucket key, content type, file size, checksum, and the extracted text.
 
 ### Study Material
-An artifact that lives inside a Notebook. Editable. AI generation is optional — Users can author Study Materials manually without using the Study Assistant.
+An artifact that lives inside a Notebook. Editable. AI generation is optional — Users can author Study Materials manually without using the Study Assistant. Every Study Material carries a User-visible title stored as a top-level column on the table; the per-kind body lives in the `content` JSONB column.
 
 The canonical kinds in MVP, taken from the Studio panel in the frontend:
-- **Quiz** — a multi-choice question with options and a correct answer.
-- **Simple Flashcard** — a question/answer pair.
-- **Report** — a long-form markdown document.
+- **Quiz** — a multi-choice Study Material containing an ordered list of questions. Each question has 4 options by default (range 2-6), exactly one correct answer, and a rationale on every option (why it is correct, or why it is wrong). Option positions are randomized at generation so the correct answer does not always appear at the same index.
+- **Simple Flashcard** — a front/back pair, both markdown. Promotion creates a Note in the Global SRS Pool.
+- **Report** — a long-form markdown document, structured as a summary plus an ordered list of sections (each with a heading and a markdown body).
 - **Roadmap** — an ordered learning plan.
-- **Slide Deck** — an ordered list of slides, each with title and body.
-- **Mind Map** — a graph of labeled nodes and edges.
+- **Slide Deck** — an ordered list of slides, each with a title, a markdown body, and optional speaker notes.
+- **Mind Map** — a graph of labeled nodes (optional color and stored x/y position) and directed-by-default edges (optional label). An optional `rootId` hints tree/radial layouts; absent, the graph is free-form.
 
-Each kind has its own storage shape inside the Study Material row. The Studio panel in the frontend is the source of truth for the kind list.
+The Studio panel in the frontend is the source of truth for the kind list. The Quiz kind is the only one that stores a per-option rationale; the other kinds are content-only.
+
+### Study Material Folder
+A User-created container inside a Notebook, used to organize Study Materials into a tree. Folders nest via self-reference; each Study Material has at most one parent folder (NULL = Notebook root). Folders are scoped to a single Notebook — no cross-Notebook sharing.
+_Avoid_: directory, group, collection
+
+### Trash
+A per-Notebook holding area for soft-deleted Study Materials and Folders. Items are recoverable for 30 days, after which a daily cron hard-deletes them. The trash is the only form of Undo for Study Material and Folder operations in MVP.
+_Avoid_: recycle bin, recently deleted
 
 ### Simple Flashcard
-A Study Material with a front/back structure. Has no review state and is not in any review queue. Exists only as static content inside its Notebook. Generic by design — produced by the Study Assistant or quickly typed by the User.
+A Study Material with a title and a front/back pair, both rendered as markdown. Has no review state and is not in any review queue. Exists only as static content inside its Notebook. Promotion from a Simple Flashcard creates a Note in the Global SRS Pool; the Simple Flashcard itself stays in its Notebook. Generic by design — produced by the Study Assistant or quickly typed by the User.
 
 ### Global SRS Pool
 A User's single, Notebook-agnostic collection of Notes. The study queue is one list of Cards aggregated from the Notes in this pool.
