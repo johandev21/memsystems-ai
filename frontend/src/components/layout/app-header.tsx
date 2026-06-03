@@ -32,12 +32,12 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 			const containerRect = containerRef.current?.getBoundingClientRect();
 			const containerTop = containerRect?.top ?? 0;
 			const isInTriggerZone = e.clientY - containerTop < TRIGGER_ZONE_HEIGHT;
-			const isInHeader =
+			const isInHeader = !!(
 				containerRect &&
 				e.clientY >= containerRect.top &&
 				e.clientY <= containerRect.bottom &&
 				e.clientX >= containerRect.left &&
-				e.clientX <= containerRect.right;
+				e.clientX <= containerRect.right);
 
 			setIsMouseNear(isInTriggerZone || isInHeader);
 		};
