@@ -11,6 +11,7 @@ import { studyMaterialsModule } from "./features/study-materials";
 import { startHardPurgeJob } from "./jobs/hard-purge-trash";
 import { requestContextPlugin } from "./lib/request-context";
 import { errorHandlerPlugin } from "./lib/error-handler";
+import { metricsPlugin } from "./lib/metrics";
 import { logger } from "./lib/logger";
 
 const isDev = process.env.NODE_ENV !== "production";
@@ -26,6 +27,7 @@ const app = new Elysia()
 	)
 	.use(betterAuth)
 	.use(requestContextPlugin)
+	.use(metricsPlugin)
 	.use(errorHandlerPlugin)
 	.use(aiController)
 	.use(providerKeyController)
