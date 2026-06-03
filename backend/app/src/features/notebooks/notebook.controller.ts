@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
+import { authMacro } from "../../auth-plugin";
 import { NotebookService } from "./notebook.service";
 
 const notebookService = new NotebookService();
@@ -16,15 +16,7 @@ const errorResponse = t.Object({
 });
 
 export const notebookController = new Elysia({ prefix: "/notebooks" })
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.get("/", ({ user }) => notebookService.list(user.id), {
 		auth: true,
 	})

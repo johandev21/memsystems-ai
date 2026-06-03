@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
+import { authMacro } from "../../auth-plugin";
 import { StudyMaterialFolderService } from "./study-material-folder.service";
 
 const folderService = new StudyMaterialFolderService();
@@ -18,15 +18,7 @@ const updateFolderBody = t.Object({
 });
 
 export const studyMaterialFolderController = new Elysia()
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.get(
 		"/notebooks/:id/folders",
 		({ user, params }) => folderService.list(user.id, params.id),

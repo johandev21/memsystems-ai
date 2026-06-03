@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
-import { logger } from "../../lib/logger";
+import { authMacro } from "../../auth-plugin";
 import { GenerationService } from "./generation.service";
 
 const generationService = new GenerationService();
@@ -27,37 +26,24 @@ const generateBody = t.Object({
 });
 
 export const generationController = new Elysia()
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.post(
 		"/notebooks/:id/generate",
 		async ({ user, params, body }) => {
-			try {
-				const { stream, requestId } = await generationService.generate(
-					user.id,
-					params.id,
-					{
-						...body,
-						kind: body.kind as any,
-					},
-				);
-				return new Response(stream, {
-					headers: {
-						"Content-Type": "application/x-ndjson",
-						"X-Request-Id": requestId,
-					},
-				});
-			} catch (err) {
-				logger.error("Generation failed", { error: err, notebookId: params.id });
-				throw err;
-			}
+			const { stream, requestId } = await generationService.generate(
+				user.id,
+				params.id,
+				{
+					...body,
+					kind: body.kind as any,
+				},
+			);
+			return new Response(stream, {
+				headers: {
+					"Content-Type": "application/x-ndjson",
+					"X-Request-Id": requestId,
+				},
+			});
 		},
 		{ auth: true, params: notebookIdParams, body: generateBody },
 	)

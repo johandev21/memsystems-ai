@@ -1,7 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
-import { DomainError } from "../../errors";
-import { logger } from "../../lib/logger";
+import { authMacro } from "../../auth-plugin";
 import { AiService } from "./ai.service";
 import { PROVIDER_CATALOG } from "./provider-catalog";
 
@@ -10,15 +8,7 @@ const aiService = new AiService();
 const validProviderIds = PROVIDER_CATALOG.map((p) => p.id) as [string, ...string[]];
 
 export const aiController = new Elysia({ prefix: "/ai" })
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.get("/providers", () => PROVIDER_CATALOG, {
 		auth: true,
 	})
@@ -38,20 +28,12 @@ export const aiController = new Elysia({ prefix: "/ai" })
 	.post(
 		"/chat",
 		async ({ body }) => {
-			try {
-				const result = await aiService.generateStream(
-					body.provider,
-					body.model,
-					body.messages,
-				);
-				return result.toUIMessageStreamResponse();
-			} catch (err) {
-				logger.error("AI chat generation failed", { error: err, provider: body.provider, model: body.model });
-				if (err instanceof DomainError) throw err;
-				return new Response("Something went wrong. Please try again.", {
-					status: 500,
-				});
-			}
+			const result = await aiService.generateStream(
+				body.provider,
+				body.model,
+				body.messages,
+			);
+			return result.toUIMessageStreamResponse();
 		},
 		{
 			auth: true,

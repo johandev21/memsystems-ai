@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
+import { authMacro } from "../../auth-plugin";
 import { StudyMaterialService } from "./study-material.service";
 
 const studyMaterialService = new StudyMaterialService();
@@ -38,15 +38,7 @@ const listQuery = t.Object({
 });
 
 export const studyMaterialController = new Elysia()
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.get(
 		"/notebooks/:id/study-materials",
 		({ user, params, query }) =>

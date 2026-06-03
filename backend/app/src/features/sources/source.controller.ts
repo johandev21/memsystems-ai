@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
+import { authMacro } from "../../auth-plugin";
 import { SourceService } from "./source.service";
 
 const sourceService = new SourceService();
@@ -33,15 +33,7 @@ const downloadResponse = t.Object({
 });
 
 export const sourceController = new Elysia()
-  .macro({
-    auth: {
-      async resolve({ status, request: { headers } }) {
-        const session = await auth.api.getSession({ headers });
-        if (!session) return status(401);
-        return { user: session.user, session: session.session };
-      },
-    },
-  })
+  .use(authMacro)
   .get("/notebooks/:id/sources", ({ user, params }) =>
     sourceService.list(user.id, params.id), {
     auth: true,

@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
-import { auth } from "../../auth";
-import { logger } from "../../lib/logger";
+import { authMacro } from "../../auth-plugin";
 import { NotebookChatService } from "./notebook-chat.service";
 
 const chatService = new NotebookChatService();
@@ -14,15 +13,7 @@ const chatBody = t.Object({
 });
 
 export const notebookChatController = new Elysia()
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session) return status(401);
-				return { user: session.user, session: session.session };
-			},
-		},
-	})
+	.use(authMacro)
 	.get(
 		"/notebooks/:id/chat",
 		async ({ user, params }) => {
@@ -33,17 +24,12 @@ export const notebookChatController = new Elysia()
 	.post(
 		"/notebooks/:id/chat",
 		async ({ user, params, body }) => {
-			try {
-				const { stream } = await chatService.sendMessage(
-					user.id,
-					params.id,
-					body,
-				);
-				return stream;
-			} catch (err) {
-				logger.error("Notebook chat failed", { error: err, notebookId: params.id });
-				throw err;
-			}
+			const { stream } = await chatService.sendMessage(
+				user.id,
+				params.id,
+				body,
+			);
+			return stream;
 		},
 		{ auth: true, params: notebookIdParams, body: chatBody },
 	);
