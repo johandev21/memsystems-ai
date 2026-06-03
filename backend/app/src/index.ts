@@ -8,6 +8,7 @@ import { notebookChatController } from "./features/notebook-chat/notebook-chat.c
 import { notebookController } from "./features/notebooks/notebook.controller";
 import { sourceController } from "./features/sources/source.controller";
 import { studyMaterialsModule } from "./features/study-materials";
+import { srsModule } from "./features/srs";
 import { startHardPurgeJob } from "./jobs/hard-purge-trash";
 import { requestContextPlugin } from "./lib/request-context";
 import { errorHandlerPlugin } from "./lib/error-handler";
@@ -34,6 +35,7 @@ const app = new Elysia()
 	.use(notebookController)
 	.use(sourceController)
 	.use(studyMaterialsModule)
+	.use(srsModule)
 	.use(generationModule)
 	.use(notebookChatController);
 if (isDev) app.use(devStorageController);
