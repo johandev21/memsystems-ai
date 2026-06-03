@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
 import { TrashService } from "./trash.service";
 
 const trashService = new TrashService();
@@ -18,12 +17,6 @@ export const trashController = new Elysia()
 				return { user: session.user, session: session.session };
 			},
 		},
-	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
 	})
 	.get(
 		"/notebooks/:id/trash",

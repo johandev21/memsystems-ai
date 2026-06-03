@@ -1,6 +1,8 @@
 import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 
+import { BadRequestError } from "../../errors";
+
 export type SupportedFileKind = "pdf" | "markdown" | "txt" | "docx";
 
 export interface ExtractionResult {
@@ -38,7 +40,7 @@ export function classifyFile(
     if (lower.endsWith(".docx")) return "docx";
   }
 
-  throw new Error(`Unsupported file type: ${contentType || "unknown"}`);
+  throw new BadRequestError(`Unsupported file type: ${contentType || "unknown"}`);
 }
 
 export function isSupportedFile(

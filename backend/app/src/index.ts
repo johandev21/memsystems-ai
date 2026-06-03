@@ -9,6 +9,9 @@ import { notebookController } from "./features/notebooks/notebook.controller";
 import { sourceController } from "./features/sources/source.controller";
 import { studyMaterialsModule } from "./features/study-materials";
 import { startHardPurgeJob } from "./jobs/hard-purge-trash";
+import { requestContextPlugin } from "./lib/request-context";
+import { errorHandlerPlugin } from "./lib/error-handler";
+import { logger } from "./lib/logger";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -22,6 +25,8 @@ const app = new Elysia()
 		}),
 	)
 	.use(betterAuth)
+	.use(requestContextPlugin)
+	.use(errorHandlerPlugin)
 	.use(aiController)
 	.use(providerKeyController)
 	.use(notebookController)
@@ -34,6 +39,7 @@ app.listen(4000);
 
 startHardPurgeJob();
 
-console.log(
-	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+logger.info("Elysia server started", {
+	hostname: app.server?.hostname,
+	port: app.server?.port,
+});

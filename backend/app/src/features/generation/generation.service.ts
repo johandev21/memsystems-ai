@@ -7,6 +7,7 @@ import {
 	studyMaterials,
 } from "../../database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../errors";
+import { logger } from "../../lib/logger";
 import {
 	validateContent,
 	type StudyMaterialKind,
@@ -128,7 +129,7 @@ export class GenerationService {
 					);
 					controller.close();
 				} catch (error) {
-					console.error("[GenerationService] Error:", error);
+					logger.error("Generation stream failed", { error, requestId: request.id });
 					await db
 						.update(generationRequests)
 						.set({ status: "failed" })

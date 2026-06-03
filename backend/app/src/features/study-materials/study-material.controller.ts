@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
 import { StudyMaterialService } from "./study-material.service";
 
 const studyMaterialService = new StudyMaterialService();
@@ -47,12 +46,6 @@ export const studyMaterialController = new Elysia()
 				return { user: session.user, session: session.session };
 			},
 		},
-	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
 	})
 	.get(
 		"/notebooks/:id/study-materials",

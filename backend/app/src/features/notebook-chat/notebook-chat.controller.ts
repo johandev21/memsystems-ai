@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
+import { logger } from "../../lib/logger";
 import { NotebookChatService } from "./notebook-chat.service";
 
 const chatService = new NotebookChatService();
@@ -23,12 +23,6 @@ export const notebookChatController = new Elysia()
 			},
 		},
 	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
-	})
 	.get(
 		"/notebooks/:id/chat",
 		async ({ user, params }) => {
@@ -47,7 +41,7 @@ export const notebookChatController = new Elysia()
 				);
 				return stream;
 			} catch (err) {
-				console.error("[NotebookChatController] Error:", err);
+				logger.error("Notebook chat failed", { error: err, notebookId: params.id });
 				throw err;
 			}
 		},

@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
 import { ProviderKeyService } from "./provider-key.service";
 import { PROVIDER_CATALOG } from "./provider-catalog";
 
@@ -17,12 +16,6 @@ export const providerKeyController = new Elysia({ prefix: "/provider-keys" })
 				return { user: session.user, session: session.session };
 			},
 		},
-	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
 	})
 	.get("/", ({ user }) => providerKeyService.list(user.id), {
 		auth: true,

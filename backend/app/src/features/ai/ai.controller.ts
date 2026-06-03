@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
 import { DomainError } from "../../errors";
+import { logger } from "../../lib/logger";
 import { AiService } from "./ai.service";
 import { PROVIDER_CATALOG } from "./provider-catalog";
 
@@ -17,12 +18,6 @@ export const aiController = new Elysia({ prefix: "/ai" })
 				return { user: session.user, session: session.session };
 			},
 		},
-	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
 	})
 	.get("/providers", () => PROVIDER_CATALOG, {
 		auth: true,
@@ -51,7 +46,7 @@ export const aiController = new Elysia({ prefix: "/ai" })
 				);
 				return result.toUIMessageStreamResponse();
 			} catch (err) {
-				console.error("[AiController] generate error:", err);
+				logger.error("AI chat generation failed", { error: err, provider: body.provider, model: body.model });
 				if (err instanceof DomainError) throw err;
 				return new Response("Something went wrong. Please try again.", {
 					status: 500,

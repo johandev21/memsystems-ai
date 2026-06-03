@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
+import { logger } from "../../lib/logger";
 import { GenerationService } from "./generation.service";
 
 const generationService = new GenerationService();
@@ -36,12 +36,6 @@ export const generationController = new Elysia()
 			},
 		},
 	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
-	})
 	.post(
 		"/notebooks/:id/generate",
 		async ({ user, params, body }) => {
@@ -61,7 +55,7 @@ export const generationController = new Elysia()
 					},
 				});
 			} catch (err) {
-				console.error("[GenerationController] Error:", err);
+				logger.error("Generation failed", { error: err, notebookId: params.id });
 				throw err;
 			}
 		},

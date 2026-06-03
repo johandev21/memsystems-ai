@@ -4,21 +4,28 @@ import {
 	studyMaterialFolders,
 	studyMaterials,
 } from "../database/schema";
+import { logger } from "../lib/logger";
+
+const jobLog = logger.child({ feature: "hard-purge-trash" });
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function hardPurgeTrash() {
 	const cutoff = new Date(Date.now() - THIRTY_DAYS_MS);
 
-	await db
-		.delete(studyMaterials)
-		.where(sql`${studyMaterials.deletedAt} < ${cutoff}`);
+	try {
+		await db
+			.delete(studyMaterials)
+			.where(sql`${studyMaterials.deletedAt} < ${cutoff}`);
 
-	await db
-		.delete(studyMaterialFolders)
-		.where(sql`${studyMaterialFolders.deletedAt} < ${cutoff}`);
+		await db
+			.delete(studyMaterialFolders)
+			.where(sql`${studyMaterialFolders.deletedAt} < ${cutoff}`);
 
-	console.log(`[hard-purge-trash] Purged items older than ${cutoff.toISOString()}`);
+		jobLog.info("Purged old trashed items", { cutoff: cutoff.toISOString() });
+	} catch (error) {
+		jobLog.error("Failed to purge trashed items", { error, cutoff: cutoff.toISOString() });
+	}
 }
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -26,7 +33,7 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 export function startHardPurgeJob() {
 	if (intervalId) return;
 	intervalId = setInterval(hardPurgeTrash, 24 * 60 * 60 * 1000);
-	console.log("[hard-purge-trash] Job registered (runs every 24h)");
+	jobLog.info("Hard-purge job registered (runs every 24h)");
 }
 
 export function stopHardPurgeJob() {

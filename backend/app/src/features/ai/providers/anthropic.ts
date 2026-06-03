@@ -1,5 +1,6 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import type { LanguageModel } from "ai";
+import { BadRequestError } from "../../../errors";
 import { getModelInProvider } from "../provider-catalog";
 import type { ProviderModel } from "../provider-catalog";
 
@@ -9,7 +10,7 @@ export function createModel(
 ): LanguageModel {
 	const resolved = getModelInProvider("anthropic", modelId);
 	if (!resolved) {
-		throw new Error(`Unknown Anthropic model: ${modelId}`);
+		throw new BadRequestError(`Unknown Anthropic model: ${modelId}`);
 	}
 	const provider = createAnthropic({
 		apiKey: apiKey ?? process.env.PROVIDER_ANTHROPIC_API_KEY,

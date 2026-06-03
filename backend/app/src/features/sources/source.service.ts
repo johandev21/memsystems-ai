@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { db } from "../../database/connection";
 import { notebooks, sources } from "../../database/schema";
-import { ForbiddenError, NotFoundError } from "../../errors";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../../errors";
 import {
   deleteObject,
   presignDownload,
@@ -63,7 +63,7 @@ export class SourceService {
       throw new NotFoundError("rawText (must be non-empty)");
     }
     if (Buffer.byteLength(rawText, "utf8") > MAX_RAW_TEXT_BYTES) {
-      throw new Error(
+      throw new BadRequestError(
         `rawText exceeds maximum size of ${MAX_RAW_TEXT_BYTES} bytes`,
       );
     }
@@ -86,14 +86,7 @@ export class SourceService {
   ) {
     await this.assertNotebookOwner(userId, notebookId);
     let scraped;
-    try {
-      scraped = await scrapeUrl(input.url);
-    } catch (err) {
-      if (err instanceof WebScrapeError) {
-        throw new Error(`Failed to scrape URL: ${err.message}`);
-      }
-      throw err;
-    }
+    scraped = await scrapeUrl(input.url);
     const title = (input.title?.trim() || scraped.title).slice(0, 500);
     const [row] = await db
       .insert(sources)
@@ -116,13 +109,13 @@ export class SourceService {
     await this.assertNotebookOwner(userId, notebookId);
     const { file } = input;
     if (file.size === 0) {
-      throw new Error("Uploaded file is empty");
+      throw new BadRequestError("Uploaded file is empty");
     }
     if (file.size > MAX_FILE_BYTES) {
-      throw new Error(`File exceeds maximum size of ${MAX_FILE_BYTES} bytes`);
+      throw new BadRequestError(`File exceeds maximum size of ${MAX_FILE_BYTES} bytes`);
     }
     if (!isSupportedFile(file.type, file.name)) {
-      throw new Error(
+      throw new BadRequestError(
         `Unsupported file type: ${file.type || "unknown"} (${file.name})`,
       );
     }
@@ -183,7 +176,7 @@ export class SourceService {
   ): Promise<DownloadInfo> {
     const source = await this.fetchOwned(userId, id);
     if (source.kind !== "file" || !source.s3Key) {
-      throw new Error("Source has no downloadable file");
+      throw new BadRequestError("Source has no downloadable file");
     }
     const url = await presignDownload(
       source.s3Key,

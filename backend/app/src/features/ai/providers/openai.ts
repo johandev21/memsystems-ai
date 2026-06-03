@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import type { LanguageModel } from "ai";
+import { BadRequestError } from "../../../errors";
 import { getModelInProvider } from "../provider-catalog";
 import type { ProviderModel } from "../provider-catalog";
 
@@ -9,7 +10,7 @@ export function createModel(
 ): LanguageModel {
 	const resolved = getModelInProvider("openai", modelId);
 	if (!resolved) {
-		throw new Error(`Unknown OpenAI model: ${modelId}`);
+		throw new BadRequestError(`Unknown OpenAI model: ${modelId}`);
 	}
 	const provider = createOpenAI({
 		apiKey: apiKey ?? process.env.PROVIDER_OPENAI_API_KEY,

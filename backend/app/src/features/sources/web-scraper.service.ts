@@ -10,7 +10,9 @@ export interface ScrapedPage {
   lang?: string;
 }
 
-export class WebScrapeError extends Error {
+import { BadRequestError } from "../../errors";
+
+export class WebScrapeError extends BadRequestError {
   constructor(
     message: string,
     public readonly code:

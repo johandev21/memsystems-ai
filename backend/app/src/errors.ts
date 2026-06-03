@@ -1,11 +1,30 @@
+export type DomainErrorOptions = {
+	cause?: Error;
+	internalMessage?: string;
+};
+
 export class DomainError extends Error {
+	public readonly internalMessage?: string;
+
 	constructor(
 		message: string,
 		public readonly status: number,
 		public readonly code: string,
+		options?: DomainErrorOptions,
 	) {
-		super(message);
+		super(message, { cause: options?.cause });
 		this.name = "DomainError";
+		this.internalMessage = options?.internalMessage;
+	}
+}
+
+export class InternalError extends DomainError {
+	constructor(
+		message = "Internal server error",
+		options?: DomainErrorOptions,
+	) {
+		super(message, 500, "internal_error", options);
+		this.name = "InternalError";
 	}
 }
 

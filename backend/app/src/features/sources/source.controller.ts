@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
 import { SourceService } from "./source.service";
 
 const sourceService = new SourceService();
@@ -42,12 +41,6 @@ export const sourceController = new Elysia()
         return { user: session.user, session: session.session };
       },
     },
-  })
-  .onError(({ error, set }) => {
-    if (error instanceof DomainError) {
-      set.status = error.status;
-      return { error: error.message, code: error.code };
-    }
   })
   .get("/notebooks/:id/sources", ({ user, params }) =>
     sourceService.list(user.id, params.id), {

@@ -1,6 +1,5 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../auth";
-import { DomainError } from "../../errors";
 import { NotebookService } from "./notebook.service";
 
 const notebookService = new NotebookService();
@@ -25,12 +24,6 @@ export const notebookController = new Elysia({ prefix: "/notebooks" })
 				return { user: session.user, session: session.session };
 			},
 		},
-	})
-	.onError(({ error, set }) => {
-		if (error instanceof DomainError) {
-			set.status = error.status;
-			return { error: error.message, code: error.code };
-		}
 	})
 	.get("/", ({ user }) => notebookService.list(user.id), {
 		auth: true,
