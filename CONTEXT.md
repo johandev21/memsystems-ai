@@ -94,7 +94,7 @@ A persistent, per-Notebook conversation with the Study Assistant. The Assistant 
 The AI module that generates Study Materials, answers questions via chat, and powers the Notebook workspace. Uses either (a) platform-supplied model access or (b) the User's Provider Key. Accessible only to authenticated Users.
 
 ### Provider
-An external LLM service the User can connect to. MVP supports: **OpenAI, Anthropic, Google (Gemini), Deepseek, MiniMax, Qwen**. Each Provider has a fixed menu of models.
+An external LLM service the User can connect to. MVP supports: **OpenAI, Anthropic, Google (Gemini), DeepSeek**. Each Provider has a fixed menu of models.
 
 ### Provider Key
 A User-supplied API key for an external Provider. Stored encrypted at rest, scoped to a single User. Opt-in: Users can run the Study Assistant without any Provider Key using platform-supplied access.

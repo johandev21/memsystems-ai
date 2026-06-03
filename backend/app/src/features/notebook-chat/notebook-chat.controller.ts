@@ -10,6 +10,7 @@ const notebookIdParams = t.Object({ id: t.String() });
 const chatBody = t.Object({
 	content: t.String({ minLength: 1 }),
 	model: t.String(),
+	provider: t.Optional(t.String()),
 });
 
 export const notebookChatController = new Elysia()

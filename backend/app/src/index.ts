@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { betterAuth } from "./auth-plugin";
-import { aiController } from "./features/ai/ai.controller";
+import { aiController, providerKeyController } from "./features/ai";
 import { devStorageController } from "./features/dev-storage/dev-storage.controller";
 import { generationModule } from "./features/generation";
 import { notebookChatController } from "./features/notebook-chat/notebook-chat.controller";
@@ -23,6 +23,7 @@ const app = new Elysia()
 	)
 	.use(betterAuth)
 	.use(aiController)
+	.use(providerKeyController)
 	.use(notebookController)
 	.use(sourceController)
 	.use(studyMaterialsModule)

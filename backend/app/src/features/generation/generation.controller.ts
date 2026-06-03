@@ -22,6 +22,8 @@ const generateBody = t.Object({
 	brief: t.String(),
 	sourceIds: t.Array(t.String(), { minItems: 1 }),
 	folderId: t.Optional(t.String()),
+	provider: t.Optional(t.String()),
+	model: t.Optional(t.String()),
 });
 
 export const generationController = new Elysia()

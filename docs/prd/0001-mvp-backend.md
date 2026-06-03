@@ -17,7 +17,7 @@ The backend is partially built. Notebooks (PRD module 1) and Sources (PRD module
 
 ## Solution
 
-Build the full MVP backend. Ship all six Study Material kinds, the AI generation flow, Source-grounded chat, and the global SRS pool with Note Types, Notes, Cards, and SM-2. AI is optional at every level — Users can author materials manually. AI access is BYOK with a platform fallback across six Providers: **OpenAI, Anthropic, Google, Deepseek, MiniMax, Qwen**.
+Build the full MVP backend. Ship all six Study Material kinds, the AI generation flow, Source-grounded chat, and the global SRS pool with Note Types, Notes, Cards, and SM-2. AI is optional at every level — Users can author materials manually. AI access is BYOK with a platform fallback across four Providers: **OpenAI, Anthropic, Google, DeepSeek**.
 
 The backend uses a feature-based Controller-Service architecture with Drizzle ORM and Postgres. Storage: Cloudflare R2 in production, MinIO for local dev. Provider Keys are encrypted at rest. AI generation and chat use synchronous streaming with the Vercel AI SDK.
 
@@ -163,7 +163,7 @@ Study Materials are organized into a per-Notebook tree of **Folders** and protec
    - `tag.service` — Tag CRUD and the note_tag join.
 7. **ai (refactor of existing)** — Multi-provider support.
    - `ai.service` — Refactored to be provider-agnostic. Takes a Provider, model, and messages.
-   - `providers/{openai,anthropic,google,deepseek,minimax,qwen}.ts` — One file per Provider. Each exposes `stream()` and `listModels()`.
+   - `providers/{openai,anthropic,google,deepseek}.ts` — One file per Provider. Each exposes `stream()` and `listModels()`.
    - `provider-key.service` — User Provider Key CRUD. Encryption at rest using AES-256-GCM.
    - `provider-key.controller` — REST endpoints for the User to add/list/delete keys.
    - `provider-catalog` — Server-defined menu of Providers and their models.
@@ -233,7 +233,7 @@ The six Study Material kinds and their JSONB bodies are fully specified in PRD-0
 ### Provider architecture
 
 - A `Provider` interface exposes `stream()` and `listModels()`.
-- Each Provider implementation maps to a Vercel AI SDK provider. MiniMax and Qwen use the OpenAI SDK with custom base URLs.
+- Each Provider implementation maps to a Vercel AI SDK provider. Platform keys are stored server-side and used when the User has no key for the chosen Provider.
 - The `provider-catalog` lists all Providers and their models. Platform keys are stored server-side and used when the User has no key for the chosen Provider.
 
 ### Encryption

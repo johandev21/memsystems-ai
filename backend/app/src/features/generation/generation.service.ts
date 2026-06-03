@@ -1,5 +1,4 @@
 import { streamText, Output } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../database/connection";
 import {
@@ -13,6 +12,11 @@ import {
 	type StudyMaterialKind,
 } from "../study-materials/shapes";
 import { getPromptTemplate } from "./prompts";
+import { AiService } from "../ai/ai.service";
+import { ProviderKeyService } from "../ai/provider-key.service";
+
+const aiService = new AiService();
+const providerKeyService = new ProviderKeyService();
 
 const MODELS_BY_KIND: Record<StudyMaterialKind, string> = {
 	quiz: "gpt-4.1-mini",
@@ -28,6 +32,8 @@ export interface GenerateInput {
 	brief: string;
 	sourceIds: string[];
 	folderId?: string;
+	provider?: string;
+	model?: string;
 }
 
 export class GenerationService {
@@ -63,8 +69,16 @@ export class GenerationService {
 			.returning();
 
 		const template = getPromptTemplate(input.kind);
-		const modelId = MODELS_BY_KIND[input.kind];
-		const model = openai(modelId);
+		const providerId = input.provider ?? "openai";
+		const modelId =
+			input.model ?? MODELS_BY_KIND[input.kind];
+
+		const userKey = await providerKeyService.getDecryptedKey(
+			userId,
+			providerId,
+		);
+
+		const model = aiService.createModel(providerId, modelId, userKey ?? undefined);
 
 		const systemPrompt = template.system;
 		const userPrompt = template.user(input.brief, truncatedSources);

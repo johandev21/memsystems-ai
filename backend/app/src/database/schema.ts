@@ -48,8 +48,6 @@ export const providerEnum = pgEnum("provider", [
 	"anthropic",
 	"google",
 	"deepseek",
-	"minimax",
-	"qwen",
 ]);
 
 export const notebooks = pgTable(

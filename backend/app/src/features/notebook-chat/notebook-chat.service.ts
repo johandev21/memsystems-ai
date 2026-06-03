@@ -1,9 +1,13 @@
 import { streamText } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { asc, eq } from "drizzle-orm";
 import { db } from "../../database/connection";
 import { notebooks, notebookChatMessages, sources } from "../../database/schema";
 import { ForbiddenError, NotFoundError } from "../../errors";
+import { AiService } from "../ai/ai.service";
+import { ProviderKeyService } from "../ai/provider-key.service";
+
+const aiService = new AiService();
+const providerKeyService = new ProviderKeyService();
 
 const SYSTEM_PROMPT_TEMPLATE = `You are a study assistant. Answer the user's question using ONLY the provided source materials. If the answer is not found in the sources, say "I don't have enough information from the provided sources to answer that question."
 
@@ -24,6 +28,7 @@ export interface ChatMessage {
 export interface SendInput {
 	content: string;
 	model: string;
+	provider?: string;
 }
 
 export class NotebookChatService {
@@ -73,7 +78,15 @@ export class NotebookChatService {
 		const allHistory = await this.getRecentHistory(notebookId, 20);
 		const history = allHistory.filter((m) => m.id !== userMessage.id);
 
-		const model = openai(input.model);
+		const providerId = input.provider ?? "openai";
+		const modelId = input.model;
+
+		const userKey = await providerKeyService.getDecryptedKey(
+			userId,
+			providerId,
+		);
+
+		const model = aiService.createModel(providerId, modelId, userKey ?? undefined);
 
 		const result = streamText({
 			model,
