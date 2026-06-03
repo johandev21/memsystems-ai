@@ -1,4 +1,5 @@
 import { useChat } from "@ai-sdk/react";
+import { useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { ArrowUp, Copy, Loader2, RefreshCw, Square } from "lucide-react";
 import type { FormEvent } from "react";
@@ -8,34 +9,30 @@ import remarkGfm from "remark-gfm";
 import { Button } from "#/components/ui/button";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "#/components/ui/select";
 import { Textarea } from "#/components/ui/textarea";
-import { fetchModels, type ModelOption } from "#/lib/models";
+import { modelsQueryOptions, type ModelOption } from "#/lib/models";
 import { cn } from "#/lib/utils";
 
 export function ChatPanel() {
-  const [models, setModels] = useState<ModelOption[]>([]);
+  const { data: models } = useQuery(modelsQueryOptions);
   const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano");
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
 
+  const modelOptions = models ?? [];
+
   useEffect(() => {
-    fetchModels()
-      .then((data) => {
-        console.log("[ChatPanel] models loaded:", data);
-        setModels(data);
-        if (data.length > 0) {
-          setSelectedModel(data[0].id);
-          selectedModelRef.current = data[0].id;
-        }
-      })
-      .catch((err) => console.error("[ChatPanel] fetch models error:", err));
-  }, []);
+    if (modelOptions.length > 0 && selectedModel === "gpt-4.1-nano") {
+      setSelectedModel(modelOptions[0].id);
+      selectedModelRef.current = modelOptions[0].id;
+    }
+  }, [modelOptions, selectedModel]);
 
   const transport = useMemo(
     () =>
@@ -108,7 +105,7 @@ export function ChatPanel() {
           onSubmit={handleSubmit}
           isLoading={isLoading}
           onStop={stop}
-          models={models}
+          models={modelOptions}
           selectedModel={selectedModel}
           onModelChange={setSelectedModel}
         />
@@ -209,7 +206,7 @@ export function ChatPanel() {
             onSubmit={handleSubmit}
             isLoading={isLoading}
             onStop={stop}
-            models={models}
+            models={modelOptions}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
           />

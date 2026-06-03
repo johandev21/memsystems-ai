@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import {
-  PanelLeftClose,
-  PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
-  Plus,
+	PanelLeftClose,
+	PanelLeftOpen,
+	PanelRightClose,
+	PanelRightOpen,
+	Plus,
 } from "lucide-react";
 import type { RefObject } from "react";
 import { useRef, useState } from "react";
@@ -19,17 +19,20 @@ import { MobileNotebookLayout } from "#/features/notebook/components/mobile-note
 import { SourcesPanel } from "#/features/notebook/components/sources-panel";
 import { StudioResources } from "#/features/notebook/components/studio-resources";
 import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
+import { modelsQueryOptions } from "#/lib/models";
 import { getSessionFn } from "#/lib/session";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
-  beforeLoad: async () => {
-    const session = await getSessionFn();
+	beforeLoad: async () => {
+		const session = await getSessionFn();
 
-    if (!session) {
-      throw redirect({ to: "/login" });
-    }
-  },
-  component: RouteComponent,
+		if (!session) {
+			throw redirect({ to: "/login" });
+		}
+	},
+	loader: ({ context }) =>
+		context.queryClient.prefetchQuery(modelsQueryOptions),
+	component: RouteComponent,
 });
 
 function RouteComponent() {
