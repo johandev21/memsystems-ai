@@ -47,7 +47,7 @@ export function NotebookCard({
 				<h3 className="font-heading text-base font-medium text-foreground">
 					{title}
 				</h3>
-				<p className="line-clamp-2 text-sm text-muted-foreground">
+				<p className="line-clamp-2 text-sm text-foreground/75">
 					{description}
 				</p>
 			</div>

@@ -164,11 +164,7 @@ function SourceNode({
 				<Icon
 					className={cn(
 						"h-4 w-4 shrink-0",
-						node.type === "pdf" ? "text-red-500/80" : "",
-						node.type === "link" ? "text-blue-500/80" : "",
-						node.type === "chat" ? "text-emerald-500/80" : "",
-						node.type === "note" ? "text-amber-500/80" : "",
-						isFolder ? "text-primary/70" : "",
+						isFolder ? "text-primary/70" : "text-muted-foreground",
 					)}
 				/>
 				<span className="truncate">{node.name}</span>

@@ -19,7 +19,7 @@ import { MobileNotebookLayout } from "#/features/notebook/components/mobile-note
 import { SourcesPanel } from "#/features/notebook/components/sources-panel";
 import { StudioResources } from "#/features/notebook/components/studio-resources";
 import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
-import { modelsQueryOptions } from "#/lib/models";
+import { modelsQueryOptions, providersQueryOptions } from "#/lib/models";
 import { getSessionFn } from "#/lib/session";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
@@ -30,8 +30,12 @@ export const Route = createFileRoute("/notebooks/$notebookId")({
 			throw redirect({ to: "/login" });
 		}
 	},
-	loader: ({ context }) =>
-		context.queryClient.prefetchQuery(modelsQueryOptions),
+	loader: async ({ context }) => {
+		await Promise.all([
+			context.queryClient.prefetchQuery(modelsQueryOptions),
+			context.queryClient.prefetchQuery(providersQueryOptions),
+		]);
+	},
 	component: RouteComponent,
 });
 
@@ -95,7 +99,7 @@ function DesktopLayout({
           defaultSize="20%"
           panelRef={sourcesRef}
           onResize={onSyncSources}
-          className="border border-border rounded-xl overflow-hidden"
+          className="rounded-xl overflow-hidden shadow-sm dark:shadow-none"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg min-h-[44px]">
@@ -148,7 +152,7 @@ function DesktopLayout({
         <ResizablePanel
           minSize="40%"
           defaultSize="60%"
-          className="border border-border rounded-xl overflow-hidden"
+          className="rounded-xl overflow-hidden shadow-sm dark:shadow-none"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 px-3 bg-panel-header-bg min-h-[44px]">
@@ -166,7 +170,7 @@ function DesktopLayout({
           defaultSize="20%"
           panelRef={studioRef}
           onResize={onSyncStudio}
-          className="border border-border rounded-xl overflow-hidden"
+          className="rounded-xl overflow-hidden shadow-sm dark:shadow-none"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg">

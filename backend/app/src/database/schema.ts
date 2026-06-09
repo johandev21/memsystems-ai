@@ -60,6 +60,9 @@ export const notebooks = pgTable(
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		title: varchar("title", { length: 200 }).notNull(),
+		description: varchar("description", { length: 500 }).default("").notNull(),
+		icon: varchar("icon", { length: 50 }).default("notebook").notNull(),
+		banner: varchar("banner", { length: 2000 }),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
 			.defaultNow()

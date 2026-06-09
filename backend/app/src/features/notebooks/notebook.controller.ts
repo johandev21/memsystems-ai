@@ -6,13 +6,16 @@ const notebookService = new NotebookService();
 
 const idParams = t.Object({ id: t.String() });
 
-const titleBody = t.Object({
+const createNotebookBody = t.Object({
 	title: t.String({ minLength: 1, maxLength: 200 }),
+	description: t.Optional(t.String({ maxLength: 500 })),
+	icon: t.Optional(t.String({ maxLength: 50 })),
 });
 
-const errorResponse = t.Object({
-	error: t.String(),
-	code: t.String(),
+const updateNotebookBody = t.Object({
+	title: t.Optional(t.String({ minLength: 1, maxLength: 200 })),
+	description: t.Optional(t.String({ maxLength: 500 })),
+	icon: t.Optional(t.String({ maxLength: 50 })),
 });
 
 export const notebookController = new Elysia({ prefix: "/notebooks" })
@@ -29,7 +32,7 @@ export const notebookController = new Elysia({ prefix: "/notebooks" })
 		({ user, body }) => notebookService.create(user.id, body),
 		{
 			auth: true,
-			body: titleBody,
+			body: createNotebookBody,
 		},
 	)
 	.patch(
@@ -39,7 +42,7 @@ export const notebookController = new Elysia({ prefix: "/notebooks" })
 		{
 			auth: true,
 			params: idParams,
-			body: titleBody,
+			body: updateNotebookBody,
 		},
 	)
 	.delete(
@@ -48,5 +51,17 @@ export const notebookController = new Elysia({ prefix: "/notebooks" })
 		{
 			auth: true,
 			params: idParams,
+		},
+	)
+	.post(
+		"/:id/banner",
+		async ({ user, params, body }) =>
+			notebookService.uploadBanner(user.id, params.id, body.file),
+		{
+			auth: true,
+			params: idParams,
+			body: t.Object({
+				file: t.File(),
+			}),
 		},
 	);

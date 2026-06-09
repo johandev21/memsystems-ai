@@ -69,7 +69,7 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="icon" className="rounded-full">
 						<Avatar size="sm">
-							<AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
+							<AvatarImage src={user?.image ?? undefined} alt={user?.name ?? undefined} />
 							<AvatarFallback>
 								{user?.name?.charAt(0)?.toUpperCase() ?? "U"}
 							</AvatarFallback>

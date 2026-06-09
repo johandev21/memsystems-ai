@@ -21,12 +21,12 @@ export function StatCard({
 }: StatCardProps) {
 	const colorStyles = {
 		rose: {
-			label: "text-rose-400",
-			status: "text-rose-400",
+			label: "text-muted-foreground",
+			status: "text-muted-foreground",
 		},
 		emerald: {
-			label: "text-emerald-400",
-			status: "text-emerald-400",
+			label: "text-muted-foreground",
+			status: "text-muted-foreground",
 		},
 	};
 

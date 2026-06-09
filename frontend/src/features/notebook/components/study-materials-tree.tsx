@@ -84,15 +84,15 @@ const RESOURCE_ICONS: Record<
 	ResourceType,
 	{ icon: LucideIcon; className: string }
 > = {
-	quiz: { icon: HelpCircle, className: "text-[#806262] dark:text-[#E5BABA]" },
-	flashcards: { icon: Brain, className: "text-[#6A7688] dark:text-[#B5C7E5]" },
-	report: { icon: FileText, className: "text-[#718567] dark:text-[#C1DEB1]" },
-	roadmap: { icon: MapIcon, className: "text-[#58554A] dark:text-[#DED5AE]" },
+	quiz: { icon: HelpCircle, className: "text-muted-foreground" },
+	flashcards: { icon: Brain, className: "text-muted-foreground" },
+	report: { icon: FileText, className: "text-muted-foreground" },
+	roadmap: { icon: MapIcon, className: "text-muted-foreground" },
 	slidedeck: {
 		icon: Presentation,
-		className: "text-[#69616F] dark:text-[#D2AEDD]",
+		className: "text-muted-foreground",
 	},
-	mindmap: { icon: Network, className: "text-[#558080] dark:text-[#AEE5E5]" },
+	mindmap: { icon: Network, className: "text-muted-foreground" },
 	folder: { icon: Folder, className: "text-muted-foreground" }, // Default fallback
 };
 
