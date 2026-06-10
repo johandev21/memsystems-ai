@@ -1,7 +1,9 @@
+import { Link } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 import { cn } from "#/lib/utils";
 
 interface NotebookCardProps {
+	id: string;
 	title: string;
 	description: string;
 	fileCount: number;
@@ -12,6 +14,7 @@ interface NotebookCardProps {
 }
 
 export function NotebookCard({
+	id,
 	title,
 	description,
 	fileCount,
@@ -21,9 +24,11 @@ export function NotebookCard({
 	className,
 }: NotebookCardProps) {
 	return (
-		<article
+		<Link
+			to="/notebooks/$notebookId"
+			params={{ notebookId: id }}
 			className={cn(
-				"group relative flex flex-col overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10",
+				"group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 cursor-pointer block",
 				className,
 			)}
 		>
@@ -47,9 +52,7 @@ export function NotebookCard({
 				<h3 className="font-heading text-base font-medium text-foreground">
 					{title}
 				</h3>
-				<p className="line-clamp-2 text-sm text-foreground/75">
-					{description}
-				</p>
+				<p className="line-clamp-2 text-sm text-foreground/75">{description}</p>
 			</div>
 			<div className="flex items-center justify-between px-4 pb-4 text-xs text-muted-foreground">
 				<span className="inline-flex items-center gap-1">
@@ -58,6 +61,6 @@ export function NotebookCard({
 				</span>
 				<span>{updatedAt}</span>
 			</div>
-		</article>
+		</Link>
 	);
 }

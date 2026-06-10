@@ -37,7 +37,8 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 				e.clientY >= containerRect.top &&
 				e.clientY <= containerRect.bottom &&
 				e.clientX >= containerRect.left &&
-				e.clientX <= containerRect.right);
+				e.clientX <= containerRect.right
+			);
 
 			setIsMouseNear(isInTriggerZone || isInHeader);
 		};
@@ -55,41 +56,46 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 
 	const headerContent = (
 		<header
-			className={`flex items-center justify-between px-6 py-2 ${
+			className={`flex items-center justify-center px-6 py-2 ${
 				autoHide
-					? "bg-background/80 backdrop-blur-lg border-b border-border/50 shadow-sm"
-					: "bg-background border-b border-border"
+					? "bg-background/80 backdrop-blur-lg shadow-sm"
+					: "bg-background"
 			}`}
 		>
-			<Button variant="ghost" size="icon" className="text-muted-foreground">
-				<Menu />
-				<span className="sr-only">Open menu</span>
-			</Button>
-			<DropdownMenu onOpenChange={setDropdownOpen}>
-				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" size="icon" className="rounded-full">
-						<Avatar size="sm">
-							<AvatarImage src={user?.image ?? undefined} alt={user?.name ?? undefined} />
-							<AvatarFallback>
-								{user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-							</AvatarFallback>
-						</Avatar>
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-56">
-					<DropdownMenuLabel className="font-normal">
-						<div className="flex flex-col space-y-1">
-							<p className="text-sm font-medium">{user?.name}</p>
-							<p className="text-xs text-muted-foreground">{user?.email}</p>
-						</div>
-					</DropdownMenuLabel>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={handleLogout}>
-						<LogOut className="mr-2 size-4" />
-						<span>Log out</span>
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+			<div className="flex w-full max-w-6xl items-center justify-between">
+				<Button variant="ghost" size="icon" className="text-muted-foreground">
+					<Menu />
+					<span className="sr-only">Open menu</span>
+				</Button>
+				<DropdownMenu onOpenChange={setDropdownOpen}>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon">
+							<Avatar size="sm">
+								<AvatarImage
+									src={user?.image ?? undefined}
+									alt={user?.name ?? undefined}
+								/>
+								<AvatarFallback>
+									{user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+								</AvatarFallback>
+							</Avatar>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-56">
+						<DropdownMenuLabel className="font-normal">
+							<div className="flex flex-col space-y-1">
+								<p className="text-sm font-medium">{user?.name}</p>
+								<p className="text-xs text-muted-foreground">{user?.email}</p>
+							</div>
+						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem onClick={handleLogout}>
+							<LogOut className="mr-2 size-4" />
+							<span>Log out</span>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
 		</header>
 	);
 

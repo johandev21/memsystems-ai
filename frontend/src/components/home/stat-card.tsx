@@ -35,7 +35,7 @@ export function StatCard({
 	return (
 		<div
 			className={cn(
-				"flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10",
+				"flex flex-col gap-3 bg-card p-4 ring-1 ring-foreground/10",
 				className,
 			)}
 		>

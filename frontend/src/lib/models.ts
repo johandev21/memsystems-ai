@@ -28,7 +28,9 @@ export interface ProviderCatalogEntry {
 }
 
 async function fetchProviders(): Promise<ProviderCatalogEntry[]> {
-	const res = await fetch(`${BASE_URL}/ai/providers`, { credentials: "include" });
+	const res = await fetch(`${BASE_URL}/ai/providers`, {
+		credentials: "include",
+	});
 	if (!res.ok) throw new Error("Failed to fetch providers");
 	return res.json();
 }
@@ -37,4 +39,3 @@ export const providersQueryOptions = queryOptions({
 	queryKey: ["providers"],
 	queryFn: fetchProviders,
 });
-

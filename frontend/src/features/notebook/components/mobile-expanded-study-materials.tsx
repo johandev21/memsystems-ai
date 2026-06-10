@@ -24,7 +24,7 @@ export function MobileExpandedStudyMaterials() {
 				</Button>
 			</DialogTrigger>
 			<DialogContent
-				className="max-w-[100vw] w-[100vw] h-[100dvh] max-h-[100dvh] p-0 gap-0 flex flex-col sm:max-w-[100vw] rounded-none overflow-hidden"
+				className="max-w-[100vw] w-[100vw] h-[100dvh] max-h-[100dvh] p-0 gap-0 flex flex-col sm:max-w-[100vw] overflow-hidden"
 				showCloseButton={false}
 				onInteractOutside={(e) => {
 					const target = e.target as Element;
@@ -62,20 +62,23 @@ export function MobileExpandedStudyMaterials() {
 					<ScrollArea orientation="horizontal" className="w-full">
 						<div className="flex items-center gap-2 pb-1">
 							{RESOURCES.map((resource) => (
-						<Button
-							key={resource.label}
-							variant={null}
-							size={null}
-							className={cn(
-								"group flex h-10 shrink-0 items-center gap-2 rounded-full px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-								resource.colorClasses,
-							)}
-						>
-							<resource.icon className="h-4 w-4 opacity-70" strokeWidth={2} />
-							<span className="text-sm font-medium whitespace-nowrap">
-								{resource.label}
-							</span>
-						</Button>
+								<Button
+									key={resource.label}
+									variant={null}
+									size={null}
+									className={cn(
+										"group flex h-10 shrink-0 items-center gap-2 px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+										resource.colorClasses,
+									)}
+								>
+									<resource.icon
+										className="h-4 w-4 opacity-70"
+										strokeWidth={2}
+									/>
+									<span className="text-sm font-medium whitespace-nowrap">
+										{resource.label}
+									</span>
+								</Button>
 							))}
 						</div>
 					</ScrollArea>

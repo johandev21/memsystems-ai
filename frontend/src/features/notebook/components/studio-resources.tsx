@@ -76,15 +76,12 @@ export function StudioResources({ collapsed }: { collapsed: boolean }) {
 					{RESOURCES.map((resource) => (
 						<Tooltip key={resource.label}>
 							<TooltipTrigger asChild>
-						<Button
-							variant="ghost"
-							size="icon"
-							className={cn(
-								"h-10 w-10 shrink-0 rounded-xl",
-								resource.colorClasses,
-							)}
-						>
-							<resource.icon className="h-5 w-5" />
+								<Button
+									variant="ghost"
+									size="icon"
+									className={cn("h-10 w-10 shrink-0", resource.colorClasses)}
+								>
+									<resource.icon className="h-5 w-5" />
 									<span className="sr-only">{resource.label}</span>
 								</Button>
 							</TooltipTrigger>
@@ -105,7 +102,7 @@ export function StudioResources({ collapsed }: { collapsed: boolean }) {
 					key={resource.label}
 					type="button"
 					className={cn(
-						"group flex items-center h-[52px] w-full justify-between px-4 rounded-2xl transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+						"group flex items-center h-[52px] w-full justify-between px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
 						resource.colorClasses,
 					)}
 				>

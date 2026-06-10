@@ -7,7 +7,7 @@ export function NotFound() {
 		<div className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
 			<div className="max-w-md text-center">
 				<div className="mb-6 flex justify-center">
-					<div className="rounded-full bg-muted p-4">
+					<div className="bg-muted p-4">
 						<FileQuestion className="size-10 text-muted-foreground" />
 					</div>
 				</div>

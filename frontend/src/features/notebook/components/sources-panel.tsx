@@ -109,7 +109,7 @@ export function SourcesPanel({ collapsed }: { collapsed?: boolean }) {
 			{/* Drag & Drop Hint */}
 			<div className="p-2">
 				<AddSourceDialog>
-					<div className="rounded-xl border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer">
+					<div className="border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer">
 						Drag files here or paste links to add new sources
 					</div>
 				</AddSourceDialog>
@@ -144,7 +144,7 @@ function SourceNode({
 				}}
 				style={{ paddingLeft: `${paddingLeft}px` }}
 				className={cn(
-					"group relative flex w-full items-center gap-2 rounded-lg py-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+					"group relative flex w-full items-center gap-2 py-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					isSelected
 						? "bg-primary/15 text-foreground font-semibold dark:bg-accent dark:text-accent-foreground"
 						: "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -170,7 +170,7 @@ function SourceNode({
 				<span className="truncate">{node.name}</span>
 				{/* Checkmark */}
 				{isSelected && (
-					<div className="absolute right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+					<div className="absolute right-2 flex h-4 w-4 items-center justify-center bg-primary text-primary-foreground shadow-sm">
 						<Check className="h-3 w-3" strokeWidth={3} />
 					</div>
 				)}
