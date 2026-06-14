@@ -63,6 +63,10 @@ export const notebooks = pgTable(
 		description: varchar("description", { length: 500 }).default("").notNull(),
 		icon: varchar("icon", { length: 50 }).default("notebook").notNull(),
 		banner: varchar("banner", { length: 2000 }),
+		bannerFocalPoint: jsonb("banner_focal_point").$type<{
+			x: number;
+			y: number;
+		} | null>(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
 			.defaultNow()

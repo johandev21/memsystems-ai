@@ -19,6 +19,7 @@ export interface UpdateNotebookInput {
 	title?: string;
 	description?: string;
 	icon?: string;
+	bannerFocalPoint?: { x: number; y: number } | null;
 }
 
 interface NotebookResponse {
@@ -29,6 +30,7 @@ interface NotebookResponse {
 	icon: string;
 	banner: string | null;
 	bannerUrl: string | null;
+	bannerFocalPoint: { x: number; y: number } | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -42,6 +44,7 @@ function toResponse(nb: typeof notebooks.$inferSelect): NotebookResponse {
 		icon: nb.icon ?? "notebook",
 		banner: nb.banner,
 		bannerUrl: null,
+		bannerFocalPoint: nb.bannerFocalPoint ?? null,
 		createdAt: nb.createdAt,
 		updatedAt: nb.updatedAt,
 	};
@@ -101,6 +104,9 @@ export class NotebookService {
 		if (input.icon !== undefined) {
 			updates.icon = input.icon.trim().slice(0, 50);
 		}
+		if (input.bannerFocalPoint !== undefined) {
+			updates.bannerFocalPoint = input.bannerFocalPoint;
+		}
 		if (Object.keys(updates).length === 0) {
 			return this.get(userId, id);
 		}
@@ -134,7 +140,35 @@ export class NotebookService {
 		return toResponse(row);
 	}
 
-	async uploadBanner(userId: string, notebookId: string, file: File) {
+	async removeBanner(userId: string, notebookId: string) {
+		await this.assertOwner(userId, notebookId);
+
+		const [existing] = await db
+			.select({ banner: notebooks.banner })
+			.from(notebooks)
+			.where(eq(notebooks.id, notebookId));
+
+		if (existing?.banner) {
+			await deleteObject(existing.banner).catch(() => {});
+		}
+
+		const [row] = await db
+			.update(notebooks)
+			.set({ banner: null, bannerFocalPoint: null })
+			.where(eq(notebooks.id, notebookId))
+			.returning();
+
+		const res = toResponse(row);
+		res.bannerUrl = null;
+		return res;
+	}
+
+	async uploadBanner(
+		userId: string,
+		notebookId: string,
+		file: File,
+		focalPoint?: { x: number; y: number },
+	) {
 		await this.assertOwner(userId, notebookId);
 
 		if (file.size === 0) {
@@ -167,7 +201,7 @@ export class NotebookService {
 
 		const [row] = await db
 			.update(notebooks)
-			.set({ banner: key })
+			.set({ banner: key, bannerFocalPoint: focalPoint ?? null })
 			.where(eq(notebooks.id, notebookId))
 			.returning();
 

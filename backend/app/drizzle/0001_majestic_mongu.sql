@@ -1,0 +1,1 @@
+ALTER TABLE "notebooks" ADD COLUMN "banner_focal_point" jsonb;

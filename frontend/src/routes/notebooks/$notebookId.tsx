@@ -9,19 +9,20 @@ import {
 import type { RefObject } from "react";
 import { useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
+import { NotebookHeader } from "#/components/layout/notebook-header";
 import { Button } from "#/components/ui/button";
 import { ResizablePanel, ResizablePanelGroup } from "#/components/ui/resizable";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import { AddSourceDialog } from "#/features/notebook/components/add-source-dialog";
 import { ChatPanel } from "#/features/notebook/components/chat-panel";
+import { ChatPanelHeader } from "#/features/notebook/components/chat-panel-header";
 import { MobileNotebookLayout } from "#/features/notebook/components/mobile-notebook-layout";
 import { SourcesPanel } from "#/features/notebook/components/sources-panel";
 import { StudioResources } from "#/features/notebook/components/studio-resources";
 import { StudyMaterialsPanel } from "#/features/notebook/components/study-materials-panel";
 import { modelsQueryOptions, providersQueryOptions } from "#/lib/models";
-import { getSessionFn } from "#/lib/session";
-import { NotebookHeader } from "#/components/layout/notebook-header";
 import { notebookQueryOptions } from "#/lib/notebooks";
+import { getSessionFn } from "#/lib/session";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
 	beforeLoad: async () => {
@@ -163,9 +164,7 @@ function DesktopLayout({
 					className="overflow-hidden shadow-sm dark:shadow-none"
 				>
 					<div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
-						<header className="flex items-center justify-between p-1.5 px-3 bg-panel-header-bg min-h-[44px]">
-							<h2 className="text-sm font-semibold">Chat</h2>
-						</header>
+						<ChatPanelHeader notebookId={notebookId} />
 						<div className="flex-1 flex flex-col min-h-0">
 							<ChatPanel notebookId={notebookId} />
 						</div>

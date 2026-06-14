@@ -12,6 +12,7 @@ export interface Notebook {
 	icon: string;
 	banner: string | null;
 	bannerUrl: string | null;
+	bannerFocalPoint: { x: number; y: number } | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -86,7 +87,7 @@ export const createNotebookFn = createServerFn({ method: "POST" })
 			const result = await res.json();
 			console.log("[createNotebookFn] Notebook created successfully:", result);
 			return result as Notebook;
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error("[createNotebookFn] Exception in server handler:", error);
 			throw new Error(error instanceof Error ? error.message : String(error));
 		}
@@ -124,6 +125,7 @@ export const updateNotebookFn = createServerFn({ method: "POST" })
 			title?: string;
 			description?: string;
 			icon?: string;
+			bannerFocalPoint?: { x: number; y: number } | null;
 		}) => data,
 	)
 	.handler(async ({ data: { id, ...body } }) => {
@@ -141,6 +143,63 @@ export const updateNotebookFn = createServerFn({ method: "POST" })
 		});
 		if (!res.ok) {
 			throw new Error(`Failed to update notebook (${res.status})`);
+		}
+		return (await res.json()) as Notebook;
+	});
+
+export const uploadNotebookBannerFn = createServerFn({ method: "POST" })
+	.inputValidator((data: FormData) => data)
+	.handler(async ({ data }) => {
+		const id = data.get("id") as string;
+		const file = data.get("file") as File;
+		const focalPointX = data.get("focalPointX");
+		const focalPointY = data.get("focalPointY");
+		if (!id || !file) {
+			throw new Error("Missing notebook id or banner file");
+		}
+
+		const requestHeaders = getRequestHeaders();
+		const headers = new Headers();
+		const cookie = requestHeaders.get?.("cookie");
+		if (cookie) {
+			headers.set("cookie", cookie);
+		}
+
+		const backendFormData = new FormData();
+		backendFormData.append("file", file);
+		if (focalPointX !== null) {
+			backendFormData.append("focalPointX", focalPointX.toString());
+		}
+		if (focalPointY !== null) {
+			backendFormData.append("focalPointY", focalPointY.toString());
+		}
+
+		const res = await fetch(`${BASE_URL}/notebooks/${id}/banner`, {
+			method: "POST",
+			headers,
+			body: backendFormData,
+		});
+		if (!res.ok) {
+			throw new Error(`Failed to upload banner (${res.status})`);
+		}
+		return (await res.json()) as Notebook;
+	});
+
+export const removeNotebookBannerFn = createServerFn({ method: "POST" })
+	.inputValidator((id: string) => id)
+	.handler(async ({ data: id }) => {
+		const requestHeaders = getRequestHeaders();
+		const headers = new Headers();
+		const cookie = requestHeaders.get?.("cookie");
+		if (cookie) {
+			headers.set("cookie", cookie);
+		}
+		const res = await fetch(`${BASE_URL}/notebooks/${id}/banner`, {
+			method: "DELETE",
+			headers,
+		});
+		if (!res.ok) {
+			throw new Error(`Failed to remove banner (${res.status})`);
 		}
 		return (await res.json()) as Notebook;
 	});
