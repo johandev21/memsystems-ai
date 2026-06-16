@@ -39,6 +39,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-header-bg: var(--panel-header-bg);
+  --color-composer-bg: var(--composer-bg);
+  --color-heatmap-empty: var(--heatmap-empty);
+  --color-heatmap-level-1: var(--heatmap-level-1);
+  --color-heatmap-level-2: var(--heatmap-level-2);
+  --color-heatmap-level-3: var(--heatmap-level-3);
+  --color-heatmap-level-4: var(--heatmap-level-4);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -81,6 +89,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --panel-bg: #ffffff;
+  --panel-header-bg: #f4f4f5;
+  --composer-bg: #eaeaea;
+  --gradient-text-start: oklch(56.584% 0.00006 271.152);
+  --gradient-text-end: oklch(0% 0 0);
+  --heatmap-empty: oklch(0% 0 0 / 0.05);
+  --heatmap-level-1: oklch(0% 0 0 / 0.2);
+  --heatmap-level-2: oklch(0% 0 0 / 0.4);
+  --heatmap-level-3: oklch(0% 0 0 / 0.6);
+  --heatmap-level-4: oklch(0% 0 0 / 0.85);
 }
 
 .dark {
@@ -115,6 +133,27 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --panel-bg: #111111;
+  --panel-header-bg: #27272a;
+  --composer-bg: #171717;
+  --gradient-text-start: oklch(68.295% 0.00008 271.152);
+  --gradient-text-end: oklch(100% 0.00011 271.152);
+  --heatmap-empty: oklch(100% 0.00011 271.152 / 0.05);
+  --heatmap-level-1: oklch(100% 0.00011 271.152 / 0.2);
+  --heatmap-level-2: oklch(100% 0.00011 271.152 / 0.4);
+  --heatmap-level-3: oklch(100% 0.00011 271.152 / 0.6);
+  --heatmap-level-4: oklch(100% 0.00011 271.152 / 0.85);
+}
+
+.gradient-text {
+  background: linear-gradient(
+    to right,
+    var(--gradient-text-start),
+    var(--gradient-text-end)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @layer base {
