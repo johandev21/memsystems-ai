@@ -14,13 +14,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 
 const TRIGGER_ZONE_HEIGHT = 20;
 
 export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const [isMouseNear, setIsMouseNear] = useState(!autoHide);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -72,15 +73,19 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
         <DropdownMenu onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Avatar size="sm">
-                <AvatarImage
-                  src={user?.image ?? undefined}
-                  alt={user?.name ?? undefined}
-                />
-                <AvatarFallback>
-                  {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-                </AvatarFallback>
-              </Avatar>
+              {isPending ? (
+                <Skeleton className="size-6" />
+              ) : (
+                <Avatar size="sm">
+                  <AvatarImage
+                    src={user?.image ?? undefined}
+                    alt={user?.name ?? undefined}
+                  />
+                  <AvatarFallback>
+                    {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

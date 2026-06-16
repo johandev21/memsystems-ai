@@ -13,12 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { EditableNotebookTitle } from "./editable-notebook-title";
 
 export function NotebookHeader({ id }: { id: string }) {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
   async function handleLogout() {
@@ -44,15 +45,19 @@ export function NotebookHeader({ id }: { id: string }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="cursor-pointer">
-            <Avatar size="sm">
-              <AvatarImage
-                src={user?.image ?? undefined}
-                alt={user?.name ?? undefined}
-              />
-              <AvatarFallback>
-                {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-              </AvatarFallback>
-            </Avatar>
+            {isPending ? (
+              <Skeleton className="size-6" />
+            ) : (
+              <Avatar size="sm">
+                <AvatarImage
+                  src={user?.image ?? undefined}
+                  alt={user?.name ?? undefined}
+                />
+                <AvatarFallback>
+                  {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                </AvatarFallback>
+              </Avatar>
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">

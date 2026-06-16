@@ -118,8 +118,30 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-4 py-6">
           <SectionHeader title="Recent Notebooks" viewAllHref="/notebooks" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {notebooks?.map((notebook) => (
+          {!isLoading && notebooks && notebooks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border">
+              <NotebookText className="mb-3 size-8 text-muted-foreground/40" />
+              <p className="mb-1 text-sm font-medium">No notebooks yet</p>
+              <p className="mb-5 text-xs text-muted-foreground">
+                Create your first notebook to get started
+              </p>
+              <Button
+                onClick={handleCreateNotebook}
+                disabled={isCreating}
+                size="sm"
+                className="cursor-pointer"
+              >
+                {isCreating ? (
+                  <Spinner className="mr-2" />
+                ) : (
+                  <Plus className="mr-2 size-4" />
+                )}
+                New notebook
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {notebooks?.map((notebook) => (
               <NotebookCard
                 key={notebook.id}
                 id={notebook.id}
@@ -132,6 +154,7 @@ export default function HomePage() {
               />
             ))}
           </div>
+          )}
         </section>
 
         <section className="flex flex-col gap-4 py-6">
