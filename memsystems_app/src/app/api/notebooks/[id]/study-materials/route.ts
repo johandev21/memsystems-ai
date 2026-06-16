@@ -7,7 +7,14 @@ import { z } from "zod";
 const service = new StudyMaterialService();
 
 const createSchema = z.object({
-  kind: z.enum(["quiz", "simple_flashcard", "report", "roadmap", "slide_deck", "mind_map"]),
+  kind: z.enum([
+    "quiz",
+    "simple_flashcard",
+    "report",
+    "roadmap",
+    "slide_deck",
+    "mind_map",
+  ]),
   title: z.string(),
   content: z.unknown(),
   folderId: z.string().optional(),

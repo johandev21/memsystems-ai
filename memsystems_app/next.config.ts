@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pg", "drizzle-orm", "@aws-sdk/client-s3", "jsdom", "pdf-parse", "mammoth"],
+  serverExternalPackages: [
+    "pg",
+    "drizzle-orm",
+    "@aws-sdk/client-s3",
+    "jsdom",
+    "pdf-parse",
+    "mammoth",
+  ],
   images: {
     remotePatterns: [
       {

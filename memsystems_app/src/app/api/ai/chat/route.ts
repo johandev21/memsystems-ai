@@ -14,7 +14,8 @@ const bodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = bodySchema.parse(await req.json());
   const result = await aiService.generateStream(

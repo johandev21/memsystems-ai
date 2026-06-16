@@ -6,7 +6,14 @@ import { z } from "zod";
 const generationService = new GenerationService();
 
 const bodySchema = z.object({
-  kind: z.enum(["quiz", "simple_flashcard", "report", "roadmap", "slide_deck", "mind_map"]),
+  kind: z.enum([
+    "quiz",
+    "simple_flashcard",
+    "report",
+    "roadmap",
+    "slide_deck",
+    "mind_map",
+  ]),
   brief: z.string(),
   sourceIds: z.array(z.string()),
   folderId: z.string().optional(),
