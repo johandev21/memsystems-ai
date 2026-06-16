@@ -6,9 +6,7 @@ This monorepo contains a single Next.js application. This file serves as the glo
 
 All application code lives in `memsystems_app/`:
 
-- **App (`memsystems_app/`)**: Next.js App Router + TanStack Query application. See `memsystems_app/AGENTS.md` for UI rules, commands, and routing structures.
-
-The legacy `frontend/` and `backend/` directories are being retired. Do not use them for new work.
+- **App (`memsystems_app/`)**: Next.js App Router + TanStack Query application.
 
 ## 2. Global Standards
 
@@ -31,7 +29,11 @@ The legacy `frontend/` and `backend/` directories are being retired. Do not use 
 | `pnpm run lint` | Biome lint |
 | `pnpm run format` | Biome format |
 
-## 4. General Notes
+## 4. Next.js: ALWAYS read docs before coding
+
+Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+
+## 5. General Notes
 - Prefer reading actual executable source code over README text, as the repository may still contain boilerplate template README content.
 - All route handlers use Next.js App Router (`src/app/api/.../route.ts`).
 - Feature services are in `src/features/` with a flat service-per-file pattern.
