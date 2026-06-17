@@ -23,6 +23,7 @@ import { SectionHeader } from "@/components/home/section-header";
 import { StatCard } from "@/components/home/stat-card";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AppHeader } from "@/components/layout/app-header";
 import { notebooksQueryOptions } from "@/lib/notebooks";
 
@@ -63,7 +64,8 @@ function formatUpdatedAt(date: string): string {
 }
 
 export default function HomePage() {
-  const { data: notebooks, isLoading } = useQuery(notebooksQueryOptions);
+  const { data: notebooksData, isLoading } = useQuery(notebooksQueryOptions);
+  const notebooks = notebooksData?.notebooks;
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
@@ -118,7 +120,24 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-4 py-6">
           <SectionHeader title="Recent Notebooks" viewAllHref="/notebooks" />
-          {!isLoading && notebooks && notebooks.length === 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex flex-col overflow-hidden ring-1 ring-foreground/10">
+                  <Skeleton className="h-36 w-full rounded-none" />
+                  <div className="flex flex-col gap-1 p-4 pt-8">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-full mt-1" />
+                    <Skeleton className="h-4 w-2/3 mt-0.5" />
+                  </div>
+                  <div className="flex items-center justify-between px-4 pb-4">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : notebooks && notebooks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border">
               <NotebookText className="mb-3 size-8 text-muted-foreground/40" />
               <p className="mb-1 text-sm font-medium">No notebooks yet</p>

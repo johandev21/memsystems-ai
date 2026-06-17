@@ -13,13 +13,26 @@ export interface Notebook {
   updatedAt: string;
 }
 
+export interface NotebooksResponse {
+  notebooks: Notebook[];
+  total: number;
+}
+
+async function fetchNotebooks(limit?: number, offset?: number, search?: string): Promise<NotebooksResponse> {
+  const params = new URLSearchParams();
+  if (limit) params.set("limit", String(limit));
+  if (offset) params.set("offset", String(offset));
+  if (search) params.set("search", search);
+  const url = `/api/notebooks${params.toString() ? `?${params.toString()}` : ""}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch notebooks (${res.status})`);
+  const data = await res.json();
+  return Array.isArray(data) ? { notebooks: data, total: data.length } : data;
+}
+
 export const notebooksQueryOptions = queryOptions({
-  queryKey: ["notebooks"],
-  queryFn: async () => {
-    const res = await fetch("/api/notebooks");
-    if (!res.ok) throw new Error(`Failed to fetch notebooks (${res.status})`);
-    return res.json() as Promise<Notebook[]>;
-  },
+  queryKey: ["notebooks", "home"],
+  queryFn: () => fetchNotebooks(6),
   staleTime: 30_000,
 });
 
@@ -33,3 +46,13 @@ export const notebookQueryOptions = (id: string) =>
     },
     staleTime: 30_000,
   });
+
+export function allNotebooksQueryOptions(page: number, search?: string) {
+  const limit = 12;
+  const offset = (page - 1) * limit;
+  return queryOptions({
+    queryKey: ["notebooks", "all", page, search],
+    queryFn: () => fetchNotebooks(limit, offset, search),
+    staleTime: 30_000,
+  });
+}

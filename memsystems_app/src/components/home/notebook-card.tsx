@@ -39,9 +39,7 @@ export function NotebookCard({
             className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-            <div className="text-notebook-icon/30">{icon}</div>
-          </div>
+          <div className="flex h-full w-full items-center justify-center bg-muted" />
         )}
       </div>
       <div className="absolute left-4 top-36 flex size-14 -translate-y-1/2 items-center justify-center text-notebook-icon z-10 [&_svg]:size-full">
