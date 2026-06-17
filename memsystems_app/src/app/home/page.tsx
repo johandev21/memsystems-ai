@@ -35,23 +35,12 @@ const ICON_MAP: Record<string, ReactNode> = {
   dna: <Atom className="size-4" />,
 };
 
-const BANNER_FALLBACKS: Record<string, string> = {
-  globe:
-    "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400&h=200&fit=crop",
-  brain:
-    "https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?w=400&h=200&fit=crop",
-  monitor:
-    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=200&fit=crop",
-  code: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=200&fit=crop",
-  dna: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400&h=200&fit=crop",
-};
-
 function getIcon(icon: string): ReactNode {
   return ICON_MAP[icon] ?? <NotebookText className="size-4" />;
 }
 
-function getBanner(icon: string, bannerUrl: string | null): string | undefined {
-  return bannerUrl ?? BANNER_FALLBACKS[icon];
+function getBanner(bannerUrl: string | null): string | undefined {
+  return bannerUrl ?? undefined;
 }
 
 function formatUpdatedAt(date: string): string {
@@ -168,7 +157,7 @@ export default function HomePage() {
                 description={notebook.description}
                 fileCount={0}
                 updatedAt={formatUpdatedAt(notebook.updatedAt)}
-                imageUrl={getBanner(notebook.icon, notebook.bannerUrl)}
+                imageUrl={getBanner(notebook.bannerUrl)}
                 icon={getIcon(notebook.icon)}
               />
             ))}

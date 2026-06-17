@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { NotebookService } from "@/features/notebooks/notebook.service";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { db } from "@/database/connection";
+import { notebooks } from "@/database/schema";
 import { z } from "zod";
 
 const service = new NotebookService();
@@ -11,13 +14,47 @@ const createSchema = z.object({
   icon: z.string().max(50).optional(),
 });
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const notebooks = await service.list(session.user.id);
-  return NextResponse.json(notebooks);
+  const { searchParams } = new URL(req.url);
+  const limit = Number(searchParams.get("limit")) || undefined;
+  const offset = Number(searchParams.get("offset")) || 0;
+  const search = searchParams.get("search") || undefined;
+
+  if (limit || search) {
+    const conditions = [
+      eq(notebooks.userId, session.user.id),
+      ...(search
+        ? [
+            or(
+              ilike(notebooks.title, `%${search}%`),
+              ilike(notebooks.description, `%${search}%`),
+            )!,
+          ]
+        : []),
+    ];
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(notebooks)
+      .where(and(...conditions));
+    const total = Number(count);
+
+    const rows = await db
+      .select()
+      .from(notebooks)
+      .where(and(...conditions))
+      .orderBy(desc(notebooks.updatedAt))
+      .limit(limit ?? 100)
+      .offset(offset ?? 0);
+
+    return NextResponse.json({ notebooks: rows, total });
+  }
+
+  const all = await service.list(session.user.id);
+  return NextResponse.json(all);
 }
 
 export async function POST(req: NextRequest) {
