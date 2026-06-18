@@ -2,17 +2,9 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import {
-  Atom,
-  Brain,
-  Clock,
-  Code,
-  Globe,
-  Monitor,
-  NotebookText,
-  Plus,
-} from "lucide-react";
+import { Brain, Clock, NotebookText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { NotebookIcon } from "@/components/ui/notebook-icon";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,18 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { notebooksQueryOptions } from "@/lib/notebooks";
-
-const ICON_MAP: Record<string, ReactNode> = {
-  globe: <Globe className="size-4" />,
-  brain: <Brain className="size-4" />,
-  monitor: <Monitor className="size-4" />,
-  code: <Code className="size-4" />,
-  dna: <Atom className="size-4" />,
-};
-
-function getIcon(icon: string): ReactNode {
-  return ICON_MAP[icon] ?? <NotebookText className="size-4" />;
-}
 
 function getBanner(bannerUrl: string | null): string | undefined {
   return bannerUrl ?? undefined;
@@ -160,8 +140,8 @@ export default function HomePage() {
                   description={notebook.description}
                   fileCount={0}
                   updatedAt={formatUpdatedAt(notebook.updatedAt)}
-                  imageUrl={getBanner(notebook.bannerUrl)}
-                  icon={getIcon(notebook.icon)}
+                  imageUrl={notebook.bannerUrl ?? undefined}
+                  icon={<NotebookIcon name={notebook.icon} />}
                 />
               ))}
             </div>

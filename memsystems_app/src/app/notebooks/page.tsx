@@ -1,7 +1,13 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  NotebookText,
+  Plus,
+  Search,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
@@ -13,24 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { allNotebooksQueryOptions } from "@/lib/notebooks";
 
-const ICON_MAP: Record<string, ReactNode> = {
-  globe: <Globe className="size-4" />,
-  brain: <Brain className="size-4" />,
-  monitor: <Monitor className="size-4" />,
-  code: <Code className="size-4" />,
-  dna: <Atom className="size-4" />,
-};
-
-import { Atom, Brain, Code, Globe, Monitor, NotebookText } from "lucide-react";
-import type { ReactNode } from "react";
-
-function getIcon(icon: string): ReactNode {
-  return ICON_MAP[icon] ?? <NotebookText className="size-4" />;
-}
-
-function getBanner(bannerUrl: string | null): string | undefined {
-  return bannerUrl ?? undefined;
-}
+import { NotebookIcon } from "@/components/ui/notebook-icon";
 
 function NotebooksContent() {
   const searchParams = useSearchParams();
@@ -200,8 +189,8 @@ function NotebooksContent() {
                 description={notebook.description}
                 fileCount={0}
                 updatedAt={""}
-                imageUrl={getBanner(notebook.bannerUrl)}
-                icon={getIcon(notebook.icon)}
+                imageUrl={notebook.bannerUrl ?? undefined}
+                icon={<NotebookIcon name={notebook.icon} />}
               />
             ))}
           </div>
