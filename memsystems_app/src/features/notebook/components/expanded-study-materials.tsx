@@ -1,9 +1,10 @@
 "use client";
 
-import { Maximize2 } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -70,6 +71,7 @@ export function ExpandedStudyMaterials() {
         </Button>
       </DialogTrigger>
       <DialogContent
+        showCloseButton={false}
         className="max-w-[96vw] w-[96vw] h-[96vh] p-0 gap-0 flex flex-col sm:max-w-[96vw] overflow-hidden"
         onInteractOutside={(e) => {
           const target = e.target as Element;
@@ -82,9 +84,17 @@ export function ExpandedStudyMaterials() {
         }}
       >
         <DialogHeader className="px-4 py-3">
-          <DialogTitle className="text-sm font-semibold">
-            Study Materials
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-sm font-semibold">
+              Study Materials
+            </DialogTitle>
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon-sm" className="h-7 w-7">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </DialogClose>
+          </div>
         </DialogHeader>
         <Separator />
         <div className="flex-1 min-h-0">

@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, Suspense } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { NotebookCard } from "@/components/home/notebook-card";
 import { AppHeader } from "@/components/layout/app-header";
@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { allNotebooksQueryOptions } from "@/lib/notebooks";
-import { useQueryClient } from "@tanstack/react-query";
 
 const ICON_MAP: Record<string, ReactNode> = {
   globe: <Globe className="size-4" />,
@@ -22,8 +21,8 @@ const ICON_MAP: Record<string, ReactNode> = {
   dna: <Atom className="size-4" />,
 };
 
-import type { ReactNode } from "react";
 import { Atom, Brain, Code, Globe, Monitor, NotebookText } from "lucide-react";
+import type { ReactNode } from "react";
 
 function getIcon(icon: string): ReactNode {
   return ICON_MAP[icon] ?? <NotebookText className="size-4" />;
@@ -42,7 +41,9 @@ function NotebooksContent() {
   const [searchInput, setSearchInput] = useState(search);
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data, isLoading } = useQuery(allNotebooksQueryOptions(page, search || undefined));
+  const { data, isLoading } = useQuery(
+    allNotebooksQueryOptions(page, search || undefined),
+  );
 
   const notebooks = data?.notebooks ?? [];
   const total = data?.total ?? 0;
@@ -120,13 +121,16 @@ function NotebooksContent() {
             className="pl-9"
           />
         </div>
-        <Button variant="outline" size="sm" onClick={handleSearch} className="cursor-pointer">
+        <Button
+          variant="outline"
+          onClick={handleSearch}
+          className="cursor-pointer"
+        >
           Search
         </Button>
         {search && (
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => {
               setSearchInput("");
               setParam("search", "");
@@ -142,7 +146,10 @@ function NotebooksContent() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col overflow-hidden ring-1 ring-foreground/10">
+              <div
+                key={i}
+                className="flex flex-col overflow-hidden ring-1 ring-foreground/10"
+              >
                 <Skeleton className="h-36 w-full rounded-none" />
                 <div className="flex flex-col gap-1 p-4 pt-8">
                   <Skeleton className="h-5 w-3/4" />
@@ -163,11 +170,22 @@ function NotebooksContent() {
               {search ? "No notebooks match your search" : "No notebooks yet"}
             </p>
             <p className="mb-5 text-xs text-muted-foreground">
-              {search ? "Try a different search term" : "Create your first notebook to get started"}
+              {search
+                ? "Try a different search term"
+                : "Create your first notebook to get started"}
             </p>
             {!search && (
-              <Button onClick={handleCreateNotebook} disabled={isCreating} size="sm" className="cursor-pointer">
-                {isCreating ? <Spinner className="mr-2" /> : <Plus className="mr-2 size-4" />}
+              <Button
+                onClick={handleCreateNotebook}
+                disabled={isCreating}
+                size="sm"
+                className="cursor-pointer"
+              >
+                {isCreating ? (
+                  <Spinner className="mr-2" />
+                ) : (
+                  <Plus className="mr-2 size-4" />
+                )}
                 New notebook
               </Button>
             )}
@@ -192,23 +210,42 @@ function NotebooksContent() {
 
       {totalPages > 1 && (
         <section className="flex items-center justify-center gap-2 py-8">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => handlePage(page - 1)} className="cursor-pointer">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => handlePage(page - 1)}
+            className="cursor-pointer"
+          >
             <ChevronLeft className="size-4" />
             Previous
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+            .filter(
+              (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1,
+            )
             .map((p, idx, arr) => (
               <span key={p} className="flex items-center gap-1">
                 {idx > 0 && arr[idx - 1] !== p - 1 && (
                   <span className="text-muted-foreground px-1">...</span>
                 )}
-                <Button variant={p === page ? "default" : "outline"} size="sm" onClick={() => handlePage(p)} className="min-w-9 cursor-pointer">
+                <Button
+                  variant={p === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePage(p)}
+                  className="min-w-9 cursor-pointer"
+                >
                   {p}
                 </Button>
               </span>
             ))}
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => handlePage(page + 1)} className="cursor-pointer">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => handlePage(page + 1)}
+            className="cursor-pointer"
+          >
             Next
             <ChevronRight className="size-4" />
           </Button>
