@@ -1,4 +1,4 @@
-import { DynamicIcon } from "lucide-react/dynamic";
+import { DynamicIcon, dynamicIconImports } from "lucide-react/dynamic";
 import type { IconName } from "lucide-react/dynamic";
 import { BookOpen } from "lucide-react";
 import type { LucideProps } from "lucide-react";
@@ -14,6 +14,14 @@ export function NotebookIcon({ name, ...props }: NotebookIconProps) {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-");
+
+  // Validate that the icon exists in dynamicIconImports.
+  // This prevents lucide-react from throwing a caught error to the console.
+  const isValid = normalized in dynamicIconImports;
+
+  if (!isValid) {
+    return <BookOpen {...props} />;
+  }
 
   const fallback = () => <BookOpen {...props} />;
 
