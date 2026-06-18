@@ -375,7 +375,7 @@ export function NotebookSettingsDialog({
             {icon && !isValidIcon && (
               <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
                 <span>
-                  ⚠️ Icon "{icon}" not found. Falling back to default book.
+                  Icon "{icon}" not found. Falling back to default book.
                 </span>
               </p>
             )}
