@@ -1,19 +1,19 @@
-import {
-  pgTable,
-  pgEnum,
-  varchar,
-  text,
-  jsonb,
-  boolean,
-  integer,
-  real,
-  timestamp,
-  index,
-  uniqueIndex,
-  primaryKey,
-} from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  real,
+  text,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 import { user } from "./auth-schema";
 

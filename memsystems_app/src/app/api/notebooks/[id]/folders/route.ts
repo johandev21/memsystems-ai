@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { StudyMaterialFolderService } from "@/features/study-materials/study-material-folder.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { StudyMaterialFolderService } from "@/features/study-materials/study-material-folder.service";
+import { getSession } from "@/lib/session";
 
 const service = new StudyMaterialFolderService();
 

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { AiService } from "@/features/ai/ai.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { AiService } from "@/features/ai/ai.service";
+import { getSession } from "@/lib/session";
 
 const aiService = new AiService();
 

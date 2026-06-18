@@ -1,6 +1,14 @@
 "use client";
 
-import { type ReactNode } from "react";
+import {
+  FileUp,
+  HardDrive,
+  Link as LinkIcon,
+  Type,
+  Upload,
+} from "lucide-react";
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,14 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Upload,
-  Link as LinkIcon,
-  HardDrive,
-  Type,
-  FileUp,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function AddSourceDialog({ children }: { children: ReactNode }) {
   return (

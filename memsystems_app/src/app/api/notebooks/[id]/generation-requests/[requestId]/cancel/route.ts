@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { type NextRequest, NextResponse } from "next/server";
 import { GenerationService } from "@/features/generation/generation.service";
+import { getSession } from "@/lib/session";
 
 const generationService = new GenerationService();
 

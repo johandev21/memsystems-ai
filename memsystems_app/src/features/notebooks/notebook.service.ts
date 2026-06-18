@@ -1,5 +1,5 @@
-import { and, desc, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
@@ -196,7 +196,7 @@ export class NotebookService {
     const buffer = Buffer.from(await file.arrayBuffer());
     const sha256 = createHash("sha256").update(buffer).digest("hex");
     const ext = pickExtension(file.name);
-    const key = `banners/${notebookId}/${sha256}${ext}`;
+    const key = `banners/${sha256}${ext}`;
 
     await putObject({ key, body: buffer, contentType: file.type });
 

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { StudyMaterialService } from "@/features/study-materials/study-material.service";
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { StudyMaterialService } from "@/features/study-materials/study-material.service";
+import { getSession } from "@/lib/session";
 
 const service = new StudyMaterialService();
 

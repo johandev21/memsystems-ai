@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertCircle,
   BookOpen,
   Brain,
   Compass,
@@ -10,7 +11,8 @@ import {
   Rocket,
   Terminal,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export interface NotebookBannerProps {
   title: string;
@@ -76,6 +78,7 @@ export function NotebookBanner({
   updatedAt,
   isUntitled,
 }: NotebookBannerProps) {
+  const [imageError, setImageError] = useState(false);
   const formattedDate = useMemo(() => {
     try {
       const date = new Date(updatedAt);
@@ -89,53 +92,55 @@ export function NotebookBanner({
     }
   }, [updatedAt]);
 
-  const IconComponent = getNotebookIcon(icon);
   const hasBanner = Boolean(bannerUrl);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+    toast.error(
+      "Failed to load banner image. The file may be corrupted or in an unsupported format.",
+    );
+  }, []);
+
+  const handleImageLoad = useCallback(() => {
+    setImageError(false);
+  }, []);
+
+  const IconComponent = getNotebookIcon(icon);
   const focalX = Math.round((bannerFocalPoint?.x ?? 0.5) * 100);
   const focalY = Math.round((bannerFocalPoint?.y ?? 0.5) * 100);
 
   return (
-    <div
-      className={`relative w-full h-44 overflow-hidden border border-border/80 flex flex-col justify-end p-5 select-none mb-6 ${
-        hasBanner ? "bg-cover" : "bg-muted"
-      }`}
-      style={
-        hasBanner
-          ? {
-              backgroundImage: `url(${bannerUrl})`,
-              backgroundPosition: `${focalX}% ${focalY}%`,
-            }
-          : undefined
-      }
-    >
-      {hasBanner && (
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
-      )}
-      <div className="relative z-10 flex items-start gap-3">
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center border shadow-xs ${
-            hasBanner
-              ? "border-white/20 bg-black/30 text-white"
-              : "border-border bg-background text-foreground"
-          }`}
-        >
-          <IconComponent className="h-5 w-5" />
+    <div className="relative w-full aspect-[3/1] overflow-hidden rounded-xl border border-border/80 mb-6 select-none">
+      {hasBanner && !imageError ? (
+        <img
+          src={bannerUrl ?? ""}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${focalX}% ${focalY}%` }}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-muted flex items-center justify-center">
+          {imageError && (
+            <AlertCircle className="size-6 text-muted-foreground/50" />
+          )}
         </div>
-        <div className="flex flex-col min-w-0">
-          <h3
-            className={`font-mono text-sm font-semibold tracking-tight uppercase truncate ${
-              hasBanner ? "text-white" : "text-foreground"
-            }`}
-          >
-            {isUntitled ? "Untitled notebook" : title}
-          </h3>
-          <span
-            className={`font-mono text-[11px] mt-0.5 ${
-              hasBanner ? "text-white/70" : "text-muted-foreground"
-            }`}
-          >
-            {formattedDate}
-          </span>
+      )}
+
+      <div className="absolute bottom-0 left-0 right-0 bg-background/60 backdrop-blur-md border-t">
+        <div className="flex items-center gap-4 px-6 py-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border/40 bg-background/40 text-foreground rounded-lg shadow-xs">
+            <IconComponent className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col gap-1 min-w-0">
+            <h3 className="font-semibold text-sm truncate text-foreground">
+              {isUntitled ? "Untitled notebook" : title}
+            </h3>
+            <span className="text-xs text-muted-foreground">
+              {formattedDate}
+            </span>
+          </div>
         </div>
       </div>
     </div>

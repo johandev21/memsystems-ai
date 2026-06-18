@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { type NextRequest, NextResponse } from "next/server";
 import { CardService } from "@/features/srs/card.service";
+import { getSession } from "@/lib/session";
 
 const service = new CardService();
 

@@ -1,8 +1,8 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import type { LanguageModel } from "ai";
 import { BadRequestError } from "@/lib/errors";
-import { getModelInProvider } from "../provider-catalog";
 import type { ProviderModel } from "../provider-catalog";
+import { getModelInProvider } from "../provider-catalog";
 
 export function createModel(modelId: string, apiKey?: string): LanguageModel {
   const resolved = getModelInProvider("google", modelId);

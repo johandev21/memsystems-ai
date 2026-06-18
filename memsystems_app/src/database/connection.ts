@@ -1,5 +1,5 @@
-import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
 import * as authSchema from "./auth-schema";
 import * as appSchema from "./schema";

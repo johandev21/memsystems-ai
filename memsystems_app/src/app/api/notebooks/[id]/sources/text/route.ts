@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { SourceService } from "@/features/sources/source.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { SourceService } from "@/features/sources/source.service";
+import { getSession } from "@/lib/session";
 
 const service = new SourceService();
 

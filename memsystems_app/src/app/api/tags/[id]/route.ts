@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { type NextRequest, NextResponse } from "next/server";
 import { TagService } from "@/features/srs/tag.service";
+import { getSession } from "@/lib/session";
 
 const service = new TagService();
 

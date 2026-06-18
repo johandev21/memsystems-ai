@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { NoteTypeService } from "@/features/srs/note-type.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { NoteTypeService } from "@/features/srs/note-type.service";
+import { getSession } from "@/lib/session";
 
 const service = new NoteTypeService();
 

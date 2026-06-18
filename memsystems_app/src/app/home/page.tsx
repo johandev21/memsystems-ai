@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import {
   Atom,
@@ -13,18 +12,19 @@ import {
   NotebookText,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { ActivityCalendar } from "@/components/home/activity-calendar";
 import { DeckCard } from "@/components/home/deck-card";
 import { NotebookCard } from "@/components/home/notebook-card";
 import { SectionHeader } from "@/components/home/section-header";
 import { StatCard } from "@/components/home/stat-card";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AppHeader } from "@/components/layout/app-header";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { notebooksQueryOptions } from "@/lib/notebooks";
 
 const ICON_MAP: Record<string, ReactNode> = {
@@ -87,7 +87,7 @@ export default function HomePage() {
         <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="gradient-text max-w-md font-heading text-2xl leading-snug font-bold italic">
-              Today you level up. The grind is the glow-up.
+              Today you level up. Your mind will ascend.
             </h1>
             <p className="text-sm text-muted-foreground">
               Pick up where you left off, or start something fresh.
@@ -112,7 +112,10 @@ export default function HomePage() {
           {isLoading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex flex-col overflow-hidden ring-1 ring-foreground/10">
+                <div
+                  key={i}
+                  className="flex flex-col overflow-hidden ring-1 ring-foreground/10"
+                >
                   <Skeleton className="h-36 w-full rounded-none" />
                   <div className="flex flex-col gap-1 p-4 pt-8">
                     <Skeleton className="h-5 w-3/4" />
@@ -150,18 +153,18 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {notebooks?.map((notebook) => (
-              <NotebookCard
-                key={notebook.id}
-                id={notebook.id}
-                title={notebook.title}
-                description={notebook.description}
-                fileCount={0}
-                updatedAt={formatUpdatedAt(notebook.updatedAt)}
-                imageUrl={getBanner(notebook.bannerUrl)}
-                icon={getIcon(notebook.icon)}
-              />
-            ))}
-          </div>
+                <NotebookCard
+                  key={notebook.id}
+                  id={notebook.id}
+                  title={notebook.title}
+                  description={notebook.description}
+                  fileCount={0}
+                  updatedAt={formatUpdatedAt(notebook.updatedAt)}
+                  imageUrl={getBanner(notebook.bannerUrl)}
+                  icon={getIcon(notebook.icon)}
+                />
+              ))}
+            </div>
           )}
         </section>
 

@@ -2,7 +2,7 @@ import { and, desc, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { cards, notes } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
-import { sm2, type CardState, type ReviewGrade } from "./sm2.service";
+import { type CardState, type ReviewGrade, sm2 } from "./sm2.service";
 
 interface CardWithNote {
   id: string;

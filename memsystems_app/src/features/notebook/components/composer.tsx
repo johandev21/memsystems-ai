@@ -39,44 +39,42 @@ export function Composer({
   const hasInput = input.trim().length > 0;
 
   return (
-    <div className="w-full shrink-0 px-6 pb-6 pt-2">
-      <div className="mx-auto w-full max-w-3xl">
-        <form onSubmit={onSubmit}>
-          <div className="flex w-full flex-col bg-composer-bg p-2 shadow-sm border border-border/40 transition-shadow focus-within:shadow-md focus-within:ring-4 focus-within:ring-ring/10">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(event) => onInputChange(event.target.value)}
-              placeholder="Type your message here..."
-              className="min-h-[60px] resize-none scrollbar-width-thin scrollbar-color-[var(--border)_transparent] field-sizing-none border-none bg-transparent dark:bg-transparent px-4 py-3 text-[15px] placeholder:text-muted-foreground/70 focus-visible:border-transparent focus-visible:ring-0 focus:outline-none"
-              rows={1}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  onSubmit();
-                }
-              }}
-            />
+    <div className="w-full">
+      <form onSubmit={onSubmit}>
+        <div className="flex w-full flex-col bg-composer-bg p-2 shadow-sm border border-border/40 rounded-xl transition-shadow focus-within:shadow-md focus-within:ring-4 focus-within:ring-ring/10">
+          <Textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(event) => onInputChange(event.target.value)}
+            placeholder="Type your message here..."
+            className="min-h-[60px] resize-none scrollbar-width-thin scrollbar-color-[var(--border)_transparent] field-sizing-none border-none bg-transparent dark:bg-transparent px-4 py-3 text-[15px] placeholder:text-muted-foreground/70 focus-visible:border-transparent focus-visible:ring-0 focus:outline-none"
+            rows={1}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                onSubmit();
+              }
+            }}
+          />
 
-            <div className="flex items-center justify-between px-2 pb-1 pt-2">
-              <div className="flex items-center gap-1.5">
-                <ModelSelector
-                  models={models}
-                  providers={providers}
-                  selectedModel={selectedModel}
-                  onModelChange={onModelChange}
-                />
-              </div>
-
-              <ComposerSubmitButton
-                isLoading={isLoading}
-                onStop={onStop}
-                hasInput={hasInput}
+          <div className="flex items-center justify-between px-2 pb-1 pt-2">
+            <div className="flex items-center gap-1.5">
+              <ModelSelector
+                models={models}
+                providers={providers}
+                selectedModel={selectedModel}
+                onModelChange={onModelChange}
               />
             </div>
+
+            <ComposerSubmitButton
+              isLoading={isLoading}
+              onStop={onStop}
+              hasInput={hasInput}
+            />
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }

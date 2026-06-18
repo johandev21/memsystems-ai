@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { cards, noteTags, noteTypes, notes, tags } from "@/database/schema";
+import { cards, notes, noteTags, noteTypes, tags } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 
 export interface CreateNoteInput {
@@ -18,7 +18,7 @@ export class NoteService {
     userId: string,
     filters?: { tagId?: string; notebookId?: string },
   ) {
-    let conditions = [eq(notes.userId, userId)];
+    const conditions = [eq(notes.userId, userId)];
 
     if (filters?.tagId) {
       const matchingNoteIds = await db

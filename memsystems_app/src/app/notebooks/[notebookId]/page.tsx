@@ -1,6 +1,5 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -8,6 +7,7 @@ import {
   PanelRightOpen,
   Plus,
 } from "lucide-react";
+import { useParams } from "next/navigation";
 import type { RefObject } from "react";
 import { useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";

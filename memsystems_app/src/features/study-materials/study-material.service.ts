@@ -7,9 +7,9 @@ import {
 } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import {
+  type StudyMaterialKind,
   shuffleQuizOptions,
   validateContent,
-  type StudyMaterialKind,
 } from "./shapes";
 
 export interface CreateStudyMaterialInput {

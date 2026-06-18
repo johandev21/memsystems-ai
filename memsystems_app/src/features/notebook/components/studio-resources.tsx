@@ -3,11 +3,11 @@
 import {
   Brain,
   FileText,
-  Map as MapIcon,
-  Presentation,
   HelpCircle,
-  Network,
   type LucideIcon,
+  Map as MapIcon,
+  Network,
+  Presentation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

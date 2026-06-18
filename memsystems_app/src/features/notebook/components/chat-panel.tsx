@@ -100,51 +100,53 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
 
   return (
     <div className="flex flex-1 h-full w-full flex-col min-h-0">
-      <ScrollArea
-        
-        className="flex-1 min-h-0"
-        ref={scrollAreaRef}
-      >
-        <div className="mx-auto w-full max-w-3xl px-6 py-6 min-h-full flex flex-col justify-start">
-          <NotebookBanner
-            title={notebook.title}
-            icon={notebook.icon}
-            bannerUrl={notebook.bannerUrl}
-            bannerFocalPoint={notebook.bannerFocalPoint}
-            updatedAt={notebook.updatedAt}
-            isUntitled={showBannerAsUntitled}
+      <div className="mx-auto w-full max-w-3xl flex flex-col min-h-0 flex-1">
+        <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
+          <div className="py-6 min-h-full flex flex-col justify-start">
+            <NotebookBanner
+              title={notebook.title}
+              icon={notebook.icon}
+              bannerUrl={notebook.bannerUrl}
+              bannerFocalPoint={notebook.bannerFocalPoint}
+              updatedAt={notebook.updatedAt}
+              isUntitled={showBannerAsUntitled}
+            />
+
+            <div className="px-6">
+              {hasMessages ? (
+                <ChatMessageList
+                  messages={messages}
+                  isThinking={status === "submitted"}
+                  onCopy={handleCopy}
+                  onRegenerate={handleRegenerate}
+                />
+              ) : (
+                <ChatEmptyState
+                  notebookTitle={notebook.title}
+                  description={notebook.description}
+                  isUntitled={isUntitled}
+                  onCtaClick={handleCtaClick}
+                />
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+
+        <div className="shrink-0 px-6 pb-6 pt-2">
+          <Composer
+            input={input}
+            onInputChange={setInput}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            onStop={stop}
+            models={modelOptions}
+            providers={providerOptions}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            textareaRef={composerTextareaRef}
           />
-
-          {hasMessages ? (
-            <ChatMessageList
-              messages={messages}
-              isThinking={status === "submitted"}
-              onCopy={handleCopy}
-              onRegenerate={handleRegenerate}
-            />
-          ) : (
-            <ChatEmptyState
-              notebookTitle={notebook.title}
-              description={notebook.description}
-              isUntitled={isUntitled}
-              onCtaClick={handleCtaClick}
-            />
-          )}
         </div>
-      </ScrollArea>
-
-      <Composer
-        input={input}
-        onInputChange={setInput}
-        onSubmit={handleSubmit}
-        isLoading={isLoading}
-        onStop={stop}
-        models={modelOptions}
-        providers={providerOptions}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        textareaRef={composerTextareaRef}
-      />
+      </div>
     </div>
   );
 }

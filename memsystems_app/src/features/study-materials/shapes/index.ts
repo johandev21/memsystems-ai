@@ -1,18 +1,18 @@
-import { z } from "zod";
+import type { z } from "zod";
+import { BadRequestError } from "@/lib/errors";
+import { MindMapContent } from "./mind-map";
 import { QuizContent } from "./quiz";
-import { SimpleFlashcardContent } from "./simple-flashcard";
 import { ReportContent } from "./report";
 import { RoadmapContent } from "./roadmap";
+import { SimpleFlashcardContent } from "./simple-flashcard";
 import { SlideDeckContent } from "./slide-deck";
-import { MindMapContent } from "./mind-map";
-import { BadRequestError } from "@/lib/errors";
 
+export { MindMapContent } from "./mind-map";
 export { QuizContent, shuffleQuizOptions } from "./quiz";
-export { SimpleFlashcardContent } from "./simple-flashcard";
 export { ReportContent } from "./report";
 export { RoadmapContent } from "./roadmap";
+export { SimpleFlashcardContent } from "./simple-flashcard";
 export { SlideDeckContent } from "./slide-deck";
-export { MindMapContent } from "./mind-map";
 
 export type StudyMaterialKind =
   | "quiz"

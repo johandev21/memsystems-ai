@@ -2,6 +2,7 @@
 
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
+  AlertCircle,
   BookOpen,
   Brain,
   Compass,
@@ -46,6 +47,7 @@ const PRESET_ICONS = [
 
 const MAX_BANNER_BYTES = 2 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
 interface NotebookSettingsDialogProps {
   notebookId: string;
@@ -130,11 +132,15 @@ export function NotebookSettingsDialog({
   const handleFileSelect = (file: File) => {
     setError(null);
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      setError("Only JPEG, PNG, and WebP images are supported.");
+      const msg = `Unsupported format "${file.type || "unknown"}". Only JPEG, PNG, and WebP images are supported.`;
+      setError(msg);
+      toast.error(msg);
       return;
     }
     if (file.size > MAX_BANNER_BYTES) {
-      setError("Banner image must be smaller than 2 MB.");
+      const msg = `File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is 2 MB.`;
+      setError(msg);
+      toast.error(msg);
       return;
     }
     const url = URL.createObjectURL(file);
@@ -361,7 +367,10 @@ export function NotebookSettingsDialog({
                 id="banner-input"
                 ref={fileInputRef}
                 type="file"
-                accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                accept={[
+                  ...ACCEPTED_IMAGE_TYPES,
+                  ...ACCEPTED_IMAGE_EXTENSIONS,
+                ].join(",")}
                 className="sr-only"
                 onChange={handleInputChange}
               />
@@ -438,7 +447,12 @@ export function NotebookSettingsDialog({
                 </div>
               )}
             </label>
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {error && (
+              <div className="flex items-start gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>

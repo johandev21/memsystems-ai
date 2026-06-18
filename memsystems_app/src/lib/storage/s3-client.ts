@@ -1,9 +1,9 @@
 import {
-  isLocalStorageEnabled,
   localDelete as fsDelete,
   localGetBuffer as fsGet,
   localPresign as fsPresign,
   localPut as fsPut,
+  isLocalStorageEnabled,
 } from "./local-fs";
 import { s3Delete, s3GetBuffer, s3Presign, s3Put } from "./s3-backend";
 

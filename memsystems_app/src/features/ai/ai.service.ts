@@ -1,11 +1,11 @@
-import { streamText, convertToModelMessages } from "ai";
+import type { LanguageModel } from "ai";
+import { convertToModelMessages, streamText } from "ai";
 import { BadRequestError } from "@/lib/errors";
 import { getModelInProvider } from "./provider-catalog";
-import * as openaiProvider from "./providers/openai";
 import * as anthropicProvider from "./providers/anthropic";
-import * as googleProvider from "./providers/google";
 import * as deepseekProvider from "./providers/deepseek";
-import type { LanguageModel } from "ai";
+import * as googleProvider from "./providers/google";
+import * as openaiProvider from "./providers/openai";
 
 const SYSTEM_PROMPT =
   "You are a helpful study assistant. Help users understand topics, generate study materials, explain concepts, and plan their learning. Be concise, clear, and encouraging.";
