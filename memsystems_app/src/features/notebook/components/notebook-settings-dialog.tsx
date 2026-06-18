@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { NotebookIcon } from "@/components/ui/notebook-icon";
+import { dynamicIconImports } from "lucide-react/dynamic";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -63,6 +65,12 @@ export function NotebookSettingsDialog({
   const [description, setDescription] = useState(notebook.description);
   const [icon, setIcon] = useState(notebook.icon);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+
+  const isValidIcon = useMemo(() => {
+    if (!icon) return true;
+    const normalized = icon.toLowerCase().trim().replace(/\s+/g, "-");
+    return normalized in dynamicIconImports;
+  }, [icon]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [bannerRemoved, setBannerRemoved] = useState(false);
   const [focalPoint, setFocalPoint] = useState<{ x: number; y: number }>(
@@ -338,12 +346,39 @@ export function NotebookSettingsDialog({
                 </button>
               ))}
             </div>
-            <Input
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="Or type a custom icon name"
-              maxLength={50}
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <Input
+                  value={icon || ""}
+                  onChange={(e) => setIcon(e.target.value)}
+                  placeholder="Or type a custom icon name (e.g. home, rocket)"
+                  maxLength={50}
+                  className={cn(
+                    icon &&
+                      !isValidIcon &&
+                      "border-destructive focus-visible:ring-destructive/20 text-destructive",
+                  )}
+                />
+              </div>
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/30">
+                <NotebookIcon
+                  name={icon}
+                  className={cn(
+                    "size-4",
+                    icon && !isValidIcon
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                  )}
+                />
+              </div>
+            </div>
+            {icon && !isValidIcon && (
+              <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                <span>
+                  ⚠️ Icon "{icon}" not found. Falling back to default book.
+                </span>
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
