@@ -55,6 +55,14 @@ function toResponse(nb: typeof notebooks.$inferSelect): NotebookResponse {
 }
 
 export class NotebookService {
+  async formatNotebook(nb: typeof notebooks.$inferSelect) {
+    const res = toResponse(nb);
+    res.bannerUrl = nb.banner
+      ? await presignDownload(nb.banner, BANNER_PRESIGN_TTL)
+      : null;
+    return res;
+  }
+
   async list(userId: string) {
     const rows = await db
       .select()
@@ -62,15 +70,7 @@ export class NotebookService {
       .where(eq(notebooks.userId, userId))
       .orderBy(desc(notebooks.updatedAt));
 
-    return Promise.all(
-      rows.map(async (nb) => {
-        const res = toResponse(nb);
-        res.bannerUrl = nb.banner
-          ? await presignDownload(nb.banner, BANNER_PRESIGN_TTL)
-          : null;
-        return res;
-      }),
-    );
+    return Promise.all(rows.map((nb) => this.formatNotebook(nb)));
   }
 
   async get(userId: string, id: string) {
@@ -81,11 +81,7 @@ export class NotebookService {
     if (!row) {
       throw new NotFoundError("Notebook");
     }
-    const res = toResponse(row);
-    res.bannerUrl = row.banner
-      ? await presignDownload(row.banner, BANNER_PRESIGN_TTL)
-      : null;
-    return res;
+    return this.formatNotebook(row);
   }
 
   async create(userId: string, input: CreateNotebookInput) {

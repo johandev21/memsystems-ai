@@ -50,7 +50,11 @@ export async function GET(req: NextRequest) {
       .limit(limit ?? 100)
       .offset(offset ?? 0);
 
-    return NextResponse.json({ notebooks: rows, total });
+    const notebooksRes = await Promise.all(
+      rows.map((row) => service.formatNotebook(row)),
+    );
+
+    return NextResponse.json({ notebooks: notebooksRes, total });
   }
 
   const all = await service.list(session.user.id);
