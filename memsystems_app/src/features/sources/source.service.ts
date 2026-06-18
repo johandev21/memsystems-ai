@@ -1,5 +1,5 @@
-import { and, desc, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
@@ -217,7 +217,7 @@ function buildS3Key(
   originalName: string,
 ): string {
   const ext = pickExtension(originalName);
-  return `sources/${notebookId}/${sha256}${ext}`;
+  return `sources/${sha256}${ext}`;
 }
 
 function pickExtension(originalName: string): string {

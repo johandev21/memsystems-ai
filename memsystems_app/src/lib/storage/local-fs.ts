@@ -9,14 +9,14 @@ import { dirname, join, resolve, sep } from "node:path";
 
 const DEFAULT_ROOT = resolve(process.cwd(), "dev-storage");
 const TOKEN_SECRET =
-  process.env.DEV_STORAGE_TOKEN_SECRET ?? randomBytes(32).toString("hex");
+  process.env.DEV_STORAGE_TOKEN_SECRET || "dev-storage-secret-fallback-123456";
 const DEFAULT_EXPIRES_SECONDS = 300;
 
 let cachedRoot: string | null = null;
 
 function getRoot(): string {
   if (cachedRoot) return cachedRoot;
-  const configured = process.env.DEV_STORAGE_DIR ?? DEFAULT_ROOT;
+  const configured = process.env.DEV_STORAGE_DIR || DEFAULT_ROOT;
   cachedRoot = resolve(configured);
   return cachedRoot;
 }
@@ -70,7 +70,7 @@ export async function localPresign(
     params.set("filename", downloadFilename);
   }
   const base = process.env.DEV_STORAGE_PUBLIC_URL ?? "http://localhost:3000";
-  return `${base}/__dev-storage/${encodeURIComponent(key)}?${params.toString()}`;
+  return `${base}/dev-storage/${encodeURIComponent(key)}?${params.toString()}`;
 }
 
 export interface LocalFileMeta {
@@ -121,6 +121,13 @@ export function contentTypeForKey(key: string): string {
       return "text/plain";
     case "docx":
       return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
     default:
       return "application/octet-stream";
   }

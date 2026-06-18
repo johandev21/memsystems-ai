@@ -13,8 +13,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { StudyMaterialsTree, fileTreeData } from "./study-materials-tree";
 import { RESOURCES } from "./studio-resources";
+import { fileTreeData, StudyMaterialsTree } from "./study-materials-tree";
 
 export function MobileExpandedStudyMaterials() {
   return (
@@ -61,7 +61,7 @@ export function MobileExpandedStudyMaterials() {
           <p className="text-xs text-muted-foreground mb-2.5 font-medium">
             Generate new material
           </p>
-          <ScrollArea  className="w-full">
+          <ScrollArea className="w-full">
             <div className="flex items-center gap-2 pb-1">
               {RESOURCES.map((resource) => (
                 <Button

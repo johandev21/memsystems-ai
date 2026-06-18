@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { TagService } from "@/features/srs/tag.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { TagService } from "@/features/srs/tag.service";
+import { getSession } from "@/lib/session";
 
 const service = new TagService();
 

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { PromotionService } from "@/features/srs/promotion.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { PromotionService } from "@/features/srs/promotion.service";
+import { getSession } from "@/lib/session";
 
 const service = new PromotionService();
 

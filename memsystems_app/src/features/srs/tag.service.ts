@@ -1,6 +1,6 @@
 import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { noteTags, notes, tags } from "@/database/schema";
+import { notes, noteTags, tags } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 
 export interface TagInfo {

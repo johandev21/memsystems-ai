@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
+import { getSession } from "@/lib/session";
 
 const chatService = new NotebookChatService();
 

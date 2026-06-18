@@ -2,6 +2,7 @@
 
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
+  AlertCircle,
   BookOpen,
   Brain,
   Compass,
@@ -17,6 +18,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { NotebookIcon } from "@/components/ui/notebook-icon";
+import { dynamicIconImports } from "lucide-react/dynamic";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -46,6 +49,7 @@ const PRESET_ICONS = [
 
 const MAX_BANNER_BYTES = 2 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
 interface NotebookSettingsDialogProps {
   notebookId: string;
@@ -61,6 +65,12 @@ export function NotebookSettingsDialog({
   const [description, setDescription] = useState(notebook.description);
   const [icon, setIcon] = useState(notebook.icon);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+
+  const isValidIcon = useMemo(() => {
+    if (!icon) return true;
+    const normalized = icon.toLowerCase().trim().replace(/\s+/g, "-");
+    return normalized in dynamicIconImports;
+  }, [icon]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [bannerRemoved, setBannerRemoved] = useState(false);
   const [focalPoint, setFocalPoint] = useState<{ x: number; y: number }>(
@@ -130,11 +140,15 @@ export function NotebookSettingsDialog({
   const handleFileSelect = (file: File) => {
     setError(null);
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      setError("Only JPEG, PNG, and WebP images are supported.");
+      const msg = `Unsupported format "${file.type || "unknown"}". Only JPEG, PNG, and WebP images are supported.`;
+      setError(msg);
+      toast.error(msg);
       return;
     }
     if (file.size > MAX_BANNER_BYTES) {
-      setError("Banner image must be smaller than 2 MB.");
+      const msg = `File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is 2 MB.`;
+      setError(msg);
+      toast.error(msg);
       return;
     }
     const url = URL.createObjectURL(file);
@@ -332,12 +346,39 @@ export function NotebookSettingsDialog({
                 </button>
               ))}
             </div>
-            <Input
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="Or type a custom icon name"
-              maxLength={50}
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <Input
+                  value={icon || ""}
+                  onChange={(e) => setIcon(e.target.value)}
+                  placeholder="Or type a custom icon name (e.g. home, rocket)"
+                  maxLength={50}
+                  className={cn(
+                    icon &&
+                      !isValidIcon &&
+                      "border-destructive focus-visible:ring-destructive/20 text-destructive",
+                  )}
+                />
+              </div>
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/30">
+                <NotebookIcon
+                  name={icon}
+                  className={cn(
+                    "size-4",
+                    icon && !isValidIcon
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                  )}
+                />
+              </div>
+            </div>
+            {icon && !isValidIcon && (
+              <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
+                <span>
+                  Icon "{icon}" not found. Falling back to default book.
+                </span>
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -361,7 +402,10 @@ export function NotebookSettingsDialog({
                 id="banner-input"
                 ref={fileInputRef}
                 type="file"
-                accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                accept={[
+                  ...ACCEPTED_IMAGE_TYPES,
+                  ...ACCEPTED_IMAGE_EXTENSIONS,
+                ].join(",")}
                 className="sr-only"
                 onChange={handleInputChange}
               />
@@ -438,7 +482,12 @@ export function NotebookSettingsDialog({
                 </div>
               )}
             </label>
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {error && (
+              <div className="flex items-start gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>

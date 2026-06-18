@@ -1,7 +1,7 @@
 import { streamText } from "ai";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { notebooks, notebookChatMessages, sources } from "@/database/schema";
+import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { AiService } from "../ai/ai.service";
 import { ProviderKeyService } from "../ai/provider-key.service";

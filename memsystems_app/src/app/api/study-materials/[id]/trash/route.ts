@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { type NextRequest, NextResponse } from "next/server";
 import { TrashService } from "@/features/study-materials/trash.service";
+import { getSession } from "@/lib/session";
 
 const service = new TrashService();
 

@@ -1,4 +1,4 @@
-import { streamText, Output } from "ai";
+import { Output, streamText } from "ai";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import {
@@ -9,19 +9,19 @@ import {
 } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import {
-  validateContent,
-  QuizContent,
-  SimpleFlashcardContent,
-  ReportContent,
-  RoadmapContent,
-  SlideDeckContent,
-  MindMapContent,
-  type StudyMaterialKind,
-} from "../study-materials/shapes";
-import { getPromptTemplate } from "./prompts";
 import { AiService } from "../ai/ai.service";
 import { ProviderKeyService } from "../ai/provider-key.service";
+import {
+  MindMapContent,
+  QuizContent,
+  ReportContent,
+  RoadmapContent,
+  SimpleFlashcardContent,
+  SlideDeckContent,
+  type StudyMaterialKind,
+  validateContent,
+} from "../study-materials/shapes";
+import { getPromptTemplate } from "./prompts";
 
 const aiService = new AiService();
 const providerKeyService = new ProviderKeyService();

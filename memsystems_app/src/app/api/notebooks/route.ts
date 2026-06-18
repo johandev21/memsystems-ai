@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { NotebookService } from "@/features/notebooks/notebook.service";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
-import { z } from "zod";
+import { NotebookService } from "@/features/notebooks/notebook.service";
+import { getSession } from "@/lib/session";
 
 const service = new NotebookService();
 
@@ -50,7 +50,11 @@ export async function GET(req: NextRequest) {
       .limit(limit ?? 100)
       .offset(offset ?? 0);
 
-    return NextResponse.json({ notebooks: rows, total });
+    const notebooksRes = await Promise.all(
+      rows.map((row) => service.formatNotebook(row)),
+    );
+
+    return NextResponse.json({ notebooks: notebooksRes, total });
   }
 
   const all = await service.list(session.user.id);

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { type NextRequest, NextResponse } from "next/server";
 import { ProviderKeyService } from "@/features/ai/provider-key.service";
+import { getSession } from "@/lib/session";
 
 const service = new ProviderKeyService();
 

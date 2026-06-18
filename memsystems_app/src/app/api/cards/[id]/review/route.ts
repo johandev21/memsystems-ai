@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { CardService } from "@/features/srs/card.service";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { CardService } from "@/features/srs/card.service";
+import { getSession } from "@/lib/session";
 
 const service = new CardService();
 

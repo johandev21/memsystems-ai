@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import Link from "next/link";
 
 export default async function LandingPage() {
   const session = await getSession();

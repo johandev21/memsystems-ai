@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { providerKeys } from "@/database/schema";
-import { encrypt, decrypt } from "@/lib/crypto";
+import { decrypt, encrypt } from "@/lib/crypto";
 import { NotFoundError } from "@/lib/errors";
 
 export interface ProviderKeyInfo {

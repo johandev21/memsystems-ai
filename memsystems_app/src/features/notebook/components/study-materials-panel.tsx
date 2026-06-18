@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ExpandedStudyMaterials } from "./expanded-study-materials";
-import { StudyMaterialsTree, fileTreeData } from "./study-materials-tree";
+import { fileTreeData, StudyMaterialsTree } from "./study-materials-tree";
 
 export function StudyMaterialsPanel() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -39,7 +39,7 @@ export function StudyMaterialsPanel() {
       {isExpanded && (
         <>
           <Separator />
-          <ScrollArea  className="h-[250px] w-full pr-3">
+          <ScrollArea className="h-[250px] w-full pr-3">
             <CardContent className="pb-2">
               <StudyMaterialsTree items={fileTreeData} />
             </CardContent>
