@@ -45,3 +45,10 @@ export class BadRequestError extends DomainError {
     this.name = "BadRequestError";
   }
 }
+
+export class ServiceUnavailableError extends DomainError {
+  constructor(message = "Service unavailable", options?: DomainErrorOptions) {
+    super(message, 503, "service_unavailable", options);
+    this.name = "ServiceUnavailableError";
+  }
+}

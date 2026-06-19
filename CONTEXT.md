@@ -91,10 +91,21 @@ The freeform text the User supplies with a Generation Request, phrased as the re
 A persistent, per-Notebook conversation with the Study Assistant. The Assistant is grounded in the Notebook's selected Sources — it answers questions using only what the Sources say and cites which Source(s) it drew from. The full message history is stored.
 
 ### Study Assistant
-The AI module that generates Study Materials, answers questions via chat, and powers the Notebook workspace. Uses either (a) platform-supplied model access or (b) the User's Provider Key. Accessible only to authenticated Users.
+The AI module that generates Study Materials, answers Notebook Chat, and powers the workspace. This pass runs on **OpenCode** via the local CLI bridge, configured by the operator — there is no platform-supplied or per-user key path yet. Accessible only to authenticated Users when OpenCode is connected. Per-user Provider Keys are deferred to a later pass.
 
 ### Provider
-An external LLM service the User can connect to. MVP supports: **OpenAI, Anthropic, Google (Gemini), DeepSeek**. Each Provider has a fixed menu of models.
+An external LLM service the Study Assistant calls. This pass supports **OpenCode** only, via the OpenCode local CLI bridge (`ai-sdk-provider-opencode-sdk`). OpenCode exposes two tiers — **OpenCode Zen** and **OpenCode Go**. Direct cloud providers (OpenAI, Anthropic, Google, DeepSeek) and per-user credentials are deferred to a later pass.
+_Avoid_: vendor, backend
+
+### OpenCode Zen
+An OpenCode tier billed per-usage, exposing Western models under `anthropic/`, `openai/`, `google/` ids. Not enabled this pass.
+
+### OpenCode Go
+An OpenCode tier billed by subscription, exposing Chinese models under `opencode-go/` ids (e.g. `opencode-go/glm-5.2`). Enabled this pass; the operator's subscription credentials live in the OpenCode CLI config, not per-User.
 
 ### Provider Key
-A User-supplied API key for an external Provider. Stored encrypted at rest, scoped to a single User. Opt-in: Users can run the Study Assistant without any Provider Key using platform-supplied access.
+A User-supplied API key for an external Provider. Stored encrypted at rest, scoped to a single User. **Deferred this pass** — the Study Assistant runs on operator-configured OpenCode, which has no per-user key. The encrypted-store + test-on-save validation pattern returns when direct cloud providers are re-enabled.
+
+### Provider Connection
+The operator-side reachability state of OpenCode — the server is running and configured with valid subscription credentials. The Study Assistant is only available when OpenCode is connected; Users see a global "AI unavailable" state when it isn't. (In the future per-user BYOK model, this will mean a User holds a validated Provider Key.)
+_Avoid_: connected account, linked provider

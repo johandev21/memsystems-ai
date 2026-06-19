@@ -1,48 +1,50 @@
-"use client";
-
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
-import type { FormEvent, MutableRefObject } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { FormEvent } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  type ModelOption,
-  modelsQueryOptions,
-  type ProviderCatalogEntry,
-  providersQueryOptions,
-} from "@/lib/models";
+import type { ModelOption } from "@/lib/models";
+import { modelsQueryOptions } from "@/lib/models";
 import { notebookQueryOptions } from "@/lib/notebooks";
-import { useDefaultModelSelection } from "../hooks/use-model-selection";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { Composer } from "./composer";
 import { NotebookBanner } from "./notebook-banner";
 
-const CHAT_API_URL = "/api/ai/chat";
-const DEFAULT_MODEL_ID = "gpt-4.1-nano";
-const FALLBACK_PROVIDER_ID = "openai";
+const DEFAULT_MODEL_ID = "opencode-go/glm-5.2";
 
 export function ChatPanel({ notebookId }: { notebookId: string }) {
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
-  const { data: providers } = useQuery(providersQueryOptions);
 
   const modelOptions: ModelOption[] = models ?? [];
-  const providerOptions: ProviderCatalogEntry[] = providers ?? [];
 
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL_ID);
+
+  useEffect(() => {
+    if (modelOptions.length > 0 && selectedModel === DEFAULT_MODEL_ID) {
+      setSelectedModel(modelOptions[0].id);
+    }
+  }, [modelOptions, selectedModel]);
+
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
 
-  useDefaultModelSelection(
-    modelOptions,
-    selectedModel,
-    setSelectedModel,
-    DEFAULT_MODEL_ID,
-  );
-
-  const transport = useChatTransport(providers, selectedModelRef);
+  const transport = useMemo(() => {
+    return new DefaultChatTransport({
+      api: `/api/notebooks/${notebookId}/chat`,
+      credentials: "include",
+      fetch: (url, init) => {
+        const body = JSON.parse((init as RequestInit)?.body as string) || {};
+        body.model = selectedModelRef.current;
+        return fetch(url, {
+          ...(init as RequestInit),
+          body: JSON.stringify(body),
+        });
+      },
+    });
+  }, [notebookId]);
 
   const { messages, sendMessage, regenerate, status, stop } = useChat({
     transport,
@@ -140,7 +142,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
             isLoading={isLoading}
             onStop={stop}
             models={modelOptions}
-            providers={providerOptions}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             textareaRef={composerTextareaRef}
@@ -149,43 +150,4 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       </div>
     </div>
   );
-}
-
-function useChatTransport(
-  providers: ProviderCatalogEntry[] | undefined,
-  selectedModelRef: MutableRefObject<string>,
-) {
-  return useMemo(() => {
-    return new DefaultChatTransport({
-      api: CHAT_API_URL,
-      credentials: "include",
-      fetch: (url, init) => {
-        let body: Record<string, unknown> = {};
-        try {
-          body = JSON.parse((init as RequestInit)?.body as string);
-        } catch {
-          body = {};
-        }
-
-        const modelId = selectedModelRef.current;
-        const providerId = resolveProviderId(providers, modelId);
-        body.provider = providerId;
-        body.model = modelId;
-
-        return fetch(url, {
-          ...(init as RequestInit),
-          body: JSON.stringify(body),
-        });
-      },
-    });
-  }, [providers, selectedModelRef]);
-}
-
-function resolveProviderId(
-  providers: ProviderCatalogEntry[] | undefined,
-  modelId: string,
-): string {
-  if (!providers) return FALLBACK_PROVIDER_ID;
-  const entry = providers.find((p) => p.models.some((m) => m.id === modelId));
-  return entry ? entry.id : FALLBACK_PROVIDER_ID;
 }

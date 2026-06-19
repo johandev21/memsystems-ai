@@ -16,20 +16,3 @@ export const modelsQueryOptions = queryOptions({
   queryKey: ["models"],
   queryFn: fetchModels,
 });
-
-export interface ProviderCatalogEntry {
-  id: string;
-  name: string;
-  models: { id: string; displayName: string }[];
-}
-
-async function fetchProviders(): Promise<ProviderCatalogEntry[]> {
-  const res = await fetch(getApiUrl("/api/ai/providers"));
-  if (!res.ok) throw new Error("Failed to fetch providers");
-  return res.json();
-}
-
-export const providersQueryOptions = queryOptions({
-  queryKey: ["providers"],
-  queryFn: fetchProviders,
-});

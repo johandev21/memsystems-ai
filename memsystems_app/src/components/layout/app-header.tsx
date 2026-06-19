@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, Settings } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -95,6 +95,13 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => router.push("/settings/connection")}
+            >
+              <Settings className="mr-2 size-4" />
+              <span>Connection</span>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 size-4" />

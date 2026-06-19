@@ -4,7 +4,7 @@ import { ArrowUp, Square } from "lucide-react";
 import type { FormEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import type { ModelOption, ProviderCatalogEntry } from "@/lib/models";
+import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
 import { useTextareaAutosize } from "../hooks/use-textarea-autosize";
 import { ModelSelector } from "./model-selector";
@@ -16,7 +16,6 @@ export interface ComposerProps {
   isLoading: boolean;
   onStop: () => void;
   models: ModelOption[];
-  providers: ProviderCatalogEntry[];
   selectedModel: string;
   onModelChange: (model: string) => void;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
@@ -29,7 +28,6 @@ export function Composer({
   isLoading,
   onStop,
   models,
-  providers,
   selectedModel,
   onModelChange,
   textareaRef,
@@ -61,7 +59,6 @@ export function Composer({
             <div className="flex items-center gap-1.5">
               <ModelSelector
                 models={models}
-                providers={providers}
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
               />

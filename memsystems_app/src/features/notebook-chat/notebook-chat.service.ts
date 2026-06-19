@@ -3,11 +3,10 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
-import { AiService } from "../ai/ai.service";
-import { ProviderKeyService } from "../ai/provider-key.service";
+import { opencodeProvider } from "../ai/providers/opencode";
+import { connectionService } from "../ai/connection.service";
 
-const aiService = new AiService();
-const providerKeyService = new ProviderKeyService();
+const LABEL = "[chat-service]";
 
 const SYSTEM_PROMPT_TEMPLATE = `You are a study assistant. Answer the user's question using ONLY the provided source materials. If the answer is not found in the sources, say "I don't have enough information from the provided sources to answer that question."
 
@@ -28,7 +27,6 @@ export interface ChatMessage {
 export interface SendInput {
   content: string;
   model: string;
-  provider?: string;
 }
 
 export class NotebookChatService {
@@ -54,7 +52,11 @@ export class NotebookChatService {
   }
 
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
+    console.log(LABEL, "sendMessage called", { userId, notebookId, contentLength: input.content.length, model: input.model });
+
     await this.assertNotebookOwner(userId, notebookId);
+    await connectionService.requireConnected();
+    console.log(LABEL, "auth + connection OK");
 
     const [userMessage] = await db
       .insert(notebookChatMessages)
@@ -64,8 +66,11 @@ export class NotebookChatService {
         content: input.content,
       })
       .returning();
+    console.log(LABEL, "user message inserted", { id: userMessage.id });
 
     const sourceTexts = await this.fetchSourceTexts(notebookId);
+    console.log(LABEL, "source texts fetched", { count: sourceTexts.length, totalChars: sourceTexts.reduce((s, t) => s + t.rawText.length, 0) });
+
     const sourceContext = sourceTexts
       .map((s) => `[Source: ${s.id}] ${s.title}\n${s.rawText}`)
       .join("\n\n---\n\n")
@@ -73,21 +78,14 @@ export class NotebookChatService {
 
     const allHistory = await this.getRecentHistory(notebookId, 20);
     const history = allHistory.filter((m) => m.id !== userMessage.id);
+    console.log(LABEL, "history fetched", { total: allHistory.length, filtered: history.length });
 
-    const providerId = input.provider ?? "openai";
     const modelId = input.model;
 
-    const userKey = await providerKeyService.getDecryptedKey(
-      userId,
-      providerId,
-    );
+    const model = opencodeProvider.createModel(modelId);
+    console.log(LABEL, "model created", { modelId });
 
-    const model = aiService.createModel(
-      providerId,
-      modelId,
-      userKey ?? undefined,
-    );
-
+    console.log(LABEL, "calling streamText with history count:", history.length);
     const result = streamText({
       model,
       system:
@@ -98,20 +96,25 @@ export class NotebookChatService {
         role: m.role as "user" | "assistant",
         content: m.content,
       })),
-      temperature: 0.7,
-      onFinish: async ({ text }) => {
+      onFinish: async ({ text, finishReason, usage }) => {
+        console.log(LABEL, "onFinish fired", { finishReason, usage, textLength: text.length });
         const citedSourceIds = this.extractCitations(text);
         const cleanContent = this.stripCitations(text);
 
-        await db.insert(notebookChatMessages).values({
-          notebookId,
-          role: "assistant",
-          content: cleanContent,
-          citedSourceIds,
-        });
+        const [saved] = await db
+          .insert(notebookChatMessages)
+          .values({
+            notebookId,
+            role: "assistant",
+            content: cleanContent,
+            citedSourceIds,
+          })
+          .returning();
+        console.log(LABEL, "assistant message saved to DB", { id: saved.id });
       },
     });
 
+    console.log(LABEL, "streamText started, returning UIMessageStreamResponse");
     return {
       stream: result.toUIMessageStreamResponse(),
       userMessageId: userMessage.id,

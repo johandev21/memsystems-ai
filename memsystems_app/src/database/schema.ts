@@ -43,13 +43,6 @@ export const cardStateEnum = pgEnum("card_state", [
   "review",
 ]);
 
-export const providerEnum = pgEnum("provider", [
-  "openai",
-  "anthropic",
-  "google",
-  "deepseek",
-]);
-
 export const notebooks = pgTable(
   "notebooks",
   {
@@ -319,31 +312,6 @@ export const noteTags = pgTable(
   ],
 );
 
-export const providerKeys = pgTable(
-  "provider_keys",
-  {
-    id: varchar("id")
-      .$defaultFn(() => createId())
-      .primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    provider: providerEnum("provider").notNull(),
-    encryptedKey: text("encrypted_key").notNull(),
-    iv: text("iv").notNull(),
-    authTag: text("auth_tag").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    lastUsedAt: timestamp("last_used_at"),
-  },
-  (table) => [
-    index("provider_keys_user_id_idx").on(table.userId),
-    uniqueIndex("provider_keys_user_provider_uq").on(
-      table.userId,
-      table.provider,
-    ),
-  ],
-);
-
 export const notebooksRelations = relations(notebooks, ({ many }) => ({
   sources: many(sources),
   studyMaterials: many(studyMaterials),
@@ -454,7 +422,6 @@ export const table = {
   cards,
   tags,
   noteTags,
-  providerKeys,
 } as const;
 
 export type Table = typeof table;

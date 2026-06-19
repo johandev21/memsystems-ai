@@ -9,8 +9,8 @@ import {
 } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import { AiService } from "../ai/ai.service";
-import { ProviderKeyService } from "../ai/provider-key.service";
+import { opencodeProvider } from "../ai/providers/opencode";
+import { connectionService } from "../ai/connection.service";
 import {
   MindMapContent,
   QuizContent,
@@ -23,16 +23,13 @@ import {
 } from "../study-materials/shapes";
 import { getPromptTemplate } from "./prompts";
 
-const aiService = new AiService();
-const providerKeyService = new ProviderKeyService();
-
 const MODELS_BY_KIND: Record<StudyMaterialKind, string> = {
-  quiz: "gpt-4.1-mini",
-  simple_flashcard: "gpt-4.1-mini",
-  report: "gpt-4.1-mini",
-  roadmap: "gpt-4.1-mini",
-  slide_deck: "gpt-4.1-mini",
-  mind_map: "gpt-4.1-mini",
+  quiz: "opencode-go/glm-5.2",
+  simple_flashcard: "opencode-go/glm-5.2",
+  report: "opencode-go/glm-5.2",
+  roadmap: "opencode-go/glm-5.2",
+  slide_deck: "opencode-go/glm-5.2",
+  mind_map: "opencode-go/glm-5.2",
 };
 
 export interface GenerateInput {
@@ -40,13 +37,13 @@ export interface GenerateInput {
   brief: string;
   sourceIds: string[];
   folderId?: string;
-  provider?: string;
   model?: string;
 }
 
 export class GenerationService {
   async generate(userId: string, notebookId: string, input: GenerateInput) {
     await this.assertNotebookOwner(userId, notebookId);
+    await connectionService.requireConnected();
 
     if (input.sourceIds.length === 0) {
       throw new BadRequestError("At least one source is required");
@@ -77,19 +74,9 @@ export class GenerationService {
       .returning();
 
     const template = getPromptTemplate(input.kind);
-    const providerId = input.provider ?? "openai";
     const modelId = input.model ?? MODELS_BY_KIND[input.kind];
 
-    const userKey = await providerKeyService.getDecryptedKey(
-      userId,
-      providerId,
-    );
-
-    const model = aiService.createModel(
-      providerId,
-      modelId,
-      userKey ?? undefined,
-    );
+    const model = opencodeProvider.createModel(modelId);
 
     const systemPrompt = template.system;
     const userPrompt = template.user(input.brief, truncatedSources);
@@ -101,7 +88,6 @@ export class GenerationService {
       output: Output.object({ schema }),
       system: systemPrompt,
       prompt: userPrompt,
-      temperature: 0.7,
     });
 
     const stream = new ReadableStream({
