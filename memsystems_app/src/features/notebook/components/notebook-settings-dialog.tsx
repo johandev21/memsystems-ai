@@ -109,7 +109,11 @@ export function NotebookSettingsDialog({
     notebook,
   ]);
 
-  useTextareaAutosize({ ref: descriptionRef, value: description, maxHeight: 200 });
+  useTextareaAutosize({
+    ref: descriptionRef,
+    value: description,
+    maxHeight: 200,
+  });
 
   useEffect(() => {
     return () => {
