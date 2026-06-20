@@ -2,8 +2,8 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { Copy, Loader2, RefreshCw } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import type { ComponentProps } from "react";
+import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ export function ChatMessageList({
         />
       ))}
       {isThinking && (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
           <Loader2 className="h-4 w-4 animate-spin" />
           Thinking...
         </div>
@@ -50,10 +50,14 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message, onCopy, onRegenerate }: MessageBubbleProps) {
   const isUser = message.role === "user";
-  const containerAlignment = isUser ? "flex justify-end" : "flex justify-start";
 
   return (
-    <div className={cn("mb-6", containerAlignment)}>
+    <div
+      className={cn(
+        "mb-6 flex w-full",
+        isUser ? "justify-end" : "justify-start",
+      )}
+    >
       {isUser ? (
         <UserMessage message={message} />
       ) : (
@@ -69,12 +73,16 @@ function MessageBubble({ message, onCopy, onRegenerate }: MessageBubbleProps) {
 
 function UserMessage({ message }: { message: UIMessage }) {
   return (
-    <div className="max-w-[80%] bg-primary px-4 py-3 text-primary-foreground">
+    <div
+      className={cn(
+        "max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground shadow-sm",
+      )}
+    >
       {message.parts.map((part, index) =>
         isTextPart(part) ? (
           <p
             key={`${message.id}-${index}`}
-            className="text-[15px] leading-relaxed whitespace-pre-wrap"
+            className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium"
           >
             {part.text}
           </p>
@@ -102,16 +110,16 @@ function AssistantMessage({
     .join("");
 
   return (
-    <div className="max-w-[80%] group">
+    <div className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 p-5 shadow-sm">
       {message.parts.map((part, index) =>
         isTextPart(part) ? (
-          <div
-            key={`${message.id}-${index}`}
-            className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-code:text-foreground"
-          >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <div key={`${message.id}-${index}`} className="sd-root">
+            <Streamdown
+              shikiTheme={["github-light", "github-dark"]}
+              components={streamdownComponents}
+            >
               {sanitizeCitations(part.text)}
-            </ReactMarkdown>
+            </Streamdown>
           </div>
         ) : null,
       )}
@@ -138,11 +146,11 @@ function MessageActions({
   onRegenerate,
 }: MessageActionsProps) {
   return (
-    <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+    <div className="mt-3 -ml-1 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+        className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
         title="Copy response"
         onClick={() => onCopy(fullText)}
       >
@@ -151,7 +159,7 @@ function MessageActions({
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+        className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
         title="Regenerate response"
         onClick={() => onRegenerate()}
       >
@@ -169,3 +177,18 @@ function isTextPart(part: UIMessage["parts"][number]): part is TextPart {
 function sanitizeCitations(text: string): string {
   return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
 }
+
+const streamdownComponents: NonNullable<
+  ComponentProps<typeof Streamdown>["components"]
+> = {
+  a: ({ children, ...props }) => (
+    <a
+      {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-streamdown="link"
+    >
+      {children}
+    </a>
+  ),
+};

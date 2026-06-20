@@ -72,7 +72,7 @@ function TitledEmptyState({
       <h2 className="text-base font-bold mb-4 tracking-tight text-foreground uppercase">
         Welcome to {notebookTitle}
       </h2>
-      <div className="prose prose-sm dark:prose-invert font-mono leading-relaxed text-muted-foreground space-y-4 text-xs">
+      <div className="font-mono leading-relaxed text-muted-foreground space-y-4 text-xs">
         <p className="whitespace-pre-wrap">
           {description || fallbackDescription}
         </p>
