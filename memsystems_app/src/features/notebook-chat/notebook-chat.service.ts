@@ -3,10 +3,14 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 import { connectionService } from "../ai/connection.service";
 import { opencodeProvider } from "../ai/providers/opencode";
 
-const LABEL = "[chat-service]";
+const log = logger.child({ feature: "notebook-chat" });
+
+const MAX_HISTORY_MESSAGES = 6;
+const MAX_SOURCE_TEXT = 80000;
 
 const SYSTEM_PROMPT = `You are a knowledgeable tutor and research assistant. Help the user learn and understand their topics of interest.
 
@@ -25,9 +29,13 @@ Avoid discussing retrieval mechanics unless the user asks. Do not mention loaded
 
 When citing a source, refer to it by its title in parentheses at the end of the relevant sentence, e.g. (Ethics Definition). You may cite multiple sources. Never use internal source IDs or bracketed identifiers in your responses.
 
-Prioritize helping the user over explaining system limitations.`;
+Prioritize helping the user over explaining system limitations.
 
-const MAX_SOURCE_TEXT = 80000;
+CRITICAL OUTPUT RULES (do not violate):
+- Respond ONLY to the most recent user message. Do not simulate, anticipate, or fabricate additional user turns, follow-up questions, or a multi-turn conversation.
+- Produce a single assistant response. Do not write any text that looks like a "User:", "Q:", "Question:", "Human:", or any other speaker label, except the citations described above.
+- Do not ask the user a question in the same turn as your answer unless the user's request explicitly requires it. If you do ask, ask at most one short clarifying question at the end of the response.
+- Never end your response with a prompt that invites the user to keep talking, then answer it yourself.`;
 
 export interface ChatMessage {
   id: string;
@@ -47,6 +55,8 @@ export class NotebookChatService {
     userId: string,
     notebookId: string,
   ): Promise<ChatMessage[]> {
+    const logCtx = log.child({ method: "listMessages", userId, notebookId });
+    logCtx.debug("listing messages");
     await this.assertNotebookOwner(userId, notebookId);
 
     const rows = await db
@@ -55,6 +65,7 @@ export class NotebookChatService {
       .where(eq(notebookChatMessages.notebookId, notebookId))
       .orderBy(asc(notebookChatMessages.createdAt));
 
+    logCtx.info("listed messages", { count: rows.length });
     return rows.map((r) => ({
       id: r.id,
       role: r.role,
@@ -65,16 +76,22 @@ export class NotebookChatService {
   }
 
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
-    console.log(LABEL, "sendMessage called", {
+    const logCtx = log.child({
+      method: "sendMessage",
       userId,
       notebookId,
-      contentLength: input.content.length,
       model: input.model,
     });
 
+    logCtx.info("sendMessage invoked", {
+      contentLength: input.content.length,
+      contentPreview: input.content.slice(0, 200),
+    });
+
     await this.assertNotebookOwner(userId, notebookId);
+    logCtx.debug("assertNotebookOwner passed");
     await connectionService.requireConnected();
-    console.log(LABEL, "auth + connection OK");
+    logCtx.debug("connectionService.requireConnected passed");
 
     const [userMessage] = await db
       .insert(notebookChatMessages)
@@ -84,20 +101,31 @@ export class NotebookChatService {
         content: input.content,
       })
       .returning();
-    console.log(LABEL, "user message inserted", { id: userMessage.id });
+    logCtx.info("user message persisted", {
+      messageId: userMessage.id,
+      contentLength: userMessage.content.length,
+    });
 
     const sourceTexts = await this.fetchSourceTexts(notebookId);
-    console.log(LABEL, "source texts fetched", {
+    logCtx.info("sources fetched", {
       count: sourceTexts.length,
       totalChars: sourceTexts.reduce((s, t) => s + t.rawText.length, 0),
+      titles: sourceTexts.map((s) => s.title),
     });
 
     const sourceContext = sourceTexts
       .map((s) => `Source: "${s.title}"\n${s.rawText}`)
       .join("\n\n---\n\n")
       .slice(0, MAX_SOURCE_TEXT);
+    logCtx.debug("source context built", {
+      contextLength: sourceContext.length,
+      truncated: sourceContext.length >= MAX_SOURCE_TEXT,
+    });
 
-    const priorHistory = await this.getRecentHistory(notebookId, 20);
+    const priorHistory = await this.getRecentHistory(
+      notebookId,
+      MAX_HISTORY_MESSAGES,
+    );
     const history = [
       ...priorHistory,
       {
@@ -108,16 +136,17 @@ export class NotebookChatService {
         createdAt: userMessage.createdAt,
       },
     ];
-    console.log(LABEL, "history built", {
+    logCtx.info("history assembled", {
       priorCount: priorHistory.length,
       totalCount: history.length,
       roles: history.map((m) => m.role),
+      messageIds: history.map((m) => m.id),
+      maxHistory: MAX_HISTORY_MESSAGES,
     });
 
     const modelId = input.model;
-
     const model = opencodeProvider.createModel(modelId);
-    console.log(LABEL, "model created", { modelId });
+    logCtx.debug("model created", { modelId });
 
     const systemMessage =
       sourceTexts.length > 0
@@ -128,10 +157,13 @@ export class NotebookChatService {
       role: m.role as "user" | "assistant",
       content: m.content,
     }));
-    console.log(LABEL, "calling streamText", {
+    logCtx.info("calling streamText", {
+      modelId,
       messageCount: messagesForLlm.length,
+      firstRole: messagesForLlm[0]?.role,
       lastRole: messagesForLlm.at(-1)?.role,
       lastContentLength: messagesForLlm.at(-1)?.content.length,
+      systemPromptLength: systemMessage.length,
     });
 
     let result: ReturnType<typeof streamText>;
@@ -140,11 +172,18 @@ export class NotebookChatService {
         model,
         system: systemMessage,
         messages: messagesForLlm,
+        onError: ({ error }) => {
+          logCtx.error("streamText onError", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+          });
+        },
         onFinish: async ({ text, finishReason, usage }) => {
-          console.log(LABEL, "onFinish fired", {
+          logCtx.info("streamText onFinish", {
             finishReason,
             usage,
             textLength: text.length,
+            textPreview: text.slice(0, 200),
           });
           const citedSourceIds = this.extractCitations(text, sourceTexts);
           const cleanContent = this.stripCitations(text);
@@ -158,18 +197,23 @@ export class NotebookChatService {
               citedSourceIds,
             })
             .returning();
-          console.log(LABEL, "assistant message saved to DB", { id: saved.id });
+          logCtx.info("assistant message persisted", {
+            messageId: saved.id,
+            contentLength: saved.content.length,
+            citedSourceIds,
+          });
         },
       });
     } catch (error) {
-      console.error(LABEL, "streamText threw synchronously", {
+      logCtx.error("streamText threw synchronously", {
         error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
         messageCount: messagesForLlm.length,
       });
       throw error;
     }
 
-    console.log(LABEL, "streamText started, returning UIMessageStreamResponse");
+    logCtx.info("streamText started, returning UIMessageStreamResponse");
     return {
       stream: result.toUIMessageStreamResponse(),
       userMessageId: userMessage.id,
@@ -177,13 +221,15 @@ export class NotebookChatService {
   }
 
   async clearMessages(userId: string, notebookId: string): Promise<void> {
-    console.log(LABEL, "clearMessages called", { userId, notebookId });
+    const logCtx = log.child({ method: "clearMessages", userId, notebookId });
+    logCtx.info("clearMessages invoked");
     await this.assertNotebookOwner(userId, notebookId);
+    logCtx.debug("assertNotebookOwner passed");
 
     await db
       .delete(notebookChatMessages)
       .where(eq(notebookChatMessages.notebookId, notebookId));
-    console.log(LABEL, "clearMessages done for notebook", notebookId);
+    logCtx.info("messages deleted", { notebookId });
   }
 
   private async getRecentHistory(notebookId: string, limit: number) {
@@ -193,7 +239,8 @@ export class NotebookChatService {
       .where(eq(notebookChatMessages.notebookId, notebookId))
       .orderBy(asc(notebookChatMessages.createdAt));
 
-    return rows.slice(-limit);
+    const sliced = rows.slice(-limit);
+    return sliced;
   }
 
   private extractCitations(
@@ -202,13 +249,11 @@ export class NotebookChatService {
   ): string[] {
     const citedIds = new Set<string>();
 
-    // Match old-style [source:id] tokens (safety net)
     for (const m of text.matchAll(/\[source:([a-zA-Z0-9]+)\]/g)) {
       const id = sourceTexts.find((s) => s.id === m[1])?.id;
       if (id) citedIds.add(id);
     }
 
-    // Match title-based citations: (Title)
     for (const s of sourceTexts) {
       const escaped = s.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const titleRegex = new RegExp(`\\(${escaped}\\)`, "i");

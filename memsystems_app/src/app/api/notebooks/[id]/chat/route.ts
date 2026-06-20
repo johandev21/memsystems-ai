@@ -1,36 +1,54 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
+import { logger } from "@/lib/logger";
 import { getSession } from "@/lib/session";
 
 const chatService = new NotebookChatService();
+const log = logger.child({ feature: "chat-route" });
 
-const chatRequestSchema = z.object({
-  messages: z.array(
-    z
-      .object({
-        role: z.enum(["user", "assistant", "system"]),
-        parts: z.array(z.unknown()),
-      })
-      .passthrough(),
-  ),
-  model: z.string(),
+const textPartSchema = z.object({
+  type: z.literal("text"),
+  text: z.string(),
+  state: z.enum(["streaming", "done"]).optional(),
 });
 
-const LABEL = "[chat-route]";
+const messageSchema = z.object({
+  id: z.string().optional(),
+  role: z.enum(["user", "assistant"]),
+  parts: z.array(textPartSchema).min(1),
+});
+
+const chatRequestSchema = z.object({
+  messages: z.array(messageSchema).min(1),
+  model: z.string().min(1),
+});
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  console.log(LABEL, "GET listing messages for notebook", id);
-  const messages = await chatService.listMessages(session.user.id, id);
-  console.log(LABEL, "GET returning", messages.length, "messages");
-  return NextResponse.json(messages);
+  const logCtx = log.child({
+    method: "GET",
+    notebookId: id,
+    userId: session.user.id,
+  });
+  logCtx.info("GET /chat listing messages");
+  try {
+    const messages = await chatService.listMessages(session.user.id, id);
+    logCtx.info("GET /chat returning", { count: messages.length });
+    return NextResponse.json(messages);
+  } catch (error) {
+    logCtx.error("GET /chat failed", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
 }
 
 export async function POST(
@@ -41,39 +59,67 @@ export async function POST(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const raw = await req.json();
-  console.log(LABEL, "POST raw body keys:", Object.keys(raw));
-  console.log(LABEL, "POST messages count:", raw.messages?.length);
-  console.log(LABEL, "POST last message role:", raw.messages?.at(-1)?.role);
-  console.log(LABEL, "POST model:", raw.model);
+  const logCtx = log.child({
+    method: "POST",
+    notebookId: id,
+    userId: session.user.id,
+  });
 
-  const body = chatRequestSchema.parse(raw);
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch (error) {
+    logCtx.error("POST /chat invalid JSON body", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const parsed = chatRequestSchema.safeParse(raw);
+  if (!parsed.success) {
+    logCtx.warn("POST /chat schema validation failed", {
+      issues: parsed.error.issues,
+    });
+    return NextResponse.json(
+      { error: "Invalid request body", issues: parsed.error.issues },
+      { status: 400 },
+    );
+  }
+  const body = parsed.data;
+
   const lastUserMessage = [...body.messages]
     .reverse()
     .find((m) => m.role === "user");
-  const content =
-    lastUserMessage?.parts
-      ?.find(
-        (p): p is { type: string; text: string } =>
-          typeof p === "object" &&
-          p !== null &&
-          (p as { type?: unknown }).type === "text" &&
-          typeof (p as { text?: unknown }).text === "string",
-      )
-      ?.text ?? "";
-  console.log(LABEL, "POST extracted content length:", content.length);
-  console.log(LABEL, "POST calling service.sendMessage");
+  const textPart = lastUserMessage?.parts.find((p) => p.type === "text");
+  const content = textPart?.text ?? "";
+  logCtx.info("POST /chat parsed body", {
+    messageCount: body.messages.length,
+    roles: body.messages.map((m) => m.role),
+    lastRole: body.messages.at(-1)?.role,
+    model: body.model,
+    extractedContentLength: content.length,
+    extractedContentPreview: content.slice(0, 200),
+  });
 
+  if (!content.trim()) {
+    logCtx.warn("POST /chat empty user content", {
+      messageCount: body.messages.length,
+    });
+    return NextResponse.json({ error: "Empty user message" }, { status: 400 });
+  }
+
+  logCtx.debug("POST /chat delegating to service.sendMessage");
   try {
     const result = await chatService.sendMessage(session.user.id, id, {
       content,
       model: body.model,
     });
-    console.log(LABEL, "POST returning stream response");
+    logCtx.info("POST /chat returning stream response", {
+      userMessageId: result.userMessageId,
+    });
     return result.stream;
   } catch (error) {
-    console.error(LABEL, "POST service.sendMessage threw", {
-      notebookId: id,
+    logCtx.error("POST /chat service.sendMessage threw", {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
     });
@@ -89,8 +135,21 @@ export async function DELETE(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  console.log(LABEL, "DELETE clearing messages for notebook", id);
-  await chatService.clearMessages(session.user.id, id);
-  console.log(LABEL, "DELETE messages cleared for notebook", id);
-  return NextResponse.json({ success: true });
+  const logCtx = log.child({
+    method: "DELETE",
+    notebookId: id,
+    userId: session.user.id,
+  });
+  logCtx.info("DELETE /chat clearing messages");
+  try {
+    await chatService.clearMessages(session.user.id, id);
+    logCtx.info("DELETE /chat messages cleared");
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logCtx.error("DELETE /chat failed", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
 }

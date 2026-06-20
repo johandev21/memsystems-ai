@@ -107,14 +107,20 @@ export class Logger {
   ): void {
     if (!this.shouldLog(level)) return;
 
-    const store = correlationStorage.getStore();
+    let correlationId: string | undefined;
+    try {
+      const store = correlationStorage.getStore();
+      if (store?.correlationId) correlationId = store.correlationId;
+    } catch {
+      // AsyncLocalStorage unavailable in non-Node runtimes — fall through.
+    }
 
     const entry: Record<string, JsonValue> = {
       timestamp: new Date().toISOString(),
       level,
       message,
       service: "memsystems-api",
-      ...(store ? { correlationId: store.correlationId } : {}),
+      ...(correlationId ? { correlationId } : {}),
       ...this.bindings,
     };
 
@@ -125,7 +131,7 @@ export class Logger {
       }
     }
 
-    const output = JSON.stringify(entry) + "\n";
+    const output = `${JSON.stringify(entry)}\n`;
 
     if (level === "ERROR") {
       process.stderr.write(output);

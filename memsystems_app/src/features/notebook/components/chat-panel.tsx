@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { chatMessagesQueryOptions, clearChatHistory } from "@/lib/chat";
+import { clientLogger as logger } from "@/lib/client-logger";
 import type { ModelOption } from "@/lib/models";
 import { modelsQueryOptions } from "@/lib/models";
 import { notebookQueryOptions } from "@/lib/notebooks";
@@ -22,7 +23,10 @@ import { NotebookBanner } from "./notebook-banner";
 
 const DEFAULT_MODEL_ID = "opencode-go/glm-5.2";
 
+const log = logger.child({ feature: "chat-panel" });
+
 export function ChatPanel({ notebookId }: { notebookId: string }) {
+  const logCtx = useMemo(() => log.child({ notebookId }), [notebookId]);
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
   const { data: chatHistory } = useSuspenseQuery(
@@ -46,16 +50,41 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     return new DefaultChatTransport({
       api: `/api/notebooks/${notebookId}/chat`,
       credentials: "include",
-      fetch: (url, init) => {
-        const body = JSON.parse((init as RequestInit)?.body as string) || {};
-        body.model = selectedModelRef.current;
-        return fetch(url, {
-          ...(init as RequestInit),
-          body: JSON.stringify(body),
+      prepareSendMessagesRequest: ({ messages }) => {
+        const lastUserMessage = [...messages]
+          .reverse()
+          .find((m) => m.role === "user");
+        const textPart = lastUserMessage?.parts.find((p) => p.type === "text");
+        const text = textPart && "text" in textPart ? textPart.text : "";
+        logCtx.info("sending chat request", {
+          totalMessages: messages.length,
+          roles: messages.map((m) => m.role),
+          lastUserContentLength: text.length,
+          lastUserContentPreview: text.slice(0, 200),
+          model: selectedModelRef.current,
         });
+        return {
+          body: {
+            model: selectedModelRef.current,
+            message: lastUserMessage ?? null,
+            messages: messages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              parts: m.parts.filter(
+                (
+                  p,
+                ): p is {
+                  type: "text";
+                  text: string;
+                  state?: "streaming" | "done";
+                } => p.type === "text",
+              ),
+            })),
+          },
+        };
       },
     });
-  }, [notebookId]);
+  }, [notebookId, logCtx]);
 
   const initialMessages = useMemo(
     () =>
@@ -66,12 +95,23 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       })),
     [chatHistory],
   );
+  useEffect(() => {
+    logCtx.info("chat history loaded", { count: chatHistory.length });
+  }, [chatHistory.length, logCtx]);
 
   const { messages, sendMessage, regenerate, setMessages, status, stop } =
     useChat({
       transport,
       messages: initialMessages,
     });
+
+  useEffect(() => {
+    logCtx.debug("useChat state update", {
+      status,
+      messageCount: messages.length,
+      roles: messages.map((m) => m.role),
+    });
+  }, [status, messages, logCtx]);
 
   const isLoading = status === "submitted" || status === "streaming";
   const messageCount = messages.length;
@@ -89,6 +129,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const clearHistoryMutation = useMutation({
     mutationFn: () => clearChatHistory(notebookId),
     onSuccess: () => {
+      logCtx.info("chat history cleared");
       setMessages([]);
       queryClient.invalidateQueries({
         queryKey: ["chat", notebookId, "messages"],
@@ -97,6 +138,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       toast.success("Chat history cleared");
     },
     onError: (err: Error) => {
+      logCtx.error("clear history failed", { error: err.message });
       toast.error(err.message);
     },
   });
@@ -116,26 +158,36 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       event?.preventDefault();
       const text = input.trim();
       if (!text || isLoading) return;
+      logCtx.info("user submitted message", { length: text.length });
       setInput("");
       sendMessage({ text });
     },
-    [input, isLoading, sendMessage],
+    [input, isLoading, sendMessage, logCtx],
   );
 
-  const handleCtaClick = useCallback((text: string) => {
-    setInput(text);
-    setTimeout(() => {
-      composerTextareaRef.current?.focus();
-    }, 50);
-  }, []);
+  const handleCtaClick = useCallback(
+    (text: string) => {
+      logCtx.debug("CTA clicked", { length: text.length });
+      setInput(text);
+      setTimeout(() => {
+        composerTextareaRef.current?.focus();
+      }, 50);
+    },
+    [logCtx],
+  );
 
-  const handleCopy = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-  }, []);
+  const handleCopy = useCallback(
+    (text: string) => {
+      logCtx.debug("copy message", { length: text.length });
+      navigator.clipboard.writeText(text);
+    },
+    [logCtx],
+  );
 
   const handleRegenerate = useCallback(() => {
+    logCtx.info("regenerate clicked");
     regenerate();
-  }, [regenerate]);
+  }, [regenerate, logCtx]);
 
   const isUntitled = notebook.title.toLowerCase() === "untitled";
   const showBannerAsUntitled = isUntitled && messageCount === 0;
