@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SourceService } from "@/features/sources/source.service";
+import { toErrorResponse } from "@/lib/api-error";
 import { getSession } from "@/lib/session";
 
 const service = new SourceService();
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
@@ -13,6 +14,10 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const sources = await service.list(session.user.id, id);
-  return NextResponse.json(sources);
+  try {
+    const sources = await service.list(session.user.id, id);
+    return NextResponse.json(sources);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }

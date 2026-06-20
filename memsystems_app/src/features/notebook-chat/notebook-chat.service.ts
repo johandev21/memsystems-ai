@@ -3,16 +3,29 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
-import { opencodeProvider } from "../ai/providers/opencode";
 import { connectionService } from "../ai/connection.service";
+import { opencodeProvider } from "../ai/providers/opencode";
 
 const LABEL = "[chat-service]";
 
-const SYSTEM_PROMPT_TEMPLATE = `You are a study assistant. Answer the user's question using ONLY the provided source materials. If the answer is not found in the sources, say "I don't have enough information from the provided sources to answer that question."
+const SYSTEM_PROMPT = `You are a knowledgeable tutor and research assistant. Help the user learn and understand their topics of interest.
 
-When you use information from a source, cite it by including the source ID in brackets at the end of the relevant sentence, like [source:abc123]. You may cite multiple sources per answer. Always cite your sources.
+When sources are available:
+- Use them to support, enrich, and cite your answers.
+- Prefer source-backed claims when relevant.
+- Clearly distinguish between source-derived information and general knowledge when necessary.
 
-If the user asks something unrelated to the sources, politely redirect them to ask about the material in their notebook.`;
+When sources are unavailable:
+- Answer normally using your own knowledge.
+- Do not refuse unless the task explicitly requires source-grounded information.
+
+Never treat source availability as permission to answer. Sources provide evidence, context, and citations — not authorization.
+
+Avoid discussing retrieval mechanics unless the user asks. Do not mention loaded documents, source counts, indexing status, or internal IDs.
+
+When citing a source, refer to it by its title in parentheses at the end of the relevant sentence, e.g. (Ethics Definition). You may cite multiple sources. Never use internal source IDs or bracketed identifiers in your responses.
+
+Prioritize helping the user over explaining system limitations.`;
 
 const MAX_SOURCE_TEXT = 80000;
 
@@ -52,7 +65,12 @@ export class NotebookChatService {
   }
 
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
-    console.log(LABEL, "sendMessage called", { userId, notebookId, contentLength: input.content.length, model: input.model });
+    console.log(LABEL, "sendMessage called", {
+      userId,
+      notebookId,
+      contentLength: input.content.length,
+      model: input.model,
+    });
 
     await this.assertNotebookOwner(userId, notebookId);
     await connectionService.requireConnected();
@@ -69,56 +87,103 @@ export class NotebookChatService {
     console.log(LABEL, "user message inserted", { id: userMessage.id });
 
     const sourceTexts = await this.fetchSourceTexts(notebookId);
-    console.log(LABEL, "source texts fetched", { count: sourceTexts.length, totalChars: sourceTexts.reduce((s, t) => s + t.rawText.length, 0) });
+    console.log(LABEL, "source texts fetched", {
+      count: sourceTexts.length,
+      totalChars: sourceTexts.reduce((s, t) => s + t.rawText.length, 0),
+    });
 
     const sourceContext = sourceTexts
-      .map((s) => `[Source: ${s.id}] ${s.title}\n${s.rawText}`)
+      .map((s) => `Source: "${s.title}"\n${s.rawText}`)
       .join("\n\n---\n\n")
       .slice(0, MAX_SOURCE_TEXT);
 
-    const allHistory = await this.getRecentHistory(notebookId, 20);
-    const history = allHistory.filter((m) => m.id !== userMessage.id);
-    console.log(LABEL, "history fetched", { total: allHistory.length, filtered: history.length });
+    const priorHistory = await this.getRecentHistory(notebookId, 20);
+    const history = [
+      ...priorHistory,
+      {
+        id: userMessage.id,
+        role: "user" as const,
+        content: userMessage.content,
+        citedSourceIds: null,
+        createdAt: userMessage.createdAt,
+      },
+    ];
+    console.log(LABEL, "history built", {
+      priorCount: priorHistory.length,
+      totalCount: history.length,
+      roles: history.map((m) => m.role),
+    });
 
     const modelId = input.model;
 
     const model = opencodeProvider.createModel(modelId);
     console.log(LABEL, "model created", { modelId });
 
-    console.log(LABEL, "calling streamText with history count:", history.length);
-    const result = streamText({
-      model,
-      system:
-        SYSTEM_PROMPT_TEMPLATE +
-        "\n\n---\n\nSOURCE MATERIALS:\n\n" +
-        sourceContext,
-      messages: history.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-      onFinish: async ({ text, finishReason, usage }) => {
-        console.log(LABEL, "onFinish fired", { finishReason, usage, textLength: text.length });
-        const citedSourceIds = this.extractCitations(text);
-        const cleanContent = this.stripCitations(text);
+    const systemMessage =
+      sourceTexts.length > 0
+        ? `${SYSTEM_PROMPT}\n\n---\n\nSOURCE MATERIALS:\n\n${sourceContext}`
+        : SYSTEM_PROMPT;
 
-        const [saved] = await db
-          .insert(notebookChatMessages)
-          .values({
-            notebookId,
-            role: "assistant",
-            content: cleanContent,
-            citedSourceIds,
-          })
-          .returning();
-        console.log(LABEL, "assistant message saved to DB", { id: saved.id });
-      },
+    const messagesForLlm = history.map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    }));
+    console.log(LABEL, "calling streamText", {
+      messageCount: messagesForLlm.length,
+      lastRole: messagesForLlm.at(-1)?.role,
+      lastContentLength: messagesForLlm.at(-1)?.content.length,
     });
+
+    let result: ReturnType<typeof streamText>;
+    try {
+      result = streamText({
+        model,
+        system: systemMessage,
+        messages: messagesForLlm,
+        onFinish: async ({ text, finishReason, usage }) => {
+          console.log(LABEL, "onFinish fired", {
+            finishReason,
+            usage,
+            textLength: text.length,
+          });
+          const citedSourceIds = this.extractCitations(text, sourceTexts);
+          const cleanContent = this.stripCitations(text);
+
+          const [saved] = await db
+            .insert(notebookChatMessages)
+            .values({
+              notebookId,
+              role: "assistant",
+              content: cleanContent,
+              citedSourceIds,
+            })
+            .returning();
+          console.log(LABEL, "assistant message saved to DB", { id: saved.id });
+        },
+      });
+    } catch (error) {
+      console.error(LABEL, "streamText threw synchronously", {
+        error: error instanceof Error ? error.message : String(error),
+        messageCount: messagesForLlm.length,
+      });
+      throw error;
+    }
 
     console.log(LABEL, "streamText started, returning UIMessageStreamResponse");
     return {
       stream: result.toUIMessageStreamResponse(),
       userMessageId: userMessage.id,
     };
+  }
+
+  async clearMessages(userId: string, notebookId: string): Promise<void> {
+    console.log(LABEL, "clearMessages called", { userId, notebookId });
+    await this.assertNotebookOwner(userId, notebookId);
+
+    await db
+      .delete(notebookChatMessages)
+      .where(eq(notebookChatMessages.notebookId, notebookId));
+    console.log(LABEL, "clearMessages done for notebook", notebookId);
   }
 
   private async getRecentHistory(notebookId: string, limit: number) {
@@ -131,14 +196,28 @@ export class NotebookChatService {
     return rows.slice(-limit);
   }
 
-  private extractCitations(text: string): string[] {
-    const citationRegex = /\[source:([a-zA-Z0-9]+)\]/g;
-    const ids = new Set<string>();
-    let match;
-    while ((match = citationRegex.exec(text)) !== null) {
-      ids.add(match[1]);
+  private extractCitations(
+    text: string,
+    sourceTexts: { id: string; title: string }[],
+  ): string[] {
+    const citedIds = new Set<string>();
+
+    // Match old-style [source:id] tokens (safety net)
+    for (const m of text.matchAll(/\[source:([a-zA-Z0-9]+)\]/g)) {
+      const id = sourceTexts.find((s) => s.id === m[1])?.id;
+      if (id) citedIds.add(id);
     }
-    return [...ids];
+
+    // Match title-based citations: (Title)
+    for (const s of sourceTexts) {
+      const escaped = s.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const titleRegex = new RegExp(`\\(${escaped}\\)`, "i");
+      if (titleRegex.test(text)) {
+        citedIds.add(s.id);
+      }
+    }
+
+    return [...citedIds];
   }
 
   private stripCitations(text: string): string {

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
@@ -9,7 +9,7 @@ import {
   putObject,
 } from "@/lib/storage/s3-client";
 import { extractText, isSupportedFile } from "./source-extraction.service";
-import { scrapeUrl, WebScrapeError } from "./web-scraper.service";
+import { scrapeUrl } from "./web-scraper.service";
 
 export type SourceKind = "text" | "url" | "file";
 
@@ -40,7 +40,16 @@ export class SourceService {
   async list(userId: string, notebookId: string) {
     await this.assertNotebookOwner(userId, notebookId);
     return db
-      .select()
+      .select({
+        id: sources.id,
+        notebookId: sources.notebookId,
+        kind: sources.kind,
+        title: sources.title,
+        url: sources.url,
+        contentType: sources.contentType,
+        fileSize: sources.fileSize,
+        createdAt: sources.createdAt,
+      })
       .from(sources)
       .where(eq(sources.notebookId, notebookId))
       .orderBy(desc(sources.createdAt));
@@ -85,8 +94,7 @@ export class SourceService {
     input: CreateUrlSourceInput,
   ) {
     await this.assertNotebookOwner(userId, notebookId);
-    let scraped;
-    scraped = await scrapeUrl(input.url);
+    const scraped = await scrapeUrl(input.url);
     const title = (input.title?.trim() || scraped.title).slice(0, 500);
     const [row] = await db
       .insert(sources)
@@ -133,7 +141,7 @@ export class SourceService {
       contentType: file.type || "application/octet-stream",
     });
 
-    let extracted;
+    let extracted: { text: string };
     try {
       extracted = await extractText(buffer, file.type, file.name);
     } catch (err) {
@@ -212,7 +220,7 @@ export class SourceService {
 }
 
 function buildS3Key(
-  notebookId: string,
+  _notebookId: string,
   sha256: string,
   originalName: string,
 ): string {

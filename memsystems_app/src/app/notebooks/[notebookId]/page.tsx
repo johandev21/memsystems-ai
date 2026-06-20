@@ -99,7 +99,7 @@ function DesktopLayout({
               </h2>
               <div className="flex items-center gap-0.5">
                 {!sourcesCollapsed && (
-                  <AddSourceDialog>
+                  <AddSourceDialog notebookId={notebookId}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -134,7 +134,10 @@ function DesktopLayout({
               </div>
             </header>
             <ScrollArea className="flex-1 h-full">
-              <SourcesPanel collapsed={sourcesCollapsed} />
+              <SourcesPanel
+                notebookId={notebookId}
+                collapsed={sourcesCollapsed}
+              />
             </ScrollArea>
           </div>
         </ResizablePanel>

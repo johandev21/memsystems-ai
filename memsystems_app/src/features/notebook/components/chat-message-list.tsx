@@ -98,7 +98,7 @@ function AssistantMessage({
   );
   const fullText = message.parts
     .filter(isTextPart)
-    .map((part) => part.text ?? "")
+    .map((part) => sanitizeCitations(part.text ?? ""))
     .join("");
 
   return (
@@ -110,7 +110,7 @@ function AssistantMessage({
             className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-code:text-foreground"
           >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {part.text}
+              {sanitizeCitations(part.text)}
             </ReactMarkdown>
           </div>
         ) : null,
@@ -164,4 +164,8 @@ function MessageActions({
 function isTextPart(part: UIMessage["parts"][number]): part is TextPart {
   const candidate = part as unknown as TextPart;
   return candidate.type === "text" && typeof candidate.text === "string";
+}
+
+function sanitizeCitations(text: string): string {
+  return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
 }

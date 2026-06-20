@@ -1,14 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import type { FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { chatMessagesQueryOptions, clearChatHistory } from "@/lib/chat";
 import type { ModelOption } from "@/lib/models";
 import { modelsQueryOptions } from "@/lib/models";
 import { notebookQueryOptions } from "@/lib/notebooks";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
+import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
 import { NotebookBanner } from "./notebook-banner";
 
@@ -17,6 +25,9 @@ const DEFAULT_MODEL_ID = "opencode-go/glm-5.2";
 export function ChatPanel({ notebookId }: { notebookId: string }) {
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
+  const { data: chatHistory } = useSuspenseQuery(
+    chatMessagesQueryOptions(notebookId),
+  );
 
   const modelOptions: ModelOption[] = models ?? [];
 
@@ -46,9 +57,21 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     });
   }, [notebookId]);
 
-  const { messages, sendMessage, regenerate, status, stop } = useChat({
-    transport,
-  });
+  const initialMessages = useMemo(
+    () =>
+      chatHistory.map((msg) => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant",
+        parts: [{ type: "text" as const, text: msg.content }],
+      })),
+    [chatHistory],
+  );
+
+  const { messages, sendMessage, regenerate, setMessages, status, stop } =
+    useChat({
+      transport,
+      messages: initialMessages,
+    });
 
   const isLoading = status === "submitted" || status === "streaming";
   const messageCount = messages.length;
@@ -59,6 +82,24 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const composerTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState("");
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const clearHistoryMutation = useMutation({
+    mutationFn: () => clearChatHistory(notebookId),
+    onSuccess: () => {
+      setMessages([]);
+      queryClient.invalidateQueries({
+        queryKey: ["chat", notebookId, "messages"],
+      });
+      setIsClearDialogOpen(false);
+      toast.success("Chat history cleared");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new content
   useEffect(() => {
@@ -135,6 +176,16 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
         </ScrollArea>
 
         <div className="shrink-0 px-6 pb-6 pt-2">
+          <ClearHistoryDialog
+            open={isClearDialogOpen}
+            onOpenChange={(open) => {
+              if (!clearHistoryMutation.isPending) {
+                setIsClearDialogOpen(open);
+              }
+            }}
+            onConfirm={() => clearHistoryMutation.mutate()}
+            isClearing={clearHistoryMutation.isPending}
+          />
           <Composer
             input={input}
             onInputChange={setInput}
@@ -145,6 +196,9 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             textareaRef={composerTextareaRef}
+            onClearHistory={() => setIsClearDialogOpen(true)}
+            canClearHistory={hasMessages && !isLoading}
+            isClearingHistory={clearHistoryMutation.isPending}
           />
         </div>
       </div>

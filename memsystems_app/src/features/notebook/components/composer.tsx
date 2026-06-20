@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, Square } from "lucide-react";
+import { ArrowUp, Eraser, Square } from "lucide-react";
 import type { FormEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,9 @@ export interface ComposerProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
+  onClearHistory: () => void;
+  canClearHistory: boolean;
+  isClearingHistory: boolean;
 }
 
 export function Composer({
@@ -31,6 +34,9 @@ export function Composer({
   selectedModel,
   onModelChange,
   textareaRef,
+  onClearHistory,
+  canClearHistory,
+  isClearingHistory,
 }: ComposerProps) {
   useTextareaAutosize({ ref: textareaRef, value: input });
 
@@ -62,6 +68,18 @@ export function Composer({
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
               />
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={onClearHistory}
+                disabled={!canClearHistory || isClearingHistory}
+                aria-label="Clear chat history"
+                title="Clear chat history"
+                className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
+              >
+                <Eraser className="h-4 w-4" />
+              </Button>
             </div>
 
             <ComposerSubmitButton

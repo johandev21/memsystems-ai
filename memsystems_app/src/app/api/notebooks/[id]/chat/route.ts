@@ -64,10 +64,33 @@ export async function POST(
   console.log(LABEL, "POST extracted content length:", content.length);
   console.log(LABEL, "POST calling service.sendMessage");
 
-  const result = await chatService.sendMessage(session.user.id, id, {
-    content,
-    model: body.model,
-  });
-  console.log(LABEL, "POST returning stream response");
-  return result.stream;
+  try {
+    const result = await chatService.sendMessage(session.user.id, id, {
+      content,
+      model: body.model,
+    });
+    console.log(LABEL, "POST returning stream response");
+    return result.stream;
+  } catch (error) {
+    console.error(LABEL, "POST service.sendMessage threw", {
+      notebookId: id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getSession();
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
+  console.log(LABEL, "DELETE clearing messages for notebook", id);
+  await chatService.clearMessages(session.user.id, id);
+  console.log(LABEL, "DELETE messages cleared for notebook", id);
+  return NextResponse.json({ success: true });
 }

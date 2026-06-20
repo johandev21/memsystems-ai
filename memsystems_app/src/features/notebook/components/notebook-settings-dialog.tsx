@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { type Notebook, notebookQueryOptions } from "@/lib/notebooks";
 import { cn } from "@/lib/utils";
+import { useTextareaAutosize } from "../hooks/use-textarea-autosize";
 
 const PRESET_ICONS = [
   { name: "notebook", Icon: BookOpen, label: "Notebook" },
@@ -80,6 +81,7 @@ export function NotebookSettingsDialog({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   const currentBannerPreview = bannerRemoved
     ? null
@@ -106,6 +108,8 @@ export function NotebookSettingsDialog({
     focalPointChanged,
     notebook,
   ]);
+
+  useTextareaAutosize({ ref: descriptionRef, value: description, maxHeight: 200 });
 
   useEffect(() => {
     return () => {
@@ -318,11 +322,13 @@ export function NotebookSettingsDialog({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
+              ref={descriptionRef}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a short description..."
               rows={3}
               maxLength={500}
+              className="field-sizing-none break-words"
             />
           </div>
 

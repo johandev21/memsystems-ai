@@ -1,118 +1,98 @@
 "use client";
 
-import {
-  Check,
-  ChevronRight,
-  File,
-  FileText,
-  Folder,
-  FolderOpen,
-  Link2,
-  MessageSquare,
-} from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import {
+  deleteSource,
+  type Source,
+  type SourceKind,
+  sourcesQueryOptions,
+} from "@/lib/sources";
 import { cn } from "@/lib/utils";
 import { AddSourceDialog } from "./add-source-dialog";
 
-type FileType = "pdf" | "link" | "note" | "chat" | "folder";
+export function SourcesPanel({
+  notebookId,
+  collapsed,
+}: {
+  notebookId: string;
+  collapsed?: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const {
+    data: sources,
+    isPending,
+    isError,
+  } = useQuery(sourcesQueryOptions(notebookId));
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-interface SourceItem {
-  id: string;
-  type: FileType;
-  name: string;
-  selected?: boolean;
-  isOpen?: boolean;
-  children?: SourceItem[];
-}
-
-const INITIAL_SOURCES: SourceItem[] = [
-  {
-    id: "f1",
-    type: "folder",
-    name: "Chats from Gemini",
-    isOpen: true,
-    children: [
-      {
-        id: "c1",
-        type: "chat",
-        name: "Explanation of React Hooks",
-        selected: false,
-      },
-      {
-        id: "c2",
-        type: "chat",
-        name: "Brainstorming study plan",
-        selected: false,
-      },
-    ],
-  },
-  {
-    id: "f2",
-    type: "folder",
-    name: "Week 1 Materials",
-    isOpen: false,
-    children: [
-      { id: "p2", type: "pdf", name: "kinematics_slides.pdf", selected: true },
-      {
-        id: "l1",
-        type: "link",
-        name: "Newton's Laws - Wikipedia",
-        selected: false,
-      },
-    ],
-  },
-  { id: "p1", type: "pdf", name: "clean_code.pdf", selected: true },
-  { id: "n1", type: "note", name: "My personal study notes", selected: false },
-];
-
-export function SourcesPanel({ collapsed }: { collapsed?: boolean }) {
-  const [sources, setSources] = useState<SourceItem[]>(INITIAL_SOURCES);
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSource(id),
+    onSuccess: (_data, id) => {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+      toast.success("Source removed");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   if (collapsed) return null;
 
-  const toggleFolder = (id: string) => {
-    const updateNode = (nodes: SourceItem[]): SourceItem[] => {
-      return nodes.map((node) => {
-        if (node.id === id) return { ...node, isOpen: !node.isOpen };
-        if (node.children)
-          return { ...node, children: updateNode(node.children) };
-        return node;
-      });
-    };
-    setSources(updateNode(sources));
-  };
-
   const toggleSelect = (id: string) => {
-    const updateNode = (nodes: SourceItem[]): SourceItem[] => {
-      return nodes.map((node) => {
-        if (node.id === id) return { ...node, selected: !node.selected };
-        if (node.children)
-          return { ...node, children: updateNode(node.children) };
-        return node;
-      });
-    };
-    setSources(updateNode(sources));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col p-2 gap-0.5">
-        {sources.map((source) => (
-          <SourceNode
-            key={source.id}
-            node={source}
-            depth={0}
-            onToggleFolder={toggleFolder}
-            onToggleSelect={toggleSelect}
-          />
-        ))}
+        {isPending && (
+          <div className="flex items-center justify-center py-10 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        )}
+        {isError && (
+          <p className="px-2 py-10 text-center text-xs text-muted-foreground">
+            Failed to load sources.
+          </p>
+        )}
+        {!isPending && !isError && sources?.length === 0 && (
+          <p className="px-2 py-10 text-center text-xs text-muted-foreground">
+            No sources yet. Add your first one below.
+          </p>
+        )}
+        {!isPending &&
+          !isError &&
+          sources?.map((source) => (
+            <SourceRow
+              key={source.id}
+              source={source}
+              selected={selected.has(source.id)}
+              onToggleSelect={toggleSelect}
+              onDelete={(id) => deleteMutation.mutate(id)}
+              deleting={
+                deleteMutation.isPending &&
+                deleteMutation.variables === source.id
+              }
+            />
+          ))}
       </div>
 
-      {/* Drag & Drop Hint */}
+      {/* Add sources hint */}
       <div className="p-2">
-        <AddSourceDialog>
+        <AddSourceDialog notebookId={notebookId}>
           <div className="border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer">
-            Drag files here or paste links to add new sources
+            Add files, links, or notes as sources
           </div>
         </AddSourceDialog>
       </div>
@@ -120,92 +100,74 @@ export function SourcesPanel({ collapsed }: { collapsed?: boolean }) {
   );
 }
 
-function SourceNode({
-  node,
-  depth,
-  onToggleFolder,
+function SourceRow({
+  source,
+  selected,
   onToggleSelect,
+  onDelete,
+  deleting,
 }: {
-  node: SourceItem;
-  depth: number;
-  onToggleFolder: (id: string) => void;
+  source: Source;
+  selected: boolean;
   onToggleSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+  deleting: boolean;
 }) {
-  const isFolder = node.type === "folder";
-  const isSelected = !isFolder && node.selected;
-
-  const Icon = getIcon(node.type, node.isOpen);
-  const paddingLeft = 8 + depth * 16;
+  const Icon = getIcon(source.kind);
 
   return (
-    <>
+    <div className="group relative">
       <button
-        onClick={() => {
-          if (isFolder) onToggleFolder(node.id);
-          else onToggleSelect(node.id);
-        }}
-        style={{ paddingLeft: `${paddingLeft}px` }}
+        type="button"
+        onClick={() => onToggleSelect(source.id)}
         className={cn(
-          "group relative flex w-full items-center gap-2 py-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isSelected
+          "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          selected
             ? "bg-primary/15 text-foreground font-semibold dark:bg-accent dark:text-accent-foreground"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          isFolder && "text-foreground font-semibold hover:bg-muted/50",
         )}
       >
-        {isFolder && (
-          <ChevronRight
+        <span className="w-3.5 shrink-0" />
+        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="truncate">{source.title}</span>
+        {selected && (
+          <div
             className={cn(
-              "h-3.5 w-3.5 shrink-0 transition-transform duration-200 text-muted-foreground",
-              node.isOpen && "rotate-90",
+              "absolute right-2 flex h-4 w-4 items-center justify-center bg-primary text-primary-foreground shadow-sm transition-opacity group-hover:opacity-0",
             )}
-          />
-        )}
-        {!isFolder && <span className="w-3.5 shrink-0" />}{" "}
-        {/* Spacer for alignment */}
-        <Icon
-          className={cn(
-            "h-4 w-4 shrink-0",
-            isFolder ? "text-primary/70" : "text-muted-foreground",
-          )}
-        />
-        <span className="truncate">{node.name}</span>
-        {/* Checkmark */}
-        {isSelected && (
-          <div className="absolute right-2 flex h-4 w-4 items-center justify-center bg-primary text-primary-foreground shadow-sm">
+          >
             <Check className="h-3 w-3" strokeWidth={3} />
           </div>
         )}
       </button>
-
-      {isFolder && node.isOpen && (
-        <div className="flex flex-col gap-0.5 mt-0.5">
-          {node.children?.map((child) => (
-            <SourceNode
-              key={child.id}
-              node={child}
-              depth={depth + 1}
-              onToggleFolder={onToggleFolder}
-              onToggleSelect={onToggleSelect}
-            />
-          ))}
-        </div>
-      )}
-    </>
+      <button
+        type="button"
+        aria-label="Delete source"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(source.id);
+        }}
+        className={cn(
+          "absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto",
+        )}
+      >
+        {deleting ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Trash2 className="h-3.5 w-3.5" />
+        )}
+      </button>
+    </div>
   );
 }
 
-function getIcon(type: FileType, isOpen?: boolean) {
-  switch (type) {
-    case "folder":
-      return isOpen ? FolderOpen : Folder;
-    case "pdf":
+function getIcon(kind: SourceKind) {
+  switch (kind) {
+    case "file":
       return FileText;
-    case "link":
+    case "url":
       return Link2;
-    case "chat":
-      return MessageSquare;
-    case "note":
+    case "text":
       return File;
     default:
       return File;

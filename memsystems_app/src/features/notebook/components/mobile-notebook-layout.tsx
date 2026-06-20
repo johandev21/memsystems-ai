@@ -45,7 +45,7 @@ export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
 
         <TabsContent value="sources" className="flex-1 mt-0 min-h-0">
           <ScrollArea className="h-full">
-            <SourcesPanel />
+            <SourcesPanel notebookId={notebookId} />
           </ScrollArea>
         </TabsContent>
 

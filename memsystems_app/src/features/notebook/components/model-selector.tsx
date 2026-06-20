@@ -1,8 +1,8 @@
 "use client";
 
-import { Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -11,9 +11,6 @@ import {
 } from "@/components/ui/popover";
 import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
-import { useFavoriteModels } from "../hooks/use-favorite-models";
-
-const SHORTCUT_KEYS = ["1", "2", "3", "4"] as const;
 
 export interface ModelSelectorProps {
   models: ModelOption[];
@@ -29,8 +26,6 @@ export function ModelSelector({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const { starredModelIds, toggleStar } = useFavoriteModels();
-
   const activeModelDetails = useMemo(
     () => models.find((m) => m.id === selectedModel),
     [models, selectedModel],
@@ -45,25 +40,6 @@ export function ModelSelector({
         m.id.toLowerCase().includes(query),
     );
   }, [models, search]);
-
-  useEffect(() => {
-    if (!popoverOpen) return;
-
-    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (!event.ctrlKey) return;
-      if (!(SHORTCUT_KEYS as readonly string[]).includes(event.key)) return;
-      event.preventDefault();
-      const index = Number.parseInt(event.key, 10) - 1;
-      const target = filteredModels[index];
-      if (target) {
-        onModelChange(target.id);
-        setPopoverOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [popoverOpen, filteredModels, onModelChange]);
 
   const handleSelectModel = (modelId: string) => {
     onModelChange(modelId);
@@ -81,7 +57,6 @@ export function ModelSelector({
           <span className="max-w-[120px] truncate">
             {activeModelDetails?.displayName || selectedModel}
           </span>
-          <Search className="h-3 w-3 text-muted-foreground/80 shrink-0" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -105,15 +80,12 @@ export function ModelSelector({
               No models found
             </div>
           ) : (
-            filteredModels.map((model, index) => (
+            filteredModels.map((model) => (
               <ModelRow
                 key={model.id}
                 model={model}
-                index={index}
                 selectedModel={selectedModel}
-                starredModelIds={starredModelIds}
                 onSelectModel={handleSelectModel}
-                onToggleStar={toggleStar}
               />
             ))
           )}
@@ -125,25 +97,12 @@ export function ModelSelector({
 
 interface ModelRowProps {
   model: ModelOption;
-  index: number;
   selectedModel: string;
-  starredModelIds: string[];
   onSelectModel: (modelId: string) => void;
-  onToggleStar: (modelId: string) => void;
 }
 
-function ModelRow({
-  model,
-  index,
-  selectedModel,
-  starredModelIds,
-  onSelectModel,
-  onToggleStar,
-}: ModelRowProps) {
+function ModelRow({ model, selectedModel, onSelectModel }: ModelRowProps) {
   const isSelected = model.id === selectedModel;
-  const isStarred = starredModelIds.includes(model.id);
-  const shortcutNumber = index + 1;
-  const hasShortcut = shortcutNumber <= SHORTCUT_KEYS.length;
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -159,44 +118,20 @@ function ModelRow({
       onClick={() => onSelectModel(model.id)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "flex items-center justify-between p-2 cursor-pointer transition-colors group/row",
+        "flex items-center p-2 cursor-pointer transition-colors group/row",
         isSelected
           ? "bg-muted/90 text-foreground"
           : "hover:bg-muted/40 text-muted-foreground hover:text-foreground",
       )}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggleStar(model.id);
-          }}
-          className="p-0.5 hover:bg-muted text-muted-foreground/30 hover:text-yellow-500 transition-colors shrink-0"
-        >
-          <Star
-            className={cn(
-              "h-3.5 w-3.5",
-              isStarred && "fill-yellow-500 text-yellow-500",
-            )}
-          />
-        </button>
-
-        <div className="flex flex-col min-w-0">
-          <span className="text-xs font-semibold text-foreground leading-tight truncate">
-            {model.displayName}
-          </span>
-          <span className="text-[10px] text-muted-foreground/70 leading-none mt-1 truncate">
-            {model.id}
-          </span>
-        </div>
-      </div>
-
-      {hasShortcut && (
-        <span className="text-[9px] font-mono text-muted-foreground/50 border border-border/50 bg-muted px-1.5 py-0.5 scale-95 opacity-80 group-hover/row:opacity-100 transition-all">
-          Ctrl+{shortcutNumber}
+      <div className="flex flex-col min-w-0">
+        <span className="text-xs font-semibold text-foreground leading-tight truncate">
+          {model.displayName}
         </span>
-      )}
+        <span className="text-[10px] text-muted-foreground/70 leading-none mt-1 truncate">
+          {model.id}
+        </span>
+      </div>
     </div>
   );
 }
