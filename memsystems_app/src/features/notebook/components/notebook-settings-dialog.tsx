@@ -16,10 +16,9 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import { dynamicIconImports } from "lucide-react/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { NotebookIcon } from "@/components/ui/notebook-icon";
-import { dynamicIconImports } from "lucide-react/dynamic";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NotebookIcon } from "@/components/ui/notebook-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { type Notebook, notebookQueryOptions } from "@/lib/notebooks";
 import { cn } from "@/lib/utils";
@@ -63,6 +63,7 @@ export function NotebookSettingsDialog({
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
 
+  const [title, setTitle] = useState(notebook.title);
   const [description, setDescription] = useState(notebook.description);
   const [icon, setIcon] = useState(notebook.icon);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -94,6 +95,7 @@ export function NotebookSettingsDialog({
 
   const hasChanges = useMemo(() => {
     return (
+      title.trim() !== notebook.title ||
       description !== notebook.description ||
       icon !== notebook.icon ||
       bannerFile !== null ||
@@ -101,6 +103,7 @@ export function NotebookSettingsDialog({
       focalPointChanged
     );
   }, [
+    title,
     description,
     icon,
     bannerFile,
@@ -124,6 +127,7 @@ export function NotebookSettingsDialog({
   }, [previewUrl]);
 
   const resetState = () => {
+    setTitle(notebook.title);
     setDescription(notebook.description);
     setIcon(notebook.icon);
     setBannerFile(null);
@@ -226,16 +230,23 @@ export function NotebookSettingsDialog({
 
     try {
       const promises: Promise<Notebook>[] = [];
+      const trimmedTitle = title.trim();
       const fieldsChanged =
-        description !== notebook.description || icon !== notebook.icon;
+        trimmedTitle !== notebook.title ||
+        description !== notebook.description ||
+        icon !== notebook.icon;
       const shouldUpdateFocalPoint = focalPointChanged && !bannerFile;
 
       if (fieldsChanged || shouldUpdateFocalPoint) {
         const body: {
+          title?: string;
           description?: string;
           icon?: string;
           bannerFocalPoint?: { x: number; y: number };
         } = {};
+        if (trimmedTitle !== notebook.title) {
+          body.title = trimmedTitle;
+        }
         if (description !== notebook.description) {
           body.description = description;
         }
@@ -314,14 +325,25 @@ export function NotebookSettingsDialog({
           <Settings className="size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:w-1/3 sm:min-w-[765px] sm:max-w-[calc(100vw-2rem)]">
         <DialogHeader>
           <DialogTitle>Notebook settings</DialogTitle>
           <DialogDescription>
-            Update the description, icon, and banner for this notebook.
+            Update the title, description, icon, and banner for this notebook.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-5 py-2">
+          <div className="grid gap-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Notebook title"
+              maxLength={200}
+            />
+          </div>
+
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
