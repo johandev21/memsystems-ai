@@ -1,6 +1,8 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Maximize2, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,51 +19,14 @@ import {
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { RESOURCES } from "./studio-resources";
-import { fileTreeData, StudyMaterialsTree } from "./study-materials-tree";
+import { modelsQueryOptions } from "@/lib/models";
+import { RightPane, type RightPaneMode } from "./studio/right-pane";
+import { StudyMaterialsTree } from "./study-materials-tree";
 
-const displayResources = [
-  RESOURCES[0], // Quiz
-  RESOURCES[1], // Flashcards
-  RESOURCES[2], // Report
-  RESOURCES[5], // Mind Map
-  RESOURCES[4], // Slide Deck
-  RESOURCES[3], // Roadmap
-];
+export function ExpandedStudyMaterials({ notebookId }: { notebookId: string }) {
+  const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
+  const models = useSuspenseQuery(modelsQueryOptions);
 
-function ResourceCard({
-  resource,
-  disabled = false,
-}: {
-  resource: (typeof RESOURCES)[number];
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={cn(
-        "flex items-center justify-center gap-2 h-11 px-5 w-full text-foreground border-0",
-        "bg-neutral-100 hover:bg-neutral-200/80 active:bg-neutral-300/45",
-        "dark:bg-neutral-900/60 dark:hover:bg-neutral-800/80 dark:active:bg-neutral-750/45",
-        "disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none",
-        "cursor-pointer outline-hidden transition-all duration-150 active:scale-98 select-none",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-      )}
-    >
-      <resource.icon
-        className="h-4.5 w-4.5 shrink-0 opacity-90"
-        strokeWidth={1.8}
-      />
-      <span className="text-xs font-semibold tracking-wide">
-        {resource.label}
-      </span>
-    </button>
-  );
-}
-
-export function ExpandedStudyMaterials() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -110,7 +75,14 @@ export function ExpandedStudyMaterials() {
             >
               <ScrollArea className="h-full w-full">
                 <div className="p-4">
-                  <StudyMaterialsTree items={fileTreeData} />
+                  <StudyMaterialsTree
+                    notebookId={notebookId}
+                    onSelectMaterial={() => {
+                      // We don't have the material DTO here without a fetch;
+                      // switch to picker for now. Future: fetch single material.
+                      setMode({ kind: "picker" });
+                    }}
+                  />
                 </div>
               </ScrollArea>
             </ResizablePanel>
@@ -118,16 +90,12 @@ export function ExpandedStudyMaterials() {
             <ResizableHandle withHandle />
 
             <ResizablePanel defaultSize="75" className="bg-background">
-              <div className="flex h-full flex-col items-center justify-center p-6 gap-6">
-                <span className="font-mono text-sm text-muted-foreground">
-                  Generate a new study material
-                </span>
-                <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm">
-                  {displayResources.map((resource) => (
-                    <ResourceCard key={resource.label} resource={resource} />
-                  ))}
-                </div>
-              </div>
+              <RightPane
+                notebookId={notebookId}
+                mode={mode}
+                onModeChange={setMode}
+                models={models.data}
+              />
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>

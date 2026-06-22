@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   Brain,
   ChevronRight,
@@ -12,8 +13,15 @@ import {
   Network,
   Presentation,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { foldersQueryOptions } from "@/lib/folders";
+import { studyMaterialsQueryOptions } from "@/lib/study-materials";
 import { cn } from "@/lib/utils";
+import {
+  buildStudyMaterialTree,
+  countMaterialsInFolder,
+  type TreeNode,
+} from "./study-materials-tree-helpers";
 
 export type ResourceType =
   | "quiz"
@@ -24,63 +32,23 @@ export type ResourceType =
   | "mindmap"
   | "folder";
 
-export type FileTreeItem = {
+const KIND_TO_RESOURCE_TYPE: Record<string, ResourceType> = {
+  quiz: "quiz",
+  simple_flashcard: "flashcards",
+  report: "report",
+  roadmap: "roadmap",
+  slide_deck: "slidedeck",
+  mind_map: "mindmap",
+};
+
+export interface FileTreeItem {
   id: string;
   name: string;
   type: ResourceType;
   items?: FileTreeItem[];
   isOpen?: boolean;
-};
-
-export const fileTreeData: FileTreeItem[] = [
-  {
-    id: "f1",
-    name: "Intro to Molecular Biology",
-    type: "folder",
-    isOpen: true,
-    items: [
-      {
-        id: "f1-u1",
-        name: "Biology Unit 1",
-        type: "folder",
-        isOpen: true,
-        items: [
-          { id: "u1-1", name: "bio-u1-flashcards", type: "flashcards" },
-          { id: "u1-2", name: "bio-u1-slidedeck", type: "slidedeck" },
-          {
-            id: "f1-u1-prep",
-            name: "prep-exam-1",
-            type: "folder",
-            isOpen: true,
-            items: [
-              { id: "u1-prep-1", name: "bio-u1-exam-quiz", type: "quiz" },
-            ],
-          },
-        ],
-      },
-      {
-        id: "f1-u2",
-        name: "Biology Unit 2",
-        type: "folder",
-        isOpen: true,
-        items: [
-          { id: "u2-1", name: "bio-u2-flashcards", type: "flashcards" },
-          { id: "u2-2", name: "bio-u2-slidedeck", type: "slidedeck" },
-          {
-            id: "f1-u2-prep",
-            name: "prep-exam-2",
-            type: "folder",
-            isOpen: false,
-            items: [
-              { id: "u2-prep-1", name: "bio-u2-exam-quiz", type: "quiz" },
-              { id: "u2-prep-2", name: "folder-of-despair", type: "folder" },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
+  materialCount?: number;
+}
 
 const RESOURCE_ICONS: Record<
   ResourceType,
@@ -95,28 +63,88 @@ const RESOURCE_ICONS: Record<
     className: "text-muted-foreground",
   },
   mindmap: { icon: Network, className: "text-muted-foreground" },
-  folder: { icon: Folder, className: "text-muted-foreground" }, // Default fallback
+  folder: { icon: Folder, className: "text-muted-foreground" },
 };
 
-export function StudyMaterialsTree({
-  items: initialItems,
-  className,
-}: {
-  items: FileTreeItem[];
+function treeNodeToFileTreeItem(
+  node: TreeNode,
+  materialCount: number,
+  isOpen: boolean,
+): FileTreeItem {
+  if (node.type === "folder") {
+    return {
+      id: node.id,
+      name: node.name,
+      type: "folder",
+      isOpen,
+      materialCount,
+      items: node.children.map((child) =>
+        treeNodeToFileTreeItem(child, child.type === "folder" ? 0 : 0, false),
+      ),
+    };
+  }
+  return {
+    id: node.id,
+    name: node.name,
+    type: KIND_TO_RESOURCE_TYPE[node.materialKind ?? "report"] ?? "report",
+  };
+}
+
+interface RealDataProps {
+  notebookId: string;
+  onSelectMaterial?: (materialId: string) => void;
   className?: string;
-}) {
-  const [items, setItems] = useState<FileTreeItem[]>(initialItems);
+}
+
+export function StudyMaterialsTree(props: RealDataProps) {
+  const { notebookId, onSelectMaterial, className } = props;
+  const foldersQuery = useQuery(foldersQueryOptions(notebookId));
+  const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
+
+  const folders = foldersQuery.data ?? [];
+  const materials = materialsQuery.data ?? [];
+
+  const baseTree = useMemo(
+    () => buildStudyMaterialTree({ folders, materials }),
+    [folders, materials],
+  );
+
+  const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(() => {
+    // Default-open every root folder for friendliness; the user can collapse.
+    return new Set(
+      baseTree.filter((n) => n.type === "folder").map((n) => n.id),
+    );
+  });
 
   const toggleFolder = (id: string) => {
-    const updateNode = (nodes: FileTreeItem[]): FileTreeItem[] => {
-      return nodes.map((node) => {
-        if (node.id === id) return { ...node, isOpen: !node.isOpen };
-        if (node.items) return { ...node, items: updateNode(node.items) };
-        return node;
-      });
-    };
-    setItems(updateNode(items));
+    setOpenFolderIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
+
+  const items: FileTreeItem[] = baseTree.map((node) => {
+    if (node.type === "folder") {
+      return {
+        id: node.id,
+        name: node.name,
+        type: "folder",
+        isOpen: openFolderIds.has(node.id),
+        materialCount: countMaterialsInFolder(node.id, materials),
+        items: [],
+      };
+    }
+    return {
+      id: node.id,
+      name: node.name,
+      type: KIND_TO_RESOURCE_TYPE[node.materialKind ?? "report"] ?? "report",
+    };
+  });
 
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
@@ -126,32 +154,79 @@ export function StudyMaterialsTree({
           item={item}
           depth={0}
           onToggleFolder={toggleFolder}
+          onSelectMaterial={onSelectMaterial}
+          folderChildrenById={folderChildrenIndex(baseTree, openFolderIds)}
         />
       ))}
     </div>
   );
 }
 
+// Indexes folder children by id so a folder node can render its real children
+// (which carry the per-row click semantics for materials).
+function folderChildrenIndex(
+  baseTree: TreeNode[],
+  openFolderIds: Set<string>,
+): Map<string, FileTreeItem[]> {
+  const out = new Map<string, FileTreeItem[]>();
+  const visit = (node: TreeNode) => {
+    if (node.type === "folder") {
+      const items: FileTreeItem[] = node.children.map((child) => {
+        if (child.type === "folder") {
+          return {
+            id: child.id,
+            name: child.name,
+            type: "folder",
+            isOpen: openFolderIds.has(child.id),
+            items: [],
+          };
+        }
+        return {
+          id: child.id,
+          name: child.name,
+          type:
+            KIND_TO_RESOURCE_TYPE[child.materialKind ?? "report"] ?? "report",
+        };
+      });
+      out.set(node.id, items);
+      for (const c of node.children) visit(c);
+    }
+  };
+  for (const n of baseTree) visit(n);
+  return out;
+}
+
 function FileTreeItemNode({
   item,
   depth,
   onToggleFolder,
+  onSelectMaterial,
+  folderChildrenById,
 }: {
   item: FileTreeItem;
   depth: number;
   onToggleFolder: (id: string) => void;
+  onSelectMaterial?: (id: string) => void;
+  folderChildrenById: Map<string, FileTreeItem[]>;
 }) {
   const isFolder = item.type === "folder";
   const paddingLeft = 8 + depth * 16;
   const config = RESOURCE_ICONS[item.type];
   const Icon = isFolder ? (item.isOpen ? FolderOpen : Folder) : config.icon;
 
+  const handleClick = () => {
+    if (isFolder) {
+      onToggleFolder(item.id);
+      return;
+    }
+    onSelectMaterial?.(item.id);
+  };
+
   return (
     <>
       <button
-        onClick={() => {
-          if (isFolder) onToggleFolder(item.id);
-        }}
+        type="button"
+        onClick={handleClick}
         style={{ paddingLeft: `${paddingLeft}px` }}
         className={cn(
           "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -168,7 +243,7 @@ function FileTreeItemNode({
             )}
           />
         )}
-        {!isFolder && <span className="w-3.5 shrink-0" />} {/* Spacer */}
+        {!isFolder && <span className="w-3.5 shrink-0" />}
         <Icon
           className={cn(
             "h-4 w-4 shrink-0",
@@ -177,16 +252,25 @@ function FileTreeItemNode({
           strokeWidth={2}
         />
         <span className="truncate">{item.name}</span>
+        {isFolder &&
+          typeof item.materialCount === "number" &&
+          item.materialCount > 0 && (
+            <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
+              {item.materialCount}
+            </span>
+          )}
       </button>
 
       {isFolder && item.isOpen && (
         <div className="flex flex-col gap-0.5 mt-0.5">
-          {item.items?.map((child) => (
+          {(folderChildrenById.get(item.id) ?? []).map((child) => (
             <FileTreeItemNode
               key={child.id}
               item={child}
               depth={depth + 1}
               onToggleFolder={onToggleFolder}
+              onSelectMaterial={onSelectMaterial}
+              folderChildrenById={folderChildrenById}
             />
           ))}
         </div>
@@ -194,3 +278,13 @@ function FileTreeItemNode({
     </>
   );
 }
+
+// Keep the legacy mock export so existing imports of fileTreeData don't break.
+// The mock is no longer used by the desktop components but other tests may
+// import it; harmless to keep.
+export const fileTreeData: FileTreeItem[] = [];
+
+// Re-export so consumers can import the tree shape directly if needed.
+export type { TreeNode };
+// treeNodeToFileTreeItem is internal; keep it module-private.
+export const __test__ = { treeNodeToFileTreeItem };

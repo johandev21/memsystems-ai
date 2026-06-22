@@ -1,6 +1,8 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Maximize2, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,11 +14,18 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { RESOURCES } from "./studio-resources";
-import { fileTreeData, StudyMaterialsTree } from "./study-materials-tree";
+import { modelsQueryOptions } from "@/lib/models";
+import { RightPane, type RightPaneMode } from "./studio/right-pane";
+import { StudyMaterialsTree } from "./study-materials-tree";
 
-export function MobileExpandedStudyMaterials() {
+export function MobileExpandedStudyMaterials({
+  notebookId,
+}: {
+  notebookId: string;
+}) {
+  const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
+  const models = useSuspenseQuery(modelsQueryOptions);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -51,39 +60,19 @@ export function MobileExpandedStudyMaterials() {
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full">
             <div className="p-4">
-              <StudyMaterialsTree items={fileTreeData} />
+              <StudyMaterialsTree notebookId={notebookId} />
             </div>
           </ScrollArea>
         </div>
 
         <Separator />
-        <div className="shrink-0 px-4 py-3 bg-muted/30">
-          <p className="text-xs text-muted-foreground mb-2.5 font-medium">
-            Generate new material
-          </p>
-          <ScrollArea className="w-full">
-            <div className="flex items-center gap-2 pb-1">
-              {RESOURCES.map((resource) => (
-                <Button
-                  key={resource.label}
-                  variant={null}
-                  size={null}
-                  className={cn(
-                    "group flex h-10 shrink-0 items-center gap-2 px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-                    resource.colorClasses,
-                  )}
-                >
-                  <resource.icon
-                    className="h-4 w-4 opacity-70"
-                    strokeWidth={2}
-                  />
-                  <span className="text-sm font-medium whitespace-nowrap">
-                    {resource.label}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
+        <div className="shrink-0 h-[40vh] border-t border-border bg-background">
+          <RightPane
+            notebookId={notebookId}
+            mode={mode}
+            onModeChange={setMode}
+            models={models.data}
+          />
         </div>
       </DialogContent>
     </Dialog>

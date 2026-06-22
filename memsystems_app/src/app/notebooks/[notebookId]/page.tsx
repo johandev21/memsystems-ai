@@ -1,5 +1,6 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -20,8 +21,11 @@ import { ChatPanel } from "@/features/notebook/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook/components/chat-panel-header";
 import { MobileNotebookLayout } from "@/features/notebook/components/mobile-notebook-layout";
 import { SourcesPanel } from "@/features/notebook/components/sources-panel";
+import { GenerateBriefDialog } from "@/features/notebook/components/studio/generate-brief-dialog";
 import { StudioResources } from "@/features/notebook/components/studio-resources";
 import { StudyMaterialsPanel } from "@/features/notebook/components/study-materials-panel";
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { modelsQueryOptions } from "@/lib/models";
 
 export default function NotebookPage() {
   const params = useParams<{ notebookId: string }>();
@@ -75,6 +79,16 @@ function DesktopLayout({
   onSyncSources: () => void;
   onSyncStudio: () => void;
 }) {
+  const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(
+    null,
+  );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const models = useSuspenseQuery(modelsQueryOptions);
+
+  const handleStudioGenerate = (kind: StudyMaterialKind) => {
+    setGenerateKind(kind);
+    setDialogOpen(true);
+  };
   return (
     <div className="hidden lg:block h-full scrollbar-none">
       <ResizablePanelGroup
@@ -192,14 +206,28 @@ function DesktopLayout({
               </Button>
             </header>
             <ScrollArea className="flex-1">
-              <StudioResources collapsed={studioCollapsed} />
+              <StudioResources
+                collapsed={studioCollapsed}
+                onGenerate={handleStudioGenerate}
+              />
             </ScrollArea>
             {!studioCollapsed && (
               <div className="p-1.5 pt-0">
-                <StudyMaterialsPanel />
+                <StudyMaterialsPanel notebookId={notebookId} />
               </div>
             )}
           </div>
+          <GenerateBriefDialog
+            notebookId={notebookId}
+            kind={generateKind}
+            models={models.data}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            onComplete={() => {
+              setDialogOpen(false);
+              setGenerateKind(null);
+            }}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

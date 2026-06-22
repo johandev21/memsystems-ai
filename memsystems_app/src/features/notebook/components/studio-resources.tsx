@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { cn } from "@/lib/utils";
 
 type ResourceConfig = {
@@ -70,28 +71,41 @@ export const RESOURCES: ResourceConfig[] = [
   },
 ];
 
-export function StudioResources({ collapsed }: { collapsed: boolean }) {
+export function StudioResources({
+  collapsed,
+  onGenerate,
+}: {
+  collapsed: boolean;
+  onGenerate: (kind: StudyMaterialKind) => void;
+}) {
   if (collapsed) {
     return (
       <TooltipProvider>
         <div className="flex flex-col gap-3 py-4 px-0 items-center border-b border-border w-full">
-          {RESOURCES.map((resource) => (
-            <Tooltip key={resource.label}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("h-10 w-10 shrink-0", resource.colorClasses)}
-                >
-                  <resource.icon className="h-5 w-5" />
-                  <span className="sr-only">{resource.label}</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left" sideOffset={10}>
-                {resource.label}
-              </TooltipContent>
-            </Tooltip>
-          ))}
+          {RESOURCES.map((resource) => {
+            const kind = resourceToKind(resource.label);
+            const disabled = !isInScope(kind);
+            return (
+              <Tooltip key={resource.label}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-10 w-10 shrink-0", resource.colorClasses)}
+                    onClick={() => !disabled && onGenerate(kind)}
+                    disabled={disabled}
+                  >
+                    <resource.icon className="h-5 w-5" />
+                    <span className="sr-only">{resource.label}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left" sideOffset={10}>
+                  {resource.label}
+                  {disabled && " (coming soon)"}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
       </TooltipProvider>
     );
@@ -99,24 +113,54 @@ export function StudioResources({ collapsed }: { collapsed: boolean }) {
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2 px-1.5 pt-6 pb-4">
-      {RESOURCES.map((resource) => (
-        <button
-          key={resource.label}
-          type="button"
-          className={cn(
-            "group flex items-center h-[52px] w-full justify-between px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-            resource.colorClasses,
-          )}
-        >
-          <span className="text-sm font-medium text-foreground">
-            {resource.label}
-          </span>
-          <resource.icon
-            className="h-5 w-5 shrink-0 opacity-70"
-            strokeWidth={2}
-          />
-        </button>
-      ))}
+      {RESOURCES.map((resource) => {
+        const kind = resourceToKind(resource.label);
+        const disabled = !isInScope(kind);
+        return (
+          <button
+            key={resource.label}
+            type="button"
+            disabled={disabled}
+            onClick={() => !disabled && onGenerate(kind)}
+            className={cn(
+              "group flex items-center h-[52px] w-full justify-between px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+              resource.colorClasses,
+              disabled && "opacity-50 cursor-not-allowed",
+            )}
+          >
+            <span className="text-sm font-medium text-foreground">
+              {resource.label}
+            </span>
+            <resource.icon
+              className="h-5 w-5 shrink-0 opacity-70"
+              strokeWidth={2}
+            />
+          </button>
+        );
+      })}
     </div>
   );
+}
+
+function isInScope(kind: StudyMaterialKind): boolean {
+  return ["quiz", "simple_flashcard", "roadmap"].includes(kind);
+}
+
+function resourceToKind(label: string): StudyMaterialKind {
+  switch (label) {
+    case "Quiz":
+      return "quiz";
+    case "Flashcards":
+      return "simple_flashcard";
+    case "Report":
+      return "report";
+    case "Roadmap":
+      return "roadmap";
+    case "Slide Deck":
+      return "slide_deck";
+    case "Mind Map":
+      return "mind_map";
+    default:
+      return "quiz";
+  }
 }

@@ -1,15 +1,31 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { BookOpen, MessageSquare, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { modelsQueryOptions } from "@/lib/models";
 import { ChatPanel } from "./chat-panel";
 import { MobileStudyMaterialsPanel } from "./mobile-study-materials-panel";
 import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { SourcesPanel } from "./sources-panel";
+import { GenerateBriefDialog } from "./studio/generate-brief-dialog";
 import { StudioResources } from "./studio-resources";
 
 export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
+  const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(
+    null,
+  );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const models = useSuspenseQuery(modelsQueryOptions);
+
+  const handleGenerate = (kind: StudyMaterialKind) => {
+    setGenerateKind(kind);
+    setDialogOpen(true);
+  };
+
   return (
     <div className="lg:hidden h-full flex flex-col">
       <Tabs defaultValue="chat" className="flex flex-col h-full gap-0">
@@ -56,12 +72,23 @@ export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
         <TabsContent value="studio" className="flex-1 mt-0 min-h-0">
           <ScrollArea className="h-full">
             <div className="p-3 space-y-3">
-              <StudioResources collapsed={false} />
-              <MobileStudyMaterialsPanel />
+              <StudioResources collapsed={false} onGenerate={handleGenerate} />
+              <MobileStudyMaterialsPanel notebookId={notebookId} />
             </div>
           </ScrollArea>
         </TabsContent>
       </Tabs>
+      <GenerateBriefDialog
+        notebookId={notebookId}
+        kind={generateKind}
+        models={models.data}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onComplete={() => {
+          setDialogOpen(false);
+          setGenerateKind(null);
+        }}
+      />
     </div>
   );
 }

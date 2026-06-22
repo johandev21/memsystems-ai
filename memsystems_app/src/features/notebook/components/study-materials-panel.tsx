@@ -8,9 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ExpandedStudyMaterials } from "./expanded-study-materials";
-import { fileTreeData, StudyMaterialsTree } from "./study-materials-tree";
+import { StudyMaterialsTree } from "./study-materials-tree";
 
-export function StudyMaterialsPanel() {
+export function StudyMaterialsPanel({ notebookId }: { notebookId: string }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -33,7 +33,7 @@ export function StudyMaterialsPanel() {
               <ChevronUp className="h-4 w-4" />
             )}
           </Button>
-          <ExpandedStudyMaterials />
+          <ExpandedStudyMaterials notebookId={notebookId} />
         </div>
       </div>
       {isExpanded && (
@@ -41,7 +41,7 @@ export function StudyMaterialsPanel() {
           <Separator />
           <ScrollArea className="h-[250px] w-full pr-3">
             <CardContent className="pb-2">
-              <StudyMaterialsTree items={fileTreeData} />
+              <StudyMaterialsTree notebookId={notebookId} />
             </CardContent>
           </ScrollArea>
         </>
