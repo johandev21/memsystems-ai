@@ -93,19 +93,6 @@ export class NotebookChatService {
     await connectionService.requireConnected();
     logCtx.debug("connectionService.requireConnected passed");
 
-    const [userMessage] = await db
-      .insert(notebookChatMessages)
-      .values({
-        notebookId,
-        role: "user",
-        content: input.content,
-      })
-      .returning();
-    logCtx.info("user message persisted", {
-      messageId: userMessage.id,
-      contentLength: userMessage.content.length,
-    });
-
     const sourceTexts = await this.fetchSourceTexts(notebookId);
     logCtx.info("sources fetched", {
       count: sourceTexts.length,
@@ -122,10 +109,32 @@ export class NotebookChatService {
       truncated: sourceContext.length >= MAX_SOURCE_TEXT,
     });
 
+    // Read recent history BEFORE inserting the new user message, so
+    // getRecentHistory does not include the message we're about to send.
     const priorHistory = await this.getRecentHistory(
       notebookId,
       MAX_HISTORY_MESSAGES,
     );
+
+    const [userMessage] = await db
+      .insert(notebookChatMessages)
+      .values({
+        notebookId,
+        role: "user",
+        content: input.content,
+      })
+      .returning();
+    logCtx.info("user message persisted", {
+      messageId: userMessage.id,
+      contentLength: userMessage.content.length,
+    });
+
+    await db
+      .update(notebooks)
+      .set({ updatedAt: new Date() })
+      .where(eq(notebooks.id, notebookId));
+    logCtx.debug("notebook updatedAt bumped", { notebookId });
+
     const history = [
       ...priorHistory,
       {

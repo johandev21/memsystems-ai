@@ -18,7 +18,8 @@ export function chatMessagesQueryOptions(notebookId: string) {
         throw new Error(`Failed to fetch chat history (${res.status})`);
       return res.json() as Promise<ChatMessageDTO[]>;
     },
-    staleTime: Infinity,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

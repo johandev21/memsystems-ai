@@ -39,6 +39,7 @@ export const notebooksQueryOptions = queryOptions({
   queryKey: ["notebooks", "home"],
   queryFn: () => fetchNotebooks(6),
   staleTime: 30_000,
+  refetchOnMount: "always",
 });
 
 export const notebookQueryOptions = (id: string) =>
@@ -50,6 +51,7 @@ export const notebookQueryOptions = (id: string) =>
       return res.json() as Promise<Notebook>;
     },
     staleTime: 30_000,
+    refetchOnMount: "always",
   });
 
 export function allNotebooksQueryOptions(page: number, search?: string) {
@@ -59,5 +61,6 @@ export function allNotebooksQueryOptions(page: number, search?: string) {
     queryKey: ["notebooks", "all", page, search],
     queryFn: () => fetchNotebooks(limit, offset, search),
     staleTime: 30_000,
+    refetchOnMount: "always",
   });
 }

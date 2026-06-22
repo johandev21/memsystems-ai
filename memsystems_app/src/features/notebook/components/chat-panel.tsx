@@ -103,6 +103,18 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     useChat({
       transport,
       messages: initialMessages,
+      onFinish: ({ isError }) => {
+        logCtx.info("useChat stream finished", { isError });
+        if (!isError) {
+          invalidateNotebookCaches();
+        }
+      },
+      onError: (error) => {
+        logCtx.error("useChat stream error", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+        invalidateNotebookCaches();
+      },
     });
 
   useEffect(() => {
@@ -125,6 +137,15 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
+
+  const invalidateNotebookCaches = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["chat", notebookId, "messages"],
+    });
+    queryClient.invalidateQueries({ queryKey: ["notebooks", notebookId] });
+    queryClient.invalidateQueries({ queryKey: ["notebooks", "home"] });
+    queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
+  }, [queryClient, notebookId]);
 
   const clearHistoryMutation = useMutation({
     mutationFn: () => clearChatHistory(notebookId),
