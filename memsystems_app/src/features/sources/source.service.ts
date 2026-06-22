@@ -68,8 +68,8 @@ export class SourceService {
     await this.assertNotebookOwner(userId, notebookId);
     const title = input.title.trim();
     const rawText = input.rawText;
-    if (rawText.length === 0) {
-      throw new NotFoundError("rawText (must be non-empty)");
+    if (rawText.trim().length === 0) {
+      throw new BadRequestError("rawText must be non-empty");
     }
     if (Buffer.byteLength(rawText, "utf8") > MAX_RAW_TEXT_BYTES) {
       throw new BadRequestError(

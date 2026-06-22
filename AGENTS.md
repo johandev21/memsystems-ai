@@ -28,12 +28,28 @@ All application code lives in `memsystems_app/`:
 | `pnpm run typecheck` | TypeScript check only (fast) |
 | `pnpm run lint` | Biome lint |
 | `pnpm run format` | Biome format |
+| `pnpm run test` | Run Vitest suite (requires `pnpm run test:db:setup` once) |
+| `pnpm run test:watch` | Vitest watch mode |
+| `pnpm run test:ui` | Vitest with interactive UI |
+| `pnpm run test:db:setup` | One-time: create `memsystems_test` DB and push schema |
 
 ## 4. Next.js: ALWAYS read docs before coding
 
 Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
 
-## 5. General Notes
+## 5. Testing
+
+- **Test framework**: Vitest (`pnpm run test`). 72 tests across 7 files, all green.
+- **Test database**: real Postgres at `postgresql://postgres:superuser@localhost:5432/memsystems_test`. Set up once with `pnpm run test:db:setup`. NEVER mock the db — use the real test DB and reset state via `tests/db.ts`.
+- **Test layout**: `memsystems_app/tests/` with `backend/`, `component/`, `setup.ts`, `db.ts`, `fixtures.ts`, `__mocks__/`.
+- **Mocking policy**: only at external boundaries (auth, LLM, S3, scraper, fetch). Never mock the db. Use real `useChat` + MSW or pre-populated QueryClient cache for component tests.
+- **Before any commit**, agents must run: `pnpm run lint && pnpm run typecheck && pnpm run test`.
+- **TDD**: vertical slices, one test at a time, RED → GREEN. Bugs that compile but misbehave are caught by integration tests in `tests/backend/` and `tests/component/`.
+- **PowerShell caveat**: `pnpm run test` from PowerShell fails with `ERR_PNPM_NO_PKG_MANIFEST`. Workaround: `cmd /c "cd /d C:\Users\johan\Documents\Github\memsystems-ai\memsystems_app && pnpm run test"`.
+- **Path typo trap**: the repo has BOTH `memsems_app` (typo) and `memsystems_app` (correct). All test writes MUST go to `memsystems_app/tests/`.
+- Full test strategy and history: `docs/testing-plan.md`.
+
+## 6. General Notes
 - Prefer reading actual executable source code over README text, as the repository may still contain boilerplate template README content.
 - All route handlers use Next.js App Router (`src/app/api/.../route.ts`).
 - Feature services are in `src/features/` with a flat service-per-file pattern.
