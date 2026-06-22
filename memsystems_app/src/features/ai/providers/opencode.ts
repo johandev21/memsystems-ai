@@ -1,16 +1,57 @@
-import {
-  createOpencode,
-  opencode as createOpencodeModel,
-  isAuthenticationError,
-  isTimeoutError,
-} from "ai-sdk-provider-opencode-sdk";
+import { mkdir } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type { LanguageModel } from "ai";
 import { generateText } from "ai";
+import {
+  createOpencode,
+  isAuthenticationError,
+  isTimeoutError,
+  type OpencodePermissionRuleset,
+  type OpencodeSettings,
+} from "ai-sdk-provider-opencode-sdk";
 import type { HealthCheckResult, Provider, ProviderModel } from "../provider";
 
 const HEALTH_CHECK_MODEL = "opencode-go/glm-5.2";
 
+/**
+ * Sandbox directory exposed to the LLM.
+ *
+ * The OpenCode CLI is spawned as a child process and runs in
+ * `process.cwd()` by default — which is `memsystems_app/`, giving the
+ * LLM read access to the app's own source tree and `.env.local`. To
+ * prevent the LLM from learning about or quoting the app's repo, we
+ * pin every model instance to this empty directory and run the
+ * read-only `plan` agent with an explicit deny list for write/exec
+ * tools. The directory is created on first load; we never write
+ * anything into it, so the LLM sees an empty filesystem.
+ */
+const LLM_SANDBOX_DIR = path.join(tmpdir(), "memsystems-llm-cwd");
+
+const READ_ONLY_PERMISSIONS: OpencodePermissionRuleset = [
+  { permission: "bash", pattern: "*", action: "deny" },
+  { permission: "edit", pattern: "*", action: "deny" },
+  { permission: "write", pattern: "*", action: "deny" },
+  { permission: "websearch", pattern: "*", action: "deny" },
+  { permission: "task", pattern: "*", action: "deny" },
+  { permission: "external_directory", pattern: "*", action: "deny" },
+];
+
+const BASE_MODEL_SETTINGS: OpencodeSettings = {
+  agent: "plan",
+  directory: LLM_SANDBOX_DIR,
+  permission: READ_ONLY_PERMISSIONS,
+};
+
 let instance: ReturnType<typeof createOpencode> | null = null;
+let sandboxReady: Promise<void> | null = null;
+
+function ensureSandbox(): Promise<void> {
+  if (!sandboxReady) {
+    sandboxReady = mkdir(LLM_SANDBOX_DIR, { recursive: true }).then(() => {});
+  }
+  return sandboxReady;
+}
 
 function getInstance() {
   if (!instance) {
@@ -44,12 +85,13 @@ export const opencodeProvider: Provider = {
   },
 
   createModel(modelId: string): LanguageModel {
-    return getInstance()(modelId);
+    return getInstance()(modelId, BASE_MODEL_SETTINGS);
   },
 
   async health(): Promise<HealthCheckResult> {
     try {
-      const model = getInstance()(HEALTH_CHECK_MODEL);
+      await ensureSandbox();
+      const model = getInstance()(HEALTH_CHECK_MODEL, BASE_MODEL_SETTINGS);
       await generateText({
         model,
         prompt: "1",

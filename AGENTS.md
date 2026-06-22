@@ -55,3 +55,4 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 - Feature services are in `src/features/` with a flat service-per-file pattern.
 - Database: Drizzle ORM + PostgreSQL via `src/database/`.
 - Auth: Better Auth via `src/lib/auth.ts` + `src/proxy.ts`.
+- **LLM sandbox**: every chat call runs the OpenCode `plan` agent (read-only) inside an empty sandbox at `os.tmpdir()/memsystems-llm-cwd`. The model cannot read the app repo, run shell commands, edit files, or web-search. The `model` field in `POST /api/notebooks/[id]/chat` is allow-listed against `opencodeProvider.listModels()` — clients cannot pick a model the UI doesn't advertise.

@@ -17,7 +17,11 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["./tests/setup.ts"],
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
-    pool: "threads",
+    // Use forked workers: the default `threads` pool leaks a native handle
+    // on Windows when more than one test file runs, causing the worker to
+    // crash with 0xC0000005 mid-run. `forks` is the cross-platform default
+    // for backend tests against a real database and avoids the issue.
+    pool: "forks",
     // Run backend test files sequentially — they share a single test Postgres
     // and parallel file execution can cause cross-test data interference via
     // the shared resetDatabase in tests/setup.ts.
