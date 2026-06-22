@@ -1,10 +1,10 @@
 "use client";
 
-import { CheckCircle2, XCircle, RefreshCw, Terminal } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, RefreshCw, Terminal, XCircle } from "lucide-react";
+import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppHeader } from "@/components/layout/app-header";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 
 export default function ConnectionSettingsPage() {

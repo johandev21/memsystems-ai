@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Maximize2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,16 +18,38 @@ import { modelsQueryOptions } from "@/lib/models";
 import { RightPane, type RightPaneMode } from "./studio/right-pane";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
+export interface MobileExpandedStudyMaterialsProps {
+  notebookId: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialMaterialId?: string | null;
+}
+
 export function MobileExpandedStudyMaterials({
   notebookId,
-}: {
-  notebookId: string;
-}) {
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  initialMaterialId,
+}: MobileExpandedStudyMaterialsProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen ?? internalOpen;
+  const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
+
   const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
   const models = useSuspenseQuery(modelsQueryOptions);
 
+  useEffect(() => {
+    if (isOpen) {
+      if (initialMaterialId) {
+        setMode({ kind: "viewer", materialId: initialMaterialId });
+      } else {
+        setMode({ kind: "picker" });
+      }
+    }
+  }, [isOpen, initialMaterialId]);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-6 w-6">
           <Maximize2 className="h-4 w-4" />
@@ -60,7 +82,12 @@ export function MobileExpandedStudyMaterials({
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full">
             <div className="p-4">
-              <StudyMaterialsTree notebookId={notebookId} />
+              <StudyMaterialsTree
+                notebookId={notebookId}
+                onSelectMaterial={(materialId) => {
+                  setMode({ kind: "viewer", materialId });
+                }}
+              />
             </div>
           </ScrollArea>
         </div>

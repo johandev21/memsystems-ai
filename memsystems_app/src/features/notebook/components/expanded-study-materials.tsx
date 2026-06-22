@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Maximize2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,12 +23,38 @@ import { modelsQueryOptions } from "@/lib/models";
 import { RightPane, type RightPaneMode } from "./studio/right-pane";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
-export function ExpandedStudyMaterials({ notebookId }: { notebookId: string }) {
+export interface ExpandedStudyMaterialsProps {
+  notebookId: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialMaterialId?: string | null;
+}
+
+export function ExpandedStudyMaterials({
+  notebookId,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  initialMaterialId,
+}: ExpandedStudyMaterialsProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen ?? internalOpen;
+  const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
+
   const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
   const models = useSuspenseQuery(modelsQueryOptions);
 
+  useEffect(() => {
+    if (isOpen) {
+      if (initialMaterialId) {
+        setMode({ kind: "viewer", materialId: initialMaterialId });
+      } else {
+        setMode({ kind: "picker" });
+      }
+    }
+  }, [isOpen, initialMaterialId]);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-6 w-6">
           <Maximize2 className="h-4 w-4" />
@@ -77,10 +103,8 @@ export function ExpandedStudyMaterials({ notebookId }: { notebookId: string }) {
                 <div className="p-4">
                   <StudyMaterialsTree
                     notebookId={notebookId}
-                    onSelectMaterial={() => {
-                      // We don't have the material DTO here without a fetch;
-                      // switch to picker for now. Future: fetch single material.
-                      setMode({ kind: "picker" });
+                    onSelectMaterial={(materialId) => {
+                      setMode({ kind: "viewer", materialId });
                     }}
                   />
                 </div>

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 export type SourceKind = "text" | "url" | "file";
 
@@ -20,9 +20,7 @@ export function sourcesQueryOptions(notebookId: string) {
   return queryOptions({
     queryKey: ["sources", notebookId],
     queryFn: async () => {
-      const res = await fetch(
-        getApiUrl(`/api/notebooks/${notebookId}/sources`),
-      );
+      const res = await fetchApi(`/api/notebooks/${notebookId}/sources`);
       if (!res.ok) throw new Error(`Failed to fetch sources (${res.status})`);
       return res.json() as Promise<Source[]>;
     },
@@ -31,7 +29,7 @@ export function sourcesQueryOptions(notebookId: string) {
 }
 
 export async function deleteSource(sourceId: string): Promise<void> {
-  const res = await fetch(getApiUrl(`/api/sources/${sourceId}`), {
+  const res = await fetchApi(`/api/sources/${sourceId}`, {
     method: "DELETE",
   });
   if (!res.ok) {
@@ -44,14 +42,11 @@ export async function createTextSource(
   notebookId: string,
   input: { title: string; rawText: string },
 ): Promise<Source> {
-  const res = await fetch(
-    getApiUrl(`/api/notebooks/${notebookId}/sources/text`),
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    },
-  );
+  const res = await fetchApi(`/api/notebooks/${notebookId}/sources/text`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
   const data = await res.json().catch(() => ({}));
   if (!res.ok)
     throw new Error(data.error ?? `Failed to add source (${res.status})`);
@@ -62,14 +57,11 @@ export async function createUrlSource(
   notebookId: string,
   input: { url: string; title?: string },
 ): Promise<Source> {
-  const res = await fetch(
-    getApiUrl(`/api/notebooks/${notebookId}/sources/url`),
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    },
-  );
+  const res = await fetchApi(`/api/notebooks/${notebookId}/sources/url`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
   const data = await res.json().catch(() => ({}));
   if (!res.ok)
     throw new Error(data.error ?? `Failed to add source (${res.status})`);
@@ -84,10 +76,10 @@ export async function createFileSource(
   const formData = new FormData();
   formData.append("file", file);
   if (title) formData.append("title", title);
-  const res = await fetch(
-    getApiUrl(`/api/notebooks/${notebookId}/sources/file`),
-    { method: "POST", body: formData },
-  );
+  const res = await fetchApi(`/api/notebooks/${notebookId}/sources/file`, {
+    method: "POST",
+    body: formData,
+  });
   const data = await res.json().catch(() => ({}));
   if (!res.ok)
     throw new Error(data.error ?? `Failed to add source (${res.status})`);

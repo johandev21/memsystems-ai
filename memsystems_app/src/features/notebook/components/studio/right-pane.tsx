@@ -1,7 +1,11 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
+import {
+  type StudyMaterialDTO,
+  studyMaterialQueryOptions,
+} from "@/lib/study-materials";
 import { GenerationPane } from "./generation-pane";
 import { ManualEditorPane } from "./manual-editor-pane";
 import { MaterialViewer } from "./material-viewer";
@@ -18,7 +22,7 @@ export type RightPaneMode =
       folderId: string | null;
       model?: string;
     }
-  | { kind: "viewer"; material: StudyMaterialDTO }
+  | { kind: "viewer"; materialId: string; initialMaterial?: StudyMaterialDTO }
   | { kind: "coming-soon"; materialKind: StudyMaterialKind };
 
 export interface RightPaneProps {
@@ -62,20 +66,9 @@ export function RightPane({
           notebookId={notebookId}
           kind={mode.materialKind}
           onSaved={(materialId) => {
-            // The caller will resolve the material and switch to viewer.
             onModeChange({
               kind: "viewer",
-              material: {
-                id: materialId,
-                notebookId,
-                kind: mode.materialKind,
-                title: "Saved",
-                folderId: null,
-                content: {},
-                deletedAt: null,
-                createdAt: "",
-                updatedAt: "",
-              },
+              materialId,
             });
           }}
           onCancel={() => onModeChange({ kind: "picker" })}
@@ -91,28 +84,27 @@ export function RightPane({
           folderId={mode.folderId}
           model={mode.model}
           onComplete={(materialId) => {
+            console.log(
+              "[RightPane] Generation onComplete called with materialId:",
+              materialId,
+            );
             onModeChange({
               kind: "viewer",
-              material: {
-                id: materialId,
-                notebookId,
-                kind: mode.materialKind,
-                title: "Generated",
-                folderId: mode.folderId,
-                content: {},
-                deletedAt: null,
-                createdAt: "",
-                updatedAt: "",
-              },
+              materialId,
             });
           }}
           onCancel={() => onModeChange({ kind: "picker" })}
         />
       );
     case "viewer":
+      console.log(
+        "[RightPane] Rendering MaterialViewer with materialId:",
+        mode.materialId,
+      );
       return (
-        <MaterialViewer
-          material={mode.material}
+        <RightPaneViewerWrapper
+          materialId={mode.materialId}
+          initialMaterial={mode.initialMaterial}
           onClose={() => onModeChange({ kind: "picker" })}
         />
       );
@@ -124,6 +116,52 @@ export function RightPane({
         />
       );
   }
+}
+
+function RightPaneViewerWrapper({
+  materialId,
+  initialMaterial,
+  onClose,
+}: {
+  materialId: string;
+  initialMaterial?: StudyMaterialDTO;
+  onClose: () => void;
+}) {
+  const {
+    data: material,
+    isLoading,
+    error,
+  } = useQuery({
+    ...studyMaterialQueryOptions(materialId),
+    initialData: initialMaterial,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (error || !material) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-4">
+        <p className="text-sm text-destructive">
+          {error?.message || "Failed to load study material"}
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-primary hover:underline"
+        >
+          Go back
+        </button>
+      </div>
+    );
+  }
+
+  return <MaterialViewer material={material} onClose={onClose} />;
 }
 
 function ComingSoonPane({

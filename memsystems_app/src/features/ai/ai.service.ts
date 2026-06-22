@@ -1,6 +1,6 @@
 import { convertToModelMessages, streamText } from "ai";
-import { opencodeProvider } from "./providers/opencode";
 import { connectionService } from "./connection.service";
+import { opencodeProvider } from "./providers/opencode";
 
 type ConvertInput = Parameters<typeof convertToModelMessages>[0];
 

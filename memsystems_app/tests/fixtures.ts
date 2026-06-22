@@ -5,6 +5,7 @@ import {
   notebookChatMessages,
   notebooks,
   sources,
+  studyMaterials,
 } from "@/database/schema";
 import { db } from "./db";
 
@@ -96,4 +97,34 @@ export async function seedSource(
     kind: row.kind,
     title: row.title,
   };
+}
+
+export async function seedStudyMaterial(
+  notebookId: string,
+  input: {
+    id?: string;
+    kind:
+      | "quiz"
+      | "simple_flashcard"
+      | "roadmap"
+      | "report"
+      | "slide_deck"
+      | "mind_map";
+    title: string;
+    content?: unknown;
+    folderId?: string | null;
+  },
+) {
+  const [row] = await db
+    .insert(studyMaterials)
+    .values({
+      id: input.id ?? createId(),
+      notebookId,
+      kind: input.kind,
+      title: input.title,
+      content: input.content ?? {},
+      folderId: input.folderId ?? null,
+    })
+    .returning();
+  return row;
 }

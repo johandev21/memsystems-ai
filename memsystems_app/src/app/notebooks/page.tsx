@@ -15,11 +15,10 @@ import { NotebookCard } from "@/components/home/notebook-card";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotebookIcon } from "@/components/ui/notebook-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { allNotebooksQueryOptions } from "@/lib/notebooks";
-
-import { NotebookIcon } from "@/components/ui/notebook-icon";
 
 function NotebooksContent() {
   const searchParams = useSearchParams();

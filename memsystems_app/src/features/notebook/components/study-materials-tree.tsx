@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Brain,
   ChevronRight,
@@ -10,13 +10,41 @@ import {
   HelpCircle,
   type LucideIcon,
   Map as MapIcon,
+  MoreVertical,
   Network,
   Presentation,
+  Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { foldersQueryOptions } from "@/lib/folders";
-import { studyMaterialsQueryOptions } from "@/lib/study-materials";
+import {
+  studyMaterialsQueryOptions,
+  deleteStudyMaterial,
+} from "@/lib/study-materials";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   buildStudyMaterialTree,
   countMaterialsInFolder,
@@ -98,11 +126,37 @@ interface RealDataProps {
 
 export function StudyMaterialsTree(props: RealDataProps) {
   const { notebookId, onSelectMaterial, className } = props;
+  const queryClient = useQueryClient();
   const foldersQuery = useQuery(foldersQueryOptions(notebookId));
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
 
   const folders = foldersQuery.data ?? [];
   const materials = materialsQuery.data ?? [];
+
+  const [materialToDelete, setMaterialToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (materialId: string) => deleteStudyMaterial(materialId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["study-materials", notebookId],
+      });
+      toast.success("Study material deleted successfully");
+      setMaterialToDelete(null);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message ?? "Failed to delete study material");
+    },
+  });
+
+  const handleConfirmDelete = () => {
+    if (materialToDelete) {
+      deleteMutation.mutate(materialToDelete.id);
+    }
+  };
 
   const baseTree = useMemo(
     () => buildStudyMaterialTree({ folders, materials }),
@@ -155,9 +209,36 @@ export function StudyMaterialsTree(props: RealDataProps) {
           depth={0}
           onToggleFolder={toggleFolder}
           onSelectMaterial={onSelectMaterial}
+          onDeleteMaterial={(id, name) => setMaterialToDelete({ id, name })}
           folderChildrenById={folderChildrenIndex(baseTree, openFolderIds)}
         />
       ))}
+
+      <AlertDialog
+        open={materialToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setMaterialToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Study Material</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{materialToDelete?.name}
+              &quot;? This will move it to the trash.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -201,12 +282,14 @@ function FileTreeItemNode({
   depth,
   onToggleFolder,
   onSelectMaterial,
+  onDeleteMaterial,
   folderChildrenById,
 }: {
   item: FileTreeItem;
   depth: number;
   onToggleFolder: (id: string) => void;
   onSelectMaterial?: (id: string) => void;
+  onDeleteMaterial?: (id: string, name: string) => void;
   folderChildrenById: Map<string, FileTreeItem[]>;
 }) {
   const isFolder = item.type === "folder";
@@ -222,60 +305,120 @@ function FileTreeItemNode({
     onSelectMaterial?.(item.id);
   };
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={handleClick}
-        style={{ paddingLeft: `${paddingLeft}px` }}
-        className={cn(
-          "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isFolder
-            ? "text-foreground hover:bg-muted/50"
-            : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
-        )}
-      >
-        {isFolder && (
-          <ChevronRight
-            className={cn(
-              "h-3.5 w-3.5 shrink-0 transition-transform duration-200 text-muted-foreground",
-              item.isOpen && "rotate-90",
-            )}
-          />
-        )}
-        {!isFolder && <span className="w-3.5 shrink-0" />}
-        <Icon
+  // biome-ignore lint/a11y/useSemanticElements: nested buttons are invalid HTML, so div role=button is required here
+  const nodeContent = (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      style={{ paddingLeft: `${paddingLeft}px` }}
+      className={cn(
+        "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none",
+        isFolder
+          ? "text-foreground hover:bg-muted/50"
+          : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+      )}
+    >
+      {isFolder && (
+        <ChevronRight
           className={cn(
-            "h-4 w-4 shrink-0",
-            isFolder ? "text-foreground/70" : config.className,
+            "h-3.5 w-3.5 shrink-0 transition-transform duration-200 text-muted-foreground",
+            item.isOpen && "rotate-90",
           )}
-          strokeWidth={2}
         />
-        <span className="truncate">{item.name}</span>
-        {isFolder &&
-          typeof item.materialCount === "number" &&
-          item.materialCount > 0 && (
-            <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
-              {item.materialCount}
-            </span>
-          )}
-      </button>
+      )}
+      {!isFolder && <span className="w-3.5 shrink-0" />}
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0",
+          isFolder ? "text-foreground/70" : config.className,
+        )}
+        strokeWidth={2}
+      />
+      <span className="truncate flex-1 pr-1">{item.name}</span>
+      {isFolder &&
+        typeof item.materialCount === "number" &&
+        item.materialCount > 0 && (
+          <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
+            {item.materialCount}
+          </span>
+        )}
 
-      {isFolder && item.isOpen && (
-        <div className="flex flex-col gap-0.5 mt-0.5">
-          {(folderChildrenById.get(item.id) ?? []).map((child) => (
-            <FileTreeItemNode
-              key={child.id}
-              item={child}
-              depth={depth + 1}
-              onToggleFolder={onToggleFolder}
-              onSelectMaterial={onSelectMaterial}
-              folderChildrenById={folderChildrenById}
-            />
-          ))}
+      {!isFolder && (
+        <div className="ml-auto opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Options for ${item.name}`}
+              >
+                <MoreVertical className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteMaterial?.(item.id, item.name);
+                }}
+                className="cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
-    </>
+    </div>
+  );
+
+  if (isFolder) {
+    return (
+      <>
+        {nodeContent}
+        {item.isOpen && (
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            {(folderChildrenById.get(item.id) ?? []).map((child) => (
+              <FileTreeItemNode
+                key={child.id}
+                item={child}
+                depth={depth + 1}
+                onToggleFolder={onToggleFolder}
+                onSelectMaterial={onSelectMaterial}
+                onDeleteMaterial={onDeleteMaterial}
+                folderChildrenById={folderChildrenById}
+              />
+            ))}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{nodeContent}</ContextMenuTrigger>
+      <ContextMenuContent className="w-40">
+        <ContextMenuItem
+          variant="destructive"
+          onClick={() => onDeleteMaterial?.(item.id, item.name)}
+          className="cursor-pointer"
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-2" />
+          Delete
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 

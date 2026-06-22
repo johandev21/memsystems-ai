@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 export interface ChatMessageDTO {
   id: string;
@@ -13,7 +13,7 @@ export function chatMessagesQueryOptions(notebookId: string) {
   return queryOptions({
     queryKey: ["chat", notebookId, "messages"],
     queryFn: async () => {
-      const res = await fetch(getApiUrl(`/api/notebooks/${notebookId}/chat`));
+      const res = await fetchApi(`/api/notebooks/${notebookId}/chat`);
       if (!res.ok)
         throw new Error(`Failed to fetch chat history (${res.status})`);
       return res.json() as Promise<ChatMessageDTO[]>;
@@ -24,7 +24,7 @@ export function chatMessagesQueryOptions(notebookId: string) {
 }
 
 export async function clearChatHistory(notebookId: string): Promise<void> {
-  const res = await fetch(getApiUrl(`/api/notebooks/${notebookId}/chat`), {
+  const res = await fetchApi(`/api/notebooks/${notebookId}/chat`, {
     method: "DELETE",
   });
   if (!res.ok) {

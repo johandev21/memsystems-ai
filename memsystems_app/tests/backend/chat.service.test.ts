@@ -26,6 +26,8 @@ vi.mock("@/features/ai/providers/opencode", () => ({
   },
 }));
 
+import { eq } from "drizzle-orm";
+import { notebooks } from "@/database/schema";
 import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { db } from "../db";
@@ -35,8 +37,6 @@ import {
   seedSource,
   seedUser,
 } from "../fixtures";
-import { eq } from "drizzle-orm";
-import { notebooks } from "@/database/schema";
 
 type LlmMessage = { role: string; content: string };
 type StreamTextArgs = {

@@ -83,6 +83,11 @@ function DesktopLayout({
     null,
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [studyMaterialsDialogOpen, setStudyMaterialsDialogOpen] =
+    useState(false);
+  const [selectedStudyMaterialId, setSelectedStudyMaterialId] = useState<
+    string | null
+  >(null);
   const models = useSuspenseQuery(modelsQueryOptions);
 
   const handleStudioGenerate = (kind: StudyMaterialKind) => {
@@ -213,7 +218,13 @@ function DesktopLayout({
             </ScrollArea>
             {!studioCollapsed && (
               <div className="p-1.5 pt-0">
-                <StudyMaterialsPanel notebookId={notebookId} />
+                <StudyMaterialsPanel
+                  notebookId={notebookId}
+                  open={studyMaterialsDialogOpen}
+                  onOpenChange={setStudyMaterialsDialogOpen}
+                  selectedMaterialId={selectedStudyMaterialId}
+                  onSelectMaterial={setSelectedStudyMaterialId}
+                />
               </div>
             )}
           </div>
@@ -223,9 +234,11 @@ function DesktopLayout({
             models={models.data}
             open={dialogOpen}
             onOpenChange={setDialogOpen}
-            onComplete={() => {
+            onComplete={(materialId) => {
               setDialogOpen(false);
               setGenerateKind(null);
+              setSelectedStudyMaterialId(materialId);
+              setStudyMaterialsDialogOpen(true);
             }}
           />
         </ResizablePanel>

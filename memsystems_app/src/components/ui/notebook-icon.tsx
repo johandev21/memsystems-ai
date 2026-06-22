@@ -1,7 +1,7 @@
-import { DynamicIcon, dynamicIconImports } from "lucide-react/dynamic";
-import type { IconName } from "lucide-react/dynamic";
-import { BookOpen } from "lucide-react";
 import type { LucideProps } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import type { IconName } from "lucide-react/dynamic";
+import { DynamicIcon, dynamicIconImports } from "lucide-react/dynamic";
 
 interface NotebookIconProps extends Omit<LucideProps, "ref" | "name"> {
   name?: string | null;

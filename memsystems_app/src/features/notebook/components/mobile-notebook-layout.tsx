@@ -19,6 +19,11 @@ export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
     null,
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [studyMaterialsDialogOpen, setStudyMaterialsDialogOpen] =
+    useState(false);
+  const [selectedStudyMaterialId, setSelectedStudyMaterialId] = useState<
+    string | null
+  >(null);
   const models = useSuspenseQuery(modelsQueryOptions);
 
   const handleGenerate = (kind: StudyMaterialKind) => {
@@ -73,7 +78,13 @@ export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
           <ScrollArea className="h-full">
             <div className="p-3 space-y-3">
               <StudioResources collapsed={false} onGenerate={handleGenerate} />
-              <MobileStudyMaterialsPanel notebookId={notebookId} />
+              <MobileStudyMaterialsPanel
+                notebookId={notebookId}
+                open={studyMaterialsDialogOpen}
+                onOpenChange={setStudyMaterialsDialogOpen}
+                selectedMaterialId={selectedStudyMaterialId}
+                onSelectMaterial={setSelectedStudyMaterialId}
+              />
             </div>
           </ScrollArea>
         </TabsContent>
@@ -84,9 +95,11 @@ export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {
         models={models.data}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onComplete={() => {
+        onComplete={(materialId) => {
           setDialogOpen(false);
           setGenerateKind(null);
+          setSelectedStudyMaterialId(materialId);
+          setStudyMaterialsDialogOpen(true);
         }}
       />
     </div>

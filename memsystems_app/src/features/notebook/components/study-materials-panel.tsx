@@ -10,7 +10,21 @@ import { Separator } from "@/components/ui/separator";
 import { ExpandedStudyMaterials } from "./expanded-study-materials";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
-export function StudyMaterialsPanel({ notebookId }: { notebookId: string }) {
+export interface StudyMaterialsPanelProps {
+  notebookId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedMaterialId: string | null;
+  onSelectMaterial: (materialId: string | null) => void;
+}
+
+export function StudyMaterialsPanel({
+  notebookId,
+  open,
+  onOpenChange,
+  selectedMaterialId,
+  onSelectMaterial,
+}: StudyMaterialsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -33,7 +47,17 @@ export function StudyMaterialsPanel({ notebookId }: { notebookId: string }) {
               <ChevronUp className="h-4 w-4" />
             )}
           </Button>
-          <ExpandedStudyMaterials notebookId={notebookId} />
+          <ExpandedStudyMaterials
+            notebookId={notebookId}
+            open={open}
+            onOpenChange={(isOpen) => {
+              onOpenChange(isOpen);
+              if (!isOpen) {
+                onSelectMaterial(null);
+              }
+            }}
+            initialMaterialId={selectedMaterialId}
+          />
         </div>
       </div>
       {isExpanded && (
@@ -41,7 +65,13 @@ export function StudyMaterialsPanel({ notebookId }: { notebookId: string }) {
           <Separator />
           <ScrollArea className="h-[250px] w-full pr-3">
             <CardContent className="pb-2">
-              <StudyMaterialsTree notebookId={notebookId} />
+              <StudyMaterialsTree
+                notebookId={notebookId}
+                onSelectMaterial={(materialId) => {
+                  onSelectMaterial(materialId);
+                  onOpenChange(true);
+                }}
+              />
             </CardContent>
           </ScrollArea>
         </>

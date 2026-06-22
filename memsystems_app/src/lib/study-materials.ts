@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 export type { StudyMaterialKind };
 
@@ -27,8 +27,8 @@ export function studyMaterialsQueryOptions(notebookId: string) {
   return queryOptions({
     queryKey: ["study-materials", notebookId],
     queryFn: async () => {
-      const res = await fetch(
-        getApiUrl(`/api/notebooks/${notebookId}/study-materials`),
+      const res = await fetchApi(
+        `/api/notebooks/${notebookId}/study-materials`,
       );
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -46,13 +46,16 @@ export function studyMaterialQueryOptions(materialId: string) {
   return queryOptions({
     queryKey: ["study-material", materialId],
     queryFn: async () => {
-      // The single-material GET endpoint is implied by `study-material.service.ts.get`
-      // but not yet exposed as a route. Until it is, callers that only have the id
-      // must refetch via the list query.
-      throw new Error(
-        "studyMaterialQueryOptions requires a single-material GET route that does not exist yet.",
-      );
+      const res = await fetchApi(`/api/study-materials/${materialId}`);
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+          data.error ?? `Failed to fetch study material (${res.status})`,
+        );
+      }
+      return res.json() as Promise<StudyMaterialDTO>;
     },
+    staleTime: 30_000,
   });
 }
 
@@ -60,14 +63,11 @@ export async function createStudyMaterial(
   notebookId: string,
   input: CreateStudyMaterialInput,
 ): Promise<StudyMaterialDTO> {
-  const res = await fetch(
-    getApiUrl(`/api/notebooks/${notebookId}/study-materials`),
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    },
-  );
+  const res = await fetchApi(`/api/notebooks/${notebookId}/study-materials`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
   const data = (await res.json().catch(() => ({}))) as {
     error?: string;
   };
@@ -77,4 +77,16 @@ export async function createStudyMaterial(
     );
   }
   return data as StudyMaterialDTO;
+}
+
+export async function deleteStudyMaterial(materialId: string): Promise<void> {
+  const res = await fetchApi(`/api/study-materials/${materialId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(
+      data.error ?? `Failed to delete study material (${res.status})`,
+    );
+  }
 }

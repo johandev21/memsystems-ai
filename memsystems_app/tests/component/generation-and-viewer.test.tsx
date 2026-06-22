@@ -225,10 +225,14 @@ describe("MaterialViewer", () => {
 
     render(<MaterialViewer material={material} onClose={() => {}} />);
     expect(screen.getByText("Front text")).toBeInTheDocument();
-    expect(screen.queryByText("Back text")).toBeNull();
 
-    await user.click(screen.getByRole("button", { name: /flip/i }));
-    expect(screen.getByText("Back text")).toBeInTheDocument();
+    const cardInner = screen
+      .getByText("Front text")
+      .closest(".relative.w-full.h-full");
+    expect(cardInner).not.toHaveClass("[transform:rotateY(180deg)]");
+
+    await user.click(screen.getByText("Front text"));
+    expect(cardInner).toHaveClass("[transform:rotateY(180deg)]");
   });
 
   it("renders a roadmap with phases and topics", () => {

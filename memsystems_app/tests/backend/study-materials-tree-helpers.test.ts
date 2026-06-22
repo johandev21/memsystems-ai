@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { FolderDTO } from "@/lib/folders";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
 import {
   buildStudyMaterialTree,
   countMaterialsInFolder,
 } from "@/features/notebook/components/study-materials-tree-helpers";
+import type { FolderDTO } from "@/lib/folders";
+import type { StudyMaterialDTO } from "@/lib/study-materials";
 
 const f = (overrides: Partial<FolderDTO> = {}): FolderDTO => ({
   id: "f",

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 export interface FolderDTO {
   id: string;
@@ -20,9 +20,7 @@ export function foldersQueryOptions(notebookId: string) {
   return queryOptions({
     queryKey: ["study-material-folders", notebookId],
     queryFn: async () => {
-      const res = await fetch(
-        getApiUrl(`/api/notebooks/${notebookId}/folders`),
-      );
+      const res = await fetchApi(`/api/notebooks/${notebookId}/folders`);
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(
@@ -39,7 +37,7 @@ export async function createFolder(
   notebookId: string,
   input: CreateFolderInput,
 ): Promise<FolderDTO> {
-  const res = await fetch(getApiUrl(`/api/notebooks/${notebookId}/folders`), {
+  const res = await fetchApi(`/api/notebooks/${notebookId}/folders`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

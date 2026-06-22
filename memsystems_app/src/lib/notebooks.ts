@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 export interface Notebook {
   id: string;
@@ -29,7 +29,7 @@ async function fetchNotebooks(
   if (offset) params.set("offset", String(offset));
   if (search) params.set("search", search);
   const url = `/api/notebooks${params.toString() ? `?${params.toString()}` : ""}`;
-  const res = await fetch(getApiUrl(url));
+  const res = await fetchApi(url);
   if (!res.ok) throw new Error(`Failed to fetch notebooks (${res.status})`);
   const data = await res.json();
   return Array.isArray(data) ? { notebooks: data, total: data.length } : data;
@@ -46,7 +46,7 @@ export const notebookQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["notebooks", id],
     queryFn: async () => {
-      const res = await fetch(getApiUrl(`/api/notebooks/${id}`));
+      const res = await fetchApi(`/api/notebooks/${id}`);
       if (!res.ok) throw new Error(`Failed to fetch notebook (${res.status})`);
       return res.json() as Promise<Notebook>;
     },

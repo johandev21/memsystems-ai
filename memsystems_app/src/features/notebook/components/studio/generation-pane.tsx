@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { clientLogger } from "@/lib/client-logger";
@@ -33,6 +33,12 @@ export function GenerationPane({
   onCancel,
 }: GenerationPaneProps) {
   const queryClient = useQueryClient();
+  const onCompleteRef = useRef(onComplete);
+  const onCancelRef = useRef(onCancel);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+    onCancelRef.current = onCancel;
+  });
   const [status, setStatus] = useState<
     "connecting" | "streaming" | "done" | "error"
   >("connecting");
@@ -63,20 +69,57 @@ export function GenerationPane({
             setLatestPartial(event.content);
           } else if (event.type === "done") {
             setStatus("done");
-            queryClient.invalidateQueries({
+            log.info(
+              "generation stream done event received, invalidating queries",
+              { notebookId },
+            );
+
+            // Invalidate and await the query refetch to ensure the cache is updated
+            await queryClient.invalidateQueries({
               queryKey: ["study-materials", notebookId],
             });
-            // The new material appears in the list after invalidation; we can
-            // read it back and surface the first new material. If it isn't
-            // there yet, the caller can still open the tree and click it.
-            const list = queryClient.getQueryData<StudyMaterialDTO[]>([
-              "study-materials",
-              notebookId,
-            ]);
-            const newest = list?.find(
-              (m) => m.kind === kind && m.title.includes("Quiz"),
+
+            // Get updated list from cache
+            const list =
+              queryClient.getQueryData<StudyMaterialDTO[]>([
+                "study-materials",
+                notebookId,
+              ]) || [];
+
+            // Sort study materials of the same kind by createdAt descending
+            const matching = list.filter((m) => m.kind === kind);
+            matching.sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
             );
-            onComplete(newest?.id ?? "sm-new");
+
+            log.info("matching study materials found", {
+              count: matching.length,
+              newest: matching[0],
+            });
+
+            const newest = matching[0];
+            if (newest) {
+              onCompleteRef.current(newest.id);
+            } else {
+              const fallback: StudyMaterialDTO = {
+                id: "sm-new",
+                notebookId,
+                kind,
+                title: "Generated",
+                folderId,
+                content: {},
+                deletedAt: null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              log.warn(
+                "newly generated study material not found in cache, using fallback DTO",
+                { fallback },
+              );
+              onCompleteRef.current(fallback.id);
+            }
           } else if (event.type === "error") {
             setStatus("error");
             setErrorMessage(event.error.message);
@@ -97,30 +140,26 @@ export function GenerationPane({
     return () => {
       cancelled = true;
     };
-  }, [
-    notebookId,
-    kind,
-    brief,
-    sourceIds,
-    folderId,
-    model,
-    queryClient,
-    onComplete,
-  ]);
+  }, [notebookId, kind, brief, sourceIds, folderId, model, queryClient]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col min-w-0">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
         <h3 className="text-sm font-semibold">Generating {kindLabel(kind)}</h3>
         {status !== "done" && status !== "error" && (
-          <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onCancelRef.current()}
+          >
             <X className="h-3.5 w-3.5 mr-1" />
             Cancel
           </Button>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 min-w-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Loader2 className="h-4 w-4 animate-spin" />
           {status === "connecting" && "Starting generation..."}
@@ -141,7 +180,7 @@ export function GenerationPane({
         )}
 
         {latestPartial ? (
-          <pre className="rounded-md bg-muted p-3 text-[11px] font-mono overflow-auto max-h-[60vh]">
+          <pre className="rounded-md bg-muted p-3 text-[11px] font-mono overflow-auto max-h-[60vh] w-full max-w-full whitespace-pre-wrap break-words">
             {JSON.stringify(latestPartial, null, 2)}
           </pre>
         ) : null}

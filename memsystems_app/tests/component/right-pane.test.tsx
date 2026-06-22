@@ -104,4 +104,42 @@ describe("RightPane", () => {
       materialKind: "quiz",
     });
   });
+
+  it("renders the viewer in viewer mode", () => {
+    const material = {
+      id: "sm-1",
+      notebookId: "nb-1",
+      kind: "quiz",
+      title: "Sample Quiz",
+      folderId: null,
+      content: {
+        questions: [
+          {
+            id: "q1",
+            prompt: "What is 2+2?",
+            options: [
+              { text: "3", explanation: "Too low" },
+              { text: "4", explanation: "Correct" },
+            ],
+            correctOptionIndex: 1,
+          },
+        ],
+      },
+      deletedAt: null,
+      createdAt: "2025-01-01T00:00:00Z",
+      updatedAt: "2025-01-01T00:00:00Z",
+    };
+    queryCache.set(["study-material", "sm-1"], material);
+
+    render(
+      <RightPane
+        notebookId="nb-1"
+        mode={{ kind: "viewer", materialId: "sm-1" }}
+        onModeChange={() => {}}
+        models={MODELS}
+      />,
+    );
+    expect(screen.getByText("Sample Quiz")).toBeInTheDocument();
+    expect(screen.getByText(/What is 2\+2\?/)).toBeInTheDocument();
+  });
 });

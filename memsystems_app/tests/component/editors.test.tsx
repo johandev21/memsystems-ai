@@ -111,11 +111,11 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { QuizEditor } from "@/features/notebook/components/studio/editors/quiz-editor";
 import { FlashcardEditor } from "@/features/notebook/components/studio/editors/flashcard-editor";
+import { QuizEditor } from "@/features/notebook/components/studio/editors/quiz-editor";
 import { RoadmapEditor } from "@/features/notebook/components/studio/editors/roadmap-editor";
-import { createStudyMaterial } from "@/lib/study-materials";
 import type { FolderDTO } from "@/lib/folders";
+import { createStudyMaterial } from "@/lib/study-materials";
 
 const NOTEBOOK_ID = "notebook-ed-1";
 
