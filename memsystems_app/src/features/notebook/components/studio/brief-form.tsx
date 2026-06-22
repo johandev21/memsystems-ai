@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
+import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 import { ModelSelector } from "../model-selector";
 import { FolderPicker } from "./folder-picker";
 import { SourceMultiSelect } from "./source-multi-select";
@@ -43,6 +44,14 @@ export function BriefForm({
   const [selectedModel, setSelectedModel] = useState(
     value.model || defaultModel || models[0]?.id || "",
   );
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useTextareaAutosize({
+    ref: textareaRef,
+    value: value.brief,
+    minHeight: 80,
+    maxHeight: 250,
+  });
 
   const update = (patch: Partial<BriefFormData>) => {
     onChange({ ...value, ...patch });
@@ -56,9 +65,11 @@ export function BriefForm({
         </Label>
         <Textarea
           id="brief"
+          ref={textareaRef}
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
           placeholder={`e.g. "5 multiple-choice questions about Chapter 3"`}
+          className="resize-none field-sizing-none"
           rows={3}
           disabled={disabled}
         />
