@@ -24,12 +24,13 @@ export function ChatMessageList({
 }: ChatMessageListProps) {
   return (
     <div className="w-full flex-1">
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <MessageBubble
           key={message.id}
           message={message}
           onCopy={onCopy}
           onRegenerate={onRegenerate}
+          isLast={index === messages.length - 1}
         />
       ))}
       {isThinking && (
@@ -46,9 +47,15 @@ interface MessageBubbleProps {
   message: UIMessage;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
+  isLast: boolean;
 }
 
-function MessageBubble({ message, onCopy, onRegenerate }: MessageBubbleProps) {
+function MessageBubble({
+  message,
+  onCopy,
+  onRegenerate,
+  isLast,
+}: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   return (
@@ -65,6 +72,7 @@ function MessageBubble({ message, onCopy, onRegenerate }: MessageBubbleProps) {
           message={message}
           onCopy={onCopy}
           onRegenerate={onRegenerate}
+          showRegenerate={isLast}
         />
       )}
     </div>
@@ -96,10 +104,12 @@ function AssistantMessage({
   message,
   onCopy,
   onRegenerate,
+  showRegenerate,
 }: {
   message: UIMessage;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
+  showRegenerate: boolean;
 }) {
   const isStreaming = message.parts.some(
     (part) => isTextPart(part) && part.state === "streaming",
@@ -128,6 +138,7 @@ function AssistantMessage({
           fullText={fullText}
           onCopy={onCopy}
           onRegenerate={onRegenerate}
+          showRegenerate={showRegenerate}
         />
       )}
     </div>
@@ -138,12 +149,14 @@ interface MessageActionsProps {
   fullText: string;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
+  showRegenerate: boolean;
 }
 
 function MessageActions({
   fullText,
   onCopy,
   onRegenerate,
+  showRegenerate,
 }: MessageActionsProps) {
   return (
     <div className="mt-3 -ml-1 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
@@ -156,15 +169,17 @@ function MessageActions({
       >
         <Copy className="h-3.5 w-3.5" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
-        title="Regenerate response"
-        onClick={() => onRegenerate()}
-      >
-        <RefreshCw className="h-3.5 w-3.5" />
-      </Button>
+      {showRegenerate && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
+          title="Regenerate response"
+          onClick={() => onRegenerate()}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+        </Button>
+      )}
     </div>
   );
 }

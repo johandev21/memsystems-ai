@@ -68,7 +68,7 @@ export function BriefForm({
           ref={textareaRef}
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
-          placeholder={`e.g. "5 multiple-choice questions about Chapter 3"`}
+          placeholder={getPlaceholder(kind)}
           className="resize-none field-sizing-none"
           rows={3}
           disabled={disabled}
@@ -129,5 +129,24 @@ function kindLabel(kind: StudyMaterialKind): string {
       return "mind map";
     default:
       return kind;
+  }
+}
+
+function getPlaceholder(kind: StudyMaterialKind): string {
+  switch (kind) {
+    case "quiz":
+      return 'e.g. "Generate 10 multiple-choice questions focusing on the key formulas and concepts from the selected sources, aimed at intermediate level."';
+    case "simple_flashcard":
+      return 'e.g. "Create 15 flashcards covering core definitions, terminology, and key concepts, with concise answers on the back."';
+    case "roadmap":
+      return 'e.g. "A step-by-step learning roadmap organized by difficulty, focusing on core concepts and practical projects to build."';
+    case "slide_deck":
+      return 'e.g. "A structured 8-slide presentation outlining the main arguments, methodology, and key findings from the source text."';
+    case "mind_map":
+      return 'e.g. "A hierarchical mind map displaying the central themes, supporting details, and relationships between the main topics."';
+    case "report":
+      return 'e.g. "A comprehensive summary report highlighting the key takeaways, data points, and recommendations, structured with clear headings."';
+    default:
+      return 'e.g. "Describe the specific topics, structure, quantity, and focus area you want to generate."';
   }
 }

@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
 
@@ -74,22 +75,24 @@ export function ModelSelector({
           />
         </div>
 
-        <div className="max-h-[260px] overflow-y-auto space-y-0.5 scrollbar-thin">
-          {filteredModels.length === 0 ? (
-            <div className="text-[11px] text-muted-foreground text-center py-8">
-              No models found
-            </div>
-          ) : (
-            filteredModels.map((model) => (
-              <ModelRow
-                key={model.id}
-                model={model}
-                selectedModel={selectedModel}
-                onSelectModel={handleSelectModel}
-              />
-            ))
-          )}
-        </div>
+        <ScrollArea className="max-h-[260px]">
+          <div className="space-y-0.5 pr-2">
+            {filteredModels.length === 0 ? (
+              <div className="text-[11px] text-muted-foreground text-center py-8">
+                No models found
+              </div>
+            ) : (
+              filteredModels.map((model) => (
+                <ModelRow
+                  key={model.id}
+                  model={model}
+                  selectedModel={selectedModel}
+                  onSelectModel={handleSelectModel}
+                />
+              ))
+            )}
+          </div>
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   );
