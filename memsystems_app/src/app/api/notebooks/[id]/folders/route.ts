@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { StudyMaterialFolderService } from "@/features/study-materials/study-material-folder.service";
+import { toErrorResponse } from "@/lib/api-error";
 import { getSession } from "@/lib/session";
 
 const service = new StudyMaterialFolderService();
@@ -18,8 +19,12 @@ export async function GET(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const folders = await service.list(session.user.id, id);
-  return NextResponse.json(folders);
+  try {
+    const folders = await service.list(session.user.id, id);
+    return NextResponse.json(folders);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }
 
 export async function POST(
@@ -30,7 +35,11 @@ export async function POST(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const body = createSchema.parse(await req.json());
-  const folder = await service.create(session.user.id, id, body);
-  return NextResponse.json(folder);
+  try {
+    const body = createSchema.parse(await req.json());
+    const folder = await service.create(session.user.id, id, body);
+    return NextResponse.json(folder);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }

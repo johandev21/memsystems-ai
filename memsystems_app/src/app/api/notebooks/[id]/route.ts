@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { NotebookService } from "@/features/notebooks/notebook.service";
+import { toErrorResponse } from "@/lib/api-error";
 import { getSession } from "@/lib/session";
 
 const service = new NotebookService();
@@ -24,8 +25,12 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const notebook = await service.get(session.user.id, id);
-  return NextResponse.json(notebook);
+  try {
+    const notebook = await service.get(session.user.id, id);
+    return NextResponse.json(notebook);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }
 
 export async function PATCH(
@@ -37,9 +42,13 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const body = updateSchema.parse(await req.json());
-  const notebook = await service.update(session.user.id, id, body);
-  return NextResponse.json(notebook);
+  try {
+    const body = updateSchema.parse(await req.json());
+    const notebook = await service.update(session.user.id, id, body);
+    return NextResponse.json(notebook);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }
 
 export async function DELETE(
@@ -51,6 +60,10 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  await service.delete(session.user.id, id);
-  return NextResponse.json({ success: true });
+  try {
+    await service.delete(session.user.id, id);
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { StudyMaterialService } from "@/features/study-materials/study-material.service";
+import { toErrorResponse } from "@/lib/api-error";
 import { getSession } from "@/lib/session";
 
 const service = new StudyMaterialService();
@@ -31,8 +32,15 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const folderId = searchParams.get("folderId") ?? undefined;
   const kind = searchParams.get("kind") as StudyMaterialKind | undefined;
-  const materials = await service.list(session.user.id, id, { folderId, kind });
-  return NextResponse.json(materials);
+  try {
+    const materials = await service.list(session.user.id, id, {
+      folderId,
+      kind,
+    });
+    return NextResponse.json(materials);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }
 
 export async function POST(
@@ -43,7 +51,11 @@ export async function POST(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const body = createSchema.parse(await req.json());
-  const material = await service.create(session.user.id, id, body);
-  return NextResponse.json(material);
+  try {
+    const body = createSchema.parse(await req.json());
+    const material = await service.create(session.user.id, id, body);
+    return NextResponse.json(material);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }

@@ -13,6 +13,7 @@ import {
   MoreVertical,
   Network,
   Presentation,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -202,17 +203,32 @@ export function StudyMaterialsTree(props: RealDataProps) {
 
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
-      {items.map((item) => (
-        <FileTreeItemNode
-          key={item.id}
-          item={item}
-          depth={0}
-          onToggleFolder={toggleFolder}
-          onSelectMaterial={onSelectMaterial}
-          onDeleteMaterial={(id, name) => setMaterialToDelete({ id, name })}
-          folderChildrenById={folderChildrenIndex(baseTree, openFolderIds)}
-        />
-      ))}
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-dashed border-border bg-muted/25 my-1 transition-all duration-300 hover:border-primary/20 hover:bg-muted/40">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary mb-3 shadow-inner">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <h3 className="font-semibold text-xs text-foreground tracking-tight">
+            No study materials
+          </h3>
+          <p className="text-[10px] text-muted-foreground mt-1.5 max-w-[200px] leading-relaxed">
+            Generate quizzes, flashcards, or roadmaps from your sources in the
+            Studio panel above.
+          </p>
+        </div>
+      ) : (
+        items.map((item) => (
+          <FileTreeItemNode
+            key={item.id}
+            item={item}
+            depth={0}
+            onToggleFolder={toggleFolder}
+            onSelectMaterial={onSelectMaterial}
+            onDeleteMaterial={(id, name) => setMaterialToDelete({ id, name })}
+            folderChildrenById={folderChildrenIndex(baseTree, openFolderIds)}
+          />
+        ))
+      )}
 
       <AlertDialog
         open={materialToDelete !== null}

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { TrashService } from "@/features/study-materials/trash.service";
+import { toErrorResponse } from "@/lib/api-error";
 import { getSession } from "@/lib/session";
 
 const service = new TrashService();
@@ -12,8 +13,12 @@ export async function GET(
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const items = await service.list(session.user.id, id);
-  return NextResponse.json(items);
+  try {
+    const items = await service.list(session.user.id, id);
+    return NextResponse.json(items);
+  } catch (err) {
+    return toErrorResponse(err);
+  }
 }
 
 export async function DELETE() {
