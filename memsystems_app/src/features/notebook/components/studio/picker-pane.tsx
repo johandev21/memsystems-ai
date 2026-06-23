@@ -41,18 +41,18 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                   }
                 }}
                 className={cn(
-                  "group flex items-center justify-center gap-2 h-11 px-5 w-full text-foreground border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-lg",
+                  "group flex items-center justify-center gap-2 h-11 px-5 w-full border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-lg",
                   inScope
                     ? isSelected
-                      ? "bg-primary/10 text-primary border-primary/30 dark:bg-primary/20 dark:text-primary-foreground dark:border-primary/40 font-bold select-none cursor-pointer"
-                      : "bg-neutral-100 hover:bg-neutral-200/80 active:bg-neutral-300/45 border-transparent dark:bg-neutral-900/60 dark:hover:bg-neutral-800/80 dark:active:bg-neutral-750/45 cursor-pointer active:scale-98 select-none"
-                    : "bg-muted text-muted-foreground border-transparent cursor-not-allowed opacity-60",
+                      ? "bg-primary/15 border-primary/30 text-primary dark:bg-primary/20 dark:border-primary/50 font-bold select-none cursor-pointer"
+                      : "bg-neutral-100 hover:bg-neutral-200/80 active:bg-neutral-300/45 border-transparent text-neutral-800 dark:bg-neutral-900/60 dark:hover:bg-neutral-800/80 dark:active:bg-neutral-750/45 dark:text-neutral-200 cursor-pointer active:scale-98 select-none"
+                    : "bg-muted/50 text-muted-foreground/60 border-transparent dark:bg-muted/20 cursor-not-allowed opacity-65",
                 )}
               >
                 <resource.icon
                   className={cn(
                     "h-4.5 w-4.5 shrink-0 opacity-90 transition-colors",
-                    isSelected ? "text-primary dark:text-primary-foreground" : ""
+                    isSelected ? "text-primary" : "text-muted-foreground"
                   )}
                   strokeWidth={1.8}
                 />
@@ -64,9 +64,9 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                 <div className="flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-200 slide-in-from-top-1">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
-                    className="h-7 flex-1 text-[11px] font-medium border-border/80 hover:bg-muted/80 hover:text-foreground cursor-pointer rounded-md"
+                    className="h-7 flex-1 text-[11px] font-medium border border-border/20 dark:border-border/40 hover:bg-secondary/80 cursor-pointer rounded-md"
                     onClick={() => onChoose(kind, "manual")}
                   >
                     Manual

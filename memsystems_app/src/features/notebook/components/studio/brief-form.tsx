@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
-import { ModelSelector } from "../model-selector";
+import { DialogModelSelector } from "../model-selector";
 import { FolderPicker } from "./folder-picker";
 import { SourceMultiSelect } from "./source-multi-select";
 
@@ -97,13 +97,14 @@ export function BriefForm({
 
       <div className="space-y-1.5">
         <Label>Model</Label>
-        <ModelSelector
+        <DialogModelSelector
           models={models}
           selectedModel={selectedModel}
           onModelChange={(model) => {
             setSelectedModel(model);
             update({ model });
           }}
+          disabled={disabled}
         />
       </div>
 

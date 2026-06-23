@@ -10,6 +10,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
 
@@ -75,7 +82,7 @@ export function ModelSelector({
           />
         </div>
 
-        <ScrollArea className="max-h-[260px]">
+        <ScrollArea className="h-[200px]">
           <div className="space-y-0.5 pr-2">
             {filteredModels.length === 0 ? (
               <div className="text-[11px] text-muted-foreground text-center py-8">
@@ -136,5 +143,54 @@ function ModelRow({ model, selectedModel, onSelectModel }: ModelRowProps) {
         </span>
       </div>
     </div>
+  );
+}
+
+export interface DialogModelSelectorProps {
+  models: ModelOption[];
+  selectedModel: string;
+  onModelChange: (model: string) => void;
+  disabled?: boolean;
+}
+
+export function DialogModelSelector({
+  models,
+  selectedModel,
+  onModelChange,
+  disabled = false,
+}: DialogModelSelectorProps) {
+  const activeModelDetails = models.find((m) => m.id === selectedModel);
+
+  return (
+    <Select
+      value={selectedModel}
+      onValueChange={onModelChange}
+      disabled={disabled}
+    >
+      <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors">
+        <SelectValue placeholder="Select a model">
+          {activeModelDetails?.displayName || selectedModel}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent position="popper" className="w-[300px]">
+        {models.map((model) => (
+          <SelectItem
+            key={model.id}
+            value={model.id}
+            textValue={model.displayName}
+            className="text-xs py-2"
+          >
+            <div className="flex flex-col min-w-0">
+              <span className="font-semibold text-foreground leading-tight truncate">
+                {model.displayName}
+              </span>
+              <span className="text-[10px] text-muted-foreground/70 leading-none mt-1 truncate">
+                {model.id}
+              </span>
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
