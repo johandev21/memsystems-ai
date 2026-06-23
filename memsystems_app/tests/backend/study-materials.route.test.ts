@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/session", () => ({ getSession: mocks.getSession }));
 
 import { GET as getMaterial } from "@/app/api/study-materials/[id]/route";
-import { seedNotebook, seedUser, seedStudyMaterial } from "../fixtures";
+import { seedNotebook, seedStudyMaterial, seedUser } from "../fixtures";
 
 function makeUrl(path: string) {
   return new URL(`http://localhost:3000${path}`);

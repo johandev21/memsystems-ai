@@ -9,8 +9,8 @@ import {
 } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { getProviderForModel } from "../ai/ai.service";
 import { connectionService } from "../ai/connection.service";
-import { opencodeProvider } from "../ai/providers/opencode";
 import {
   MindMapContent,
   QuizContent,
@@ -36,14 +36,16 @@ export interface GenerateInput {
   kind: StudyMaterialKind;
   brief: string;
   sourceIds: string[];
-  folderId?: string;
+  folderId?: string | null;
   model?: string;
 }
 
 export class GenerationService {
   async generate(userId: string, notebookId: string, input: GenerateInput) {
     await this.assertNotebookOwner(userId, notebookId);
-    await connectionService.requireConnected();
+
+    const modelId = input.model ?? MODELS_BY_KIND[input.kind];
+    await connectionService.requireConnected(userId, modelId);
 
     if (input.sourceIds.length === 0) {
       throw new BadRequestError("At least one source is required");
@@ -74,9 +76,9 @@ export class GenerationService {
       .returning();
 
     const template = getPromptTemplate(input.kind);
-    const modelId = input.model ?? MODELS_BY_KIND[input.kind];
 
-    const model = opencodeProvider.createModel(modelId);
+    const provider = await getProviderForModel(modelId, userId);
+    const model = provider.createModel(modelId);
 
     const systemPrompt = template.system;
     const userPrompt = template.user(input.brief, truncatedSources);

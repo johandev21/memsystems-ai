@@ -16,7 +16,7 @@ const bodySchema = z.object({
   ]),
   brief: z.string(),
   sourceIds: z.array(z.string()),
-  folderId: z.string().optional(),
+  folderId: z.string().nullable().optional(),
   model: z.string().optional(),
 });
 

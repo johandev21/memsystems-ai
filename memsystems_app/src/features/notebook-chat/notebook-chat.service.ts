@@ -4,8 +4,8 @@ import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { getProviderForModel } from "../ai/ai.service";
 import { connectionService } from "../ai/connection.service";
-import { opencodeProvider } from "../ai/providers/opencode";
 
 const log = logger.child({ feature: "notebook-chat" });
 
@@ -90,7 +90,7 @@ export class NotebookChatService {
 
     await this.assertNotebookOwner(userId, notebookId);
     logCtx.debug("assertNotebookOwner passed");
-    await connectionService.requireConnected();
+    await connectionService.requireConnected(userId, input.model);
     logCtx.debug("connectionService.requireConnected passed");
 
     const sourceTexts = await this.fetchSourceTexts(notebookId);
@@ -154,7 +154,8 @@ export class NotebookChatService {
     });
 
     const modelId = input.model;
-    const model = opencodeProvider.createModel(modelId);
+    const provider = await getProviderForModel(modelId, userId);
+    const model = provider.createModel(modelId);
     logCtx.debug("model created", { modelId });
 
     const systemMessage =
@@ -197,20 +198,27 @@ export class NotebookChatService {
           const citedSourceIds = this.extractCitations(text, sourceTexts);
           const cleanContent = this.stripCitations(text);
 
-          const [saved] = await db
-            .insert(notebookChatMessages)
-            .values({
-              notebookId,
-              role: "assistant",
-              content: cleanContent,
+          try {
+            const [saved] = await db
+              .insert(notebookChatMessages)
+              .values({
+                notebookId,
+                role: "assistant",
+                content: cleanContent,
+                citedSourceIds,
+              })
+              .returning();
+            logCtx.info("assistant message persisted", {
+              messageId: saved.id,
+              contentLength: saved.content.length,
               citedSourceIds,
-            })
-            .returning();
-          logCtx.info("assistant message persisted", {
-            messageId: saved.id,
-            contentLength: saved.content.length,
-            citedSourceIds,
-          });
+            });
+          } catch (dbError) {
+            logCtx.error("failed to persist assistant message", {
+              error:
+                dbError instanceof Error ? dbError.message : String(dbError),
+            });
+          }
         },
       });
     } catch (error) {

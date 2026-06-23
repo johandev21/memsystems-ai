@@ -18,6 +18,7 @@ const TABLES = [
   "study_material_folders",
   "sources",
   "notebooks",
+  "user_settings",
   "verification",
   "account",
   "session",

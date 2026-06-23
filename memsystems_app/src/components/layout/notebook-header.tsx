@@ -45,19 +45,21 @@ export function NotebookHeader({ id }: { id: string }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="cursor-pointer">
-            {isPending ? (
-              <Skeleton className="size-6" />
-            ) : (
-              <Avatar size="sm">
-                <AvatarImage
-                  src={user?.image ?? undefined}
-                  alt={user?.name ?? undefined}
-                />
-                <AvatarFallback>
-                  {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-                </AvatarFallback>
-              </Avatar>
-            )}
+            <div className="size-6 flex items-center justify-center">
+              {isPending ? (
+                <Skeleton className="size-6 rounded-none" />
+              ) : (
+                <Avatar size="sm">
+                  <AvatarImage
+                    src={user?.image ?? undefined}
+                    alt={user?.name ?? undefined}
+                  />
+                  <AvatarFallback>
+                    {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">

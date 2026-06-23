@@ -8,6 +8,6 @@ export async function GET() {
   const session = await getSession();
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const models = aiService.listModels();
+  const models = aiService.listModels(session.user.id);
   return NextResponse.json(models);
 }

@@ -13,13 +13,13 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import type {
   FlashcardEditorContentType,
   QuizEditorContentType,
   RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
 import type { StudyMaterialDTO } from "@/lib/study-materials";
+import { cn } from "@/lib/utils";
 
 export interface MaterialViewerProps {
   material: StudyMaterialDTO;

@@ -15,6 +15,7 @@
     "test:db:setup": "node tests/ensure-test-db.mjs"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.74",
     "@ai-sdk/react": "^3.0.208",
     "@aws-sdk/client-s3": "^3.1069.0",
     "@aws-sdk/s3-request-presigner": "^3.1069.0",

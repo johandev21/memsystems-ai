@@ -410,6 +410,25 @@ export const noteTagsRelations = relations(noteTags, ({ one }) => ({
   }),
 }));
 
+export const userSettings = pgTable("user_settings", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  openaiApiKey: text("openai_api_key"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+  user: one(user, {
+    fields: [userSettings.userId],
+    references: [user.id],
+  }),
+}));
+
 export const table = {
   notebooks,
   sources,
@@ -422,6 +441,7 @@ export const table = {
   cards,
   tags,
   noteTags,
+  userSettings,
 } as const;
 
 export type Table = typeof table;

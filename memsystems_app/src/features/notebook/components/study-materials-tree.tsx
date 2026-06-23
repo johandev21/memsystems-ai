@@ -16,13 +16,17 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { foldersQueryOptions } from "@/lib/folders";
-import {
-  studyMaterialsQueryOptions,
-  deleteStudyMaterial,
-} from "@/lib/study-materials";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -35,16 +39,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { foldersQueryOptions } from "@/lib/folders";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  deleteStudyMaterial,
+  studyMaterialsQueryOptions,
+} from "@/lib/study-materials";
+import { cn } from "@/lib/utils";
 import {
   buildStudyMaterialTree,
   countMaterialsInFolder,

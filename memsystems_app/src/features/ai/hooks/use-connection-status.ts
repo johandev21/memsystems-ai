@@ -3,11 +3,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { getApiUrl } from "@/lib/utils";
 
+interface ProviderStatus {
+  ok: boolean;
+  detail?: string;
+  models: Array<{ id: string; displayName: string }>;
+}
+
 interface ConnectionStatus {
   ok: boolean;
   detail?: string;
   models: Array<{ id: string; displayName: string }>;
   checkedAt: string | null;
+  opencode: ProviderStatus;
+  openai: ProviderStatus & { hasKey: boolean };
 }
 
 async function fetchConnection(): Promise<ConnectionStatus> {
@@ -20,6 +28,13 @@ async function fetchConnection(): Promise<ConnectionStatus> {
       detail: "Failed to check connection",
       models: [],
       checkedAt: null,
+      opencode: { ok: false, detail: "Failed to check connection", models: [] },
+      openai: {
+        ok: false,
+        detail: "Failed to check connection",
+        models: [],
+        hasKey: false,
+      },
     };
   }
   return res.json();

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
-import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 import { ModelSelector } from "../model-selector";
 import { FolderPicker } from "./folder-picker";
 import { SourceMultiSelect } from "./source-multi-select";

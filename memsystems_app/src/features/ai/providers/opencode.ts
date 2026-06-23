@@ -12,7 +12,7 @@ import {
 } from "ai-sdk-provider-opencode-sdk";
 import type { HealthCheckResult, Provider, ProviderModel } from "../provider";
 
-const HEALTH_CHECK_MODEL = "opencode-go/glm-5.2";
+const HEALTH_CHECK_MODEL = "opencode/big-pickle";
 
 /**
  * Sandbox directory exposed to the LLM.
@@ -71,16 +71,52 @@ export const opencodeProvider: Provider = {
 
   listModels(): ProviderModel[] {
     return [
-      { id: "opencode-go/glm-5.2", displayName: "GLM 5.2" },
+      { id: "opencode/big-pickle", displayName: "Big Pickle" },
+      {
+        id: "opencode/deepseek-v4-flash-free",
+        displayName: "DeepSeek V4 Flash Free",
+      },
+      { id: "opencode/mimo-v2.5-free", displayName: "MiMo V2.5 Free" },
+      {
+        id: "opencode/nemotron-3-ultra-free",
+        displayName: "Nemotron 3 Ultra Free",
+      },
+      {
+        id: "opencode/north-mini-code-free",
+        displayName: "North Mini Code Free",
+      },
       { id: "opencode-go/deepseek-v4-flash", displayName: "DeepSeek V4 Flash" },
       { id: "opencode-go/deepseek-v4-pro", displayName: "DeepSeek V4 Pro" },
+      { id: "opencode-go/glm-5.1", displayName: "GLM 5.1" },
+      { id: "opencode-go/glm-5.2", displayName: "GLM 5.2" },
       { id: "opencode-go/kimi-k2.6", displayName: "Kimi K2.6" },
       { id: "opencode-go/kimi-k2.7-code", displayName: "Kimi K2.7 Code" },
       { id: "opencode-go/mimo-v2.5", displayName: "MiMo V2.5" },
       { id: "opencode-go/mimo-v2.5-pro", displayName: "MiMo V2.5 Pro" },
       { id: "opencode-go/minimax-m2.7", displayName: "MiniMax M2.7" },
       { id: "opencode-go/minimax-m3", displayName: "MiniMax M3" },
+      { id: "opencode-go/qwen3.6-plus", displayName: "Qwen 3.6 Plus" },
       { id: "opencode-go/qwen3.7-max", displayName: "Qwen 3.7 Max" },
+      { id: "opencode-go/qwen3.7-plus", displayName: "Qwen 3.7 Plus" },
+      {
+        id: "github-copilot/claude-haiku-4.5",
+        displayName: "Claude Haiku 4.5",
+      },
+      { id: "github-copilot/gemini-2.5-pro", displayName: "Gemini 2.5 Pro" },
+      {
+        id: "github-copilot/gemini-3-flash-preview",
+        displayName: "Gemini 3 Flash Preview",
+      },
+      {
+        id: "github-copilot/gemini-3.1-pro-preview",
+        displayName: "Gemini 3.1 Pro Preview",
+      },
+      { id: "github-copilot/gpt-5-mini", displayName: "GPT 5 Mini" },
+      { id: "github-copilot/gpt-5.4-mini", displayName: "GPT 5.4 Mini" },
+      {
+        id: "github-copilot/mai-code-1-flash-picker",
+        displayName: "MAI Code 1 Flash Picker",
+      },
     ];
   },
 
@@ -92,13 +128,28 @@ export const opencodeProvider: Provider = {
     try {
       await ensureSandbox();
       const model = getInstance()(HEALTH_CHECK_MODEL, BASE_MODEL_SETTINGS);
-      await generateText({
-        model,
-        prompt: "1",
-        maxOutputTokens: 1,
-      });
+
+      // Use a race to avoid hanging the entire app if the provider/server is stuck
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Health check timeout")), 10000),
+      );
+
+      await Promise.race([
+        generateText({
+          model,
+          prompt: "1",
+        }),
+        timeoutPromise,
+      ]);
+
       return { ok: true };
     } catch (e: unknown) {
+      if (e instanceof Error && e.message === "Health check timeout") {
+        return {
+          ok: false,
+          detail: "OpenCode health check timed out after 10s",
+        };
+      }
       if (isAuthenticationError(e)) {
         return {
           ok: false,
