@@ -1,3 +1,5 @@
+"use client";
+
 import { useChat } from "@ai-sdk/react";
 import {
   useMutation,
@@ -19,7 +21,7 @@ import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
-import { NotebookBanner } from "./notebook-banner";
+import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
 
 const DEFAULT_MODEL_ID = "opencode-go/glm-5.2";
 

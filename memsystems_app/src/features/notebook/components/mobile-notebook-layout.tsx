@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { modelsQueryOptions } from "@/lib/models";
-import { ChatPanel } from "./chat-panel";
+import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { MobileStudyMaterialsPanel } from "./mobile-study-materials-panel";
 import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { SourcesPanel } from "./sources-panel";
