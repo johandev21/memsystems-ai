@@ -56,7 +56,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { ChatPanel } from "@/features/notebook/components/chat-panel";
+import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 
 interface MockNotebook {
   id: string;

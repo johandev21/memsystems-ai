@@ -65,7 +65,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { AddSourceDialog } from "@/features/notebook/components/add-source-dialog";
+import { AddSourceDialog } from "@/features/sources/components/add-source-dialog";
 
 beforeEach(() => {
   queryCache.clear();

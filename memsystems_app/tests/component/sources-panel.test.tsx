@@ -64,7 +64,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { SourcesPanel } from "@/features/notebook/components/sources-panel";
+import { SourcesPanel } from "@/features/sources/components/sources-panel";
 
 interface MockSource {
   id: string;

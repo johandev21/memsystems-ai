@@ -51,7 +51,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { StudyMaterialsTree } from "@/features/notebook/components/study-materials-tree";
+import { StudyMaterialsTree } from "@/features/study-materials/components/tree/study-materials-tree";
 
 interface MockFolder {
   id: string;

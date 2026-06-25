@@ -31,11 +31,11 @@ describe("createEmptyStudyMaterial", () => {
 
   it("returns a flashcard skeleton with placeholder front and back", () => {
     const empty = createEmptyStudyMaterial("simple_flashcard") as {
-      front: string;
-      back: string;
+      cards: Array<{ front: string; back: string }>;
     };
-    expect(empty.front).toBeTruthy();
-    expect(empty.back).toBeTruthy();
+    expect(empty.cards).toHaveLength(1);
+    expect(empty.cards[0]?.front).toBeTruthy();
+    expect(empty.cards[0]?.back).toBeTruthy();
   });
 
   it("returns a roadmap skeleton with one phase and one topic", () => {

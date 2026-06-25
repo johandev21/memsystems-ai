@@ -7,11 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { modelsQueryOptions } from "@/lib/models";
-import { ChatPanel } from "./chat-panel";
-import { MobileStudyMaterialsPanel } from "./mobile-study-materials-panel";
+import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
+import { MobileStudyMaterialsPanel } from "@/features/study-materials/components/tree/mobile-study-materials-panel";
 import { NotebookSettingsDialog } from "./notebook-settings-dialog";
-import { SourcesPanel } from "./sources-panel";
-import { GenerateBriefDialog } from "./studio/generate-brief-dialog";
+import { SourcesPanel } from "@/features/sources/components/sources-panel";
+import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { StudioResources } from "./studio-resources";
 
 export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {

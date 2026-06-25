@@ -32,19 +32,67 @@ export class PromotionService {
     const nt = await this.fetchNoteType(userId, input.noteTypeId);
     const fieldSchemas = nt.fieldsSchema as FieldSchema[];
 
-    const adaptedValues = this.adaptFlashcardToFields(
-      sm,
-      fieldSchemas,
-      input.fieldOverrides,
-    );
+    const flashcardContent = sm.content as any;
+    if (flashcardContent && Array.isArray(flashcardContent.cards)) {
+      const notesCreated = [];
+      for (const card of flashcardContent.cards) {
+        const adaptedValues = this.adaptCardToFields(
+          card,
+          sm.title,
+          fieldSchemas,
+          input.fieldOverrides,
+        );
+        const note = await noteService.create(userId, {
+          noteTypeId: input.noteTypeId,
+          fieldValues: adaptedValues,
+          originSimpleFlashcardId: simpleFlashcardId,
+        });
+        notesCreated.push(note);
+      }
+      return notesCreated[0] || null;
+    } else {
+      const adaptedValues = this.adaptFlashcardToFields(
+        sm,
+        fieldSchemas,
+        input.fieldOverrides,
+      );
 
-    const note = await noteService.create(userId, {
-      noteTypeId: input.noteTypeId,
-      fieldValues: adaptedValues,
-      originSimpleFlashcardId: simpleFlashcardId,
-    });
+      const note = await noteService.create(userId, {
+        noteTypeId: input.noteTypeId,
+        fieldValues: adaptedValues,
+        originSimpleFlashcardId: simpleFlashcardId,
+      });
 
-    return note;
+      return note;
+    }
+  }
+
+  private adaptCardToFields(
+    card: { front: string; back: string },
+    smTitle: string,
+    fieldSchemas: FieldSchema[],
+    overrides?: Record<string, string>,
+  ): Record<string, string> {
+    const values: Record<string, string> = {};
+
+    for (const field of fieldSchemas) {
+      if (overrides?.[field.name] !== undefined) {
+        values[field.name] = overrides[field.name];
+        continue;
+      }
+
+      const lowerName = field.name.toLowerCase();
+
+      if (lowerName === "front" || lowerName === "question") {
+        values[field.name] = card.front ?? smTitle;
+      } else if (lowerName === "back" || lowerName === "answer") {
+        values[field.name] = card.back ?? "";
+      } else {
+        values[field.name] = field.default ?? "";
+      }
+    }
+
+    return values;
   }
 
   private adaptFlashcardToFields(

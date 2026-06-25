@@ -2,7 +2,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import { MaterialViewer } from "@/features/notebook/components/studio/material-viewer";
+import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 import type { StudyMaterialDTO } from "@/lib/study-materials";
 
 afterEach(() => {

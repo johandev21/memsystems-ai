@@ -123,12 +123,12 @@ export function StudioResources({
             disabled={disabled}
             onClick={() => !disabled && onGenerate(kind)}
             className={cn(
-              "group flex items-center h-[52px] w-full justify-between px-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+              "group flex items-center h-[52px] w-full justify-between px-3 gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
               resource.colorClasses,
               disabled && "opacity-50 cursor-not-allowed",
             )}
           >
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-sm font-medium text-foreground min-w-0 truncate">
               {resource.label}
             </span>
             <resource.icon

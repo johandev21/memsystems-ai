@@ -46,12 +46,16 @@ export function GenerationPane({
   const [requestId, setRequestId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // We serialize sourceIds (an array of strings) so that the reference change
+  // of the array does not cause the effect to re-run unless elements change.
+  const sourceIdsKey = sourceIds.join(",");
+
   useEffect(() => {
     let cancelled = false;
     const { stream, requestIdPromise } = startGeneration(notebookId, {
       kind,
       brief,
-      sourceIds,
+      sourceIds: sourceIdsKey ? sourceIdsKey.split(",") : [],
       folderId,
       model,
     });
@@ -140,7 +144,7 @@ export function GenerationPane({
     return () => {
       cancelled = true;
     };
-  }, [notebookId, kind, brief, sourceIds, folderId, model, queryClient]);
+  }, [notebookId, kind, brief, sourceIdsKey, folderId, model, queryClient]);
 
   return (
     <div className="flex h-full flex-col min-w-0">

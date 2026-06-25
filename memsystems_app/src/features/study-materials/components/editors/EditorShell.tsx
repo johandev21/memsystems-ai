@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { clientLogger } from "@/lib/client-logger";
 import { createStudyMaterial } from "@/lib/study-materials";
-import { FolderPicker } from "../folder-picker";
+import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
 
 const log = clientLogger.child({ feature: "manual-editors" });
 

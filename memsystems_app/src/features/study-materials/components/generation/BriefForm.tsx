@@ -7,9 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
-import { DialogModelSelector } from "../model-selector";
-import { FolderPicker } from "./folder-picker";
-import { SourceMultiSelect } from "./source-multi-select";
+import { DialogModelSelector } from "@/features/notebook/components/model-selector";
+import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
+import { SourceMultiSelect } from "@/features/notebook/components/studio/source-multi-select";
 
 export interface BriefFormData {
   brief: string;
@@ -111,7 +111,9 @@ export function BriefForm({
       <Button
         type="button"
         className="w-full"
-        disabled={disabled || value.sourceIds.length === 0}
+        disabled={
+          disabled || (value.sourceIds.length === 0 && !value.brief.trim())
+        }
         onClick={onSubmit}
       >
         {submitLabel}
@@ -138,7 +140,7 @@ function getPlaceholder(kind: StudyMaterialKind): string {
     case "quiz":
       return 'e.g. "Generate 10 multiple-choice questions focusing on the key formulas and concepts from the selected sources, aimed at intermediate level."';
     case "simple_flashcard":
-      return 'e.g. "Create 15 flashcards covering core definitions, terminology, and key concepts, with concise answers on the back."';
+      return 'e.g. "Create a detailed flashcard covering a core definition, terminology, or key concept, with a concise answer on the back."';
     case "roadmap":
       return 'e.g. "A step-by-step learning roadmap organized by difficulty, focusing on core concepts and practical projects to build."';
     case "slide_deck":

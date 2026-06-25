@@ -10,7 +10,7 @@ import {
   createEmptyStudyMaterial,
   type RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
-import { EditorShell } from "./editor-shell";
+import { EditorShell } from "./EditorShell";
 
 export interface RoadmapEditorProps {
   notebookId: string;

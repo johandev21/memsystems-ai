@@ -80,8 +80,8 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { GenerationPane } from "@/features/notebook/components/studio/generation-pane";
-import { MaterialViewer } from "@/features/notebook/components/studio/material-viewer";
+import { GenerationPane } from "@/features/study-materials/components/generation/GenerationPane";
+import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 import type { StudyMaterialDTO } from "@/lib/study-materials";
 
 beforeEach(() => {
