@@ -48,7 +48,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
   return (
     <div className="flex flex-col items-center justify-center w-full gap-5">
       {/* Deck Mastery Progress Bar */}
-      <div className="w-full max-w-md bg-card border border-border p-3.5 rounded-xl shadow-sm space-y-2.5">
+      <div className="w-full max-w-2xl bg-card border border-border p-3.5 rounded-xl shadow-sm space-y-2.5">
         <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
           <span>Deck Mastery</span>
           <span>
@@ -72,7 +72,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
       </div>
 
       {/* Stats Header for Active Card */}
-      <div className="flex items-center justify-between w-full max-w-md text-xs px-1">
+      <div className="flex items-center justify-between w-full max-w-2xl text-xs px-1">
         <div className="flex items-center gap-2">
           <span className="bg-muted px-2 py-0.5 rounded-full text-muted-foreground font-medium font-mono">
             Reviews: {currentCardStats.reviewCount}
@@ -105,7 +105,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
       </div>
 
       {/* Card Container with Perspective */}
-      <div className="[perspective:1000px] w-full max-w-md h-64">
+      <div className="[perspective:1000px] w-full max-w-2xl h-[340px]">
         {/* biome-ignore lint/a11y/useSemanticElements: nested buttons are invalid HTML, so div role=button is required here */}
         <div
           role="button"
@@ -127,9 +127,13 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
             <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
               Question
             </span>
-            <p className="text-lg font-medium whitespace-pre-wrap leading-relaxed px-4 flex-1 flex items-center justify-center">
-              {currentCard.front}
-            </p>
+            <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
+              <div className="m-auto w-full py-2">
+                <p className="text-base md:text-lg font-medium whitespace-pre-wrap leading-relaxed">
+                  {currentCard.front}
+                </p>
+              </div>
+            </div>
             <span className="text-[10px] text-muted-foreground/60 flex items-center gap-1">
               <RotateCw className="h-3 w-3" /> Click card to flip
             </span>
@@ -140,9 +144,13 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
             <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
               Answer
             </span>
-            <p className="text-lg font-medium whitespace-pre-wrap leading-relaxed px-4 flex-1 flex items-center justify-center">
-              {currentCard.back}
-            </p>
+            <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
+              <div className="m-auto w-full py-2">
+                <p className="text-base md:text-lg font-medium whitespace-pre-wrap leading-relaxed">
+                  {currentCard.back}
+                </p>
+              </div>
+            </div>
             <div className="flex items-center gap-2 w-full justify-center pt-2">
               <Button
                 type="button"
@@ -174,7 +182,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
       </div>
 
       {/* Card Navigation Controls */}
-      <div className="flex items-center justify-between w-full max-w-md px-1">
+      <div className="flex items-center justify-between w-full max-w-2xl px-1">
         <Button
           type="button"
           variant="outline"

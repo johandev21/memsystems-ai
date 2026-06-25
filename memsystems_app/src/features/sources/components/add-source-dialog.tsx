@@ -34,6 +34,22 @@ import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-auto
 
 type Mode = "menu" | "url" | "text";
 
+const ACCEPTED_EXTENSIONS = [".pdf", ".docx", ".txt", ".md", ".markdown"];
+const ACCEPTED_MIME_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain",
+  "text/markdown",
+  "text/x-markdown",
+  "application/markdown",
+];
+
+function isClientSupportedFile(file: File): boolean {
+  if (ACCEPTED_MIME_TYPES.includes(file.type)) return true;
+  const name = file.name.toLowerCase();
+  return ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
+}
+
 export function AddSourceDialog({
   notebookId,
   children,
@@ -100,7 +116,13 @@ export function AddSourceDialog({
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) fileMutation.mutate(file);
+    if (file) {
+      if (!isClientSupportedFile(file)) {
+        toast.error("Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.");
+        return;
+      }
+      fileMutation.mutate(file);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
@@ -115,7 +137,14 @@ export function AddSourceDialog({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) fileMutation.mutate(file);
+    if (file) {
+      if (!isClientSupportedFile(file)) {
+        toast.error("Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.");
+        e.target.value = "";
+        return;
+      }
+      fileMutation.mutate(file);
+    }
     e.target.value = "";
   };
 
@@ -142,6 +171,7 @@ export function AddSourceDialog({
           <input
             ref={fileInputRef}
             type="file"
+            accept=".pdf,.docx,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,text/x-markdown,application/markdown"
             className="hidden"
             onChange={handleFileChange}
           />
