@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
+import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/lib/sources";
 import { cn } from "@/lib/utils";
 import { AddSourceDialog } from "./add-source-dialog";
+import { SourceViewerDialog } from "./source-viewer-dialog";
 
 export function SourcesPanel({
   notebookId,
@@ -26,16 +27,11 @@ export function SourcesPanel({
     isPending,
     isError,
   } = useQuery(sourcesQueryOptions(notebookId));
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [viewedSourceId, setViewedSourceId] = useState<string | null>(null);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteSource(id),
-    onSuccess: (_data, id) => {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
       toast.success("Source removed");
     },
@@ -43,15 +39,6 @@ export function SourcesPanel({
   });
 
   if (collapsed) return null;
-
-  const toggleSelect = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   return (
     <div className="flex flex-col h-full">
@@ -77,8 +64,7 @@ export function SourcesPanel({
             <SourceRow
               key={source.id}
               source={source}
-              selected={selected.has(source.id)}
-              onToggleSelect={toggleSelect}
+              onClick={() => setViewedSourceId(source.id)}
               onDelete={(id) => deleteMutation.mutate(id)}
               deleting={
                 deleteMutation.isPending &&
@@ -96,20 +82,26 @@ export function SourcesPanel({
           </div>
         </AddSourceDialog>
       </div>
+
+      <SourceViewerDialog
+        sourceId={viewedSourceId}
+        open={viewedSourceId !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewedSourceId(null);
+        }}
+      />
     </div>
   );
 }
 
 function SourceRow({
   source,
-  selected,
-  onToggleSelect,
+  onClick,
   onDelete,
   deleting,
 }: {
   source: Source;
-  selected: boolean;
-  onToggleSelect: (id: string) => void;
+  onClick: () => void;
   onDelete: (id: string) => void;
   deleting: boolean;
 }) {
@@ -119,26 +111,15 @@ function SourceRow({
     <div className="group relative">
       <button
         type="button"
-        onClick={() => onToggleSelect(source.id)}
+        onClick={onClick}
         className={cn(
           "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          selected
-            ? "bg-primary/15 text-foreground font-semibold dark:bg-accent dark:text-accent-foreground"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <span className="w-3.5 shrink-0" />
         <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
         <span className="truncate">{source.title}</span>
-        {selected && (
-          <div
-            className={cn(
-              "absolute right-2 flex h-4 w-4 items-center justify-center bg-primary text-primary-foreground shadow-sm transition-opacity group-hover:opacity-0",
-            )}
-          >
-            <Check className="h-3 w-3" strokeWidth={3} />
-          </div>
-        )}
       </button>
       <button
         type="button"

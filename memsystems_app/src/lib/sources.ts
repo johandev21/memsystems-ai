@@ -28,6 +28,24 @@ export function sourcesQueryOptions(notebookId: string) {
   });
 }
 
+export interface SourceWithContent extends Source {
+  rawText: string;
+  s3Key: string | null;
+  sha256: string | null;
+}
+
+export function sourceQueryOptions(sourceId: string) {
+  return queryOptions({
+    queryKey: ["source", sourceId],
+    queryFn: async () => {
+      const res = await fetchApi(`/api/sources/${sourceId}`);
+      if (!res.ok) throw new Error(`Failed to fetch source (${res.status})`);
+      return res.json() as Promise<SourceWithContent>;
+    },
+    staleTime: 30_000,
+  });
+}
+
 export async function deleteSource(sourceId: string): Promise<void> {
   const res = await fetchApi(`/api/sources/${sourceId}`, {
     method: "DELETE",

@@ -30,12 +30,15 @@ vi.mock("@tanstack/react-query", async () => {
     "@tanstack/react-query",
   );
 
-  const mockReadQuery = (opts: { queryKey: readonly unknown[] }) => {
+  const mockReadQuery = (opts: any) => {
+    if (opts?.enabled === false) {
+      return { data: undefined, isPending: false, isError: false, refetch: vi.fn() };
+    }
     const data = queryCache.get(opts.queryKey);
     if (data === undefined) {
       throw new Error(`No mock data for key ${JSON.stringify(opts.queryKey)}`);
     }
-    return { data, refetch: vi.fn() };
+    return { data, isPending: false, isError: false, refetch: vi.fn() };
   };
 
   return {
@@ -46,7 +49,7 @@ vi.mock("@tanstack/react-query", async () => {
         queryCache.set(key, data),
       invalidateQueries: vi.fn(),
     }),
-    useQuery: (opts: { queryKey: readonly unknown[] }) => mockReadQuery(opts),
+    useQuery: (opts: any) => mockReadQuery(opts),
     useMutation: () => ({
       mutate: (variables: unknown) => {
         mutationCalls.push({ type: "mutate", variables });
@@ -129,7 +132,7 @@ describe("SourcesPanel", () => {
     ).toBeNull();
   });
 
-  it("toggles selection when a row button is clicked", async () => {
+  it("opens the source viewer dialog when a row button is clicked", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const user = userEvent.setup();
 
@@ -137,21 +140,33 @@ describe("SourcesPanel", () => {
       ["sources", "notebook-1"],
       [makeSource({ id: "src-1", title: "First note" })],
     );
+    queryCache.set(["source", "src-1"], {
+      id: "src-1",
+      notebookId: "notebook-1",
+      kind: "text",
+      title: "First note",
+      rawText: "First note's full text content",
+      url: null,
+      contentType: null,
+      fileSize: null,
+      createdAt: "2025-01-01T00:00:00Z",
+      s3Key: null,
+      sha256: null,
+    });
 
     render(<SourcesPanel notebookId="notebook-1" />);
 
+    // Prior to click, the dialog text should not be in the document
+    expect(screen.queryByText("First note's full text content")).toBeNull();
+
     const rowButton = screen.getByRole("button", { name: /First note/ });
-    // Default state: not selected, no aria-pressed (the button uses
-    // bg-primary/15 only when selected, not aria attributes).
-    expect(rowButton.className).not.toMatch(/bg-primary\/15/);
-
     await user.click(rowButton);
-    // After click: bg-primary/15 class applied (selected state).
-    expect(rowButton.className).toMatch(/bg-primary\/15/);
 
-    await user.click(rowButton);
-    // Toggle off: back to unselected.
-    expect(rowButton.className).not.toMatch(/bg-primary\/15/);
+    // After click: the dialog should open and load the rawText
+    expect(
+      screen.getByText("First note's full text content"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Text Note")).toBeInTheDocument();
   });
 
   it("invokes the delete mutation when the delete button is clicked", async () => {
