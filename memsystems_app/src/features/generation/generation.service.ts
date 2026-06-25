@@ -47,15 +47,10 @@ export class GenerationService {
     const modelId = input.model ?? MODELS_BY_KIND[input.kind];
     await connectionService.requireConnected(userId, modelId);
 
-    if (input.sourceIds.length === 0) {
-      throw new BadRequestError("At least one source is required");
-    }
-
-    const sourceTexts = await this.fetchSourceTexts(
-      userId,
-      notebookId,
-      input.sourceIds,
-    );
+    const sourceTexts =
+      input.sourceIds.length > 0
+        ? await this.fetchSourceTexts(userId, notebookId, input.sourceIds)
+        : [];
 
     const concatenatedSources = sourceTexts
       .map((s) => `[${s.title}]\n${s.rawText}`)
@@ -75,10 +70,27 @@ export class GenerationService {
       })
       .returning();
 
+    logger.info("Starting generation request", {
+      requestId: request.id,
+      kind: input.kind,
+      modelId,
+      brief: input.brief,
+      sourceCount: input.sourceIds.length,
+    });
+
     const template = getPromptTemplate(input.kind);
 
     const provider = await getProviderForModel(modelId, userId);
     const model = provider.createModel(modelId);
+
+    // Use the "general" agent for generation requests to avoid the "plan" agent
+    // from refusing to generate content in read-only mode, and to get clean JSON outputs.
+    if (model && typeof model === "object" && "settings" in model) {
+      const opencodeModel = model as { settings?: { agent?: string } };
+      if (opencodeModel.settings) {
+        opencodeModel.settings.agent = "general";
+      }
+    }
 
     const systemPrompt = template.system;
     const userPrompt = template.user(input.brief, truncatedSources);
@@ -102,7 +114,15 @@ export class GenerationService {
           }
 
           const finalContent = await result.output;
+          logger.info("Native structured output completed successfully", {
+            requestId: request.id,
+            finalContent,
+          });
           const normalized = this.normalizeContent(input.kind, finalContent);
+          logger.info("Normalized content", {
+            requestId: request.id,
+            normalized,
+          });
           const validated = validateContent(input.kind, normalized);
 
           await db
@@ -139,6 +159,12 @@ export class GenerationService {
           try {
             const fallbackSystemPrompt = `${systemPrompt}\n\nIMPORTANT: You must respond ONLY with a valid JSON object. Do not include any explanations, introduction, markdown formatting, or backticks. The JSON must match the following JSON schema:\n${JSON.stringify(schema, null, 2)}`;
 
+            logger.info("Starting fallback generation", {
+              requestId: request.id,
+              systemPromptLength: fallbackSystemPrompt.length,
+              userPromptLength: userPrompt.length,
+            });
+
             const fallbackResult = streamText({
               model,
               system: fallbackSystemPrompt,
@@ -149,13 +175,7 @@ export class GenerationService {
             for await (const chunk of fallbackResult.textStream) {
               accumulatedText += chunk;
 
-              let cleanText = accumulatedText.trim();
-              if (cleanText.startsWith("```")) {
-                cleanText = cleanText
-                  .replace(/^```[a-zA-Z]*\n/, "")
-                  .replace(/\n```$/, "")
-                  .trim();
-              }
+              const cleanText = extractJson(accumulatedText);
 
               try {
                 const parsed = await parsePartialJson(cleanText);
@@ -174,35 +194,60 @@ export class GenerationService {
               }
             }
 
-            let cleanText = accumulatedText.trim();
-            if (cleanText.startsWith("```")) {
-              cleanText = cleanText
-                .replace(/^```[a-zA-Z]*\n/, "")
-                .replace(/\n```$/, "")
-                .trim();
-            }
+            const cleanText = extractJson(accumulatedText);
 
-            logger.debug("Fallback raw generated text received", {
-              text: cleanText,
+            logger.info("Fallback raw generated text received", {
+              text: accumulatedText.trim(),
+              extracted: cleanText,
               requestId: request.id,
             });
 
             let parsedContent: any;
             try {
               parsedContent = JSON.parse(cleanText);
-            } catch (parseError) {
-              logger.error("Fallback JSON parsing failed", {
-                error: parseError,
-                text: cleanText,
+              logger.info("Fallback JSON parsed successfully", {
                 requestId: request.id,
+                parsedContent,
               });
-              throw parseError;
+            } catch (parseError) {
+              try {
+                // Try parsePartialJson as a fallback to see if it can repair it
+                const partialParsed = await parsePartialJson(cleanText);
+                if (
+                  partialParsed.state === "successful-parse" ||
+                  partialParsed.state === "repaired-parse"
+                ) {
+                  parsedContent = partialParsed.value;
+                  logger.info(
+                    "Fallback JSON parsed and repaired via parsePartialJson",
+                    {
+                      requestId: request.id,
+                      parsedContent,
+                    },
+                  );
+                } else {
+                  throw parseError;
+                }
+              } catch {
+                logger.error("Fallback JSON parsing failed", {
+                  error: parseError,
+                  text: accumulatedText.trim(),
+                  extracted: cleanText,
+                  requestId: request.id,
+                });
+                throw parseError;
+              }
             }
 
             const normalizedContent = this.normalizeContent(
               input.kind,
               parsedContent,
             );
+
+            logger.info("Fallback normalized content", {
+              requestId: request.id,
+              normalizedContent,
+            });
 
             let validated: any;
             try {
@@ -313,7 +358,7 @@ export class GenerationService {
   }
 
   private async fetchSourceTexts(
-    userId: string,
+    _userId: string,
     notebookId: string,
     sourceIds: string[],
   ) {
@@ -364,41 +409,49 @@ export class GenerationService {
     }
 
     if (kind === "simple_flashcard") {
-      let target = content;
-      if (Array.isArray(target)) {
-        if (target.length > 0) {
-          target = target[0];
+      let cardsList: any[] = [];
+
+      if (Array.isArray(content)) {
+        cardsList = content;
+      } else if (content && typeof content === "object") {
+        if (Array.isArray(content.cards)) {
+          cardsList = content.cards;
+        } else if (Array.isArray(content.flashcards)) {
+          cardsList = content.flashcards;
         } else {
-          return { front: "Flashcard", back: "No content generated" };
+          // Look for any array property
+          const arrayKey = Object.keys(content).find((k) =>
+            Array.isArray(content[k]),
+          );
+          if (arrayKey) {
+            cardsList = content[arrayKey];
+          } else if ("front" in content || "back" in content) {
+            cardsList = [content];
+          }
         }
       }
 
-      if (
-        target &&
-        typeof target === "object" &&
-        !("front" in target) &&
-        !("back" in target)
-      ) {
-        const arrayKey = Object.keys(target).find((k) =>
-          Array.isArray(target[k]),
-        );
-        if (arrayKey && target[arrayKey].length > 0) {
-          target = target[arrayKey][0];
+      if (cardsList.length === 0) {
+        cardsList = [{ front: "Front", back: "Back" }];
+      }
+
+      const normalizedCards = cardsList.map((card: any, index: number) => {
+        if (!card || typeof card !== "object") {
+          return {
+            front: String(card) || `Question ${index + 1}`,
+            back: "Answer",
+          };
         }
-      }
-
-      if (!target || typeof target !== "object") {
-        return { front: String(target), back: "" };
-      }
-
-      const front =
-        target.front ?? target.question ?? target.prompt ?? target.q ?? "";
-      const back =
-        target.back ?? target.answer ?? target.response ?? target.a ?? "";
+        const front = card.front ?? card.question ?? card.prompt ?? card.q ?? "";
+        const back = card.back ?? card.answer ?? card.response ?? card.a ?? "";
+        return {
+          front: String(front) || `Question ${index + 1}`,
+          back: String(back) || "Answer",
+        };
+      });
 
       return {
-        front: String(front) || "Question",
-        back: String(back) || "Answer",
+        cards: normalizedCards,
       };
     }
 
@@ -692,4 +745,42 @@ export class GenerationService {
 
     return content;
   }
+}
+
+/**
+ * Extracts a JSON block from a string that may contain conversational text or code block tags.
+ */
+function extractJson(text: string): string {
+  // If we have complete tags, use them
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (match?.[1]) {
+    return match[1].trim();
+  }
+  const structuredMatch = text.match(
+    /<structured_output>\s*([\s\S]*?)<\/structured_output>/,
+  );
+  if (structuredMatch?.[1]) {
+    return structuredMatch[1].trim();
+  }
+
+  // Otherwise, find the first '{' or '[' and slice from there
+  const firstBrace = text.indexOf("{");
+  const firstBracket = text.indexOf("[");
+  let startIdx = -1;
+
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    startIdx = firstBrace;
+  } else if (firstBracket !== -1) {
+    startIdx = firstBracket;
+  }
+
+  if (startIdx !== -1) {
+    let sliced = text.slice(startIdx);
+    // If there is a trailing tag, clean it up
+    sliced = sliced.replace(/<\/structured_output>[\s\S]*$/, "");
+    sliced = sliced.replace(/```[\s\S]*$/, "");
+    return sliced.trim();
+  }
+
+  return text.trim();
 }

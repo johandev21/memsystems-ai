@@ -21,7 +21,7 @@ import { ChatPanel } from "@/features/notebook/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook/components/chat-panel-header";
 import { MobileNotebookLayout } from "@/features/notebook/components/mobile-notebook-layout";
 import { SourcesPanel } from "@/features/notebook/components/sources-panel";
-import { GenerateBriefDialog } from "@/features/notebook/components/studio/generate-brief-dialog";
+import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { StudioResources } from "@/features/notebook/components/studio-resources";
 import { StudyMaterialsPanel } from "@/features/notebook/components/study-materials-panel";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";

@@ -11,7 +11,7 @@ import {
   type QuizEditorContentType,
 } from "@/features/study-materials/editor-schemas";
 import { cn } from "@/lib/utils";
-import { EditorShell } from "./editor-shell";
+import { EditorShell } from "./EditorShell";
 
 export interface QuizEditorProps {
   notebookId: string;

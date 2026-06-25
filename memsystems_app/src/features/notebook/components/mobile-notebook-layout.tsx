@@ -11,7 +11,7 @@ import { ChatPanel } from "./chat-panel";
 import { MobileStudyMaterialsPanel } from "./mobile-study-materials-panel";
 import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { SourcesPanel } from "./sources-panel";
-import { GenerateBriefDialog } from "./studio/generate-brief-dialog";
+import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { StudioResources } from "./studio-resources";
 
 export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {

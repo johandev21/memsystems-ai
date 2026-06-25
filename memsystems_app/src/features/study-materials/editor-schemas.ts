@@ -32,10 +32,21 @@ export const QuizEditorContent = z.object({
 });
 export type QuizEditorContentType = z.infer<typeof QuizEditorContent>;
 
-export const FlashcardEditorContent = z.object({
-  front: z.string().min(0).max(10000),
-  back: z.string().min(0).max(10000),
-});
+export const FlashcardEditorContent = z.preprocess((val) => {
+  if (val && typeof val === "object" && "front" in val && "back" in val) {
+    return {
+      cards: [{ front: val.front, back: val.back }],
+    };
+  }
+  return val;
+}, z.object({
+  cards: z.array(
+    z.object({
+      front: z.string().min(0).max(10000),
+      back: z.string().min(0).max(10000),
+    })
+  ).min(1).max(100),
+}));
 export type FlashcardEditorContentType = z.infer<typeof FlashcardEditorContent>;
 
 const RoadmapTopicInput = z.object({
@@ -94,7 +105,7 @@ export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
         ],
       };
     case "simple_flashcard":
-      return { front: "Front", back: "Back" };
+      return { cards: [{ front: "Front", back: "Back" }] };
     case "roadmap":
       return {
         phases: [

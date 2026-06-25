@@ -6,9 +6,9 @@ import {
   type StudyMaterialDTO,
   studyMaterialQueryOptions,
 } from "@/lib/study-materials";
-import { GenerationPane } from "./generation-pane";
-import { ManualEditorPane } from "./manual-editor-pane";
-import { MaterialViewer } from "./material-viewer";
+import { GenerationPane } from "@/features/study-materials/components/generation/GenerationPane";
+import { ManualEditorPane } from "@/features/study-materials/components/editors/ManualEditorPane";
+import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 import { PickerPane } from "./picker-pane";
 
 export type RightPaneMode =

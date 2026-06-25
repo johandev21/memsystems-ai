@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source "../../node_modules/streamdown/dist/*.js";
+@source "../../node_modules/@streamdown/code/dist/*.js";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -215,38 +218,8 @@
     font-size: 0.95rem;
   }
 
-  .sd-root [data-streamdown="paragraph"] {
-    color: color-mix(in oklch, var(--foreground) 93%, transparent);
-  }
-
-  .sd-root [data-streamdown="unordered-list"] {
-    list-style-type: disc;
-    padding-left: 1.25rem;
-    margin-top: 0.35rem;
-    margin-bottom: 0.35rem;
-  }
-
-  .sd-root [data-streamdown="ordered-list"] {
-    list-style-type: decimal;
-    padding-left: 1.25rem;
-    margin-top: 0.35rem;
-    margin-bottom: 0.35rem;
-  }
-
-  .sd-root [data-streamdown="list-item"] {
-    margin-top: 0.2rem;
-    margin-bottom: 0.2rem;
-    padding-left: 0.15rem;
-  }
-
-  .sd-root [data-streamdown="list-item"]::marker {
+  .sd-root li::marker {
     color: var(--muted-foreground);
-  }
-
-  .sd-root [data-streamdown="list-item"] [data-streamdown="paragraph"] {
-    margin-top: 0;
-    margin-bottom: 0;
-    display: inline;
   }
 
   .sd-root [data-streamdown="link"] {
@@ -278,42 +251,6 @@
     border-top: 1px solid var(--border);
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
-  }
-
-  .sd-root [data-streamdown="inline-code"] {
-    background: color-mix(in oklch, var(--muted) 60%, transparent);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.1rem 0.35rem;
-    font-size: 0.85em;
-    font-weight: 500;
-    color: var(--foreground);
-    font-family: var(--font-mono);
-  }
-
-  .sd-root [data-streamdown="code-block"] {
-    background: color-mix(in oklch, var(--muted) 45%, transparent);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
-  }
-
-  .sd-root [data-streamdown="code-block"] pre {
-    padding: 0.95rem 1.15rem;
-    overflow-x: auto;
-    font-size: 13px;
-    line-height: 1.5;
-    font-family: var(--font-mono);
-  }
-
-  .sd-root [data-streamdown="code-block"] code {
-    border: 0;
-    padding: 0;
-    font-size: inherit;
-    font-family: inherit;
   }
 
   .sd-root [data-streamdown="table"] {

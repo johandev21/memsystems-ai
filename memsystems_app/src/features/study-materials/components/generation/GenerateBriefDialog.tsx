@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
-import { BriefForm } from "./brief-form";
-import { GenerationPane } from "./generation-pane";
+import { BriefForm } from "./BriefForm";
+import { GenerationPane } from "./GenerationPane";
 
 export interface GenerateBriefDialogProps {
   notebookId: string;

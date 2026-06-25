@@ -111,9 +111,9 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { FlashcardEditor } from "@/features/notebook/components/studio/editors/flashcard-editor";
-import { QuizEditor } from "@/features/notebook/components/studio/editors/quiz-editor";
-import { RoadmapEditor } from "@/features/notebook/components/studio/editors/roadmap-editor";
+import { FlashcardEditor } from "@/features/study-materials/components/editors/FlashcardEditor";
+import { QuizEditor } from "@/features/study-materials/components/editors/QuizEditor";
+import { RoadmapEditor } from "@/features/study-materials/components/editors/RoadmapEditor";
 import type { FolderDTO } from "@/lib/folders";
 import { createStudyMaterial } from "@/lib/study-materials";
 
@@ -202,7 +202,11 @@ describe("FlashcardEditor", () => {
     expect(call[1]).toMatchObject({
       kind: "simple_flashcard",
       title: "Cell biology",
-      content: { front: "Mitochondria", back: "Powerhouse of the cell" },
+      content: {
+        cards: [
+          { front: "Mitochondria", back: "Powerhouse of the cell" },
+        ],
+      },
     });
   });
 });

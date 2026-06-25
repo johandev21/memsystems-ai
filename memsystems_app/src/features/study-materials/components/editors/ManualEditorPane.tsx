@@ -1,9 +1,9 @@
 "use client";
 
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { FlashcardEditor } from "./editors/flashcard-editor";
-import { QuizEditor } from "./editors/quiz-editor";
-import { RoadmapEditor } from "./editors/roadmap-editor";
+import { FlashcardEditor } from "./FlashcardEditor";
+import { QuizEditor } from "./QuizEditor";
+import { RoadmapEditor } from "./RoadmapEditor";
 
 export interface ManualEditorPaneProps {
   notebookId: string;
