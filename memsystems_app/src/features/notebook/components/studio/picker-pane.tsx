@@ -14,7 +14,9 @@ const IN_SCOPE: StudyMaterialKind[] = ["quiz", "simple_flashcard", "roadmap"];
 const DISPLAY_ORDER = [0, 1, 2, 5, 4, 3]; // same as before: Quiz, Flashcards, Report, Mind Map, Slide Deck, Roadmap
 
 export function PickerPane({ onChoose }: PickerPaneProps) {
-  const [selectedKind, setSelectedKind] = useState<StudyMaterialKind | null>(null);
+  const [selectedKind, setSelectedKind] = useState<StudyMaterialKind | null>(
+    null,
+  );
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-6 gap-6">
@@ -52,7 +54,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                 <resource.icon
                   className={cn(
                     "h-4.5 w-4.5 shrink-0 opacity-90 transition-colors",
-                    isSelected ? "text-primary" : "text-muted-foreground"
+                    isSelected ? "text-primary" : "text-muted-foreground",
                   )}
                   strokeWidth={1.8}
                 />

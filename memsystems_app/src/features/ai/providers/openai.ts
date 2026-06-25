@@ -40,7 +40,7 @@ export function createOpenaiProvider(apiKey: string): Provider {
         await generateText({
           model,
           prompt: "1",
-          maxOutputTokens: 1, // Minimum token response to test API key validity
+          maxOutputTokens: 16, // Minimum token response to test API key validity (must be >= 16)
         });
         return { ok: true };
       } catch (e: unknown) {

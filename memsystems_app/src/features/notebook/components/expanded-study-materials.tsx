@@ -80,7 +80,11 @@ export function ExpandedStudyMaterials({
               Study Materials
             </DialogTitle>
             <DialogClose asChild>
-              <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
               </Button>
