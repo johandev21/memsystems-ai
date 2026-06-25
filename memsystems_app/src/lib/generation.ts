@@ -158,3 +158,25 @@ function parseLine(line: string): GenerationEvent {
   }
   return { type: "partial", content: parsed };
 }
+
+/**
+ * Cancel a running LLM generation request against `/api/notebooks/[id]/generation-requests/[requestId]/cancel`.
+ */
+export async function cancelGeneration(
+  notebookId: string,
+  requestId: string,
+): Promise<void> {
+  const response = await fetch(
+    getApiUrl(
+      `/api/notebooks/${notebookId}/generation-requests/${requestId}/cancel`,
+    ),
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to cancel generation (${response.status})`);
+  }
+}
+

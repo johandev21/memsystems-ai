@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConnectionBanner } from "./connection-banner";
+import { Toaster } from "@/components/ui/sonner";
+import { BackgroundGenerationStatus } from "@/features/study-materials/components/generation/BackgroundGenerationStatus";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -21,6 +23,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ConnectionBanner />
       {children}
+      <Toaster />
+      <BackgroundGenerationStatus />
     </QueryClientProvider>
   );
 }
+
