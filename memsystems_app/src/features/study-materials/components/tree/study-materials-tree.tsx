@@ -305,8 +305,8 @@ function FileTreeItemNode({
     onSelectMaterial?.(item.id);
   };
 
-  // biome-ignore lint/a11y/useSemanticElements: nested buttons are invalid HTML, so div role=button is required here
   const nodeContent = (
+    // biome-ignore lint/a11y/useSemanticElements: nested buttons are invalid HTML, so div role=button is required here
     <div
       role="button"
       tabIndex={0}

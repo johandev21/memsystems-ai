@@ -85,7 +85,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-import { StudyMaterialsTree } from "@/features/notebook/components/study-materials-tree";
+import { StudyMaterialsTree } from "@/features/study-materials/components/tree/study-materials-tree";
 import { deleteStudyMaterial } from "@/lib/study-materials";
 
 interface MockFolder {

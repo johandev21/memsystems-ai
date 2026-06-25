@@ -15,7 +15,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { modelsQueryOptions } from "@/lib/models";
-import { RightPane, type RightPaneMode } from "./studio/right-pane";
+import {
+  RightPane,
+  type RightPaneMode,
+} from "@/features/notebook/components/studio/right-pane";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface MobileExpandedStudyMaterialsProps {

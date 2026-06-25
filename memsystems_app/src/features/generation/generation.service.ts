@@ -442,7 +442,8 @@ export class GenerationService {
             back: "Answer",
           };
         }
-        const front = card.front ?? card.question ?? card.prompt ?? card.q ?? "";
+        const front =
+          card.front ?? card.question ?? card.prompt ?? card.q ?? "";
         const back = card.back ?? card.answer ?? card.response ?? card.a ?? "";
         return {
           front: String(front) || `Question ${index + 1}`,

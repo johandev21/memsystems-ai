@@ -203,9 +203,7 @@ describe("FlashcardEditor", () => {
       kind: "simple_flashcard",
       title: "Cell biology",
       content: {
-        cards: [
-          { front: "Mitochondria", back: "Powerhouse of the cell" },
-        ],
+        cards: [{ front: "Mitochondria", back: "Powerhouse of the cell" }],
       },
     });
   });

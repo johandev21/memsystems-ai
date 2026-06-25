@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildStudyMaterialTree,
   countMaterialsInFolder,
-} from "@/features/notebook/components/study-materials-tree-helpers";
+} from "@/features/study-materials/components/tree/study-materials-tree-helpers";
 import type { FolderDTO } from "@/lib/folders";
 import type { StudyMaterialDTO } from "@/lib/study-materials";
 

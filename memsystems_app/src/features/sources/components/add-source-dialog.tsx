@@ -30,7 +30,7 @@ import {
   SOURCE_LIMIT,
   sourcesQueryOptions,
 } from "@/lib/sources";
-import { useTextareaAutosize } from "../hooks/use-textarea-autosize";
+import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
 
 type Mode = "menu" | "url" | "text";
 
@@ -147,7 +147,7 @@ export function AddSourceDialog({
           />
 
           {mode === "menu" && (
-            // Main Dropzone Area
+            // biome-ignore lint/a11y/noStaticElementInteractions: drag and drop area
             <div
               className={`group relative flex flex-col items-center justify-center border-2 border-dashed py-12 px-6 transition-all duration-300 ${
                 isDragging
