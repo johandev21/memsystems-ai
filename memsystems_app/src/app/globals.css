@@ -174,12 +174,13 @@
 @layer components {
   .sd-root {
     color: var(--foreground);
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 14.5px;
+    line-height: 1.6;
+    letter-spacing: -0.005em;
   }
 
   .sd-root > * + * {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 
   .sd-root [data-streamdown="heading-1"],
@@ -187,72 +188,87 @@
   .sd-root [data-streamdown="heading-3"],
   .sd-root [data-streamdown="heading-4"] {
     color: var(--foreground);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     line-height: 1.3;
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
   }
 
   .sd-root [data-streamdown="heading-1"] {
-    font-size: 1.5rem;
-    padding-bottom: 0.4rem;
+    font-size: 1.4rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
   }
 
   .sd-root [data-streamdown="heading-2"] {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+    padding-bottom: 0.2rem;
   }
 
   .sd-root [data-streamdown="heading-3"] {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
   .sd-root [data-streamdown="heading-4"] {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .sd-root [data-streamdown="paragraph"] {
-    color: color-mix(in oklch, var(--foreground) 92%, transparent);
+    color: color-mix(in oklch, var(--foreground) 93%, transparent);
   }
 
-  .sd-root [data-streamdown="list"] {
-    padding-left: 1.5rem;
+  .sd-root [data-streamdown="unordered-list"] {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.35rem;
   }
 
-  .sd-root [data-streamdown="list"][data-streamdown-list-type="ul"] {
-    list-style: disc;
-  }
-
-  .sd-root [data-streamdown="list"][data-streamdown-list-type="ol"] {
-    list-style: decimal;
+  .sd-root [data-streamdown="ordered-list"] {
+    list-style-type: decimal;
+    padding-left: 1.25rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.35rem;
   }
 
   .sd-root [data-streamdown="list-item"] {
-    margin-top: 0.35rem;
-    padding-left: 0.25rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+    padding-left: 0.15rem;
   }
 
   .sd-root [data-streamdown="list-item"]::marker {
     color: var(--muted-foreground);
   }
 
+  .sd-root [data-streamdown="list-item"] [data-streamdown="paragraph"] {
+    margin-top: 0;
+    margin-bottom: 0;
+    display: inline;
+  }
+
   .sd-root [data-streamdown="link"] {
     color: var(--primary);
+    font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
-    transition: opacity 150ms ease;
+    transition: opacity 120ms ease;
   }
 
   .sd-root [data-streamdown="link"]:hover {
-    opacity: 0.75;
+    opacity: 0.8;
   }
 
   .sd-root [data-streamdown="blockquote"] {
-    border-left: 2px solid color-mix(in oklch, var(--primary) 60%, transparent);
-    background: color-mix(in oklch, var(--muted) 50%, transparent);
-    padding: 0.5rem 0.85rem;
-    border-radius: 0 0.375rem 0.375rem 0;
+    border-left: 3px solid var(--primary);
+    background: color-mix(in oklch, var(--muted) 35%, transparent);
+    padding: 0.6rem 1rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     color: var(--muted-foreground);
     font-style: italic;
   }
@@ -260,43 +276,44 @@
   .sd-root [data-streamdown="horizontal-rule"] {
     border: 0;
     border-top: 1px solid var(--border);
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
   }
 
   .sd-root [data-streamdown="inline-code"] {
-    background: color-mix(in oklch, var(--muted) 70%, transparent);
+    background: color-mix(in oklch, var(--muted) 60%, transparent);
     border: 1px solid var(--border);
-    border-radius: 0.3rem;
-    padding: 0.05rem 0.35rem;
-    font-size: 0.875em;
+    border-radius: var(--radius-sm);
+    padding: 0.1rem 0.35rem;
+    font-size: 0.85em;
     font-weight: 500;
     color: var(--foreground);
+    font-family: var(--font-mono);
   }
 
   .sd-root [data-streamdown="code-block"] {
-    background: color-mix(in oklch, var(--muted) 55%, transparent);
+    background: color-mix(in oklch, var(--muted) 45%, transparent);
     border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    border-radius: var(--radius-md);
     overflow: hidden;
     margin-top: 1rem;
     margin-bottom: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
   }
 
   .sd-root [data-streamdown="code-block"] pre {
-    padding: 0.85rem 1rem;
+    padding: 0.95rem 1.15rem;
     overflow-x: auto;
     font-size: 13px;
-    line-height: 1.55;
-    color: var(--foreground);
-    background: transparent;
+    line-height: 1.5;
+    font-family: var(--font-mono);
   }
 
   .sd-root [data-streamdown="code-block"] code {
-    background: transparent;
     border: 0;
     padding: 0;
     font-size: inherit;
+    font-family: inherit;
   }
 
   .sd-root [data-streamdown="table"] {
@@ -304,21 +321,22 @@
     border-collapse: separate;
     border-spacing: 0;
     border: 1px solid var(--border);
-    border-radius: none;
+    border-radius: var(--radius-md);
     overflow: hidden;
-    font-size: 13px;
-    margin: 0.5rem;
+    font-size: 13.5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
 
   .sd-root [data-streamdown="table-header"] {
-    background: color-mix(in oklch, var(--muted) 80%, transparent);
+    background: color-mix(in oklch, var(--muted) 75%, transparent);
   }
 
   .sd-root [data-streamdown="table-header-cell"] {
     text-align: left;
     font-weight: 600;
     color: var(--foreground);
-    padding: 0.55rem 0.75rem;
+    padding: 0.6rem 0.8rem;
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
@@ -328,18 +346,18 @@
   }
 
   .sd-root [data-streamdown="table-body"] tr:hover {
-    background: color-mix(in oklch, var(--muted) 40%, transparent);
+    background: color-mix(in oklch, var(--muted) 35%, transparent);
   }
 
   .sd-root [data-streamdown="table-cell"] {
-    padding: 0.55rem 0.75rem;
+    padding: 0.6rem 0.8rem;
     border-top: 1px solid var(--border);
-    color: color-mix(in oklch, var(--foreground) 88%, transparent);
+    color: color-mix(in oklch, var(--foreground) 90%, transparent);
     vertical-align: top;
   }
 
   .sd-root [data-streamdown="strong"] {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--foreground);
   }
 

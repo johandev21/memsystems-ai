@@ -1,9 +1,11 @@
 "use client";
 
 import type { UIMessage } from "@ai-sdk/react";
+import { code } from "@streamdown/code";
 import { Copy, Loader2, RefreshCw } from "lucide-react";
 import type { ComponentProps } from "react";
 import { Streamdown } from "streamdown";
+import "streamdown/styles.css";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +121,18 @@ function AssistantMessage({
     .map((part) => sanitizeCitations(part.text ?? ""))
     .join("");
 
+  if (fullText.trim() === "") {
+    return (
+      <div className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 p-5 shadow-sm">
+        <div className="flex flex-col gap-2.5 animate-pulse">
+          <div className="h-4 bg-muted-foreground/20 rounded-md w-[85%]" />
+          <div className="h-4 bg-muted-foreground/20 rounded-md w-[60%]" />
+          <div className="h-4 bg-muted-foreground/20 rounded-md w-[40%]" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 p-5 shadow-sm">
       {message.parts.map((part, index) =>
@@ -127,6 +141,7 @@ function AssistantMessage({
             <Streamdown
               shikiTheme={["github-light", "github-dark"]}
               components={streamdownComponents}
+              plugins={{ code }}
             >
               {sanitizeCitations(part.text)}
             </Streamdown>
