@@ -179,4 +179,3 @@ export async function cancelGeneration(
     throw new Error(`Failed to cancel generation (${response.status})`);
   }
 }
-

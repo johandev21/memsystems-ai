@@ -143,7 +143,14 @@ export function StudioResources({
 }
 
 function isInScope(kind: StudyMaterialKind): boolean {
-  return ["quiz", "simple_flashcard", "roadmap"].includes(kind);
+  return [
+    "quiz",
+    "simple_flashcard",
+    "roadmap",
+    "report",
+    "slide_deck",
+    "mind_map",
+  ].includes(kind);
 }
 
 function resourceToKind(label: string): StudyMaterialKind {

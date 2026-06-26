@@ -10,7 +10,14 @@ export interface PickerPaneProps {
   onChoose: (kind: StudyMaterialKind, action: "manual" | "generate") => void;
 }
 
-const IN_SCOPE: StudyMaterialKind[] = ["quiz", "simple_flashcard", "roadmap"];
+const IN_SCOPE: StudyMaterialKind[] = [
+  "quiz",
+  "simple_flashcard",
+  "roadmap",
+  "report",
+  "slide_deck",
+  "mind_map",
+];
 const DISPLAY_ORDER = [0, 1, 2, 5, 4, 3]; // same as before: Quiz, Flashcards, Report, Mind Map, Slide Deck, Roadmap
 
 export function PickerPane({ onChoose }: PickerPaneProps) {

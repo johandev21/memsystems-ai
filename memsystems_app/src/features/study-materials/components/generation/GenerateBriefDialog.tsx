@@ -31,7 +31,9 @@ export function GenerateBriefDialog({
   onComplete,
 }: GenerateBriefDialogProps) {
   const queryClient = useQueryClient();
-  const startBackgroundGeneration = useGenerationStore((s) => s.startBackgroundGeneration);
+  const startBackgroundGeneration = useGenerationStore(
+    (s) => s.startBackgroundGeneration,
+  );
   const setCollapsed = useGenerationStore((s) => s.setCollapsed);
 
   const [brief, setBrief] = useState("");
@@ -51,7 +53,7 @@ export function GenerateBriefDialog({
       notebookId,
       { kind, brief, sourceIds, folderId, model },
       queryClient,
-      onComplete
+      onComplete,
     );
 
     // Expand the background widget so progress is visible
@@ -105,4 +107,3 @@ function kindLabel(kind: StudyMaterialKind): string {
       return kind.charAt(0).toUpperCase() + kind.slice(1);
   }
 }
-

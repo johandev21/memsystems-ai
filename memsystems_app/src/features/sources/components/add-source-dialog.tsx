@@ -118,7 +118,9 @@ export function AddSourceDialog({
     const file = e.dataTransfer.files?.[0];
     if (file) {
       if (!isClientSupportedFile(file)) {
-        toast.error("Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.");
+        toast.error(
+          "Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.",
+        );
         return;
       }
       fileMutation.mutate(file);
@@ -139,7 +141,9 @@ export function AddSourceDialog({
     const file = e.target.files?.[0];
     if (file) {
       if (!isClientSupportedFile(file)) {
-        toast.error("Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.");
+        toast.error(
+          "Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.",
+        );
         e.target.value = "";
         return;
       }

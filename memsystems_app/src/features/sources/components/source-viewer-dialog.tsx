@@ -89,7 +89,9 @@ export function SourceViewerDialog({
           <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground animate-pulse">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm font-medium">Loading source content...</p>
-            <DialogTitle className="sr-only">Loading source content...</DialogTitle>
+            <DialogTitle className="sr-only">
+              Loading source content...
+            </DialogTitle>
           </div>
         )}
 

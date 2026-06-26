@@ -32,7 +32,12 @@ vi.mock("@tanstack/react-query", async () => {
 
   const mockReadQuery = (opts: any) => {
     if (opts?.enabled === false) {
-      return { data: undefined, isPending: false, isError: false, refetch: vi.fn() };
+      return {
+        data: undefined,
+        isPending: false,
+        isError: false,
+        refetch: vi.fn(),
+      };
     }
     const data = queryCache.get(opts.queryKey);
     if (data === undefined) {

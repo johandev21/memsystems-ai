@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import { Button } from "@/components/ui/button";
-import { Loader2, X, ChevronDown, ChevronUp, Terminal } from "lucide-react";
+import { Loader2, X, ChevronDown, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StudyMaterialKind } from "@/lib/generation";
 
@@ -11,9 +11,13 @@ export function BackgroundGenerationStatus() {
   const generations = useGenerationStore((s) => s.generations);
   const isCollapsed = useGenerationStore((s) => s.isCollapsed);
   const setCollapsed = useGenerationStore((s) => s.setCollapsed);
-  const cancelBackgroundGeneration = useGenerationStore((s) => s.cancelBackgroundGeneration);
+  const cancelBackgroundGeneration = useGenerationStore(
+    (s) => s.cancelBackgroundGeneration,
+  );
 
-  const [expandedPreviewId, setExpandedPreviewId] = useState<string | null>(null);
+  const [expandedPreviewId, setExpandedPreviewId] = useState<string | null>(
+    null,
+  );
 
   const activeJobs = Object.values(generations);
   if (activeJobs.length === 0) return null;
@@ -34,7 +38,10 @@ export function BackgroundGenerationStatus() {
         className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 animate-in fade-in slide-in-from-bottom-4"
       >
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        <span>Generating {activeJobs.length} item{activeJobs.length > 1 ? "s" : ""}...</span>
+        <span>
+          Generating {activeJobs.length} item{activeJobs.length > 1 ? "s" : ""}
+          ...
+        </span>
       </button>
     );
   }
@@ -44,7 +51,9 @@ export function BackgroundGenerationStatus() {
       <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
         <div className="flex items-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <h4 className="text-xs font-semibold">Active Generations ({activeJobs.length})</h4>
+          <h4 className="text-xs font-semibold">
+            Active Generations ({activeJobs.length})
+          </h4>
         </div>
         <Button
           variant="ghost"
@@ -58,7 +67,10 @@ export function BackgroundGenerationStatus() {
 
       <div className="max-h-72 overflow-y-auto p-2 divide-y divide-border/50">
         {activeJobs.map((job) => (
-          <div key={job.id} className="py-2.5 first:pt-1 last:pb-1 flex flex-col gap-1.5 text-xs">
+          <div
+            key={job.id}
+            className="py-2.5 first:pt-1 last:pb-1 flex flex-col gap-1.5 text-xs"
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <span className="font-medium text-foreground">
@@ -73,9 +85,12 @@ export function BackgroundGenerationStatus() {
                   <span
                     className={cn(
                       "text-[9px] font-semibold px-1 py-0.5 rounded",
-                      job.status === "connecting" && "bg-yellow-500/10 text-yellow-500",
-                      job.status === "streaming" && "bg-blue-500/10 text-blue-500",
-                      job.status === "error" && "bg-destructive/10 text-destructive"
+                      job.status === "connecting" &&
+                        "bg-yellow-500/10 text-yellow-500",
+                      job.status === "streaming" &&
+                        "bg-blue-500/10 text-blue-500",
+                      job.status === "error" &&
+                        "bg-destructive/10 text-destructive",
                     )}
                   >
                     {job.status === "connecting" && "Connecting..."}
@@ -93,13 +108,13 @@ export function BackgroundGenerationStatus() {
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
-                {job.progress && (
+                {!!job.progress && (
                   <Button
                     variant="ghost"
                     size="icon"
                     className={cn(
                       "h-6 w-6 text-muted-foreground hover:text-primary",
-                      expandedPreviewId === job.id && "text-primary bg-accent"
+                      expandedPreviewId === job.id && "text-primary bg-accent",
                     )}
                     onClick={() => togglePreview(job.id)}
                   >
@@ -115,7 +130,7 @@ export function BackgroundGenerationStatus() {
               </div>
             )}
 
-            {expandedPreviewId === job.id && job.progress && (
+            {expandedPreviewId === job.id && !!job.progress && (
               <pre className="text-[9px] font-mono bg-muted p-2 rounded max-h-36 overflow-auto whitespace-pre-wrap break-all mt-1">
                 {JSON.stringify(job.progress, null, 2)}
               </pre>

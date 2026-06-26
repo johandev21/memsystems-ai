@@ -6,25 +6,27 @@ export const MindMapNode = z.object({
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/)
-    .optional(),
+    .nullable()
+    .default(null),
   position: z
     .object({
       x: z.number(),
       y: z.number(),
     })
-    .optional(),
+    .nullable()
+    .default(null),
 });
 
 export const MindMapEdge = z.object({
   id: z.string(),
   sourceId: z.string(),
   targetId: z.string(),
-  label: z.string().max(200).optional(),
-  directed: z.boolean().optional(),
+  label: z.string().max(200).nullable().default(null),
+  directed: z.boolean().nullable().default(null),
 });
 
 export const MindMapContent = z.object({
-  rootId: z.string().optional(),
+  rootId: z.string().nullable().default(null),
   nodes: z.array(MindMapNode).min(1).max(500),
   edges: z.array(MindMapEdge).max(2000),
 });

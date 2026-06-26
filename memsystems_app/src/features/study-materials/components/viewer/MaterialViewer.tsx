@@ -11,6 +11,12 @@ import type { StudyMaterialDTO } from "@/lib/study-materials";
 import { QuizView } from "./QuizView";
 import { FlashcardView } from "./FlashcardView";
 import { RoadmapView } from "./RoadmapView";
+import { ReportView } from "./ReportView";
+import { SlideDeckView } from "./SlideDeckView";
+import { MindMapView } from "./MindMapView";
+import type { ReportContentType } from "@/features/study-materials/shapes/report";
+import type { SlideDeckContentType } from "@/features/study-materials/shapes/slide-deck";
+import type { MindMapContentType } from "@/features/study-materials/shapes/mind-map";
 
 export interface MaterialViewerProps {
   material: StudyMaterialDTO;
@@ -44,10 +50,23 @@ export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
             content={material.content as RoadmapEditorContentType}
           />
         )}
-        {!["quiz", "simple_flashcard", "roadmap"].includes(material.kind) && (
-          <div className="text-sm text-muted-foreground">
-            This material type can&apos;t be previewed yet.
-          </div>
+        {material.kind === "report" && (
+          <ReportView
+            materialId={material.id}
+            content={material.content as ReportContentType}
+          />
+        )}
+        {material.kind === "slide_deck" && (
+          <SlideDeckView
+            materialId={material.id}
+            content={material.content as SlideDeckContentType}
+          />
+        )}
+        {material.kind === "mind_map" && (
+          <MindMapView
+            materialId={material.id}
+            content={material.content as MindMapContentType}
+          />
         )}
       </div>
     </div>
