@@ -7,6 +7,7 @@ export const ReportSection = z.object({
 });
 
 export const ReportContent = z.object({
+  title: z.string().max(200).optional(),
   summary: z.string().max(1000).optional(),
   sections: z.array(ReportSection).min(1).max(50),
 });

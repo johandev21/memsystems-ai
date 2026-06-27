@@ -10,6 +10,7 @@ export const SimpleFlashcardContent = z.preprocess(
     return val;
   },
   z.object({
+    title: z.string().max(200).optional(),
     cards: z
       .array(
         z.object({

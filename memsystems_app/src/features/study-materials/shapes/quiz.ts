@@ -13,6 +13,7 @@ export const QuizQuestion = z.object({
 });
 
 export const QuizContent = z.object({
+  title: z.string().max(200).optional(),
   questions: z.array(QuizQuestion).min(1).max(50),
 });
 

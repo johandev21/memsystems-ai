@@ -26,6 +26,7 @@ export const MindMapEdge = z.object({
 });
 
 export const MindMapContent = z.object({
+  title: z.string().max(200).optional(),
   rootId: z.string().nullable().default(null),
   nodes: z.array(MindMapNode).min(1).max(500),
   edges: z.array(MindMapEdge).max(2000),

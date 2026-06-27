@@ -340,6 +340,13 @@ export class GenerationService {
   }
 
   private generateTitle(kind: StudyMaterialKind, content: any): string {
+    if (
+      content.title &&
+      typeof content.title === "string" &&
+      content.title.trim()
+    ) {
+      return content.title.trim();
+    }
     switch (kind) {
       case "quiz":
         return `Quiz (${content.questions?.length ?? 0} questions)`;
@@ -453,6 +460,7 @@ export class GenerationService {
       });
 
       return {
+        title: content.title ? String(content.title) : undefined,
         cards: normalizedCards,
       };
     }
@@ -541,6 +549,7 @@ export class GenerationService {
       });
 
       return {
+        title: content.title ? String(content.title) : undefined,
         questions: normalizedQuestions,
       };
     }
@@ -610,6 +619,7 @@ export class GenerationService {
       });
 
       return {
+        title: content.title ? String(content.title) : undefined,
         description: content.description ?? undefined,
         phases: normalizedPhases,
       };
@@ -647,6 +657,7 @@ export class GenerationService {
       });
 
       return {
+        title: content.title ? String(content.title) : undefined,
         slides: normalizedSlides,
       };
     }
@@ -683,6 +694,7 @@ export class GenerationService {
       });
 
       return {
+        title: content.title ? String(content.title) : undefined,
         summary: content.summary ?? undefined,
         sections: normalizedSections,
       };
@@ -739,6 +751,7 @@ export class GenerationService {
         .filter(Boolean);
 
       return {
+        title: content.title ? String(content.title) : undefined,
         rootId: content.rootId ?? undefined,
         nodes: normalizedNodes,
         edges: normalizedEdges,

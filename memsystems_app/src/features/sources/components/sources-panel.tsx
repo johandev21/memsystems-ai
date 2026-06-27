@@ -5,6 +5,16 @@ import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   deleteSource,
   type Source,
   type SourceKind,
@@ -28,6 +38,10 @@ export function SourcesPanel({
     isError,
   } = useQuery(sourcesQueryOptions(notebookId));
   const [viewedSourceId, setViewedSourceId] = useState<string | null>(null);
+  const [sourceToDelete, setSourceToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteSource(id),
@@ -65,7 +79,9 @@ export function SourcesPanel({
               key={source.id}
               source={source}
               onClick={() => setViewedSourceId(source.id)}
-              onDelete={(id) => deleteMutation.mutate(id)}
+              onDelete={() =>
+                setSourceToDelete({ id: source.id, title: source.title })
+              }
               deleting={
                 deleteMutation.isPending &&
                 deleteMutation.variables === source.id
@@ -90,6 +106,38 @@ export function SourcesPanel({
           if (!open) setViewedSourceId(null);
         }}
       />
+
+      <AlertDialog
+        open={sourceToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setSourceToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Source</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete source &quot;
+              {sourceToDelete?.title}
+              &quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (sourceToDelete) {
+                  deleteMutation.mutate(sourceToDelete.id);
+                  setSourceToDelete(null);
+                }
+              }}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

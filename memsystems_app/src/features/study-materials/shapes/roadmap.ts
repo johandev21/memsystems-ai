@@ -21,6 +21,7 @@ export const RoadmapPhase = z.object({
 });
 
 export const RoadmapContent = z.object({
+  title: z.string().max(200).optional(),
   description: z.string().max(5000).optional(),
   phases: z.array(RoadmapPhase).min(1).max(20),
 });

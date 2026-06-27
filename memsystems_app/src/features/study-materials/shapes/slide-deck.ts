@@ -8,6 +8,7 @@ export const SlideDeckSlide = z.object({
 });
 
 export const SlideDeckContent = z.object({
+  title: z.string().max(200).optional(),
   slides: z.array(SlideDeckSlide).min(1).max(100),
 });
 
