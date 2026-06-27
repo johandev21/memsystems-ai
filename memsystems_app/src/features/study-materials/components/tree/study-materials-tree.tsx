@@ -40,7 +40,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { foldersQueryOptions } from "@/lib/folders";
+import { deleteFolder, foldersQueryOptions } from "@/lib/folders";
 import {
   deleteStudyMaterial,
   studyMaterialsQueryOptions,
@@ -139,6 +139,11 @@ export function StudyMaterialsTree(props: RealDataProps) {
     name: string;
   } | null>(null);
 
+  const [folderToDelete, setFolderToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   const deleteMutation = useMutation({
     mutationFn: (materialId: string) => deleteStudyMaterial(materialId),
     onSuccess: () => {
@@ -153,10 +158,37 @@ export function StudyMaterialsTree(props: RealDataProps) {
     },
   });
 
+  const deleteFolderMutation = useMutation({
+    mutationFn: (folderId: string) => deleteFolder(folderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["study-material-folders", notebookId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["study-materials", notebookId],
+      });
+      toast.success("Folder deleted successfully");
+      setFolderToDelete(null);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message ?? "Failed to delete folder");
+    },
+  });
+
   const handleConfirmDelete = () => {
     if (materialToDelete) {
       deleteMutation.mutate(materialToDelete.id);
     }
+  };
+
+  const handleDeleteFolderRequest = (id: string, name: string) => {
+    if (hasActiveMaterials(id, folders, materials)) {
+      toast.error(
+        `Cannot delete folder "${name}": please delete all study materials inside first`,
+      );
+      return;
+    }
+    setFolderToDelete({ id, name });
   };
 
   const baseTree = useMemo(
@@ -225,6 +257,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
             onToggleFolder={toggleFolder}
             onSelectMaterial={onSelectMaterial}
             onDeleteMaterial={(id, name) => setMaterialToDelete({ id, name })}
+            onDeleteFolder={(id, name) => handleDeleteFolderRequest(id, name)}
             folderChildrenById={folderChildrenIndex(baseTree, openFolderIds)}
           />
         ))
@@ -248,6 +281,37 @@ export function StudyMaterialsTree(props: RealDataProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={folderToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setFolderToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Folder</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete folder &quot;
+              {folderToDelete?.name}
+              &quot;? This will move it to the trash.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (folderToDelete) {
+                  deleteFolderMutation.mutate(folderToDelete.id);
+                }
+              }}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
@@ -299,6 +363,7 @@ function FileTreeItemNode({
   onToggleFolder,
   onSelectMaterial,
   onDeleteMaterial,
+  onDeleteFolder,
   folderChildrenById,
 }: {
   item: FileTreeItem;
@@ -306,6 +371,7 @@ function FileTreeItemNode({
   onToggleFolder: (id: string) => void;
   onSelectMaterial?: (id: string) => void;
   onDeleteMaterial?: (id: string, name: string) => void;
+  onDeleteFolder?: (id: string, name: string) => void;
   folderChildrenById: Map<string, FileTreeItem[]>;
 }) {
   const isFolder = item.type === "folder";
@@ -358,13 +424,40 @@ function FileTreeItemNode({
         strokeWidth={2}
       />
       <span className="truncate flex-1 pr-1">{item.name}</span>
-      {isFolder &&
-        typeof item.materialCount === "number" &&
-        item.materialCount > 0 && (
-          <span className="ml-auto text-[10px] text-muted-foreground/70 tabular-nums">
-            {item.materialCount}
-          </span>
-        )}
+      {isFolder && (
+        <div className="ml-auto flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+          {typeof item.materialCount === "number" && item.materialCount > 0 && (
+            <span className="text-[10px] text-muted-foreground/70 tabular-nums mr-1">
+              {item.materialCount}
+            </span>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Options for ${item.name}`}
+              >
+                <MoreVertical className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteFolder?.(item.id, item.name);
+                }}
+                className="cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
       {!isFolder && (
         <div className="ml-auto opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -400,8 +493,18 @@ function FileTreeItemNode({
 
   if (isFolder) {
     return (
-      <>
-        {nodeContent}
+      <ContextMenu>
+        <ContextMenuTrigger asChild>{nodeContent}</ContextMenuTrigger>
+        <ContextMenuContent className="w-40">
+          <ContextMenuItem
+            variant="destructive"
+            onClick={() => onDeleteFolder?.(item.id, item.name)}
+            className="cursor-pointer"
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-2" />
+            Delete
+          </ContextMenuItem>
+        </ContextMenuContent>
         {item.isOpen && (
           <div className="flex flex-col gap-0.5 mt-0.5">
             {(folderChildrenById.get(item.id) ?? []).map((child) => (
@@ -412,12 +515,13 @@ function FileTreeItemNode({
                 onToggleFolder={onToggleFolder}
                 onSelectMaterial={onSelectMaterial}
                 onDeleteMaterial={onDeleteMaterial}
+                onDeleteFolder={onDeleteFolder}
                 folderChildrenById={folderChildrenById}
               />
             ))}
           </div>
         )}
-      </>
+      </ContextMenu>
     );
   }
 
@@ -447,3 +551,22 @@ export const fileTreeData: FileTreeItem[] = [];
 export type { TreeNode };
 // treeNodeToFileTreeItem is internal; keep it module-private.
 export const __test__ = { treeNodeToFileTreeItem };
+
+function hasActiveMaterials(
+  folderId: string,
+  folders: { id: string; parentId: string | null; deletedAt: string | null }[],
+  materials: { folderId: string | null; deletedAt: string | null }[],
+): boolean {
+  const directMaterials = materials.some(
+    (m) => m.folderId === folderId && !m.deletedAt,
+  );
+  if (directMaterials) return true;
+
+  const childFolders = folders.filter(
+    (f) => f.parentId === folderId && !f.deletedAt,
+  );
+  for (const child of childFolders) {
+    if (hasActiveMaterials(child.id, folders, materials)) return true;
+  }
+  return false;
+}

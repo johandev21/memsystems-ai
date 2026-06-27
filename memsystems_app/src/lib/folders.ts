@@ -50,3 +50,13 @@ export async function createFolder(
   }
   return data as FolderDTO;
 }
+
+export async function deleteFolder(folderId: string): Promise<void> {
+  const res = await fetchApi(`/api/folders/${folderId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? `Failed to delete folder (${res.status})`);
+  }
+}

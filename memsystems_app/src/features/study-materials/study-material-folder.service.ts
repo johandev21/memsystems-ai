@@ -1,6 +1,10 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { notebooks, studyMaterialFolders } from "@/database/schema";
+import {
+  notebooks,
+  studyMaterialFolders,
+  studyMaterials,
+} from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 
 export interface CreateFolderInput {
@@ -89,9 +93,48 @@ export class StudyMaterialFolderService {
 
   async delete(userId: string, folderId: string) {
     const folder = await this.fetchOwned(userId, folderId);
+
+    // Get all descendant folder IDs recursively (including the folder itself)
+    const descendantFolderIds = await this.getDescendantFolderIds(folderId);
+
+    // Check if there are active (non-deleted) study materials in these folders
+    const activeMaterials = await db
+      .select({ id: studyMaterials.id })
+      .from(studyMaterials)
+      .where(
+        and(
+          inArray(studyMaterials.folderId, descendantFolderIds),
+          isNull(studyMaterials.deletedAt),
+        ),
+      );
+
+    if (activeMaterials.length > 0) {
+      throw new BadRequestError(
+        "Cannot delete folder: please delete all study materials inside first",
+      );
+    }
+
     const now = new Date();
     await this.softDeleteSubtree(folderId, now);
     return { ...folder, deletedAt: now };
+  }
+
+  private async getDescendantFolderIds(parentId: string): Promise<string[]> {
+    const ids: string[] = [parentId];
+    const children = await db
+      .select({ id: studyMaterialFolders.id })
+      .from(studyMaterialFolders)
+      .where(
+        and(
+          eq(studyMaterialFolders.parentId, parentId),
+          isNull(studyMaterialFolders.deletedAt),
+        ),
+      );
+    for (const child of children) {
+      const childIds = await this.getDescendantFolderIds(child.id);
+      ids.push(...childIds);
+    }
+    return ids;
   }
 
   async restore(userId: string, folderId: string) {

@@ -78,6 +78,16 @@ vi.mock("@/lib/study-materials", async () => {
   };
 });
 
+// Mock deleteFolder API call
+vi.mock("@/lib/folders", async () => {
+  const actual =
+    await vi.importActual<typeof import("@/lib/folders")>("@/lib/folders");
+  return {
+    ...actual,
+    deleteFolder: vi.fn(),
+  };
+});
+
 vi.mock("sonner", () => ({
   toast: {
     success: vi.fn(),
@@ -86,6 +96,7 @@ vi.mock("sonner", () => ({
 }));
 
 import { StudyMaterialsTree } from "@/features/study-materials/components/tree/study-materials-tree";
+import { deleteFolder } from "@/lib/folders";
 import { deleteStudyMaterial } from "@/lib/study-materials";
 
 interface MockFolder {
@@ -200,6 +211,88 @@ describe("StudyMaterialsTree - Deletion", () => {
     // Invalidate queries should be called for study materials
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: ["study-materials", NOTEBOOK_ID],
+    });
+  });
+
+  it("blocks folder deletion and shows a toast error when the folder contains active study materials", async () => {
+    const user = userEvent.setup();
+
+    // Create an active material inside folder-a.
+    const materialInFolder: MockStudyMaterial = {
+      id: "sm-in-folder",
+      notebookId: NOTEBOOK_ID,
+      kind: "quiz",
+      title: "Biology quiz inside folder",
+      folderId: "folder-a",
+      content: { questions: [] },
+      deletedAt: null,
+      createdAt: "2025-01-03T00:00:00Z",
+      updatedAt: "2025-01-03T00:00:00Z",
+    };
+    queryCache.set(
+      ["study-materials", NOTEBOOK_ID],
+      [quizInRoot, materialInFolder],
+    );
+
+    render(<StudyMaterialsTree notebookId={NOTEBOOK_ID} />);
+
+    // Trigger Options menu on folder-a
+    const optionsBtn = screen.getByRole("button", {
+      name: /options for unit 1/i,
+    });
+    await user.click(optionsBtn);
+
+    // Click delete from dropdown
+    const deleteBtn = screen.getByRole("menuitem", { name: /delete/i });
+    await user.click(deleteBtn);
+
+    // Verify it blocked the deletion and showed the error toast
+    expect(toast.error).toHaveBeenCalledWith(
+      'Cannot delete folder "Unit 1": please delete all study materials inside first',
+    );
+    expect(deleteFolder).not.toHaveBeenCalled();
+  });
+
+  it("confirms and successfully deletes folder when it has no active study materials inside", async () => {
+    const user = userEvent.setup();
+
+    // folder-a is empty of active study materials
+    queryCache.set(["study-materials", NOTEBOOK_ID], [quizInRoot]);
+
+    render(<StudyMaterialsTree notebookId={NOTEBOOK_ID} />);
+
+    // Trigger Options menu on folder-a
+    const optionsBtn = screen.getByRole("button", {
+      name: /options for unit 1/i,
+    });
+    await user.click(optionsBtn);
+
+    // Click delete from dropdown
+    const deleteBtn = screen.getByRole("menuitem", { name: /delete/i });
+    await user.click(deleteBtn);
+
+    // Verify AlertDialog is shown
+    expect(
+      screen.getByText(/Are you sure you want to delete folder "Unit 1"?/i),
+    ).toBeInTheDocument();
+
+    (deleteFolder as any).mockResolvedValueOnce(undefined);
+
+    // Confirm deletion
+    const confirmBtn = screen.getByRole("button", { name: /^delete$/i });
+    await user.click(confirmBtn);
+
+    // Verify deleteFolder is called with folderId
+    expect(deleteFolder).toHaveBeenCalledWith("folder-a");
+
+    // Success toast should be called
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Folder deleted successfully");
+    });
+
+    // Invalidate queries should be called for study-material-folders and study-materials
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["study-material-folders", NOTEBOOK_ID],
     });
   });
 });

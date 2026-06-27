@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -84,7 +85,7 @@ export function SourceViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 overflow-hidden rounded-2xl border bg-background shadow-2xl">
+      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 overflow-hidden rounded-lg border bg-background shadow-lg">
         {isPending && (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground animate-pulse">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -120,26 +121,13 @@ export function SourceViewerDialog({
 
         {!isPending && !isError && source && (
           <>
-            {/* Header section with category gradient */}
-            <div
-              className={`p-6 border-b transition-all duration-300 relative ${
-                source.kind === "text"
-                  ? "bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent border-violet-500/15"
-                  : source.kind === "url"
-                    ? "bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border-emerald-500/15"
-                    : "bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent border-blue-500/15"
-              }`}
-            >
+            {/* Header section with flat secondary background */}
+            <div className="p-6 border-b bg-muted/30 relative">
               <div className="flex flex-col gap-3 pr-8">
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                      source.kind === "text"
-                        ? "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"
-                        : source.kind === "url"
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                          : "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
-                    }`}
+                  <Badge
+                    variant="secondary"
+                    className="gap-1 px-2 py-0.5 rounded-md"
                   >
                     {source.kind === "text" && (
                       <>
@@ -159,7 +147,7 @@ export function SourceViewerDialog({
                         Document File
                       </>
                     )}
-                  </span>
+                  </Badge>
 
                   <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                     <Calendar className="h-3 w-3" />
@@ -177,9 +165,9 @@ export function SourceViewerDialog({
 
                 {/* Sub-info banner / Action depending on kind */}
                 {source.kind === "url" && source.url && (
-                  <div className="flex items-center gap-3 bg-background/60 backdrop-blur-md border border-border/50 rounded-xl p-3 shadow-sm mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center justify-between gap-3 bg-muted/40 border rounded-lg p-3 mt-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                      <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
                         Source Link
                       </p>
                       <p className="text-xs text-foreground/80 truncate font-mono mt-0.5">
@@ -190,7 +178,7 @@ export function SourceViewerDialog({
                       variant="outline"
                       size="sm"
                       asChild
-                      className="shrink-0 bg-background hover:bg-muted font-medium text-xs gap-1.5 shadow-sm"
+                      className="shrink-0 text-xs gap-1.5"
                     >
                       <a
                         href={source.url}
@@ -205,16 +193,16 @@ export function SourceViewerDialog({
                 )}
 
                 {source.kind === "file" && (
-                  <div className="flex items-center justify-between gap-4 bg-background/60 backdrop-blur-md border border-border/50 rounded-xl p-3 shadow-sm mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center justify-between gap-4 bg-muted/40 border rounded-lg p-3 mt-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-9 w-9 rounded-lg bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
-                        <HardDrive className="h-5 w-5" />
+                      <div className="h-9 w-9 rounded-md bg-secondary text-secondary-foreground flex items-center justify-center shrink-0">
+                        <HardDrive className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold truncate text-foreground">
+                        <p className="text-xs font-medium truncate text-foreground">
                           {source.contentType || "Unknown document type"}
                         </p>
-                        <p className="text-[11px] text-muted-foreground font-medium">
+                        <p className="text-[11px] text-muted-foreground">
                           {formatBytes(source.fileSize)}
                         </p>
                       </div>
@@ -224,7 +212,7 @@ export function SourceViewerDialog({
                       size="sm"
                       onClick={handleDownload}
                       disabled={downloading}
-                      className="shrink-0 bg-background hover:bg-muted font-medium text-xs gap-1.5 shadow-sm"
+                      className="shrink-0 text-xs gap-1.5"
                     >
                       {downloading ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -239,12 +227,12 @@ export function SourceViewerDialog({
             </div>
 
             {/* Document Reader Area */}
-            <div className="flex-1 min-h-0 bg-muted/5 relative">
+            <div className="flex-1 min-h-0 bg-background relative">
               <ScrollArea className="h-full w-full">
                 <div className="p-8 max-w-2xl mx-auto">
                   {source.rawText?.trim() ? (
                     <article className="prose prose-sm dark:prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-foreground/90 break-words selection:bg-primary/20">
+                      <div className="whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-foreground/90 break-words">
                         {source.rawText}
                       </div>
                     </article>
@@ -262,7 +250,7 @@ export function SourceViewerDialog({
             </div>
 
             {/* Bottom info stats footer */}
-            <div className="px-6 py-3 border-t bg-muted/15 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="px-6 py-3 border-t bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1">
                   <Hash className="h-3.5 w-3.5 text-muted-foreground/75" />
@@ -273,7 +261,6 @@ export function SourceViewerDialog({
                   {getWordCount(source.rawText)} words
                 </span>
               </div>
-              <div>ID: {source.id}</div>
             </div>
           </>
         )}
