@@ -56,7 +56,9 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       const exists = modelOptions.some((m) => m.id === selectedModel);
       if (!exists) {
         const stored = localStorage.getItem("memsystems:selected-model");
-        const storedExists = stored ? modelOptions.some((m) => m.id === stored) : false;
+        const storedExists = stored
+          ? modelOptions.some((m) => m.id === stored)
+          : false;
         if (storedExists && stored) {
           setSelectedModel(stored);
         } else {

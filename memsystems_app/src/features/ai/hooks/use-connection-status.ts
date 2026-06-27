@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getApiUrl } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 interface ProviderStatus {
   ok: boolean;
@@ -41,10 +42,13 @@ async function fetchConnection(): Promise<ConnectionStatus> {
 }
 
 export function useConnectionStatus() {
+  const { data: session } = authClient.useSession();
+
   return useQuery({
-    queryKey: ["connection-status"],
+    queryKey: ["connection-status", session?.user.id],
     queryFn: fetchConnection,
     refetchInterval: 15_000,
     retry: 1,
+    enabled: !!session,
   });
 }

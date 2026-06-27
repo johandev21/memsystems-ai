@@ -3,6 +3,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +35,7 @@ export function MobileExpandedStudyMaterials({
   onOpenChange: controlledOnOpenChange,
   initialMaterialId,
 }: MobileExpandedStudyMaterialsProps) {
+  const t = useTranslations("Notebook");
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
@@ -75,7 +77,7 @@ export function MobileExpandedStudyMaterials({
         <DialogHeader className="px-4 py-3 shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-sm font-semibold">
-              Study Materials
+              {t("studyMaterials")}
             </DialogTitle>
             <CloseButton />
           </div>

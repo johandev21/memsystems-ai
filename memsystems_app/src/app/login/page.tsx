@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Logo } from "@/components/ui/logo";
 import { authClient } from "@/lib/auth-client";
 
 function GoogleIcon() {
@@ -35,6 +37,7 @@ function GoogleIcon() {
 }
 
 export default function Login() {
+  const t = useTranslations("Login");
   const [loading, setLoading] = useState(false);
 
   async function handleGoogleSignIn() {
@@ -48,20 +51,21 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to continue to memsystems</CardDescription>
+        <CardHeader className="text-center flex flex-col items-center">
+          <Logo className="mb-2 size-10 text-foreground" />
+          <CardTitle className="text-2xl">{t("welcomeBack")}</CardTitle>
+          <CardDescription>{t("signInToContinue")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button
             variant="outline"
             size="lg"
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
             <GoogleIcon />
-            {loading ? "Signing in..." : "Continue with Google"}
+            {loading ? t("signingIn") : t("continueWithGoogle")}
           </Button>
         </CardContent>
       </Card>

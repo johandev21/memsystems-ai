@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ const IN_SCOPE: StudyMaterialKind[] = [
 const DISPLAY_ORDER = [0, 1, 2, 5, 4, 3]; // same as before: Quiz, Flashcards, Report, Mind Map, Slide Deck, Roadmap
 
 export function PickerPane({ onChoose }: PickerPaneProps) {
+  const t = useTranslations("Notebook");
   const [selectedKind, setSelectedKind] = useState<StudyMaterialKind | null>(
     null,
   );
@@ -28,19 +30,20 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center p-6 gap-6">
       <div className="text-center space-y-1">
-        <h3 className="text-sm font-semibold">Create a new study material</h3>
+        <h3 className="text-sm font-semibold">{t("createStudyMaterial")}</h3>
         <p className="text-xs text-muted-foreground">
-          Pick a type, then choose how to build it.
+          {t("pickType")}
         </p>
       </div>
       <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm">
         {DISPLAY_ORDER.map((index) => {
           const resource = RESOURCES[index];
-          const kind = resourceToKind(resource.label);
+          const kind = resource.kind;
           const inScope = IN_SCOPE.includes(kind);
           const isSelected = selectedKind === kind;
+          const label = t(resource.key as any);
           return (
-            <div key={resource.label} className="space-y-1">
+            <div key={resource.key} className="space-y-1">
               <button
                 type="button"
                 disabled={!inScope}
@@ -66,7 +69,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                   strokeWidth={1.8}
                 />
                 <span className="text-xs font-semibold tracking-wide">
-                  {resource.label}
+                  {label}
                 </span>
               </button>
               {inScope && isSelected && (
@@ -78,7 +81,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                     className="h-7 flex-1 text-[11px] font-medium border border-border/20 dark:border-border/40 hover:bg-secondary/80 cursor-pointer rounded-md"
                     onClick={() => onChoose(kind, "manual")}
                   >
-                    Manual
+                    {t("manual")}
                   </Button>
                   <Button
                     type="button"
@@ -96,23 +99,4 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
       </div>
     </div>
   );
-}
-
-function resourceToKind(label: string): StudyMaterialKind {
-  switch (label) {
-    case "Quiz":
-      return "quiz";
-    case "Flashcards":
-      return "simple_flashcard";
-    case "Report":
-      return "report";
-    case "Roadmap":
-      return "roadmap";
-    case "Slide Deck":
-      return "slide_deck";
-    case "Mind Map":
-      return "mind_map";
-    default:
-      return "quiz";
-  }
 }

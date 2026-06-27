@@ -49,7 +49,12 @@ vi.mock("@/features/notebook/components/studio/source-multi-select", () => ({
 
 // Mock DialogModelSelector as a standard select to avoid Radix UI Select JSDOM issues
 vi.mock("@/features/notebook/components/model-selector", () => ({
-  DialogModelSelector: ({ models, selectedModel, onModelChange, disabled }: any) => (
+  DialogModelSelector: ({
+    models,
+    selectedModel,
+    onModelChange,
+    disabled,
+  }: any) => (
     <select
       data-testid="model-select"
       value={selectedModel}
@@ -107,14 +112,18 @@ describe("GenerateBriefDialog", () => {
     );
 
     // Wait for the mocked DialogModelSelector to display
-    const select = await screen.findByTestId("model-select") as HTMLSelectElement;
+    const select = (await screen.findByTestId(
+      "model-select",
+    )) as HTMLSelectElement;
     expect(select.value).toBe("openai/gpt-4o-mini");
 
     // 2. Select a different model
     await user.selectOptions(select, "openai/gpt-4o");
 
     // Verify it saved to localStorage
-    expect(localStorage.getItem("memsystems:selected-model")).toBe("openai/gpt-4o");
+    expect(localStorage.getItem("memsystems:selected-model")).toBe(
+      "openai/gpt-4o",
+    );
 
     // 3. Rerender / remount and verify it restores from localStorage
     cleanup();
@@ -129,13 +138,18 @@ describe("GenerateBriefDialog", () => {
       />,
     );
 
-    const reSelect = await screen.findByTestId("model-select") as HTMLSelectElement;
+    const reSelect = (await screen.findByTestId(
+      "model-select",
+    )) as HTMLSelectElement;
     expect(reSelect.value).toBe("openai/gpt-4o");
   });
 
   it("falls back to the first model in the list if the localStorage model is invalid", async () => {
     // Put an invalid/unavailable model in localStorage
-    localStorage.setItem("memsystems:selected-model", "openai/non-existent-model");
+    localStorage.setItem(
+      "memsystems:selected-model",
+      "openai/non-existent-model",
+    );
 
     render(
       <GenerateBriefDialog
@@ -148,7 +162,9 @@ describe("GenerateBriefDialog", () => {
       />,
     );
 
-    const select = await screen.findByTestId("model-select") as HTMLSelectElement;
+    const select = (await screen.findByTestId(
+      "model-select",
+    )) as HTMLSelectElement;
     // Should fall back to GPT-4o Mini
     expect(select.value).toBe("openai/gpt-4o-mini");
   });

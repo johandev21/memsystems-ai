@@ -3,11 +3,16 @@
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import Link from "next/link";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { authClient } from "@/lib/auth-client";
 
 export function ConnectionBanner() {
-  const { data: connection, isPending } = useConnectionStatus();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
+  const { data: connection, isPending: isConnectionPending } =
+    useConnectionStatus();
 
-  if (isPending || !connection) return null;
+  if (isSessionPending || !session) return null;
+  if (isConnectionPending || !connection) return null;
 
   if (connection.ok) return null;
 
@@ -17,7 +22,7 @@ export function ConnectionBanner() {
       <span>
         AI features are unavailable — OpenAI API Key is not configured.
         <Link
-          href="/settings/connection"
+          href="/settings"
           className="ml-1 underline underline-offset-2 hover:no-underline"
         >
           Configure key
@@ -28,9 +33,13 @@ export function ConnectionBanner() {
 }
 
 export function ConnectionIndicator() {
-  const { data: connection, isPending } = useConnectionStatus();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
+  const { data: connection, isPending: isConnectionPending } =
+    useConnectionStatus();
 
-  if (isPending || !connection) return null;
+  if (isSessionPending || !session) return null;
+  if (isConnectionPending || !connection) return null;
 
   if (connection.ok) {
     return (

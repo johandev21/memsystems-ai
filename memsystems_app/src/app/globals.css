@@ -307,3 +307,36 @@
     color: var(--muted-foreground);
   }
 }
+
+/* Minimalistic cross-browser scrollbar */
+body {
+  --sb-track-color: var(--border);
+  --sb-thumb-color: var(--muted-foreground);
+  --sb-size: 10px;
+}
+
+body::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+body::-webkit-scrollbar-button {
+  display: none;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  body {
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+  }
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Logo } from "@/components/ui/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { EditableNotebookTitle } from "./editable-notebook-title";
 
 export function NotebookHeader({ id }: { id: string }) {
+  const t = useTranslations("Common");
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -32,9 +35,12 @@ export function NotebookHeader({ id }: { id: string }) {
       <div className="flex items-center gap-3">
         <Link
           href="/home"
-          className="bg-foreground text-background font-mono font-bold text-xs px-2 py-1 select-none hover:opacity-90 transition-opacity"
+          className="flex items-center gap-1.5 hover:opacity-90 transition-opacity select-none"
         >
-          mems
+          <Logo className="size-6 text-foreground" />
+          {/*<span className="font-heading font-bold text-sm tracking-tight text-foreground hidden sm:inline">
+            memsystems
+          </span>*/}
         </Link>
         <span className="text-muted-foreground/40 font-mono text-xs select-none">
           /
@@ -70,9 +76,17 @@ export function NotebookHeader({ id }: { id: string }) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => router.push("/settings")}
+            className="cursor-pointer"
+          >
+            <Settings className="mr-2 size-4" />
+            <span>{t("configurations")}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
             <LogOut className="mr-2 size-4" />
-            <span>Log out</span>
+            <span>{t("logout")}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

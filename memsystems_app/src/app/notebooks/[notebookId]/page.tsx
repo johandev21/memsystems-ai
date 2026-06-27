@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   PanelLeftClose,
@@ -79,6 +81,7 @@ function DesktopLayout({
   onSyncSources: () => void;
   onSyncStudio: () => void;
 }) {
+  const t = useTranslations("Notebook");
   const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(
     null,
   );
@@ -114,7 +117,7 @@ function DesktopLayout({
               <h2
                 className={`text-sm font-semibold pl-1.5 ${sourcesCollapsed ? "hidden" : ""}`}
               >
-                Sources
+                {t("sources")}
               </h2>
               <div className="flex items-center gap-0.5">
                 {!sourcesCollapsed && (
@@ -123,7 +126,7 @@ function DesktopLayout({
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
-                      aria-label="Add Source"
+                      aria-label={t("addSource")}
                     >
                       <Plus className="size-4" />
                     </Button>
@@ -134,7 +137,7 @@ function DesktopLayout({
                   size="icon"
                   className={sourcesCollapsed ? "mx-auto" : "h-7 w-7"}
                   aria-label={
-                    sourcesCollapsed ? "Expand Sources" : "Collapse Sources"
+                    sourcesCollapsed ? t("expandSources") : t("collapseSources")
                   }
                   onClick={() => {
                     if (sourcesCollapsed) {
@@ -186,14 +189,14 @@ function DesktopLayout({
               <h2
                 className={`text-sm font-semibold ${studioCollapsed ? "hidden" : ""}`}
               >
-                Studio
+                {t("studio")}
               </h2>
               <Button
                 variant="ghost"
                 size="icon"
                 className={studioCollapsed ? "mx-auto" : undefined}
                 aria-label={
-                  studioCollapsed ? "Expand Studio" : "Collapse Studio"
+                  studioCollapsed ? t("expandStudio") : t("collapseStudio")
                 }
                 onClick={() => {
                   if (studioCollapsed) {

@@ -4,6 +4,7 @@ import { ArrowUp, Eraser, Square } from "lucide-react";
 import type { FormEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
 import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
@@ -38,6 +39,7 @@ export function Composer({
   canClearHistory,
   isClearingHistory,
 }: ComposerProps) {
+  const t = useTranslations("Notebook");
   useTextareaAutosize({ ref: textareaRef, value: input });
 
   const hasInput = input.trim().length > 0;
@@ -50,7 +52,7 @@ export function Composer({
             ref={textareaRef}
             value={input}
             onChange={(event) => onInputChange(event.target.value)}
-            placeholder="Type your message here..."
+            placeholder={t("typeMessage")}
             className="min-h-[60px] resize-none scrollbar-width-thin scrollbar-color-[var(--border)_transparent] field-sizing-none border-none bg-transparent dark:bg-transparent px-4 py-3 text-[15px] placeholder:text-muted-foreground/70 focus-visible:border-transparent focus-visible:ring-0 focus:outline-none"
             rows={1}
             onKeyDown={(event) => {
@@ -74,8 +76,8 @@ export function Composer({
                 variant="ghost"
                 onClick={onClearHistory}
                 disabled={!canClearHistory || isClearingHistory}
-                aria-label="Clear chat history"
-                title="Clear chat history"
+                aria-label={t("clearChatHistory")}
+                title={t("clearChatHistory")}
                 className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
               >
                 <Eraser className="h-4 w-4" />

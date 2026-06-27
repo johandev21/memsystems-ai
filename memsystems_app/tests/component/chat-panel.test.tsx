@@ -285,7 +285,9 @@ describe("ChatPanel", () => {
     expect(screen.getByText("GPT-4o")).toBeInTheDocument();
 
     // Verify saved to localStorage
-    expect(localStorage.getItem("memsystems:selected-model")).toBe("openai/gpt-4o");
+    expect(localStorage.getItem("memsystems:selected-model")).toBe(
+      "openai/gpt-4o",
+    );
 
     // Cleanup and rerender to test restore on mount
     cleanup();

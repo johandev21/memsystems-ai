@@ -58,7 +58,9 @@ export function GenerateBriefDialog({
       const exists = models.some((m) => m.id === model);
       if (!exists) {
         const stored = localStorage.getItem("memsystems:selected-model");
-        const storedExists = stored ? models.some((m) => m.id === stored) : false;
+        const storedExists = stored
+          ? models.some((m) => m.id === stored)
+          : false;
         if (storedExists && stored) {
           setModel(stored);
         } else {

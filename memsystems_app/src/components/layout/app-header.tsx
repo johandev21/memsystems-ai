@@ -1,8 +1,9 @@
 "use client";
 
-import { LogOut, Menu, Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,12 +15,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Logo } from "@/components/ui/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 
 const TRIGGER_ZONE_HEIGHT = 20;
 
 export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
+  const t = useTranslations("Common");
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -66,10 +69,15 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
       }`}
     >
       <div className="flex w-full max-w-6xl items-center justify-between">
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <Menu />
-          <span className="sr-only">Open menu</span>
-        </Button>
+        <div
+          className="flex items-center gap-1.5 select-none cursor-pointer"
+          onClick={() => router.push("/home")}
+        >
+          <Logo className="size-6 text-foreground" />
+          <span className="font-heading font-bold text-sm tracking-tight text-foreground">
+            memsystems
+          </span>
+        </div>
         <DropdownMenu onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -97,15 +105,16 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => router.push("/settings/connection")}
+              onClick={() => router.push("/settings")}
+              className="cursor-pointer"
             >
               <Settings className="mr-2 size-4" />
-              <span>Connection</span>
+              <span>{t("configurations")}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut className="mr-2 size-4" />
-              <span>Log out</span>
+              <span>{t("logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

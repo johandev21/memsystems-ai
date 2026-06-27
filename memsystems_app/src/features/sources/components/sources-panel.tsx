@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -31,6 +32,7 @@ export function SourcesPanel({
   notebookId: string;
   collapsed?: boolean;
 }) {
+  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const {
     data: sources,
@@ -47,7 +49,7 @@ export function SourcesPanel({
     mutationFn: (id: string) => deleteSource(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
-      toast.success("Source removed");
+      toast.success(t("sourceRemoved"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -64,12 +66,12 @@ export function SourcesPanel({
         )}
         {isError && (
           <p className="px-2 py-10 text-center text-xs text-muted-foreground">
-            Failed to load sources.
+            {t("failedLoadSources")}
           </p>
         )}
         {!isPending && !isError && sources?.length === 0 && (
           <p className="px-2 py-10 text-center text-xs text-muted-foreground">
-            No sources yet. Add your first one below.
+            {t("noSourcesYet")}
           </p>
         )}
         {!isPending &&
@@ -94,7 +96,7 @@ export function SourcesPanel({
       <div className="p-2">
         <AddSourceDialog notebookId={notebookId}>
           <div className="border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer">
-            Add files, links, or notes as sources
+            {t("addSourcesHint")}
           </div>
         </AddSourceDialog>
       </div>
@@ -115,15 +117,13 @@ export function SourcesPanel({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Source</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteSource")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete source &quot;
-              {sourceToDelete?.title}
-              &quot;? This action cannot be undone.
+              {t("deleteSourceConfirm", { title: sourceToDelete?.title ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (sourceToDelete) {
@@ -133,7 +133,7 @@ export function SourcesPanel({
               }}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -153,6 +153,7 @@ function SourceRow({
   onDelete: (id: string) => void;
   deleting: boolean;
 }) {
+  const t = useTranslations("Notebook");
   const Icon = getIcon(source.kind);
 
   return (
@@ -171,7 +172,7 @@ function SourceRow({
       </button>
       <button
         type="button"
-        aria-label="Delete source"
+        aria-label={t("deleteSource")}
         onClick={(e) => {
           e.stopPropagation();
           onDelete(source.id);

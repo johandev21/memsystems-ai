@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Brain, Clock, NotebookText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ActivityCalendar } from "@/components/home/activity-calendar";
@@ -19,20 +19,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { notebooksQueryOptions } from "@/lib/notebooks";
 
-function getBanner(bannerUrl: string | null): string | undefined {
+function _getBanner(bannerUrl: string | null): string | undefined {
   return bannerUrl ?? undefined;
 }
 
-function formatUpdatedAt(date: string): string {
+function formatUpdatedAt(
+  date: string,
+  t: (key: "updatedJustNow" | "updated") => string,
+): string {
   const d = new Date(date);
   const diff = Date.now() - d.getTime();
-  if (diff < 60_000) return "Updated just now";
+  if (diff < 60_000) return t("updatedJustNow");
   if (diff < 86_400_000)
-    return `Updated ${formatDistanceToNow(d, { addSuffix: true })}`;
-  return "Updated " + formatDistanceToNow(d, { addSuffix: true });
+    return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true })}`;
+  return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true })}`;
 }
 
 export default function HomePage() {
+  const t = useTranslations("Home");
   const { data: notebooksData, isLoading } = useQuery(notebooksQueryOptions);
   const notebooks = notebooksData?.notebooks;
   const router = useRouter();
@@ -67,11 +71,9 @@ export default function HomePage() {
         <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="gradient-text max-w-md font-heading text-2xl leading-snug font-bold italic">
-              Make progress on what matters.
+              {t("makeProgress")}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Pick up where you left off, or start something fresh.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("pickUpWhere")}</p>
           </div>
           <Button
             onClick={handleCreateNotebook}
@@ -83,12 +85,15 @@ export default function HomePage() {
             ) : (
               <Plus className="mr-2 size-4" />
             )}
-            New notebook
+            {t("newNotebook")}
           </Button>
         </section>
 
         <section className="flex flex-col gap-4 py-6">
-          <SectionHeader title="Recent Notebooks" viewAllHref="/notebooks" />
+          <SectionHeader
+            title={t("recentNotebooks")}
+            viewAllHref="/notebooks"
+          />
           {isLoading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -112,9 +117,9 @@ export default function HomePage() {
           ) : notebooks && notebooks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border">
               <NotebookText className="mb-3 size-8 text-muted-foreground/40" />
-              <p className="mb-1 text-sm font-medium">No notebooks yet</p>
+              <p className="mb-1 text-sm font-medium">{t("noNotebooksYet")}</p>
               <p className="mb-5 text-xs text-muted-foreground">
-                Create your first notebook to get started
+                {t("createFirst")}
               </p>
               <Button
                 onClick={handleCreateNotebook}
@@ -127,7 +132,7 @@ export default function HomePage() {
                 ) : (
                   <Plus className="mr-2 size-4" />
                 )}
-                New notebook
+                {t("newNotebook")}
               </Button>
             </div>
           ) : (
@@ -139,7 +144,7 @@ export default function HomePage() {
                   title={notebook.title}
                   description={notebook.description}
                   fileCount={0}
-                  updatedAt={formatUpdatedAt(notebook.updatedAt)}
+                  updatedAt={formatUpdatedAt(notebook.updatedAt, t)}
                   imageUrl={notebook.bannerUrl ?? undefined}
                   icon={<NotebookIcon name={notebook.icon} />}
                 />
@@ -149,22 +154,22 @@ export default function HomePage() {
         </section>
 
         <section className="flex flex-col gap-4 py-6">
-          <SectionHeader title="Spaced Repetition System" />
+          <SectionHeader title={t("srs")} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <div className="flex flex-col gap-4 lg:col-span-2">
               <StatCard
-                label="Due Today"
+                label={t("dueToday")}
                 value={23}
-                unit="cards"
-                status="Pending review"
+                unit={t("cards")}
+                status={t("pendingReview")}
                 statusIcon={<Clock className="size-4" />}
                 statusColor="rose"
               />
               <StatCard
-                label="New Cards"
+                label={t("newCards")}
                 value={10}
-                unit="cards"
-                status="Ready to learn"
+                unit={t("cards")}
+                status={t("readyToLearn")}
                 statusIcon={<Brain className="size-4" />}
                 statusColor="emerald"
               />
@@ -174,7 +179,7 @@ export default function HomePage() {
         </section>
 
         <section className="flex flex-col gap-4 py-6">
-          <SectionHeader title="Decks" viewAllHref="/decks" />
+          <SectionHeader title={t("decks")} viewAllHref="/decks" />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {MOCK_DECKS.map((deck) => (
               <DeckCard
