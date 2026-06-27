@@ -43,10 +43,35 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL_ID);
 
   useEffect(() => {
-    if (modelOptions.length > 0 && selectedModel === DEFAULT_MODEL_ID) {
-      setSelectedModel(modelOptions[0].id);
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("memsystems:selected-model");
+      if (stored) {
+        setSelectedModel(stored);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (modelOptions.length > 0) {
+      const exists = modelOptions.some((m) => m.id === selectedModel);
+      if (!exists) {
+        const stored = localStorage.getItem("memsystems:selected-model");
+        const storedExists = stored ? modelOptions.some((m) => m.id === stored) : false;
+        if (storedExists && stored) {
+          setSelectedModel(stored);
+        } else {
+          setSelectedModel(modelOptions[0].id);
+        }
+      }
     }
   }, [modelOptions, selectedModel]);
+
+  const handleModelChange = useCallback((modelId: string) => {
+    setSelectedModel(modelId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("memsystems:selected-model", modelId);
+    }
+  }, []);
 
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
@@ -273,7 +298,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               onStop={stop}
               models={modelOptions}
               selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
+              onModelChange={handleModelChange}
               textareaRef={composerTextareaRef}
               onClearHistory={() => setIsClearDialogOpen(true)}
               canClearHistory={hasMessages && !isLoading}

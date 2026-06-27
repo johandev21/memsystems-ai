@@ -3,6 +3,29 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// Mock missing window APIs in JSDOM
+if (typeof window !== "undefined") {
+  if (!window.ResizeObserver) {
+    window.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  }
+  if (window.Element && !window.Element.prototype.scrollIntoView) {
+    window.Element.prototype.scrollIntoView = () => {};
+  }
+  if (window.Element && !window.Element.prototype.hasPointerCapture) {
+    window.Element.prototype.hasPointerCapture = () => false;
+  }
+  if (window.Element && !window.Element.prototype.setPointerCapture) {
+    window.Element.prototype.setPointerCapture = () => {};
+  }
+  if (window.Element && !window.Element.prototype.releasePointerCapture) {
+    window.Element.prototype.releasePointerCapture = () => {};
+  }
+}
+
 // --- Module mocks ----------------------------------------------------------
 
 // Mock the @tanstack/react-query hooks to bypass a Vitest module-resolution
@@ -132,7 +155,10 @@ const historyB: MockMessage[] = [
   },
 ];
 
-const MODELS = [{ id: "openai/gpt-4o-mini", displayName: "GPT-4o Mini" }];
+const MODELS = [
+  { id: "openai/gpt-4o-mini", displayName: "GPT-4o Mini" },
+  { id: "openai/gpt-4o", displayName: "GPT-4o" },
+];
 
 const MOCK_CONNECTION = {
   ok: true,
@@ -149,6 +175,7 @@ const MOCK_CONNECTION = {
 };
 
 beforeEach(() => {
+  localStorage.clear();
   queryCache.clear();
   queryCache.set(["models"], MODELS);
   queryCache.set(["connection-status"], MOCK_CONNECTION);
@@ -234,5 +261,38 @@ describe("ChatPanel", () => {
     // text; we just verify the input was not cleared (which would happen
     // on a successful submit).
     expect(composer).not.toHaveValue("");
+  });
+
+  it("saves the selected model to localStorage on selection, and restores it on mount", async () => {
+    const user = userEvent.setup();
+
+    // 1. Initial render without anything in localStorage should fall back to first model
+    render(<ChatPanel notebookId="notebook-a" />);
+
+    // Wait for the composer/model selector button to load
+    await waitFor(() => {
+      expect(screen.getByText("GPT-4o Mini")).toBeInTheDocument();
+    });
+
+    // 2. Click the model selector and change the model
+    const selectorButton = screen.getByText("GPT-4o Mini");
+    await user.click(selectorButton);
+
+    const modelRow = await screen.findByText("GPT-4o");
+    await user.click(modelRow);
+
+    // Verify state updated in UI
+    expect(screen.getByText("GPT-4o")).toBeInTheDocument();
+
+    // Verify saved to localStorage
+    expect(localStorage.getItem("memsystems:selected-model")).toBe("openai/gpt-4o");
+
+    // Cleanup and rerender to test restore on mount
+    cleanup();
+    render(<ChatPanel notebookId="notebook-a" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GPT-4o")).toBeInTheDocument();
+    });
   });
 });

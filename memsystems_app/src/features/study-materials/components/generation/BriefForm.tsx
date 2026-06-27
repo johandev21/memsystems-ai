@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,9 +41,6 @@ export function BriefForm({
   submitLabel = "Generate",
   disabled = false,
 }: BriefFormProps) {
-  const [selectedModel, setSelectedModel] = useState(
-    value.model || defaultModel || models[0]?.id || "",
-  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useTextareaAutosize({
@@ -99,9 +96,8 @@ export function BriefForm({
         <Label>Model</Label>
         <DialogModelSelector
           models={models}
-          selectedModel={selectedModel}
+          selectedModel={value.model}
           onModelChange={(model) => {
-            setSelectedModel(model);
             update({ model });
           }}
           disabled={disabled}

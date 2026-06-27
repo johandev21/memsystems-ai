@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
@@ -42,7 +42,31 @@ export function GenerateBriefDialog({
   const [brief, setBrief] = useState("");
   const [sourceIds, setSourceIds] = useState<string[]>([]);
   const [folderId, setFolderId] = useState<string | null>(null);
-  const [model, setModel] = useState(models[0]?.id ?? "");
+  const [model, setModel] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("memsystems:selected-model");
+      if (stored) {
+        setModel(stored);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (models && models.length > 0) {
+      const exists = models.some((m) => m.id === model);
+      if (!exists) {
+        const stored = localStorage.getItem("memsystems:selected-model");
+        const storedExists = stored ? models.some((m) => m.id === stored) : false;
+        if (storedExists && stored) {
+          setModel(stored);
+        } else {
+          setModel(models[0].id);
+        }
+      }
+    }
+  }, [models, model]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -88,7 +112,12 @@ export function GenerateBriefDialog({
               setBrief(next.brief);
               setSourceIds(next.sourceIds);
               setFolderId(next.folderId);
-              setModel(next.model);
+              if (next.model !== model) {
+                setModel(next.model);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("memsystems:selected-model", next.model);
+                }
+              }
             }}
             onSubmit={handleSubmit}
             submitLabel="Generate"
