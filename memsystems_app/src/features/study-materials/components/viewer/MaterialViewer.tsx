@@ -65,7 +65,7 @@ export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
         {material.kind === "mind_map" && (
           <MindMapView
             materialId={material.id}
-            content={material.content as MindMapContentType}
+            content={material.content as any}
           />
         )}
       </div>

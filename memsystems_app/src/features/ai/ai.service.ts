@@ -3,7 +3,7 @@ import { BadRequestError } from "@/lib/errors";
 import { connectionService } from "./connection.service";
 import type { Provider } from "./provider";
 import { createOpenaiProvider } from "./providers/openai";
-import { opencodeProvider } from "./providers/opencode";
+// import { opencodeProvider } from "./providers/opencode";
 import { userSettingsService } from "./user-settings.service";
 
 type ConvertInput = Parameters<typeof convertToModelMessages>[0];
@@ -24,14 +24,16 @@ export async function getProviderForModel(
     }
     return createOpenaiProvider(apiKey);
   }
-  return opencodeProvider;
+  throw new BadRequestError(
+    `Model ${modelId} is not supported. Only OpenAI provider is enabled.`,
+  );
 }
 
 export class AiService {
   listModels(userId?: string) {
-    const opencodeModels = opencodeProvider.listModels();
+    // const opencodeModels = opencodeProvider.listModels();
     const openaiModels = createOpenaiProvider("").listModels();
-    return [...opencodeModels, ...openaiModels];
+    return openaiModels;
   }
 
   async generateStream(

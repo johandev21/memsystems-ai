@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createOpenaiProvider } from "@/features/ai/providers/openai";
-import { opencodeProvider } from "@/features/ai/providers/opencode";
+// import { opencodeProvider } from "@/features/ai/providers/opencode";
 import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
 import { logger } from "@/lib/logger";
 import { getSession } from "@/lib/session";
@@ -22,7 +22,6 @@ const messageSchema = z.object({
 });
 
 const allowedModels = [
-  ...opencodeProvider.listModels().map((m) => m.id),
   ...createOpenaiProvider("")
     .listModels()
     .map((m) => m.id),

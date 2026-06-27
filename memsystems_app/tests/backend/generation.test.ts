@@ -124,7 +124,7 @@ describe("startGeneration", () => {
         brief: "test brief",
         sourceIds: ["s1", "s2"],
         folderId: "f1",
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
       // requestId is captured from the response headers; the simplest way to
       // get a stable value is to wait for the response promise itself.
@@ -149,7 +149,7 @@ describe("startGeneration", () => {
         brief: "test brief",
         sourceIds: ["s1", "s2"],
         folderId: "f1",
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
       expect(init?.method).toBe("POST");
     } finally {

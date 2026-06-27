@@ -20,10 +20,10 @@ vi.mock("@/features/ai/connection.service", () => ({
   },
 }));
 
-vi.mock("@/features/ai/providers/opencode", () => ({
-  opencodeProvider: {
+vi.mock("@/features/ai/ai.service", () => ({
+  getProviderForModel: vi.fn().mockResolvedValue({
     createModel: vi.fn(() => ({})),
-  },
+  }),
 }));
 
 import { eq } from "drizzle-orm";
@@ -88,7 +88,7 @@ describe("NotebookChatService", () => {
 
       await service.sendMessage(u.id, notebook.id, {
         content: newContent,
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
 
       expect(mocks.streamText).toHaveBeenCalledTimes(1);
@@ -114,7 +114,7 @@ describe("NotebookChatService", () => {
 
       await service.sendMessage(u.id, notebook.id, {
         content: "Will this be saved?",
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
 
       const msgs = await service.listMessages(u.id, notebook.id);
@@ -138,7 +138,7 @@ describe("NotebookChatService", () => {
 
       await service.sendMessage(u.id, notebook.id, {
         content: "ping",
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
 
       const [after] = await db
@@ -151,9 +151,9 @@ describe("NotebookChatService", () => {
       );
     });
 
-    it("rejects when OpenCode is not connected", async () => {
+    it("rejects when OpenAI is not connected", async () => {
       mocks.requireConnected.mockRejectedValueOnce(
-        new Error("OpenCode not connected"),
+        new Error("OpenAI not connected"),
       );
 
       const u = await seedUser();
@@ -162,9 +162,9 @@ describe("NotebookChatService", () => {
       await expect(
         service.sendMessage(u.id, notebook.id, {
           content: "test",
-          model: "opencode-go/glm-5.2",
+          model: "openai/gpt-4o-mini",
         }),
-      ).rejects.toThrow("OpenCode not connected");
+      ).rejects.toThrow("OpenAI not connected");
     });
 
     it("onFinish persists assistant message with stripped citations and cited source IDs", async () => {
@@ -178,7 +178,7 @@ describe("NotebookChatService", () => {
 
       await service.sendMessage(u.id, notebook.id, {
         content: "What is the capital?",
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       });
 
       const args = mocks.streamText.mock.calls[0][0] as StreamTextArgs;

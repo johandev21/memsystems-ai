@@ -22,8 +22,10 @@ import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
 import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
+import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
+import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 
-const DEFAULT_MODEL_ID = "opencode-go/glm-5.2";
+const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 
 const log = logger.child({ feature: "chat-panel" });
 
@@ -34,6 +36,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const { data: chatHistory } = useSuspenseQuery(
     chatMessagesQueryOptions(notebookId),
   );
+  const { data: connection } = useConnectionStatus();
 
   const modelOptions: ModelOption[] = models ?? [];
 
@@ -261,20 +264,24 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
             onConfirm={() => clearHistoryMutation.mutate()}
             isClearing={clearHistoryMutation.isPending}
           />
-          <Composer
-            input={input}
-            onInputChange={setInput}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            onStop={stop}
-            models={modelOptions}
-            selectedModel={selectedModel}
-            onModelChange={setSelectedModel}
-            textareaRef={composerTextareaRef}
-            onClearHistory={() => setIsClearDialogOpen(true)}
-            canClearHistory={hasMessages && !isLoading}
-            isClearingHistory={clearHistoryMutation.isPending}
-          />
+          {connection?.openai?.ok ? (
+            <Composer
+              input={input}
+              onInputChange={setInput}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              onStop={stop}
+              models={modelOptions}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              textareaRef={composerTextareaRef}
+              onClearHistory={() => setIsClearDialogOpen(true)}
+              canClearHistory={hasMessages && !isLoading}
+              isClearingHistory={clearHistoryMutation.isPending}
+            />
+          ) : (
+            <OpenAIKeyPrompt description="An OpenAI API Key is required to chat with your study assistant." />
+          )}
         </div>
       </div>
     </div>

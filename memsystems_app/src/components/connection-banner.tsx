@@ -15,12 +15,12 @@ export function ConnectionBanner() {
     <div className="flex items-center justify-center gap-2 bg-amber-600 px-4 py-2 text-sm text-white">
       <AlertTriangle className="h-4 w-4 shrink-0" />
       <span>
-        AI features are unavailable — OpenCode is not connected.
+        AI features are unavailable — OpenAI API Key is not configured.
         <Link
           href="/settings/connection"
           className="ml-1 underline underline-offset-2 hover:no-underline"
         >
-          View details
+          Configure key
         </Link>
       </span>
     </div>

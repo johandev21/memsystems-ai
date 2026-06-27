@@ -1,7 +1,7 @@
 import { ServiceUnavailableError } from "@/lib/errors";
 import type { HealthCheckResult, ProviderModel } from "./provider";
 import { createOpenaiProvider } from "./providers/openai";
-import { opencodeProvider } from "./providers/opencode";
+// import { opencodeProvider } from "./providers/opencode";
 import { userSettingsService } from "./user-settings.service";
 
 const HEALTH_TTL_MS = 15_000;
@@ -20,13 +20,14 @@ interface OpenAIHealthCache {
 const openaiHealthCache = new Map<string, OpenAIHealthCache>();
 
 async function refreshOpenCode(): Promise<void> {
-  cachedResult = await opencodeProvider.health();
+  // OpenCode disabled
+  cachedResult = { ok: false, detail: "OpenCode provider is disabled." };
   cachedAt = Date.now();
-  cachedModels = cachedResult.ok ? opencodeProvider.listModels() : [];
+  cachedModels = [];
 }
 
 function isOpenCodeStale(): boolean {
-  return cachedAt === 0 || Date.now() - cachedAt > HEALTH_TTL_MS;
+  return false; // OpenCode disabled, never stale since it's never checked
 }
 
 async function checkOpenaiHealth(
@@ -68,15 +69,9 @@ export const connectionService = {
       return;
     }
 
-    // Default: OpenCode
-    if (isOpenCodeStale()) {
-      await refreshOpenCode();
-    }
-    if (!cachedResult || !cachedResult.ok) {
-      throw new ServiceUnavailableError(
-        cachedResult?.detail ?? "OpenCode not connected",
-      );
-    }
+    throw new ServiceUnavailableError(
+      "Only OpenAI models are supported. OpenCode provider is disabled.",
+    );
   },
 
   async snapshot(userId?: string): Promise<{
@@ -96,14 +91,10 @@ export const connectionService = {
       hasKey: boolean;
     };
   }> {
-    if (isOpenCodeStale()) {
-      await refreshOpenCode();
-    }
-
     const opencodeStatus = {
-      ok: cachedResult?.ok ?? false,
-      detail: cachedResult?.detail,
-      models: cachedModels,
+      ok: false,
+      detail: "OpenCode provider is disabled.",
+      models: [],
     };
 
     const openaiStatus = {
@@ -123,18 +114,13 @@ export const connectionService = {
       }
     }
 
-    // Combined connection status for backward compatibility
-    const combinedOk = opencodeStatus.ok || openaiStatus.ok;
-    const combinedModels = [
-      ...(opencodeStatus.ok ? opencodeStatus.models : []),
-      ...(openaiStatus.ok ? openaiStatus.models : []),
-    ];
+    // Combined connection status for backward compatibility - OpenCode is disabled, so depend solely on OpenAI
+    const combinedOk = openaiStatus.ok;
+    const combinedModels = [...(openaiStatus.ok ? openaiStatus.models : [])];
 
     return {
       ok: combinedOk,
-      detail: combinedOk
-        ? undefined
-        : (opencodeStatus.detail ?? openaiStatus.detail),
+      detail: combinedOk ? undefined : openaiStatus.detail,
       models: combinedModels,
       checkedAt: cachedAt > 0 ? new Date(cachedAt).toISOString() : null,
       opencode: opencodeStatus,
@@ -143,7 +129,7 @@ export const connectionService = {
   },
 
   async refresh(): Promise<void> {
-    await refreshOpenCode();
+    // OpenCode disabled
   },
 
   // Helper to invalidate OpenAI health cache (e.g. after key update)

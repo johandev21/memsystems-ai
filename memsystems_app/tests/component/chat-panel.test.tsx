@@ -132,11 +132,26 @@ const historyB: MockMessage[] = [
   },
 ];
 
-const MODELS = [{ id: "opencode-go/glm-5.2", displayName: "GLM 5.2" }];
+const MODELS = [{ id: "openai/gpt-4o-mini", displayName: "GPT-4o Mini" }];
+
+const MOCK_CONNECTION = {
+  ok: true,
+  detail: undefined,
+  models: MODELS,
+  checkedAt: "2025-01-01T00:00:00Z",
+  opencode: { ok: false, detail: "Disabled", models: [] },
+  openai: {
+    ok: true,
+    detail: undefined,
+    models: MODELS,
+    hasKey: true,
+  },
+};
 
 beforeEach(() => {
   queryCache.clear();
   queryCache.set(["models"], MODELS);
+  queryCache.set(["connection-status"], MOCK_CONNECTION);
   queryCache.set(["notebooks", "notebook-a"], notebookA);
   queryCache.set(["notebooks", "notebook-b"], notebookB);
   queryCache.set(["chat", "notebook-a", "messages"], historyA);

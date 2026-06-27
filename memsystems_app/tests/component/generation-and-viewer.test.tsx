@@ -101,7 +101,7 @@ describe("GenerationPane", () => {
         brief="make a quiz"
         sourceIds={["s1"]}
         folderId={null}
-        model="opencode-go/glm-5.2"
+        model="openai/gpt-4o-mini"
         onComplete={() => {}}
         onCancel={() => {}}
       />,
@@ -115,7 +115,7 @@ describe("GenerationPane", () => {
       brief: "make a quiz",
       sourceIds: ["s1"],
       folderId: null,
-      model: "opencode-go/glm-5.2",
+      model: "openai/gpt-4o-mini",
     });
   });
 

@@ -22,22 +22,10 @@ vi.mock("@/features/ai/connection.service", () => ({
   },
 }));
 
-vi.mock("@/features/ai/providers/opencode", () => ({
-  opencodeProvider: {
+vi.mock("@/features/ai/ai.service", () => ({
+  getProviderForModel: vi.fn().mockResolvedValue({
     createModel: vi.fn(() => ({})),
-    listModels: () => [
-      { id: "opencode-go/glm-5.2", displayName: "GLM 5.2" },
-      { id: "opencode-go/deepseek-v4-flash", displayName: "DeepSeek V4 Flash" },
-      { id: "opencode-go/deepseek-v4-pro", displayName: "DeepSeek V4 Pro" },
-      { id: "opencode-go/kimi-k2.6", displayName: "Kimi K2.6" },
-      { id: "opencode-go/kimi-k2.7-code", displayName: "Kimi K2.7 Code" },
-      { id: "opencode-go/mimo-v2.5", displayName: "MiMo V2.5" },
-      { id: "opencode-go/mimo-v2.5-pro", displayName: "MiMo V2.5 Pro" },
-      { id: "opencode-go/minimax-m2.7", displayName: "MiniMax M2.7" },
-      { id: "opencode-go/minimax-m3", displayName: "MiniMax M3" },
-      { id: "opencode-go/qwen3.7-max", displayName: "Qwen 3.7 Max" },
-    ],
-  },
+  }),
 }));
 
 vi.mock("@/lib/session", () => ({
@@ -124,7 +112,7 @@ describe("POST /api/notebooks/[id]/chat", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         messages: [{ role: "user", parts: [{ type: "text", text: "   " }] }],
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       }),
     });
     const params = Promise.resolve({ id: notebook.id });
@@ -145,7 +133,7 @@ describe("POST /api/notebooks/[id]/chat", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         messages: [{ role: "user", parts: [{ type: "text", text: "Hello" }] }],
-        model: "opencode-go/glm-5.2",
+        model: "openai/gpt-4o-mini",
       }),
     });
     const params = Promise.resolve({ id: notebook.id });

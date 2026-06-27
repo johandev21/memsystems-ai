@@ -140,7 +140,7 @@ export default function ConnectionSettingsPage() {
           </Button>
         </div>
 
-        {/* OpenCode Connection Card */}
+        {/* OpenCode Connection Card commented out
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-base">
@@ -208,6 +208,7 @@ export default function ConnectionSettingsPage() {
             )}
           </CardContent>
         </Card>
+        */}
 
         {/* OpenAI Connection Card */}
         <Card className="mb-6">
@@ -341,20 +342,6 @@ export default function ConnectionSettingsPage() {
             <CardTitle className="text-base">Setup Instructions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <Terminal className="mt-0.5 h-4 w-4 shrink-0" />
-              <div>
-                <p className="font-medium text-foreground mb-1">
-                  Using OpenCode (Default)
-                </p>
-                <p className="text-xs">
-                  Run <code className="text-foreground">opencode</code> locally
-                  on your machine. Ensure the OpenCode server is running and
-                  configured with subscription credentials.
-                </p>
-              </div>
-            </div>
-
             <div className="flex items-start gap-2">
               <Terminal className="mt-0.5 h-4 w-4 shrink-0" />
               <div>

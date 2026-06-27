@@ -12,6 +12,8 @@ import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
 import { BriefForm } from "./BriefForm";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
+import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 
 export interface GenerateBriefDialogProps {
   notebookId: string;
@@ -35,6 +37,7 @@ export function GenerateBriefDialog({
     (s) => s.startBackgroundGeneration,
   );
   const setCollapsed = useGenerationStore((s) => s.setCollapsed);
+  const { data: connection } = useConnectionStatus();
 
   const [brief, setBrief] = useState("");
   const [sourceIds, setSourceIds] = useState<string[]>([]);
@@ -74,22 +77,26 @@ export function GenerateBriefDialog({
         <DialogHeader>
           <DialogTitle>Generate {kindLabel(kind)}</DialogTitle>
         </DialogHeader>
-        <BriefForm
-          notebookId={notebookId}
-          kind={kind}
-          models={models}
-          defaultModel={models[0]?.id}
-          value={{ brief, sourceIds, folderId, model }}
-          onChange={(next) => {
-            setBrief(next.brief);
-            setSourceIds(next.sourceIds);
-            setFolderId(next.folderId);
-            setModel(next.model);
-          }}
-          onSubmit={handleSubmit}
-          submitLabel="Generate"
-          disabled={false}
-        />
+        {connection?.openai?.ok ? (
+          <BriefForm
+            notebookId={notebookId}
+            kind={kind}
+            models={models}
+            defaultModel={models[0]?.id}
+            value={{ brief, sourceIds, folderId, model }}
+            onChange={(next) => {
+              setBrief(next.brief);
+              setSourceIds(next.sourceIds);
+              setFolderId(next.folderId);
+              setModel(next.model);
+            }}
+            onSubmit={handleSubmit}
+            submitLabel="Generate"
+            disabled={false}
+          />
+        ) : (
+          <OpenAIKeyPrompt description="An OpenAI API Key is required to generate study materials." />
+        )}
       </DialogContent>
     </Dialog>
   );

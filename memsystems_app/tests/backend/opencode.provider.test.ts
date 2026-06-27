@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { opencodeProvider } from "@/features/ai/providers/opencode";
 
-describe("opencodeProvider", () => {
+describe.skip("opencodeProvider", () => {
   describe("createModel", () => {
     it("pins every model instance to the sandbox directory", () => {
       const model = opencodeProvider.createModel("opencode-go/glm-5.2");

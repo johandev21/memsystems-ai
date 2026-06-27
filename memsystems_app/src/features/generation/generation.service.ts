@@ -24,12 +24,12 @@ import {
 import { getPromptTemplate } from "./prompts";
 
 const MODELS_BY_KIND: Record<StudyMaterialKind, string> = {
-  quiz: "opencode-go/glm-5.2",
-  simple_flashcard: "opencode-go/glm-5.2",
-  report: "opencode-go/glm-5.2",
-  roadmap: "opencode-go/glm-5.2",
-  slide_deck: "opencode-go/glm-5.2",
-  mind_map: "opencode-go/glm-5.2",
+  quiz: "openai/gpt-4o-mini",
+  simple_flashcard: "openai/gpt-4o-mini",
+  report: "openai/gpt-4o-mini",
+  roadmap: "openai/gpt-4o-mini",
+  slide_deck: "openai/gpt-4o-mini",
+  mind_map: "openai/gpt-4o-mini",
 };
 
 export interface GenerateInput {
@@ -83,14 +83,15 @@ export class GenerationService {
     const provider = await getProviderForModel(modelId, userId);
     const model = provider.createModel(modelId);
 
-    // Use the "general" agent for generation requests to avoid the "plan" agent
-    // from refusing to generate content in read-only mode, and to get clean JSON outputs.
+    // Commented out since OpenCode is disabled
+    /*
     if (model && typeof model === "object" && "settings" in model) {
       const opencodeModel = model as { settings?: { agent?: string } };
       if (opencodeModel.settings) {
         opencodeModel.settings.agent = "general";
       }
     }
+    */
 
     const systemPrompt = template.system;
     const userPrompt = template.user(input.brief, truncatedSources);

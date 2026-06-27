@@ -40,7 +40,7 @@ vi.mock("@tanstack/react-query", async () => {
 
 import { RightPane } from "@/features/notebook/components/studio/right-pane";
 
-const MODELS = [{ id: "opencode-go/glm-5.2", displayName: "GLM 5.2" }];
+const MODELS = [{ id: "openai/gpt-4o-mini", displayName: "GPT-4o Mini" }];
 
 beforeEach(() => {
   queryCache.clear();
