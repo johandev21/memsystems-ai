@@ -8,6 +8,7 @@ import {
   List,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ export interface ReportViewProps {
 }
 
 export function ReportView({ materialId, content }: ReportViewProps) {
+  const t = useTranslations("ReportView");
   const sections = content.sections || [];
   const totalSections = sections.length;
 
@@ -107,7 +109,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               <div className="flex items-center gap-1.5 min-w-0">
                 <List className="h-4 w-4 text-primary shrink-0" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
-                  Outline
+                  {t("outline")}
                 </span>
               </div>
               <Button
@@ -170,9 +172,12 @@ export function ReportView({ materialId, content }: ReportViewProps) {
         {/* Progress Header Card */}
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
-            <span>Reading Progress</span>
+            <span>{t("readingProgress")}</span>
             <span>
-              {completedCount} / {totalSections} Sections Read
+              {t("sectionsRead", {
+                completed: completedCount,
+                total: totalSections,
+              })}
             </span>
           </div>
           <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
@@ -183,7 +188,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
           </div>
           <div className="flex items-center justify-between text-xs pt-0.5">
             <span className="font-bold text-foreground">
-              {progressPercent}% Completed
+              {t("percentCompleted", { percent: progressPercent })}
             </span>
             {completedCount > 0 && (
               <button
@@ -191,7 +196,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                 onClick={handleResetProgress}
                 className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[10px]"
               >
-                Reset Progress
+                {t("resetProgress")}
               </button>
             )}
           </div>
@@ -204,7 +209,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               <FileText className="h-16 w-16 text-indigo-500" />
             </div>
             <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-              Executive Summary
+              {t("executiveSummary")}
             </h4>
             <p className="text-sm font-medium leading-relaxed text-foreground/90">
               {content.summary}
@@ -230,7 +235,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-primary font-mono tracking-wider uppercase">
-                      Section {idx + 1}
+                      {t("sectionNumber", { number: idx + 1 })}
                     </span>
                     <h3 className="text-base font-bold text-foreground leading-snug">
                       {section.heading}
@@ -252,12 +257,12 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                     {isCompleted ? (
                       <>
                         <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-emerald-500" />
-                        Completed
+                        {t("completed")}
                       </>
                     ) : (
                       <>
                         <Circle className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
-                        Mark Read
+                        {t("markRead")}
                       </>
                     )}
                   </Button>

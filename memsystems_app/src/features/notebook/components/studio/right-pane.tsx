@@ -1,100 +1,36 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { useTranslations } from "next-intl";
 import {
   type StudyMaterialDTO,
   studyMaterialQueryOptions,
 } from "@/lib/study-materials";
-import { GenerationPane } from "@/features/study-materials/components/generation/GenerationPane";
-import { ManualEditorPane } from "@/features/study-materials/components/editors/ManualEditorPane";
 import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
-import { PickerPane } from "./picker-pane";
 
 export type RightPaneMode =
-  | { kind: "picker" }
-  | { kind: "manual"; materialKind: StudyMaterialKind }
-  | {
-      kind: "generating";
-      materialKind: StudyMaterialKind;
-      brief: string;
-      sourceIds: string[];
-      folderId: string | null;
-      model?: string;
-    }
-  | { kind: "viewer"; materialId: string; initialMaterial?: StudyMaterialDTO }
-  | { kind: "coming-soon"; materialKind: StudyMaterialKind };
+  | { kind: "select" }
+  | { kind: "viewer"; materialId: string; initialMaterial?: StudyMaterialDTO };
 
 export interface RightPaneProps {
   notebookId: string;
   mode: RightPaneMode;
   onModeChange: (mode: RightPaneMode) => void;
-  models: { id: string; displayName: string }[];
-  defaultModel?: string;
 }
 
 export function RightPane({
   notebookId,
   mode,
   onModeChange,
-  models,
-  defaultModel,
 }: RightPaneProps) {
   switch (mode.kind) {
-    case "picker":
+    case "select":
       return (
-        <PickerPane
-          onChoose={(kind, action) => {
-            if (action === "manual") {
-              onModeChange({ kind: "manual", materialKind: kind });
-            } else {
-              onModeChange({
-                kind: "generating",
-                materialKind: kind,
-                brief: "",
-                sourceIds: [],
-                folderId: null,
-                model: defaultModel ?? models[0]?.id,
-              });
-            }
-          }}
-        />
-      );
-    case "manual":
-      return (
-        <ManualEditorPane
-          notebookId={notebookId}
-          kind={mode.materialKind}
-          onSaved={(materialId) => {
-            onModeChange({
-              kind: "viewer",
-              materialId,
-            });
-          }}
-          onCancel={() => onModeChange({ kind: "picker" })}
-        />
-      );
-    case "generating":
-      return (
-        <GenerationPane
-          notebookId={notebookId}
-          kind={mode.materialKind}
-          brief={mode.brief}
-          sourceIds={mode.sourceIds}
-          folderId={mode.folderId}
-          model={mode.model}
-          onComplete={(materialId) => {
-            console.log(
-              "[RightPane] Generation onComplete called with materialId:",
-              materialId,
-            );
-            onModeChange({
-              kind: "viewer",
-              materialId,
-            });
-          }}
-          onCancel={() => onModeChange({ kind: "picker" })}
-        />
+        <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-2">
+          <p className="text-sm font-medium text-muted-foreground">
+            Select a study material to view its contents
+          </p>
+        </div>
       );
     case "viewer":
       console.log(
@@ -105,14 +41,7 @@ export function RightPane({
         <RightPaneViewerWrapper
           materialId={mode.materialId}
           initialMaterial={mode.initialMaterial}
-          onClose={() => onModeChange({ kind: "picker" })}
-        />
-      );
-    case "coming-soon":
-      return (
-        <ComingSoonPane
-          kind={mode.materialKind}
-          onBack={() => onModeChange({ kind: "picker" })}
+          onClose={() => onModeChange({ kind: "select" })}
         />
       );
   }
@@ -127,6 +56,8 @@ function RightPaneViewerWrapper({
   initialMaterial?: StudyMaterialDTO;
   onClose: () => void;
 }) {
+  const tStudy = useTranslations("StudyMaterials");
+  const tCommon = useTranslations("Common");
   const {
     data: material,
     isLoading,
@@ -148,14 +79,14 @@ function RightPaneViewerWrapper({
     return (
       <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-4">
         <p className="text-sm text-destructive">
-          {error?.message || "Failed to load study material"}
+          {error?.message || tStudy("failedToLoad")}
         </p>
         <button
           type="button"
           onClick={onClose}
           className="text-xs text-primary hover:underline"
         >
-          Go back
+          {tCommon("goBack")}
         </button>
       </div>
     );
@@ -164,30 +95,3 @@ function RightPaneViewerWrapper({
   return <MaterialViewer material={material} onClose={onClose} />;
 }
 
-function ComingSoonPane({
-  kind,
-  onBack,
-}: {
-  kind: StudyMaterialKind;
-  onBack: () => void;
-}) {
-  return (
-    <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-4">
-      <div className="space-y-1">
-        <h3 className="text-sm font-semibold">
-          {kind.replace("_", " ")} is coming soon
-        </h3>
-        <p className="text-xs text-muted-foreground">
-          Try Quiz, Flashcards, or Roadmap instead.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onBack}
-        className="text-xs text-primary hover:underline"
-      >
-        Back
-      </button>
-    </div>
-  );
-}

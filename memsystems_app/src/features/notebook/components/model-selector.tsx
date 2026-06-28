@@ -161,6 +161,7 @@ export function DialogModelSelector({
   onModelChange,
   disabled = false,
 }: DialogModelSelectorProps) {
+  const t = useTranslations("Notebook");
   const activeModelDetails = models.find((m) => m.id === selectedModel);
 
   return (
@@ -170,7 +171,7 @@ export function DialogModelSelector({
       disabled={disabled}
     >
       <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors">
-        <SelectValue placeholder="Select a model">
+        <SelectValue placeholder={t("selectModelPlaceholder")}>
           {activeModelDetails?.displayName || selectedModel}
         </SelectValue>
       </SelectTrigger>

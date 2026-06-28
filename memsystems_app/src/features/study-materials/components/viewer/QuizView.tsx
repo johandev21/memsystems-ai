@@ -2,6 +2,7 @@
 
 import { AlertCircle, CheckCircle2, RefreshCw, XCircle } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,8 @@ export interface QuizViewProps {
 }
 
 export function QuizView({ content }: QuizViewProps) {
+  const t = useTranslations("QuizView");
+  const tCommon = useTranslations("Common");
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
   >({});
@@ -58,10 +61,10 @@ export function QuizView({ content }: QuizViewProps) {
       {isSubmitted && (
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col items-center justify-center text-center gap-2 animate-in fade-in zoom-in-95 duration-200">
           <div className="text-lg font-bold tracking-tight text-foreground">
-            Quiz Result: {correctCount} / {totalQuestions}
+            {t("result", { correct: correctCount, total: totalQuestions })}
           </div>
           <div className="text-sm font-medium text-muted-foreground">
-            Score:{" "}
+            {t("score")}
             <span
               className={
                 scorePercent >= 70
@@ -74,10 +77,10 @@ export function QuizView({ content }: QuizViewProps) {
           </div>
           <p className="text-xs text-muted-foreground max-w-xs mt-1">
             {scorePercent === 100
-              ? "Perfect score! Outstanding work!"
+              ? t("perfectScoreText")
               : scorePercent >= 70
-                ? "Great job! You passed the test."
-                : "Keep practicing! You can do better next time."}
+                ? t("passedText")
+                : t("failedText")}
           </p>
           <Button
             type="button"
@@ -87,7 +90,7 @@ export function QuizView({ content }: QuizViewProps) {
             className="mt-2"
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-            Try Again
+            {tCommon("tryAgain")}
           </Button>
         </div>
       )}
@@ -171,7 +174,9 @@ export function QuizView({ content }: QuizViewProps) {
                     q.options[selectedIdx]?.explanation && (
                       <div className="rounded-lg bg-muted/50 p-2.5 text-xs text-muted-foreground border border-border/40">
                         <span className="font-semibold block mb-0.5 text-[11px] text-foreground">
-                          Explanation ({isCorrect ? "Correct" : "Incorrect"}):
+                          {isCorrect
+                            ? t("explanationCorrect")
+                            : t("explanationIncorrect")}
                         </span>
                         {q.options[selectedIdx].explanation}
                       </div>
@@ -180,7 +185,7 @@ export function QuizView({ content }: QuizViewProps) {
                     q.options[q.correctOptionIndex]?.explanation && (
                       <div className="rounded-lg bg-muted/50 p-2.5 text-xs text-muted-foreground border border-border/40">
                         <span className="font-semibold block mb-0.5 text-[11px] text-foreground">
-                          Explanation:
+                          {t("explanation")}
                         </span>
                         {q.options[q.correctOptionIndex].explanation}
                       </div>
@@ -200,11 +205,14 @@ export function QuizView({ content }: QuizViewProps) {
             onClick={handleSubmit}
             disabled={answeredCount === 0}
           >
-            Submit Quiz
+            {t("submit")}
           </Button>
           {!isAllAnswered && answeredCount > 0 && (
             <p className="text-[10px] text-amber-600 dark:text-amber-400">
-              You have answered {answeredCount} of {totalQuestions} questions.
+              {t("answeredProgress", {
+                answered: answeredCount,
+                total: totalQuestions,
+              })}
             </p>
           )}
         </div>

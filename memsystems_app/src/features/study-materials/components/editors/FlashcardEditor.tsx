@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +23,8 @@ export function FlashcardEditor({
   onSaved,
   onCancel,
 }: FlashcardEditorProps) {
-  const [title, setTitle] = useState("Untitled Flashcards");
+  const t = useTranslations("StudyMaterials");
+  const [title, setTitle] = useState(t("untitledFlashcards"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<FlashcardEditorContentType>(
     () =>
@@ -85,7 +87,7 @@ export function FlashcardEditor({
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Cards</Label>
+          <Label className="text-sm font-medium">{t("cards")}</Label>
           <Button
             type="button"
             variant="outline"
@@ -94,7 +96,7 @@ export function FlashcardEditor({
             disabled={content.cards.length >= 100}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Add card
+            {t("addCard")}
           </Button>
         </div>
 
@@ -107,7 +109,7 @@ export function FlashcardEditor({
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">
-                  Card {ci + 1}
+                  {t("cardNumber", { number: ci + 1 })}
                 </span>
                 <Button
                   type="button"
@@ -115,7 +117,7 @@ export function FlashcardEditor({
                   size="icon-sm"
                   onClick={() => removeCard(ci)}
                   disabled={content.cards.length <= 1}
-                  aria-label={`Remove card ${ci + 1}`}
+                  aria-label={t("removeCardAria", { number: ci + 1 })}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -126,13 +128,13 @@ export function FlashcardEditor({
                   htmlFor={`card-${ci}-front`}
                   className="text-[11px] text-muted-foreground"
                 >
-                  Front
+                  {t("front")}
                 </Label>
                 <Textarea
                   id={`card-${ci}-front`}
                   value={card.front}
                   onChange={(e) => updateCard(ci, { front: e.target.value })}
-                  placeholder="Front of the card (the prompt)"
+                  placeholder={t("frontPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -142,13 +144,13 @@ export function FlashcardEditor({
                   htmlFor={`card-${ci}-back`}
                   className="text-[11px] text-muted-foreground"
                 >
-                  Back
+                  {t("back")}
                 </Label>
                 <Textarea
                   id={`card-${ci}-back`}
                   value={card.back}
                   onChange={(e) => updateCard(ci, { back: e.target.value })}
-                  placeholder="Back of the card (the answer)"
+                  placeholder={t("backPlaceholder")}
                   rows={2}
                 />
               </div>

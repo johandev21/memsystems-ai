@@ -1,4 +1,5 @@
 import { MoreVertical } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,8 @@ export function DeckCard({
   dueCount,
   className,
 }: DeckCardProps) {
+  const tCommon = useTranslations("Common");
+  const tHome = useTranslations("Home");
   return (
     <div
       className={cn(
@@ -36,7 +39,7 @@ export function DeckCard({
             className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200 -mr-1 -mt-1 p-1 cursor-pointer"
           >
             <MoreVertical className="size-4" />
-            <span className="sr-only">More options</span>
+            <span className="sr-only">{tCommon("moreOptions")}</span>
           </button>
         </div>
         <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
@@ -49,19 +52,19 @@ export function DeckCard({
           variant="outline"
           className="bg-muted/15 text-muted-foreground border-border/40 text-[10px] px-1.5 py-0.5 rounded-none font-normal"
         >
-          {newCount} new
+          {tHome("newCountText", { count: newCount })}
         </Badge>
         <Badge
           variant="outline"
           className="bg-muted/40 text-muted-foreground border-border/80 text-[10px] px-1.5 py-0.5 rounded-none font-normal"
         >
-          {learnCount} Learn
+          {tHome("learnCountText", { count: learnCount })}
         </Badge>
         <Badge
           variant="outline"
           className="bg-foreground/5 text-foreground border-foreground/15 text-[10px] px-1.5 py-0.5 font-medium rounded-none"
         >
-          {dueCount} Due
+          {tHome("dueCountText", { count: dueCount })}
         </Badge>
       </div>
     </div>

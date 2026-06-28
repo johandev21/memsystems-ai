@@ -25,6 +25,7 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,6 +101,8 @@ const getClosestNodeInDirection = (
 };
 
 function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
+  const t = useTranslations("MindMapView");
+  const tCommon = useTranslations("Common");
   const rawNodes = content.nodes || [];
   const rawEdges = content.edges || [];
 
@@ -320,9 +323,9 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
               size="sm"
               onClick={() => setDirection("LR")}
               className="h-7 px-2.5 text-xs font-semibold"
-              title="Horizontal Layout"
+              title={t("horizontalTooltip")}
             >
-              Horizontal
+              {t("horizontal")}
             </Button>
             <Button
               type="button"
@@ -330,9 +333,9 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
               size="sm"
               onClick={() => setDirection("TB")}
               className="h-7 px-2.5 text-xs font-semibold"
-              title="Vertical Layout"
+              title={t("verticalTooltip")}
             >
-              Vertical
+              {t("vertical")}
             </Button>
             <div className="h-4 w-px bg-border/60 mx-1" />
             <Button
@@ -344,10 +347,10 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
                 "h-7 px-2.5 text-xs font-semibold gap-1",
                 focusMode && "bg-primary text-primary-foreground",
               )}
-              title="Solo Focus Mode"
+              title={t("focusModeTooltip")}
             >
               <Focus className="h-3.5 w-3.5" />
-              Focus Mode
+              {t("focusMode")}
             </Button>
           </Panel>
 
@@ -359,7 +362,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <Input
               type="text"
-              placeholder="Search concepts..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-6 text-xs bg-transparent border-none p-0 focus-visible:ring-0 shadow-none"
@@ -370,7 +373,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
                 onClick={() => setSearchQuery("")}
                 className="text-[10px] text-muted-foreground hover:text-foreground font-semibold"
               >
-                Clear
+                {tCommon("clear")}
               </button>
             )}
           </Panel>
@@ -386,7 +389,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
               size="icon"
               className="h-7 w-7"
               onClick={() => fitView({ duration: 300 })}
-              title="Recenter and Fit View"
+              title={t("recenterTooltip")}
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </Button>
@@ -396,7 +399,11 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
               size="icon"
               className="h-7 w-7"
               onClick={() => setIsFullscreen((f) => !f)}
-              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+              title={
+                isFullscreen
+                  ? t("exitFullscreenTooltip")
+                  : t("enterFullscreenTooltip")
+              }
             >
               {isFullscreen ? (
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -411,9 +418,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-md border border-border/50 font-medium max-w-xs shadow-sm"
           >
             <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
-            <span>
-              Select nodes to inspect. Use Arrow keys to navigate geometrically.
-            </span>
+            <span>{t("navInstructions")}</span>
           </Panel>
 
           {/* Interactive Minimap */}
@@ -432,7 +437,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
         <Card className="p-4 border border-border bg-card shadow-sm space-y-3 animate-in slide-in-from-bottom-2 duration-200 shrink-0">
           <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
             <Network className="h-4 w-4 text-primary" />
-            <span>Concept Details</span>
+            <span>{t("conceptDetails")}</span>
           </div>
 
           <div className="space-y-1">
@@ -441,7 +446,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             </h3>
             {selectedNodeParent && (
               <p className="text-[11px] text-muted-foreground">
-                Parent Concept:{" "}
+                {t("parentConcept")}
                 <button
                   type="button"
                   onClick={() => setSelectedNodeId(selectedNodeParent.id)}
@@ -456,7 +461,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
           {selectedNodeChildren.length > 0 && (
             <div className="space-y-1.5">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                Sub-concepts / Connections ({selectedNodeChildren.length})
+                {t("subConcepts", { count: selectedNodeChildren.length })}
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {selectedNodeChildren.map((child) => {

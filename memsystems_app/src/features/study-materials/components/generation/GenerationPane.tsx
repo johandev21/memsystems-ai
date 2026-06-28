@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { clientLogger } from "@/lib/client-logger";
 import { type StudyMaterialKind, startGeneration } from "@/lib/generation";
@@ -32,6 +33,9 @@ export function GenerationPane({
   onComplete,
   onCancel,
 }: GenerationPaneProps) {
+  const t = useTranslations("GenerationPane");
+  const tCommon = useTranslations("Common");
+  const tNotebook = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const onCompleteRef = useRef(onComplete);
   const onCancelRef = useRef(onCancel);
@@ -75,13 +79,21 @@ export function GenerationPane({
             setStatus("done");
             log.info(
               "generation stream done event received, invalidating queries",
-              { notebookId },
+              { notebookId, materialId: event.materialId },
             );
 
             // Invalidate and await the query refetch to ensure the cache is updated
             await queryClient.invalidateQueries({
               queryKey: ["study-materials", notebookId],
             });
+
+            if (event.materialId) {
+              log.info("using materialId directly from done event", {
+                materialId: event.materialId,
+              });
+              onCompleteRef.current(event.materialId);
+              return;
+            }
 
             // Get updated list from cache
             const list =
@@ -167,7 +179,19 @@ export function GenerationPane({
   return (
     <div className="flex h-full flex-col min-w-0">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Generating {kindLabel(kind)}</h3>
+        <h3 className="text-sm font-semibold">
+          {t("generatingTitle", {
+            kind: tNotebook(
+              kind === "simple_flashcard"
+                ? "flashcards"
+                : kind === "slide_deck"
+                  ? "slideDeck"
+                  : kind === "mind_map"
+                    ? "mindMap"
+                    : kind,
+            ),
+          })}
+        </h3>
         {status !== "done" && status !== "error" && (
           <Button
             type="button"
@@ -176,7 +200,7 @@ export function GenerationPane({
             onClick={() => onCancelRef.current()}
           >
             <X className="h-3.5 w-3.5 mr-1" />
-            Cancel
+            {tCommon("cancel")}
           </Button>
         )}
       </div>
@@ -184,10 +208,10 @@ export function GenerationPane({
       <div className="flex-1 overflow-y-auto px-4 py-6 min-w-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {status === "connecting" && "Starting generation..."}
-          {status === "streaming" && "Writing material..."}
-          {status === "done" && "Generation complete."}
-          {status === "error" && "Generation failed."}
+          {status === "connecting" && t("starting")}
+          {status === "streaming" && t("writing")}
+          {status === "done" && t("complete")}
+          {status === "error" && t("failed")}
           {requestId && (
             <span className="ml-auto text-[10px] tabular-nums opacity-60">
               {requestId}
@@ -211,15 +235,4 @@ export function GenerationPane({
   );
 }
 
-function kindLabel(kind: StudyMaterialKind): string {
-  switch (kind) {
-    case "simple_flashcard":
-      return "Flashcards";
-    case "slide_deck":
-      return "Slide Deck";
-    case "mind_map":
-      return "Mind Map";
-    default:
-      return kind.charAt(0).toUpperCase() + kind.slice(1);
-  }
-}
+// kindLabel function removed — uses tNotebook translations inline

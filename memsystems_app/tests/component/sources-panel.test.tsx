@@ -188,6 +188,10 @@ describe("SourcesPanel", () => {
     const deleteButton = screen.getByRole("button", { name: "Delete source" });
     await user.click(deleteButton);
 
+    // Click confirmation action in AlertDialog
+    const confirmButton = screen.getByRole("button", { name: /^delete$/i });
+    await user.click(confirmButton);
+
     // The mutation should have been triggered with the source id.
     expect(mutationCalls).toEqual([{ type: "mutate", variables: "src-1" }]);
   });

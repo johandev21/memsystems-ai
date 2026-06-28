@@ -2,6 +2,7 @@
 
 import { Handle, Position } from "@xyflow/react";
 import { ChevronDown, ChevronRight, CircleDot } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export interface MindMapCustomNodeProps {
@@ -20,6 +21,7 @@ export interface MindMapCustomNodeProps {
 }
 
 export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
+  const t = useTranslations("MindMapView");
   const isHorizontal = data.direction !== "TB";
 
   // Custom node accent border/bg color
@@ -73,7 +75,11 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
               ? "right-0 translate-x-[50%] top-1/2 -translate-y-1/2"
               : "bottom-0 translate-y-[50%] left-1/2 -translate-x-1/2",
           )}
-          title={data.isCollapsed ? "Expand Branch" : "Collapse Branch"}
+          title={
+            data.isCollapsed
+              ? t("expandBranchTooltip")
+              : t("collapseBranchTooltip")
+          }
         >
           {data.isCollapsed ? (
             <ChevronRight className="h-3 w-3" />

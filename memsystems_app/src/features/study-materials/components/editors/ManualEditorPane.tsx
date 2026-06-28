@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { FlashcardEditor } from "./FlashcardEditor";
 import { QuizEditor } from "./QuizEditor";
@@ -51,12 +52,14 @@ export function ManualEditorPane({
 }
 
 function ComingSoonEditor({ kind }: { kind: StudyMaterialKind }) {
+  const t = useTranslations("StudyMaterials");
   return (
     <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-      <h3 className="text-sm font-semibold">{kind.replace("_", " ")} editor</h3>
+      <h3 className="text-sm font-semibold">
+        {t("kindEditor", { kind: kind.replace("_", " ") })}
+      </h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        Manual editing for this kind is not available yet. Try one of the
-        supported types: Quiz, Flashcards, Roadmap.
+        {t("manualEditorUnavailable")}
       </p>
     </div>
   );

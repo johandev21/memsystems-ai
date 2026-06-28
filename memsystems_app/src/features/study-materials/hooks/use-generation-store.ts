@@ -171,27 +171,33 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
               };
             });
           } else if (event.type === "done") {
-            log.info("Background stream finished successfully", { requestId });
+            log.info("Background stream finished successfully", {
+              requestId,
+              materialId: event.materialId,
+            });
 
             // Invalidate TanStack query cache so new study materials load
             await queryClient.invalidateQueries({
               queryKey: ["study-materials", notebookId],
             });
 
-            // Retrieve updated materials list from TanStack Query cache
-            const list =
-              queryClient.getQueryData<StudyMaterialDTO[]>([
-                "study-materials",
-                notebookId,
-              ]) || [];
-            const matching = list.filter((m) => m.kind === input.kind);
-            matching.sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-            );
+            let viewMaterialId = event.materialId;
 
-            const newestMaterial = matching[0];
+            if (!viewMaterialId) {
+              // Retrieve updated materials list from TanStack Query cache
+              const list =
+                queryClient.getQueryData<StudyMaterialDTO[]>([
+                  "study-materials",
+                  notebookId,
+                ]) || [];
+              const matching = list.filter((m) => m.kind === input.kind);
+              matching.sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              );
+              viewMaterialId = matching[0]?.id;
+            }
 
             // Remove from active background tasks
             set((state) => {
@@ -204,10 +210,10 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
             const label = kindLabel(input.kind);
             toast.success(`${label} generated successfully!`, {
               action:
-                newestMaterial && onComplete
+                viewMaterialId && onComplete
                   ? {
                       label: "View",
-                      onClick: () => onComplete(newestMaterial.id),
+                      onClick: () => onComplete(viewMaterialId),
                     }
                   : undefined,
               duration: 8000,

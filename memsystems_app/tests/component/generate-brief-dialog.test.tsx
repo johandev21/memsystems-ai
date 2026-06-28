@@ -89,6 +89,8 @@ beforeEach(() => {
   localStorage.clear();
   queryCache.clear();
   queryCache.set(["connection-status"], MOCK_CONNECTION);
+  queryCache.set(["connection-status", null], MOCK_CONNECTION);
+  queryCache.set(["connection-status", undefined], MOCK_CONNECTION);
 });
 
 afterEach(() => {

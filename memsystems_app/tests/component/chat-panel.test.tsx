@@ -179,6 +179,8 @@ beforeEach(() => {
   queryCache.clear();
   queryCache.set(["models"], MODELS);
   queryCache.set(["connection-status"], MOCK_CONNECTION);
+  queryCache.set(["connection-status", null], MOCK_CONNECTION);
+  queryCache.set(["connection-status", undefined], MOCK_CONNECTION);
   queryCache.set(["notebooks", "notebook-a"], notebookA);
   queryCache.set(["notebooks", "notebook-b"], notebookB);
   queryCache.set(["chat", "notebook-a", "messages"], historyA);

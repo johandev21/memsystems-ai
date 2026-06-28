@@ -16,7 +16,23 @@ import { type ComponentProps, useState } from "react";
 import { Streamdown } from "streamdown";
 import "streamdown/styles.css";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { MessageScrollerItem } from "@/components/ui/message-scroller";
+import {
+  Message,
+  MessageContent,
+  MessageFooter,
+} from "@/components/ui/message";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import {
+  Attachment,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentContent,
+  AttachmentTitle,
+  AttachmentDescription,
+  AttachmentTrigger,
+} from "@/components/ui/attachment";
+import { Marker, MarkerIcon, MarkerContent } from "@/components/ui/marker";
 
 interface CitedSourceInfo {
   id: string;
@@ -44,21 +60,35 @@ export function ChatMessageList({
 }: ChatMessageListProps) {
   return (
     <div className="w-full flex-1">
-      {messages.map((message, index) => (
-        <MessageBubble
-          key={message.id}
-          message={message}
-          citedSources={citedSourcesByMessageId?.get(message.id)}
-          onCopy={onCopy}
-          onRegenerate={onRegenerate}
-          isLast={index === messages.length - 1}
-        />
-      ))}
+      {messages.map((message, index) => {
+        const isLast = index === messages.length - 1;
+        return (
+          <MessageScrollerItem
+            key={message.id}
+            scrollAnchor={isLast && !isThinking}
+            className="mb-6"
+          >
+            <MessageBubble
+              message={message}
+              citedSources={citedSourcesByMessageId?.get(message.id)}
+              onCopy={onCopy}
+              onRegenerate={onRegenerate}
+              isLast={isLast}
+            />
+          </MessageScrollerItem>
+        );
+      })}
       {isThinking && (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Thinking...
-        </div>
+        <MessageScrollerItem scrollAnchor={true} className="mb-6">
+          <Marker>
+            <MarkerIcon>
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            </MarkerIcon>
+            <MarkerContent className="shimmer text-[14px]">
+              Thinking...
+            </MarkerContent>
+          </Marker>
+        </MessageScrollerItem>
       )}
     </div>
   );
@@ -81,46 +111,41 @@ function MessageBubble({
 }: MessageBubbleProps) {
   const isUser = message.role === "user";
 
+  if (isUser) {
+    return <UserMessage message={message} />;
+  }
+
   return (
-    <div
-      className={cn(
-        "mb-6 flex w-full",
-        isUser ? "justify-end" : "justify-start",
-      )}
-    >
-      {isUser ? (
-        <UserMessage message={message} />
-      ) : (
-        <AssistantMessage
-          message={message}
-          citedSources={citedSources}
-          onCopy={onCopy}
-          onRegenerate={onRegenerate}
-          showRegenerate={isLast}
-        />
-      )}
-    </div>
+    <AssistantMessage
+      message={message}
+      citedSources={citedSources}
+      onCopy={onCopy}
+      onRegenerate={onRegenerate}
+      showRegenerate={isLast}
+    />
   );
 }
 
 function UserMessage({ message }: { message: UIMessage }) {
   return (
-    <div
-      className={cn(
-        "max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground shadow-sm",
-      )}
-    >
-      {message.parts.map((part, index) =>
-        isTextPart(part) ? (
-          <p
-            key={`${message.id}-${index}`}
-            className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium"
-          >
-            {part.text}
-          </p>
-        ) : null,
-      )}
-    </div>
+    <Message align="end">
+      <MessageContent>
+        <Bubble variant="default">
+          <BubbleContent className="px-4 py-2.5 text-[15px] font-medium">
+            {message.parts.map((part, index) =>
+              isTextPart(part) ? (
+                <p
+                  key={`${message.id}-${index}`}
+                  className="whitespace-pre-wrap"
+                >
+                  {part.text}
+                </p>
+              ) : null,
+            )}
+          </BubbleContent>
+        </Bubble>
+      </MessageContent>
+    </Message>
   );
 }
 
@@ -147,43 +172,60 @@ function AssistantMessage({
 
   if (fullText.trim() === "") {
     return (
-      <div className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 p-5 shadow-sm">
-        <div className="flex flex-col gap-2.5 animate-pulse">
-          <div className="h-4 bg-muted-foreground/20 rounded-md w-[85%]" />
-          <div className="h-4 bg-muted-foreground/20 rounded-md w-[60%]" />
-          <div className="h-4 bg-muted-foreground/20 rounded-md w-[40%]" />
-        </div>
-      </div>
+      <Message align="start">
+        <MessageContent>
+          <Bubble variant="outline" className="max-w-[85%] w-full">
+            <BubbleContent className="p-5">
+              <div className="flex flex-col gap-2.5 animate-pulse">
+                <div className="h-4 bg-muted-foreground/20 rounded-md w-[85%]" />
+                <div className="h-4 bg-muted-foreground/20 rounded-md w-[60%]" />
+                <div className="h-4 bg-muted-foreground/20 rounded-md w-[40%]" />
+              </div>
+            </BubbleContent>
+          </Bubble>
+        </MessageContent>
+      </Message>
     );
   }
 
   return (
-    <div className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 p-5 shadow-sm">
-      {message.parts.map((part, index) =>
-        isTextPart(part) ? (
-          <div key={`${message.id}-${index}`} className="sd-root">
-            <Streamdown
-              shikiTheme={["github-light", "github-dark"]}
-              components={streamdownComponents}
-              plugins={{ code }}
-            >
-              {sanitizeCitations(part.text)}
-            </Streamdown>
-          </div>
-        ) : null,
-      )}
-      {!isStreaming && citedSources && citedSources.length > 0 && (
-        <CitedSources sources={citedSources} />
-      )}
-      {!isStreaming && (
-        <MessageActions
-          fullText={fullText}
-          onCopy={onCopy}
-          onRegenerate={onRegenerate}
-          showRegenerate={showRegenerate}
-        />
-      )}
-    </div>
+    <Message align="start">
+      <MessageContent>
+        <Bubble
+          variant="outline"
+          className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 shadow-sm"
+        >
+          <BubbleContent className="p-5">
+            {message.parts.map((part, index) =>
+              isTextPart(part) ? (
+                <div key={`${message.id}-${index}`} className="sd-root">
+                  <Streamdown
+                    shikiTheme={["github-light", "github-dark"]}
+                    components={streamdownComponents}
+                    plugins={{ code }}
+                  >
+                    {sanitizeCitations(part.text)}
+                  </Streamdown>
+                </div>
+              ) : null,
+            )}
+            {!isStreaming && citedSources && citedSources.length > 0 && (
+              <CitedSources sources={citedSources} />
+            )}
+            {!isStreaming && (
+              <MessageFooter className="px-0 mt-3">
+                <MessageActions
+                  fullText={fullText}
+                  onCopy={onCopy}
+                  onRegenerate={onRegenerate}
+                  showRegenerate={showRegenerate}
+                />
+              </MessageFooter>
+            )}
+          </BubbleContent>
+        </Bubble>
+      </MessageContent>
+    </Message>
   );
 }
 
@@ -239,41 +281,49 @@ function CitedSources({ sources }: { sources: CitedSourceInfo[] }) {
         <BookOpen className="h-3 w-3" />
         Sources
       </span>
-      <div className="flex flex-wrap gap-1.5">
+      <AttachmentGroup className="flex-wrap gap-2">
         {sources.map((source) => {
           const Icon = sourceIcon(source.kind);
-          const badge = (
-            <span
+
+          return (
+            <Attachment
               key={source.id}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
-                "text-xs font-medium transition-colors",
-                "bg-primary/8 text-primary/80 hover:bg-primary/14 hover:text-primary",
-                "border border-primary/12",
-              )}
+              size="xs"
+              orientation="horizontal"
+              className="max-w-64 border-border/60 hover:bg-muted/40 transition-colors"
             >
-              <Icon className="h-3 w-3 shrink-0" />
-              <span className="truncate max-w-48">{source.title}</span>
-            </span>
+              <AttachmentTrigger asChild>
+                {source.url ? (
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="sr-only">Open {source.title}</span>
+                  </a>
+                ) : (
+                  <button type="button">
+                    <span className="sr-only">{source.title}</span>
+                  </button>
+                )}
+              </AttachmentTrigger>
+              <AttachmentMedia>
+                <Icon className="h-3.5 w-3.5" />
+              </AttachmentMedia>
+              <AttachmentContent>
+                <AttachmentTitle className="max-w-[180px] truncate">
+                  {source.title}
+                </AttachmentTitle>
+                {source.url && (
+                  <AttachmentDescription className="max-w-[180px] truncate">
+                    {new URL(source.url).hostname}
+                  </AttachmentDescription>
+                )}
+              </AttachmentContent>
+            </Attachment>
           );
-
-          if (source.url) {
-            return (
-              <a
-                key={source.id}
-                href={source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="no-underline"
-              >
-                {badge}
-              </a>
-            );
-          }
-
-          return badge;
         })}
-      </div>
+      </AttachmentGroup>
     </div>
   );
 }

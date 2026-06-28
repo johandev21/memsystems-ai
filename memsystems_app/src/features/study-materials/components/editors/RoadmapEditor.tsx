@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,8 @@ export function RoadmapEditor({
   onSaved,
   onCancel,
 }: RoadmapEditorProps) {
-  const [title, setTitle] = useState("Untitled Roadmap");
+  const t = useTranslations("StudyMaterials");
+  const [title, setTitle] = useState(t("untitledRoadmap"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<RoadmapEditorContentType>(
     () => createEmptyStudyMaterial("roadmap") as RoadmapEditorContentType,
@@ -67,13 +69,13 @@ export function RoadmapEditor({
         ...prev.phases,
         {
           id: makeId(),
-          title: `Phase ${prev.phases.length + 1}`,
+          title: t("phaseDefault", { number: prev.phases.length + 1 }),
           description: "",
           order: prev.phases.length,
           topics: [
             {
               id: makeId(),
-              title: "Topic 1",
+              title: t("topicDefault", { number: 1 }),
               description: "",
               order: 0,
             },
@@ -102,7 +104,7 @@ export function RoadmapEditor({
             ...p.topics,
             {
               id: makeId(),
-              title: `Topic ${p.topics.length + 1}`,
+              title: t("topicDefault", { number: p.topics.length + 1 }),
               description: "",
               order: p.topics.length,
             },
@@ -141,7 +143,7 @@ export function RoadmapEditor({
       onCancel={onCancel}
     >
       <div className="space-y-1.5">
-        <Label htmlFor="roadmap-description">Description (optional)</Label>
+        <Label htmlFor="roadmap-description">{t("descriptionOptional")}</Label>
         <Textarea
           id="roadmap-description"
           value={content.description ?? ""}
@@ -151,13 +153,13 @@ export function RoadmapEditor({
               description: e.target.value,
             }))
           }
-          placeholder="What is this roadmap about?"
+          placeholder={t("roadmapDescPlaceholder")}
           rows={2}
         />
       </div>
 
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Phases</Label>
+        <Label className="text-sm font-medium">{t("phases")}</Label>
         <Button
           type="button"
           variant="outline"
@@ -166,7 +168,7 @@ export function RoadmapEditor({
           disabled={content.phases.length >= 20}
         >
           <Plus className="h-3.5 w-3.5 mr-1" />
-          Add phase
+          {t("addPhase")}
         </Button>
       </div>
 
@@ -178,7 +180,7 @@ export function RoadmapEditor({
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
-                Phase {pi + 1}
+                {t("phaseNumber", { number: pi + 1 })}
               </span>
               <Button
                 type="button"
@@ -186,7 +188,7 @@ export function RoadmapEditor({
                 size="icon-sm"
                 onClick={() => removePhase(pi)}
                 disabled={content.phases.length <= 1}
-                aria-label="Remove phase"
+                aria-label={t("removePhaseAria")}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -194,17 +196,17 @@ export function RoadmapEditor({
             <Input
               value={phase.title}
               onChange={(e) => updatePhase(pi, { title: e.target.value })}
-              placeholder="Phase title"
+              placeholder={t("phaseTitlePlaceholder")}
             />
             <Textarea
               value={phase.description ?? ""}
               onChange={(e) => updatePhase(pi, { description: e.target.value })}
-              placeholder="Phase description (optional)"
+              placeholder={t("phaseDescPlaceholder")}
               rows={2}
             />
 
             <div className="space-y-1.5 pl-3 border-l-2 border-border/40">
-              <Label className="text-xs">Topics</Label>
+              <Label className="text-xs">{t("topics")}</Label>
               {phase.topics.map((topic, ti) => (
                 <div key={topic.id} className="space-y-1">
                   <div className="flex items-center gap-1.5">
@@ -213,7 +215,7 @@ export function RoadmapEditor({
                       onChange={(e) =>
                         updateTopic(pi, ti, { title: e.target.value })
                       }
-                      placeholder="Topic title"
+                      placeholder={t("topicTitlePlaceholder")}
                       className="h-8"
                     />
                     <Button
@@ -222,7 +224,7 @@ export function RoadmapEditor({
                       size="icon-sm"
                       onClick={() => removeTopic(pi, ti)}
                       disabled={phase.topics.length <= 1}
-                      aria-label="Remove topic"
+                      aria-label={t("removeTopicAria")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -232,7 +234,7 @@ export function RoadmapEditor({
                     onChange={(e) =>
                       updateTopic(pi, ti, { description: e.target.value })
                     }
-                    placeholder="Topic description (optional)"
+                    placeholder={t("topicDescPlaceholder")}
                     className="h-7 text-xs"
                   />
                 </div>
@@ -246,7 +248,7 @@ export function RoadmapEditor({
                 className="w-full"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                Add topic
+                {t("addTopic")}
               </Button>
             </div>
           </div>

@@ -13,7 +13,13 @@ import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  MessageScrollerProvider,
+  MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerButton,
+} from "@/components/ui/message-scroller";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
 import {
@@ -175,11 +181,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
 
   const isLoading = status === "submitted" || status === "streaming";
   const messageCount = messages.length;
-  const lastAssistantParts = messages
-    .filter((message) => message.role === "assistant")
-    .at(-1)?.parts;
 
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const composerTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState("");
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
@@ -211,16 +213,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       toast.error(err.message);
     },
   });
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new content
-  useEffect(() => {
-    const viewport = scrollAreaRef.current?.querySelector(
-      '[data-slot="scroll-area-viewport"]',
-    );
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
-    }
-  }, [messageCount, lastAssistantParts, status]);
 
   const handleSubmit = useCallback(
     (event?: FormEvent) => {
@@ -254,36 +246,41 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   return (
     <div className="flex flex-1 h-full w-full flex-col min-h-0">
       <div className="mx-auto w-full max-w-3xl flex flex-col min-h-0 flex-1">
-        <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
-          <div className="p-2 min-h-full flex flex-col justify-start">
-            <NotebookBanner
-              title={notebook.title}
-              icon={notebook.icon}
-              bannerUrl={notebook.bannerUrl}
-              bannerFocalPoint={notebook.bannerFocalPoint}
-              updatedAt={notebook.updatedAt}
-              isUntitled={showBannerAsUntitled}
-            />
+        <MessageScrollerProvider autoScroll>
+          <MessageScroller className="flex-1 min-h-0">
+            <MessageScrollerViewport className="scroll-fade-b scrollbar-thin scrollbar-gutter-stable">
+              <MessageScrollerContent className="p-2 min-h-full flex flex-col justify-start gap-0">
+                <NotebookBanner
+                  title={notebook.title}
+                  icon={notebook.icon}
+                  bannerUrl={notebook.bannerUrl}
+                  bannerFocalPoint={notebook.bannerFocalPoint}
+                  updatedAt={notebook.updatedAt}
+                  isUntitled={showBannerAsUntitled}
+                />
 
-            <div>
-              {hasMessages ? (
-                <ChatMessageList
-                  messages={messages}
-                  citedSourcesByMessageId={citedSourcesByMessageId}
-                  isThinking={status === "submitted"}
-                  onCopy={handleCopy}
-                  onRegenerate={handleRegenerate}
-                />
-              ) : (
-                <ChatEmptyState
-                  notebookTitle={notebook.title}
-                  description={notebook.description}
-                  isUntitled={isUntitled}
-                />
-              )}
-            </div>
-          </div>
-        </ScrollArea>
+                <div className="w-full flex-1 flex flex-col justify-start">
+                  {hasMessages ? (
+                    <ChatMessageList
+                      messages={messages}
+                      citedSourcesByMessageId={citedSourcesByMessageId}
+                      isThinking={status === "submitted"}
+                      onCopy={handleCopy}
+                      onRegenerate={handleRegenerate}
+                    />
+                  ) : (
+                    <ChatEmptyState
+                      notebookTitle={notebook.title}
+                      description={notebook.description}
+                      isUntitled={isUntitled}
+                    />
+                  )}
+                </div>
+              </MessageScrollerContent>
+            </MessageScrollerViewport>
+            <MessageScrollerButton direction="end" />
+          </MessageScroller>
+        </MessageScrollerProvider>
 
         <div className="shrink-0 p-2">
           <ClearHistoryDialog

@@ -52,16 +52,13 @@ export function OpenAIKeyPrompt({
       });
 
       if (!res.ok) {
-        throw new Error("Failed to save API key");
+        throw new Error(t("failSave"));
       }
 
       const status = await res.json();
 
       if (!status.openai?.ok) {
-        throw new Error(
-          status.openai?.detail ??
-            "Verification failed. Please check if your API key is correct.",
-        );
+        throw new Error(status.openai?.detail ?? t("verificationFailedDesc"));
       }
 
       toast.success(t("verifiedAndSaved"));

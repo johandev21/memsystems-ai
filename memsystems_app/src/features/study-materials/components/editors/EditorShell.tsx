@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Save, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +41,9 @@ export function EditorShell({
   onCancel,
   children,
 }: EditorShellProps) {
+  const tNotebook = useTranslations("Notebook");
+  const tStudy = useTranslations("StudyMaterials");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +59,7 @@ export function EditorShell({
       queryClient.invalidateQueries({
         queryKey: ["study-materials", notebookId],
       });
-      toast.success(`${kindLabel(kind)} saved`);
+      toast.success(tStudy("materialSaved", { kind: kindLabel(kind) }));
       onSaved(created.id);
     },
     onError: (err: Error) => {
@@ -71,7 +75,9 @@ export function EditorShell({
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">New {kindLabel(kind)}</h3>
+        <h3 className="text-sm font-semibold">
+          {tNotebook("newMaterialTitle", { kind: kindLabel(kind) })}
+        </h3>
         <div className="flex items-center gap-1.5">
           <Button
             type="button"
@@ -81,7 +87,7 @@ export function EditorShell({
             disabled={createMutation.isPending}
           >
             <X className="h-3.5 w-3.5 mr-1" />
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             type="button"
@@ -94,7 +100,7 @@ export function EditorShell({
             ) : (
               <Save className="h-3.5 w-3.5 mr-1" />
             )}
-            Save
+            {tCommon("save")}
           </Button>
         </div>
       </div>
@@ -107,23 +113,23 @@ export function EditorShell({
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="editor-title">Title</Label>
+          <Label htmlFor="editor-title">{tNotebook("title")}</Label>
           <Input
             id="editor-title"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="e.g. Biology Final"
+            placeholder={tNotebook("titlePlaceholder")}
             maxLength={200}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Folder</Label>
+          <Label>{tNotebook("folder")}</Label>
           <FolderPicker
             notebookId={notebookId}
             value={folderId}
             onChange={onFolderChange}
-            placeholder="Notebook root"
+            placeholder={tNotebook("notebookRoot")}
           />
         </div>
 

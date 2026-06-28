@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function SlideDeckView({
   materialId: _materialId,
   content,
 }: SlideDeckViewProps) {
+  const t = useTranslations("SlideDeckView");
   const slides = content.slides || [];
   const totalSlides = slides.length;
 
@@ -113,7 +115,7 @@ export function SlideDeckView({
     }
   };
 
-  const currentSlide = slides[currentIdx] || { title: "No Slides", body: "" };
+  const currentSlide = slides[currentIdx] || { title: t("noSlides"), body: "" };
 
   // Slide transition animation definitions
   const slideVariants = {
@@ -174,7 +176,10 @@ export function SlideDeckView({
         {isFullscreen && (
           <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-10 select-none bg-background/60 backdrop-blur-md px-4 py-2 rounded-lg border border-border">
             <span className="text-xs font-semibold text-muted-foreground font-mono">
-              Slide {currentIdx + 1} of {totalSlides}
+              {t("slideProgress", {
+                current: currentIdx + 1,
+                total: totalSlides,
+              })}
             </span>
             <Button
               type="button"
@@ -184,7 +189,7 @@ export function SlideDeckView({
               className="h-8 text-xs cursor-pointer"
             >
               <Minimize2 className="h-4 w-4 mr-1.5" />
-              Exit Fullscreen
+              {t("exitFullscreen")}
             </Button>
           </div>
         )}
@@ -230,12 +235,15 @@ export function SlideDeckView({
               className="h-8 w-8 cursor-pointer"
               onClick={handleReset}
               disabled={currentIdx === 0}
-              title="Restart Presentation"
+              title={t("restartPresentationTooltip")}
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </Button>
             <span className="text-xs font-semibold text-muted-foreground font-mono">
-              {currentIdx + 1} / {totalSlides}
+              {t("slideProgress", {
+                current: currentIdx + 1,
+                total: totalSlides,
+              })}
             </span>
           </div>
 
@@ -272,7 +280,7 @@ export function SlideDeckView({
                 onClick={() => setShowNotes(!showNotes)}
               >
                 <FileText className="h-3.5 w-3.5 mr-1.5" />
-                Notes
+                {t("notes")}
               </Button>
             )}
             <Button
@@ -281,7 +289,11 @@ export function SlideDeckView({
               size="icon"
               className="h-8 w-8 cursor-pointer"
               onClick={toggleFullscreen}
-              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+              title={
+                isFullscreen
+                  ? t("exitFullscreenTooltip")
+                  : t("enterFullscreenTooltip")
+              }
             >
               {isFullscreen ? (
                 <Minimize2 className="h-4 w-4" />
@@ -298,7 +310,7 @@ export function SlideDeckView({
         <div className="w-full max-w-3xl border border-border bg-card p-4 rounded-xl shadow-sm space-y-2 animate-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
             <FileText className="h-4 w-4 text-primary" />
-            <span>Speaker Notes</span>
+            <span>{t("speakerNotes")}</span>
           </div>
           <p className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">
             {currentSlide.notes}
@@ -309,8 +321,7 @@ export function SlideDeckView({
       {/* Presentation Mode Helper Tip */}
       {!isFullscreen && (
         <div className="text-[10px] text-muted-foreground/60 flex items-center gap-1 select-none">
-          <Play className="h-3 w-3" /> Tip: Use left/right arrow keys or
-          spacebar to control slides.
+          <Play className="h-3 w-3" /> {t("keyboardTip")}
         </div>
       )}
     </div>

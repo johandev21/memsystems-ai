@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type {
   FlashcardEditorContentType,
@@ -24,6 +25,7 @@ export interface MaterialViewerProps {
 }
 
 export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
+  const t = useTranslations("Common");
   console.log("[MaterialViewer] Rendering material:", material);
   return (
     <div className="flex h-full flex-col">
@@ -31,7 +33,7 @@ export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
         <h3 className="text-sm font-semibold truncate">{material.title}</h3>
         <Button type="button" variant="ghost" size="sm" onClick={onClose}>
           <X className="h-3.5 w-3.5 mr-1" />
-          Close
+          {t("close")}
         </Button>
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-4">

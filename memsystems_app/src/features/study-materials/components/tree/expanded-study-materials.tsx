@@ -23,7 +23,6 @@ import {
   RightPane,
   type RightPaneMode,
 } from "@/features/notebook/components/studio/right-pane";
-import { modelsQueryOptions } from "@/lib/models";
 import { studyMaterialsQueryOptions } from "@/lib/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import { StudyMaterialsTree } from "./study-materials-tree";
@@ -46,8 +45,7 @@ export function ExpandedStudyMaterials({
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
-  const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
-  const models = useSuspenseQuery(modelsQueryOptions);
+  const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
 
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
   const hasMaterials =
@@ -58,7 +56,7 @@ export function ExpandedStudyMaterials({
       if (initialMaterialId) {
         setMode({ kind: "viewer", materialId: initialMaterialId });
       } else {
-        setMode({ kind: "picker" });
+        setMode({ kind: "select" });
       }
     }
   }, [isOpen, initialMaterialId]);
@@ -140,7 +138,6 @@ export function ExpandedStudyMaterials({
                   notebookId={notebookId}
                   mode={mode}
                   onModeChange={setMode}
-                  models={models.data}
                 />
               </ResizablePanel>
             </ResizablePanelGroup>
@@ -150,3 +147,4 @@ export function ExpandedStudyMaterials({
     </Dialog>
   );
 }
+

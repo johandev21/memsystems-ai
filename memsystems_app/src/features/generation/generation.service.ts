@@ -134,17 +134,24 @@ export class GenerationService {
             })
             .where(eq(generationRequests.id, request.id));
 
-          await db.insert(studyMaterials).values({
-            notebookId,
-            kind: input.kind,
-            title: this.generateTitle(input.kind, normalized),
-            content: validated,
-            folderId: input.folderId ?? null,
-          });
+          const [inserted] = await db
+            .insert(studyMaterials)
+            .values({
+              notebookId,
+              kind: input.kind,
+              title: this.generateTitle(input.kind, normalized),
+              content: validated,
+              folderId: input.folderId ?? null,
+            })
+            .returning();
 
           controller.enqueue(
             new TextEncoder().encode(
-              JSON.stringify({ done: true, requestId: request.id }) + "\n",
+              JSON.stringify({
+                done: true,
+                requestId: request.id,
+                materialId: inserted.id,
+              }) + "\n",
             ),
           );
           controller.close();
@@ -271,17 +278,24 @@ export class GenerationService {
               })
               .where(eq(generationRequests.id, request.id));
 
-            await db.insert(studyMaterials).values({
-              notebookId,
-              kind: input.kind,
-              title: this.generateTitle(input.kind, normalizedContent),
-              content: validated,
-              folderId: input.folderId ?? null,
-            });
+            const [inserted] = await db
+              .insert(studyMaterials)
+              .values({
+                notebookId,
+                kind: input.kind,
+                title: this.generateTitle(input.kind, normalizedContent),
+                content: validated,
+                folderId: input.folderId ?? null,
+              })
+              .returning();
 
             controller.enqueue(
               new TextEncoder().encode(
-                JSON.stringify({ done: true, requestId: request.id }) + "\n",
+                JSON.stringify({
+                  done: true,
+                  requestId: request.id,
+                  materialId: inserted.id,
+                }) + "\n",
               ),
             );
             controller.close();

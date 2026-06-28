@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +21,8 @@ export interface QuizEditorProps {
 }
 
 export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
-  const [title, setTitle] = useState("Untitled Quiz");
+  const t = useTranslations("StudyMaterials");
+  const [title, setTitle] = useState(t("untitledQuiz"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<QuizEditorContentType>(
     () => createEmptyStudyMaterial("quiz") as QuizEditorContentType,
@@ -64,10 +66,16 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
         ...prev.questions,
         {
           id: makeId(),
-          prompt: `Question ${prev.questions.length + 1}`,
+          prompt: t("questionDefault", { number: prev.questions.length + 1 }),
           options: [
-            { text: "Option A", explanation: "Explanation A" },
-            { text: "Option B", explanation: "Explanation B" },
+            {
+              text: t("optionDefault", { letter: "A" }),
+              explanation: t("explanationDefault", { letter: "A" }),
+            },
+            {
+              text: t("optionDefault", { letter: "B" }),
+              explanation: t("explanationDefault", { letter: "B" }),
+            },
           ],
           correctOptionIndex: 0,
         },
@@ -135,7 +143,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Questions</Label>
+          <Label className="text-sm font-medium">{t("questions")}</Label>
           <Button
             type="button"
             variant="outline"
@@ -144,7 +152,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
             disabled={content.questions.length >= 50}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Add question
+            {t("addQuestion")}
           </Button>
         </div>
 
@@ -155,7 +163,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
-                Question {qi + 1}
+                {t("questionNumber", { number: qi + 1 })}
               </span>
               <Button
                 type="button"
@@ -163,7 +171,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                 size="icon-sm"
                 onClick={() => removeQuestion(qi)}
                 disabled={content.questions.length <= 1}
-                aria-label="Remove question"
+                aria-label={t("removeQuestionAria")}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -172,7 +180,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
             <Textarea
               value={q.prompt}
               onChange={(e) => updateQuestion(qi, { prompt: e.target.value })}
-              placeholder="Question prompt"
+              placeholder={t("questionPromptPlaceholder")}
               rows={2}
             />
 
@@ -201,7 +209,9 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                           : "border-muted-foreground/40",
                       )}
                       aria-label={
-                        isCorrect ? "Correct answer" : "Mark as correct"
+                        isCorrect
+                          ? t("correctAnswerAria")
+                          : t("markCorrectAria")
                       }
                     />
                     <div className="flex-1 space-y-1">
@@ -210,7 +220,9 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                         onChange={(e) =>
                           updateOption(qi, oi, { text: e.target.value })
                         }
-                        placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                        placeholder={t("optionPlaceholder", {
+                          letter: String.fromCharCode(65 + oi),
+                        })}
                         className="h-8"
                       />
                       <Input
@@ -218,7 +230,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                         onChange={(e) =>
                           updateOption(qi, oi, { explanation: e.target.value })
                         }
-                        placeholder="Explanation (shown after answering)"
+                        placeholder={t("explanationPlaceholder")}
                         className="h-8 text-xs"
                       />
                     </div>
@@ -228,7 +240,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                       size="icon-sm"
                       onClick={() => removeOption(qi, oi)}
                       disabled={q.options.length <= 2}
-                      aria-label="Remove option"
+                      aria-label={t("removeOptionAria")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -245,7 +257,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                 className="w-full"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                Add option
+                {t("addOption")}
               </Button>
             </div>
           </div>

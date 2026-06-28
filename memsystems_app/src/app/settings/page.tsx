@@ -259,7 +259,7 @@ export default function ConfigurationsPage() {
 
             {isPending ? (
               <div className="text-sm text-muted-foreground animate-pulse">
-                Checking OpenAI...
+                {t("checkingOpenai")}
               </div>
             ) : connection?.openai ? (
               <div className="space-y-4 pt-2 border-t border-border/40">

@@ -13,7 +13,8 @@ const generationCalls: Array<{ notebookId: string; input: unknown }> = [];
 
 function makeStream(
   events: Array<
-    { type: "partial"; content: unknown } | { type: "done"; requestId: string }
+    | { type: "partial"; content: unknown }
+    | { type: "done"; requestId: string; materialId?: string }
   >,
 ) {
   return (async function* () {
@@ -135,6 +136,40 @@ describe("GenerationPane", () => {
 
     await waitFor(() => {
       expect(onComplete).toHaveBeenCalledWith("sm-new");
+    });
+  });
+
+  it("calls onComplete with materialId directly when done event yields it", async () => {
+    const { startGeneration } = await import("@/lib/generation");
+    (
+      startGeneration as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValueOnce({
+      requestIdPromise: Promise.resolve("req-2"),
+      stream: makeStream([
+        { type: "partial" as const, content: { questions: [] } },
+        {
+          type: "done" as const,
+          requestId: "req-2",
+          materialId: "sm-direct-id",
+        },
+      ]),
+    });
+
+    const onComplete = vi.fn();
+    render(
+      <GenerationPane
+        notebookId="nb-1"
+        kind="quiz"
+        brief="make a quiz"
+        sourceIds={["s1"]}
+        folderId={null}
+        onComplete={onComplete}
+        onCancel={() => {}}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onComplete).toHaveBeenCalledWith("sm-direct-id");
     });
   });
 

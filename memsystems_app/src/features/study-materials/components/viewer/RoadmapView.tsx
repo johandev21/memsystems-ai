@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useRoadmapProgress } from "./useRoadmapProgress";
@@ -19,6 +20,7 @@ export interface RoadmapViewProps {
 }
 
 export function RoadmapView({ materialId, content }: RoadmapViewProps) {
+  const t = useTranslations("RoadmapView");
   const {
     completedTopics,
     expandedPhases,
@@ -34,9 +36,12 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-2 animate-in fade-in duration-200">
         <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
-          <span>Roadmap Progress</span>
+          <span>{t("roadmapProgress")}</span>
           <span>
-            {completedCount} / {totalTopicsCount} Topics Mastered
+            {t("topicsMastered", {
+              completed: completedCount,
+              total: totalTopicsCount,
+            })}
           </span>
         </div>
         <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
@@ -47,7 +52,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
         </div>
         <div className="flex items-center justify-between text-xs pt-1">
           <span className="font-bold text-foreground">
-            {progressPercent}% Mastered
+            {t("percentMastered", { percent: progressPercent })}
           </span>
           {completedCount > 0 && (
             <button
@@ -55,7 +60,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
               onClick={resetProgress}
               className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[10px]"
             >
-              Reset Progress
+              {t("resetProgress")}
             </button>
           )}
         </div>
@@ -63,7 +68,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
 
       {progressPercent === 100 && (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-center text-xs font-medium text-emerald-800 dark:text-emerald-300 animate-in zoom-in-95 duration-200">
-          Roadmap Completed! 🎉 You have mastered all topics!
+          {t("completedSuccess")}
         </div>
       )}
 
@@ -120,7 +125,10 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-auto">
                       <span className="text-[10px] bg-muted/80 px-2 py-0.5 rounded-full font-mono tabular-nums text-muted-foreground">
-                        {phaseCompletedCount}/{phaseTopics.length} Done
+                        {t("phaseDoneCount", {
+                          completed: phaseCompletedCount,
+                          total: phaseTopics.length,
+                        })}
                       </span>
                       {isExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />

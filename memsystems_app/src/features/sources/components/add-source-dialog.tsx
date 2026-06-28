@@ -259,7 +259,7 @@ export function AddSourceDialog({
               {/* Full-area click target for file upload (sits behind the buttons) */}
               <button
                 type="button"
-                aria-label={t("uploadFiles")}
+                aria-label={t("uploadAFile")}
                 onClick={() => fileInputRef.current?.click()}
                 disabled={busy}
                 className="absolute inset-0 z-0 cursor-pointer disabled:cursor-progress"

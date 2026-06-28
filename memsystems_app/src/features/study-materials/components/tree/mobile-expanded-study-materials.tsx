@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { modelsQueryOptions } from "@/lib/models";
 import {
   RightPane,
   type RightPaneMode,
@@ -40,15 +39,14 @@ export function MobileExpandedStudyMaterials({
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
-  const [mode, setMode] = useState<RightPaneMode>({ kind: "picker" });
-  const models = useSuspenseQuery(modelsQueryOptions);
+  const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
 
   useEffect(() => {
     if (isOpen) {
       if (initialMaterialId) {
         setMode({ kind: "viewer", materialId: initialMaterialId });
       } else {
-        setMode({ kind: "picker" });
+        setMode({ kind: "select" });
       }
     }
   }, [isOpen, initialMaterialId]);
@@ -103,7 +101,6 @@ export function MobileExpandedStudyMaterials({
             notebookId={notebookId}
             mode={mode}
             onModeChange={setMode}
-            models={models.data}
           />
         </div>
       </DialogContent>

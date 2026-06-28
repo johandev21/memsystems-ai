@@ -18,7 +18,7 @@ export interface StartGenerationInput {
 
 export type GenerationEvent =
   | { type: "partial"; content: unknown }
-  | { type: "done"; requestId: string }
+  | { type: "done"; requestId: string; materialId?: string }
   | { type: "error"; error: Error };
 
 export interface StartGenerationResult {
@@ -154,7 +154,8 @@ function parseLine(line: string): GenerationEvent {
     (parsed as { done: unknown }).done === true
   ) {
     const requestId = (parsed as { requestId?: string }).requestId ?? "";
-    return { type: "done", requestId };
+    const materialId = (parsed as { materialId?: string }).materialId;
+    return { type: "done", requestId, materialId };
   }
   return { type: "partial", content: parsed };
 }

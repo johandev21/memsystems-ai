@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Folder, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,6 +40,7 @@ export function FolderPicker({
   disabled = false,
   className,
 }: FolderPickerProps) {
+  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const { data: folders = [] } = useQuery(foldersQueryOptions(notebookId));
 
@@ -47,9 +49,9 @@ export function FolderPicker({
 
   const tree = useMemo(() => buildTree(folders), [folders]);
   const selectedName = useMemo(() => {
-    if (value === null) return "Notebook root";
-    return folders.find((f) => f.id === value)?.name ?? "Notebook root";
-  }, [folders, value]);
+    if (value === null) return t("notebookRoot");
+    return folders.find((f) => f.id === value)?.name ?? t("notebookRoot");
+  }, [folders, value, t]);
 
   const createMutation = useMutation({
     mutationFn: (input: CreateFolderInput) => createFolder(notebookId, input),
@@ -59,7 +61,7 @@ export function FolderPicker({
       });
       onChange(created.id);
       setNewName("");
-      toast.success(`Folder "${created.name}" created`);
+      toast.success(t("folderCreated", { name: created.name }));
     },
     onError: (err: Error) => {
       log.error("create folder failed", {
@@ -101,7 +103,7 @@ export function FolderPicker({
       <PopoverContent className="w-[280px] p-0" align="start">
         <div className="max-h-[260px] overflow-y-auto p-1">
           <FolderRow
-            label="Notebook root"
+            label={t("notebookRoot")}
             depth={0}
             selected={value === null}
             onClick={() => {
@@ -125,7 +127,7 @@ export function FolderPicker({
         <Separator />
         <div className="p-2 flex items-center gap-1.5">
           <Input
-            placeholder="New folder name…"
+            placeholder={t("newFolderNamePlaceholder")}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
@@ -145,7 +147,7 @@ export function FolderPicker({
             className="h-8"
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Create
+            {t("create")}
           </Button>
         </div>
       </PopoverContent>

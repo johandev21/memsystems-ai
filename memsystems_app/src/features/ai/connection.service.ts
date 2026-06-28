@@ -42,11 +42,13 @@ async function checkOpenaiHealth(
   const provider = createOpenaiProvider(apiKey);
   const health = await provider.health();
 
-  openaiHealthCache.set(userId, {
-    ok: health.ok,
-    detail: health.detail,
-    checkedAt: Date.now(),
-  });
+  if (health.ok) {
+    openaiHealthCache.set(userId, {
+      ok: health.ok,
+      detail: health.detail,
+      checkedAt: Date.now(),
+    });
+  }
 
   return health;
 }
