@@ -2,15 +2,32 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { code } from "@streamdown/code";
-import { Check, Copy, Download, Loader2, RefreshCw } from "lucide-react";
+import {
+  BookOpen,
+  Check,
+  Copy,
+  Download,
+  Globe,
+  Link,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
 import { type ComponentProps, useState } from "react";
 import { Streamdown } from "streamdown";
 import "streamdown/styles.css";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+interface CitedSourceInfo {
+  id: string;
+  title: string;
+  kind: string;
+  url: string | null;
+}
+
 export interface ChatMessageListProps {
   messages: UIMessage[];
+  citedSourcesByMessageId?: Map<string, CitedSourceInfo[]>;
   isThinking: boolean;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
@@ -20,6 +37,7 @@ type TextPart = { type: "text"; text: string; state?: "streaming" | "done" };
 
 export function ChatMessageList({
   messages,
+  citedSourcesByMessageId,
   isThinking,
   onCopy,
   onRegenerate,
@@ -30,6 +48,7 @@ export function ChatMessageList({
         <MessageBubble
           key={message.id}
           message={message}
+          citedSources={citedSourcesByMessageId?.get(message.id)}
           onCopy={onCopy}
           onRegenerate={onRegenerate}
           isLast={index === messages.length - 1}
@@ -47,6 +66,7 @@ export function ChatMessageList({
 
 interface MessageBubbleProps {
   message: UIMessage;
+  citedSources?: CitedSourceInfo[];
   onCopy: (text: string) => void;
   onRegenerate: () => void;
   isLast: boolean;
@@ -54,6 +74,7 @@ interface MessageBubbleProps {
 
 function MessageBubble({
   message,
+  citedSources,
   onCopy,
   onRegenerate,
   isLast,
@@ -72,6 +93,7 @@ function MessageBubble({
       ) : (
         <AssistantMessage
           message={message}
+          citedSources={citedSources}
           onCopy={onCopy}
           onRegenerate={onRegenerate}
           showRegenerate={isLast}
@@ -104,11 +126,13 @@ function UserMessage({ message }: { message: UIMessage }) {
 
 function AssistantMessage({
   message,
+  citedSources,
   onCopy,
   onRegenerate,
   showRegenerate,
 }: {
   message: UIMessage;
+  citedSources?: CitedSourceInfo[];
   onCopy: (text: string) => void;
   onRegenerate: () => void;
   showRegenerate: boolean;
@@ -147,6 +171,9 @@ function AssistantMessage({
             </Streamdown>
           </div>
         ) : null,
+      )}
+      {!isStreaming && citedSources && citedSources.length > 0 && (
+        <CitedSources sources={citedSources} />
       )}
       {!isStreaming && (
         <MessageActions
@@ -195,6 +222,58 @@ function MessageActions({
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
       )}
+    </div>
+  );
+}
+
+function sourceIcon(kind: string) {
+  if (kind === "url") return Globe;
+  if (kind === "file") return BookOpen;
+  return Link;
+}
+
+function CitedSources({ sources }: { sources: CitedSourceInfo[] }) {
+  return (
+    <div className="mt-4 pt-3 border-t border-border/40">
+      <span className="text-xs font-medium text-muted-foreground/70 tracking-wide uppercase flex items-center gap-1.5 mb-2">
+        <BookOpen className="h-3 w-3" />
+        Sources
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        {sources.map((source) => {
+          const Icon = sourceIcon(source.kind);
+          const badge = (
+            <span
+              key={source.id}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
+                "text-xs font-medium transition-colors",
+                "bg-primary/8 text-primary/80 hover:bg-primary/14 hover:text-primary",
+                "border border-primary/12",
+              )}
+            >
+              <Icon className="h-3 w-3 shrink-0" />
+              <span className="truncate max-w-48">{source.title}</span>
+            </span>
+          );
+
+          if (source.url) {
+            return (
+              <a
+                key={source.id}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="no-underline"
+              >
+                {badge}
+              </a>
+            );
+          }
+
+          return badge;
+        })}
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   streamText: vi.fn(),
   requireConnected: vi.fn().mockResolvedValue(undefined),
+  retrieveRelevantChunks: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("ai", async (importOriginal) => {
@@ -24,6 +25,10 @@ vi.mock("@/features/ai/ai.service", () => ({
   getProviderForModel: vi.fn().mockResolvedValue({
     createModel: vi.fn(() => ({})),
   }),
+}));
+
+vi.mock("@/features/rag/retrieval.service", () => ({
+  retrieveRelevantChunks: mocks.retrieveRelevantChunks,
 }));
 
 import { eq } from "drizzle-orm";
@@ -68,6 +73,8 @@ describe("NotebookChatService", () => {
     mocks.streamText.mockImplementation(() => fakeStreamResult() as never);
     mocks.requireConnected.mockReset();
     mocks.requireConnected.mockResolvedValue(undefined);
+    mocks.retrieveRelevantChunks.mockReset();
+    mocks.retrieveRelevantChunks.mockResolvedValue([]);
   });
 
   describe("sendMessage", () => {
@@ -167,6 +174,65 @@ describe("NotebookChatService", () => {
       ).rejects.toThrow("OpenAI not connected");
     });
 
+    it("calls retrieveRelevantChunks with the user's query", async () => {
+      const u = await seedUser();
+      const notebook = await seedNotebook(u.id);
+
+      await service.sendMessage(u.id, notebook.id, {
+        content: "What is the capital?",
+        model: "openai/gpt-4o-mini",
+      });
+
+      expect(mocks.retrieveRelevantChunks).toHaveBeenCalledTimes(1);
+      expect(mocks.retrieveRelevantChunks).toHaveBeenCalledWith(
+        notebook.id,
+        "What is the capital?",
+        u.id,
+        8,
+      );
+    });
+
+    it("includes retrieved chunks in the system prompt when chunks exist", async () => {
+      const u = await seedUser();
+      const notebook = await seedNotebook(u.id);
+
+      mocks.retrieveRelevantChunks.mockResolvedValue([
+        {
+          sourceId: "src-1",
+          title: "France History",
+          content: 'Source: "France History"\nParis is the capital of France.',
+          score: 0.95,
+        },
+      ]);
+
+      await service.sendMessage(u.id, notebook.id, {
+        content: "What is the capital?",
+        model: "openai/gpt-4o-mini",
+      });
+
+      const args = mocks.streamText.mock.calls[0][0] as StreamTextArgs;
+      expect(args.system).toContain("RELEVANT SOURCE PASSAGES");
+      expect(args.system).toContain("France History");
+      expect(args.system).toContain("Paris is the capital of France.");
+      expect(args.system).toContain("0.95");
+    });
+
+    it("does not include RELEVANT SOURCE PASSAGES when no chunks exist", async () => {
+      const u = await seedUser();
+      const notebook = await seedNotebook(u.id);
+
+      mocks.retrieveRelevantChunks.mockResolvedValue([]);
+
+      await service.sendMessage(u.id, notebook.id, {
+        content: "What is the capital?",
+        model: "openai/gpt-4o-mini",
+      });
+
+      const args = mocks.streamText.mock.calls[0][0] as StreamTextArgs;
+      expect(args.system).not.toContain("RELEVANT SOURCE PASSAGES");
+      expect(args.system).not.toContain("Source:");
+    });
+
     it("onFinish persists assistant message with stripped citations and cited source IDs", async () => {
       const u = await seedUser();
       const notebook = await seedNotebook(u.id, { title: "Chat" });
@@ -175,6 +241,15 @@ describe("NotebookChatService", () => {
         title: "France History",
         rawText: "Paris is the capital of France.",
       });
+
+      mocks.retrieveRelevantChunks.mockResolvedValue([
+        {
+          sourceId: source.id,
+          title: "France History",
+          content: 'Source: "France History"\nParis is the capital of France.',
+          score: 0.95,
+        },
+      ]);
 
       await service.sendMessage(u.id, notebook.id, {
         content: "What is the capital?",

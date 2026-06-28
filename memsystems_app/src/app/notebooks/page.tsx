@@ -81,7 +81,9 @@ function NotebooksContent() {
     <main className="mx-auto max-w-6xl px-6 md:px-0 pb-12">
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-heading font-bold">{t("allNotebooks")}</h1>
+          <h1 className="text-xl font-heading font-bold">
+            {t("allNotebooks")}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {t("notebookCount", { count: total })}
           </p>
@@ -96,7 +98,7 @@ function NotebooksContent() {
           ) : (
             <Plus className="mr-2 size-4" />
           )}
-                {t("newNotebook")}
+          {t("newNotebook")}
         </Button>
       </section>
 
@@ -160,9 +162,7 @@ function NotebooksContent() {
               {search ? t("noNotebooksMatch") : t("noNotebooksYet")}
             </p>
             <p className="mb-5 text-xs text-muted-foreground">
-              {search
-                ? t("tryDifferentSearch")
-                : t("createFirst")}
+              {search ? t("tryDifferentSearch") : t("createFirst")}
             </p>
             {!search && (
               <Button
@@ -176,7 +176,7 @@ function NotebooksContent() {
                 ) : (
                   <Plus className="mr-2 size-4" />
                 )}
-          {t("newNotebook")}
+                {t("newNotebook")}
               </Button>
             )}
           </div>

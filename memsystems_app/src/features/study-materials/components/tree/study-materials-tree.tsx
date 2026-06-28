@@ -13,12 +13,11 @@ import {
   MoreVertical,
   Network,
   Presentation,
-  Sparkles,
   Trash2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +46,7 @@ import {
   studyMaterialsQueryOptions,
 } from "@/lib/study-materials";
 import { cn } from "@/lib/utils";
+import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import {
   buildStudyMaterialTree,
   countMaterialsInFolder,
@@ -236,17 +236,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-dashed border-border bg-muted/25 my-1 transition-all duration-300 hover:border-primary/20 hover:bg-muted/40">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary mb-3 shadow-inner">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <h3 className="font-semibold text-xs text-foreground tracking-tight">
-            {t("noStudyMaterials")}
-          </h3>
-          <p className="text-[10px] text-muted-foreground mt-1.5 max-w-[200px] leading-relaxed">
-            {t("generateFromSources")}
-          </p>
-        </div>
+        <StudyMaterialsEmptyState />
       ) : (
         items.map((item) => (
           <FileTreeItemNode

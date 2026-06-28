@@ -67,7 +67,11 @@ export default function HomePage() {
       router.push(`/notebooks/${newNotebook.id}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`${t("failedCreateNotebook")} error details:`, message, error);
+      console.error(
+        `${t("failedCreateNotebook")} error details:`,
+        message,
+        error,
+      );
       toast.error(`${t("failedCreateNotebook")}: ${message}`);
       setIsCreating(false);
     }

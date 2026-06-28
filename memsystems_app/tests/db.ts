@@ -14,6 +14,7 @@ const TABLES = [
   "note_types",
   "notebook_chat_messages",
   "generation_requests",
+  "source_chunks",
   "study_materials",
   "study_material_folders",
   "sources",
@@ -63,5 +64,14 @@ export async function ensureTestDatabase(): Promise<void> {
     }
   } finally {
     await client.end();
+  }
+
+  // Ensure pgvector extension is available (installed by postgres)
+  const pgClient = new Client({ connectionString: url });
+  try {
+    await pgClient.connect();
+    await pgClient.query("CREATE EXTENSION IF NOT EXISTS vector");
+  } finally {
+    await pgClient.end();
   }
 }

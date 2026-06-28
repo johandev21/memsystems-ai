@@ -3,11 +3,13 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 import {
   deleteObject,
   presignDownload,
   putObject,
 } from "@/lib/storage/s3-client";
+import { indexingService } from "@/features/rag/indexing.service";
 import { extractText, isSupportedFile } from "./source-extraction.service";
 import { scrapeUrl } from "./web-scraper.service";
 
@@ -85,6 +87,12 @@ export class SourceService {
         rawText,
       })
       .returning();
+    indexingService.indexSource(row.id, userId).catch((err) => {
+      logger.error("Failed to index source after text creation", {
+        sourceId: row.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
     return row;
   }
 
@@ -106,6 +114,12 @@ export class SourceService {
         url: input.url,
       })
       .returning();
+    indexingService.indexSource(row.id, userId).catch((err) => {
+      logger.error("Failed to index source after URL creation", {
+        sourceId: row.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
     return row;
   }
 
@@ -164,6 +178,12 @@ export class SourceService {
         sha256,
       })
       .returning();
+    indexingService.indexSource(row.id, userId).catch((err) => {
+      logger.error("Failed to index source after file creation", {
+        sourceId: row.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
     return row;
   }
 

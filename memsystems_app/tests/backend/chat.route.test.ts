@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   streamText: vi.fn(),
   requireConnected: vi.fn().mockResolvedValue(undefined),
   getSession: vi.fn(),
+  retrieveRelevantChunks: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("ai", async (importOriginal) => {
@@ -30,6 +31,10 @@ vi.mock("@/features/ai/ai.service", () => ({
 
 vi.mock("@/lib/session", () => ({
   getSession: mocks.getSession,
+}));
+
+vi.mock("@/features/rag/retrieval.service", () => ({
+  retrieveRelevantChunks: mocks.retrieveRelevantChunks,
 }));
 
 import { DELETE, GET, POST } from "@/app/api/notebooks/[id]/chat/route";

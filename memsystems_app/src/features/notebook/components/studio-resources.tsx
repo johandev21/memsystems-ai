@@ -91,7 +91,7 @@ export function StudioResources({
   if (collapsed) {
     return (
       <TooltipProvider>
-        <div className="flex flex-col gap-3 py-4 px-0 items-center border-b border-border w-full">
+        <div className="flex flex-col gap-3 py-2 px-0 items-center border-b border-border w-full">
           {RESOURCES.map((resource) => {
             const disabled = !isInScope(resource.kind);
             const label = t(resource.key as any);
@@ -122,7 +122,7 @@ export function StudioResources({
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2 px-1.5 pt-6 pb-4">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2 p-2">
       {RESOURCES.map((resource) => {
         const disabled = !isInScope(resource.kind);
         const label = t(resource.key as any);

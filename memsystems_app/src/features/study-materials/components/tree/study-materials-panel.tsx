@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,7 +34,7 @@ export function StudyMaterialsPanel({
       className="mx-auto w-full gap-2 flex flex-col ring-0 bg-muted/60 shadow-sm dark:shadow-none dark:bg-muted/30"
       size="sm"
     >
-      <div className="flex items-center justify-between px-3">
+      <div className="flex items-center justify-between px-2">
         <span className="font-medium text-sm">{t("studyMaterials")}</span>
         <div className="flex items-center gap-1">
           <Button
@@ -65,7 +65,7 @@ export function StudyMaterialsPanel({
       {isExpanded && (
         <>
           <Separator />
-          <ScrollArea className="h-[250px] w-full pr-3">
+          <ScrollArea className="h-[250px] w-full pr-2">
             <CardContent className="pb-2">
               <StudyMaterialsTree
                 notebookId={notebookId}

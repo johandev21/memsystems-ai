@@ -13,6 +13,7 @@ import {
   timestamp,
   uniqueIndex,
   varchar,
+  vector,
 } from "drizzle-orm/pg-core";
 
 import { user } from "./auth-schema";
@@ -314,15 +315,58 @@ export const noteTags = pgTable(
 
 export const notebooksRelations = relations(notebooks, ({ many }) => ({
   sources: many(sources),
+  sourceChunks: many(sourceChunks),
   studyMaterials: many(studyMaterials),
   studyMaterialFolders: many(studyMaterialFolders),
   chatMessages: many(notebookChatMessages),
   generationRequests: many(generationRequests),
 }));
 
-export const sourcesRelations = relations(sources, ({ one }) => ({
+export const sourceChunks = pgTable(
+  "source_chunks",
+  {
+    id: varchar("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    sourceId: varchar("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "cascade" }),
+    notebookId: varchar("notebook_id")
+      .notNull()
+      .references(() => notebooks.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunk_index").notNull(),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("source_chunks_source_id_chunk_index_idx").on(
+      table.sourceId,
+      table.chunkIndex,
+    ),
+    index("source_chunks_notebook_id_idx").on(table.notebookId),
+    index("source_chunks_embedding_idx").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops"),
+    ),
+  ],
+);
+
+export const sourcesRelations = relations(sources, ({ one, many }) => ({
   notebook: one(notebooks, {
     fields: [sources.notebookId],
+    references: [notebooks.id],
+  }),
+  chunks: many(sourceChunks),
+}));
+
+export const sourceChunksRelations = relations(sourceChunks, ({ one }) => ({
+  source: one(sources, {
+    fields: [sourceChunks.sourceId],
+    references: [sources.id],
+  }),
+  notebook: one(notebooks, {
+    fields: [sourceChunks.notebookId],
     references: [notebooks.id],
   }),
 }));
@@ -432,6 +476,7 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
 export const table = {
   notebooks,
   sources,
+  sourceChunks,
   studyMaterials,
   studyMaterialFolders,
   generationRequests,

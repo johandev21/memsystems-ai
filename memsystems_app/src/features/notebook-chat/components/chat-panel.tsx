@@ -8,12 +8,19 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
+import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { chatMessagesQueryOptions, clearChatHistory } from "@/lib/chat";
+import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
+import {
+  type CitedSourceDTO,
+  chatMessagesQueryOptions,
+  clearChatHistory,
+} from "@/lib/chat";
 import { clientLogger as logger } from "@/lib/client-logger";
 import type { ModelOption } from "@/lib/models";
 import { modelsQueryOptions } from "@/lib/models";
@@ -22,9 +29,6 @@ import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
-import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
-import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 
 const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 
@@ -119,6 +123,16 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       },
     });
   }, [notebookId, logCtx]);
+
+  const citedSourcesByMessageId = useMemo(() => {
+    const map = new Map<string, CitedSourceDTO[]>();
+    for (const msg of chatHistory) {
+      if (msg.citedSources?.length) {
+        map.set(msg.id, msg.citedSources);
+      }
+    }
+    return map;
+  }, [chatHistory]);
 
   const initialMessages = useMemo(
     () =>
@@ -241,7 +255,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     <div className="flex flex-1 h-full w-full flex-col min-h-0">
       <div className="mx-auto w-full max-w-3xl flex flex-col min-h-0 flex-1">
         <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
-          <div className="py-6 min-h-full flex flex-col justify-start">
+          <div className="p-2 min-h-full flex flex-col justify-start">
             <NotebookBanner
               title={notebook.title}
               icon={notebook.icon}
@@ -251,10 +265,11 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               isUntitled={showBannerAsUntitled}
             />
 
-            <div className="px-6">
+            <div>
               {hasMessages ? (
                 <ChatMessageList
                   messages={messages}
+                  citedSourcesByMessageId={citedSourcesByMessageId}
                   isThinking={status === "submitted"}
                   onCopy={handleCopy}
                   onRegenerate={handleRegenerate}
@@ -270,7 +285,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 px-6 pb-6 pt-2">
+        <div className="shrink-0 p-2">
           <ClearHistoryDialog
             open={isClearDialogOpen}
             onOpenChange={(open) => {

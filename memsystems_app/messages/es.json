@@ -238,7 +238,7 @@
     "model": "Modelo",
     "searchModels": "Buscar modelos...",
     "noModelsFound": "No se encontraron modelos",
-    "untitledNotebook": "Cuaderno sin título",
+    "untitledNotebook": "Sin título",
     "recently": "recientemente",
     "failedLoadBanner": "No se pudo cargar la imagen del banner. El archivo puede estar corrupto o en un formato no compatible.",
     "deleteNotebook": "Eliminar cuaderno",

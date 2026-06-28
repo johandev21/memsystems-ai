@@ -62,7 +62,10 @@ export function FolderPicker({
       toast.success(`Folder "${created.name}" created`);
     },
     onError: (err: Error) => {
-      log.error("create folder failed", { error: err });
+      log.error("create folder failed", {
+        error: err,
+        input: { name: newName.trim() },
+      });
       toast.error(err.message);
     },
   });

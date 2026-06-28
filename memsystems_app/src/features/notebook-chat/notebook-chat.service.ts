@@ -1,7 +1,8 @@
 import { streamText } from "ai";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
+import { retrieveRelevantChunks } from "@/features/rag/retrieval.service";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { getProviderForModel } from "../ai/ai.service";
@@ -14,12 +15,14 @@ const MAX_SOURCE_TEXT = 80000;
 
 const SYSTEM_PROMPT = `You are a knowledgeable tutor and research assistant. Help the user learn and understand their topics of interest.
 
-When sources are available:
+You are given only the most relevant passages from the notebook's sources, not the full source text. If the passages don't contain enough information, say so clearly and offer to help with general knowledge.
+
+When relevant source passages are provided:
 - Use them to support, enrich, and cite your answers.
 - Prefer source-backed claims when relevant.
 - Clearly distinguish between source-derived information and general knowledge when necessary.
 
-When sources are unavailable:
+When no relevant source passages are provided:
 - Answer normally using your own knowledge.
 - Do not refuse unless the task explicitly requires source-grounded information.
 
@@ -42,7 +45,15 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   citedSourceIds: string[] | null;
+  citedSources: CitedSourceMeta[];
   createdAt: Date;
+}
+
+interface CitedSourceMeta {
+  id: string;
+  title: string;
+  kind: string;
+  url: string | null;
 }
 
 export interface SendInput {
@@ -66,13 +77,39 @@ export class NotebookChatService {
       .orderBy(asc(notebookChatMessages.createdAt));
 
     logCtx.info("listed messages", { count: rows.length });
-    return rows.map((r) => ({
-      id: r.id,
-      role: r.role,
-      content: r.content,
-      citedSourceIds: r.citedSourceIds,
-      createdAt: r.createdAt,
-    }));
+
+    const allCitedIds = [
+      ...new Set(rows.flatMap((r) => r.citedSourceIds ?? [])),
+    ];
+    const citedMetaMap = new Map<string, CitedSourceMeta>();
+    if (allCitedIds.length > 0) {
+      const sourceRows = await db
+        .select({
+          id: sources.id,
+          title: sources.title,
+          kind: sources.kind,
+          url: sources.url,
+        })
+        .from(sources)
+        .where(inArray(sources.id, allCitedIds));
+      for (const src of sourceRows) {
+        citedMetaMap.set(src.id, src);
+      }
+    }
+
+    return rows.map((r) => {
+      const citedSources: CitedSourceMeta[] = (r.citedSourceIds ?? [])
+        .map((id) => citedMetaMap.get(id))
+        .filter((s): s is CitedSourceMeta => !!s);
+      return {
+        id: r.id,
+        role: r.role,
+        content: r.content,
+        citedSourceIds: r.citedSourceIds,
+        citedSources,
+        createdAt: r.createdAt,
+      };
+    });
   }
 
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
@@ -93,15 +130,22 @@ export class NotebookChatService {
     await connectionService.requireConnected(userId, input.model);
     logCtx.debug("connectionService.requireConnected passed");
 
-    const sourceTexts = await this.fetchSourceTexts(notebookId);
-    logCtx.info("sources fetched", {
-      count: sourceTexts.length,
-      totalChars: sourceTexts.reduce((s, t) => s + t.rawText.length, 0),
-      titles: sourceTexts.map((s) => s.title),
+    const retrievedChunks = await retrieveRelevantChunks(
+      notebookId,
+      input.content,
+      userId,
+      8,
+    );
+    logCtx.info("relevant chunks retrieved", {
+      count: retrievedChunks.length,
+      topScore: retrievedChunks[0]?.score,
     });
 
-    const sourceContext = sourceTexts
-      .map((s) => `Source: "${s.title}"\n${s.rawText}`)
+    const sourceContext = retrievedChunks
+      .map(
+        (c) =>
+          `Source: "${c.title}" (relevance: ${c.score.toFixed(2)})\n${c.content}`,
+      )
       .join("\n\n---\n\n")
       .slice(0, MAX_SOURCE_TEXT);
     logCtx.debug("source context built", {
@@ -159,9 +203,14 @@ export class NotebookChatService {
     logCtx.debug("model created", { modelId });
 
     const systemMessage =
-      sourceTexts.length > 0
-        ? `${SYSTEM_PROMPT}\n\n---\n\nSOURCE MATERIALS:\n\n${sourceContext}`
+      retrievedChunks.length > 0
+        ? `${SYSTEM_PROMPT}\n\n---\n\nRELEVANT SOURCE PASSAGES:\n\n${sourceContext}`
         : SYSTEM_PROMPT;
+
+    const sourceTextsForCitations = retrievedChunks.map((c) => ({
+      id: c.sourceId,
+      title: c.title,
+    }));
 
     const messagesForLlm = history.map((m) => ({
       role: m.role as "user" | "assistant",
@@ -195,7 +244,10 @@ export class NotebookChatService {
             textLength: text.length,
             textPreview: text.slice(0, 200),
           });
-          const citedSourceIds = this.extractCitations(text, sourceTexts);
+          const citedSourceIds = this.extractCitations(
+            text,
+            sourceTextsForCitations,
+          );
           const cleanContent = this.stripCitations(text);
 
           try {
@@ -284,17 +336,6 @@ export class NotebookChatService {
 
   private stripCitations(text: string): string {
     return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
-  }
-
-  private async fetchSourceTexts(notebookId: string) {
-    return db
-      .select({
-        id: sources.id,
-        title: sources.title,
-        rawText: sources.rawText,
-      })
-      .from(sources)
-      .where(eq(sources.notebookId, notebookId));
   }
 
   private async assertNotebookOwner(userId: string, notebookId: string) {

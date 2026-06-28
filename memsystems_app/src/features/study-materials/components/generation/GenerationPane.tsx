@@ -128,7 +128,16 @@ export function GenerationPane({
             setStatus("error");
             setErrorMessage(event.error.message);
             toast.error(event.error.message);
-            log.error("generation stream error", { error: event.error });
+            log.error("generation stream error", {
+              error: event.error,
+              input: {
+                kind,
+                brief: brief.slice(0, 200),
+                sourceIds,
+                folderId,
+                model,
+              },
+            });
           }
         }
       } catch (err) {
@@ -137,7 +146,16 @@ export function GenerationPane({
         setStatus("error");
         setErrorMessage(message);
         toast.error(message);
-        log.error("generation stream exception", { error: err });
+        log.error("generation stream exception", {
+          error: err,
+          input: {
+            kind,
+            brief: brief.slice(0, 200),
+            sourceIds,
+            folderId,
+            model,
+          },
+        });
       }
     })();
 

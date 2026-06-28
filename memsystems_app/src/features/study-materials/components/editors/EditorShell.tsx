@@ -7,9 +7,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
 import { clientLogger } from "@/lib/client-logger";
 import { createStudyMaterial } from "@/lib/study-materials";
-import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
 
 const log = clientLogger.child({ feature: "manual-editors" });
 
@@ -59,7 +59,10 @@ export function EditorShell({
       onSaved(created.id);
     },
     onError: (err: Error) => {
-      log.error("create study material failed", { error: err });
+      log.error("create study material failed", {
+        error: err,
+        input: { kind, title, folderId },
+      });
       setError(err.message);
       toast.error(err.message);
     },
