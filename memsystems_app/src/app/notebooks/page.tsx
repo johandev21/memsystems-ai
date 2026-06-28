@@ -11,6 +11,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { NotebookCard } from "@/components/home/notebook-card";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { allNotebooksQueryOptions } from "@/lib/notebooks";
 
 function NotebooksContent() {
+  const t = useTranslations("Home");
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -64,13 +66,13 @@ function NotebooksContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: "Untitled" }),
       });
-      if (!res.ok) throw new Error("Failed to create notebook");
+      if (!res.ok) throw new Error(t("failedCreateNotebook"));
       const newNotebook = await res.json();
       await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
       router.push(`/notebooks/${newNotebook.id}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      toast.error(`Failed to create notebook: ${message}`);
+      toast.error(`${t("failedCreateNotebook")}: ${message}`);
       setIsCreating(false);
     }
   }
@@ -79,9 +81,9 @@ function NotebooksContent() {
     <main className="mx-auto max-w-6xl px-6 md:px-0 pb-12">
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-heading font-bold">All Notebooks</h1>
+          <h1 className="text-xl font-heading font-bold">{t("allNotebooks")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {total} notebook{total !== 1 ? "s" : ""}
+            {t("notebookCount", { count: total })}
           </p>
         </div>
         <Button
@@ -94,7 +96,7 @@ function NotebooksContent() {
           ) : (
             <Plus className="mr-2 size-4" />
           )}
-          New notebook
+                {t("newNotebook")}
         </Button>
       </section>
 
@@ -102,7 +104,7 @@ function NotebooksContent() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search notebooks..."
+            placeholder={t("searchNotebooks")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -114,7 +116,7 @@ function NotebooksContent() {
           onClick={handleSearch}
           className="cursor-pointer"
         >
-          Search
+          {t("search")}
         </Button>
         {search && (
           <Button
@@ -125,7 +127,7 @@ function NotebooksContent() {
             }}
             className="cursor-pointer"
           >
-            Clear
+            {t("clear")}
           </Button>
         )}
       </section>
@@ -155,12 +157,12 @@ function NotebooksContent() {
           <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border">
             <NotebookText className="mb-3 size-8 text-muted-foreground/40" />
             <p className="mb-1 text-sm font-medium">
-              {search ? "No notebooks match your search" : "No notebooks yet"}
+              {search ? t("noNotebooksMatch") : t("noNotebooksYet")}
             </p>
             <p className="mb-5 text-xs text-muted-foreground">
               {search
-                ? "Try a different search term"
-                : "Create your first notebook to get started"}
+                ? t("tryDifferentSearch")
+                : t("createFirst")}
             </p>
             {!search && (
               <Button
@@ -174,7 +176,7 @@ function NotebooksContent() {
                 ) : (
                   <Plus className="mr-2 size-4" />
                 )}
-                New notebook
+          {t("newNotebook")}
               </Button>
             )}
           </div>
@@ -186,7 +188,6 @@ function NotebooksContent() {
                 id={notebook.id}
                 title={notebook.title}
                 description={notebook.description}
-                fileCount={0}
                 updatedAt={""}
                 imageUrl={notebook.bannerUrl ?? undefined}
                 icon={<NotebookIcon name={notebook.icon} />}
@@ -206,7 +207,7 @@ function NotebooksContent() {
             className="cursor-pointer"
           >
             <ChevronLeft className="size-4" />
-            Previous
+            {t("previous")}
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(
@@ -234,7 +235,7 @@ function NotebooksContent() {
             onClick={() => handlePage(page + 1)}
             className="cursor-pointer"
           >
-            Next
+            {t("next")}
             <ChevronRight className="size-4" />
           </Button>
         </section>

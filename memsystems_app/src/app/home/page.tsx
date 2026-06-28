@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, type Locale } from "date-fns";
+import { enUS, es, pt } from "date-fns/locale";
 import { Brain, Clock, NotebookText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ActivityCalendar } from "@/components/home/activity-calendar";
@@ -23,20 +24,29 @@ function _getBanner(bannerUrl: string | null): string | undefined {
   return bannerUrl ?? undefined;
 }
 
+const dateLocaleMap: Record<string, Locale> = {
+  en: enUS,
+  es,
+  pt,
+};
+
 function formatUpdatedAt(
   date: string,
   t: (key: "updatedJustNow" | "updated") => string,
+  locale: string,
 ): string {
   const d = new Date(date);
   const diff = Date.now() - d.getTime();
   if (diff < 60_000) return t("updatedJustNow");
+  const dateLocale = dateLocaleMap[locale] ?? enUS;
   if (diff < 86_400_000)
-    return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true })}`;
-  return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true })}`;
+    return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true, locale: dateLocale })}`;
+  return `${t("updated")} ${formatDistanceToNow(d, { addSuffix: true, locale: dateLocale })}`;
 }
 
 export default function HomePage() {
   const t = useTranslations("Home");
+  const locale = useLocale();
   const { data: notebooksData, isLoading } = useQuery(notebooksQueryOptions);
   const notebooks = notebooksData?.notebooks;
   const router = useRouter();
@@ -51,14 +61,14 @@ export default function HomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: "Untitled" }),
       });
-      if (!res.ok) throw new Error("Failed to create notebook");
+      if (!res.ok) throw new Error(t("failedCreateNotebook"));
       const newNotebook = await res.json();
       await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
       router.push(`/notebooks/${newNotebook.id}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error("Failed to create notebook error details:", message, error);
-      toast.error(`Failed to create notebook: ${message}`);
+      console.error(`${t("failedCreateNotebook")} error details:`, message, error);
+      toast.error(`${t("failedCreateNotebook")}: ${message}`);
       setIsCreating(false);
     }
   }
@@ -93,6 +103,7 @@ export default function HomePage() {
           <SectionHeader
             title={t("recentNotebooks")}
             viewAllHref="/notebooks"
+            viewAllLabel={t("viewAll")}
           />
           {isLoading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -143,8 +154,7 @@ export default function HomePage() {
                   id={notebook.id}
                   title={notebook.title}
                   description={notebook.description}
-                  fileCount={0}
-                  updatedAt={formatUpdatedAt(notebook.updatedAt, t)}
+                  updatedAt={formatUpdatedAt(notebook.updatedAt, t, locale)}
                   imageUrl={notebook.bannerUrl ?? undefined}
                   icon={<NotebookIcon name={notebook.icon} />}
                 />
@@ -179,7 +189,11 @@ export default function HomePage() {
         </section>
 
         <section className="flex flex-col gap-4 py-6">
-          <SectionHeader title={t("decks")} viewAllHref="/decks" />
+          <SectionHeader
+            title={t("decks")}
+            viewAllHref="/decks"
+            viewAllLabel={t("viewAll")}
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {MOCK_DECKS.map((deck) => (
               <DeckCard

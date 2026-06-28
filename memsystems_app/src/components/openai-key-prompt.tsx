@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getApiUrl } from "@/lib/utils";
@@ -22,9 +23,11 @@ interface OpenAIKeyPromptProps {
 
 export function OpenAIKeyPrompt({
   className = "",
-  description = "Connect your OpenAI account to enable the AI tutor.",
+  description = "",
 }: OpenAIKeyPromptProps) {
+  const t = useTranslations("AI");
   const queryClient = useQueryClient();
+  const defaultDescription = t("connectAccount");
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -61,17 +64,16 @@ export function OpenAIKeyPrompt({
         );
       }
 
-      toast.success("OpenAI API Key verified and saved successfully!");
+      toast.success(t("verifiedAndSaved"));
       setApiKeyInput("");
 
       // Invalidate queries so that the chat/dialog updates immediately
       queryClient.invalidateQueries({ queryKey: ["connection-status"] });
       queryClient.invalidateQueries({ queryKey: ["models"] });
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Error verifying API key";
+      const msg = err instanceof Error ? err.message : t("errorVerifying");
       setErrorMessage(msg);
-      toast.error("Failed to verify OpenAI API Key.");
+      toast.error(t("verifyFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -87,10 +89,10 @@ export function OpenAIKeyPrompt({
         </div>
         <div className="space-y-1">
           <h4 className="text-sm font-semibold text-foreground">
-            OpenAI Key Required
+            {t("keyRequired")}
           </h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            {description}
+            {description || defaultDescription}
           </p>
         </div>
       </div>
@@ -100,7 +102,7 @@ export function OpenAIKeyPrompt({
           <div className="relative flex-1">
             <Input
               type={showKey ? "text" : "password"}
-              placeholder="sk-proj-..."
+              placeholder={t("apiKeyPlaceholder")}
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               disabled={isSaving}
@@ -131,10 +133,10 @@ export function OpenAIKeyPrompt({
             {isSaving ? (
               <>
                 <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                Verifying...
+                {t("verifying")}
               </>
             ) : (
-              "Connect"
+              t("connect")
             )}
           </Button>
         </div>
@@ -148,16 +150,14 @@ export function OpenAIKeyPrompt({
       )}
 
       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>
-          Your key is stored securely and never leaves this workspace server.
-        </span>
+        <span>{t("keyStoredSecurely")}</span>
         <a
           href="https://platform.openai.com/api-keys"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-0.5 text-primary hover:underline font-medium shrink-0 ml-2"
         >
-          Get API key
+          {t("getApiKey")}
           <ExternalLink className="h-2.5 w-2.5" />
         </a>
       </div>

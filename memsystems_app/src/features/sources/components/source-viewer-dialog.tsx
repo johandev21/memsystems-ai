@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,8 @@ export function SourceViewerDialog({
   open,
   onOpenChange,
 }: SourceViewerDialogProps) {
+  const t = useTranslations("Sources");
+  const locale = useLocale();
   const {
     data: source,
     isPending,
@@ -57,9 +60,9 @@ export function SourceViewerDialog({
       if (!res.ok) throw new Error("Failed to retrieve download link");
       const { url } = await res.json();
       window.open(url, "_blank");
-      toast.success("Download started");
+      toast.success(t("downloadStarted"));
     } catch {
-      toast.error("Could not download file");
+      toast.error(t("downloadFailed"));
     } finally {
       setDownloading(false);
     }
@@ -75,10 +78,10 @@ export function SourceViewerDialog({
   };
 
   const formatBytes = (bytes: number | null) => {
-    if (bytes === null || bytes === undefined) return "Unknown size";
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === null || bytes === undefined) return t("unknownSize");
+    if (bytes === 0) return t("zeroBytes");
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = [t("bytes"), t("kb"), t("mb"), t("gb")];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
@@ -89,10 +92,8 @@ export function SourceViewerDialog({
         {isPending && (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground animate-pulse">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm font-medium">Loading source content...</p>
-            <DialogTitle className="sr-only">
-              Loading source content...
-            </DialogTitle>
+            <p className="text-sm font-medium">{t("loading")}</p>
+            <DialogTitle className="sr-only">{t("loading")}</DialogTitle>
           </div>
         )}
 
@@ -102,11 +103,10 @@ export function SourceViewerDialog({
               <File className="h-6 w-6" />
             </div>
             <DialogTitle className="text-lg font-bold">
-              Failed to load source
+              {t("loadFailed")}
             </DialogTitle>
             <DialogDescription className="max-w-xs text-xs text-muted-foreground">
-              We couldn&apos;t load the contents of this source. Please try
-              again or check your connection.
+              {t("loadFailedDesc")}
             </DialogDescription>
             <Button
               variant="outline"
@@ -114,7 +114,7 @@ export function SourceViewerDialog({
               onClick={() => onOpenChange(false)}
               className="mt-2"
             >
-              Close
+              {t("close")}
             </Button>
           </div>
         )}
@@ -132,26 +132,26 @@ export function SourceViewerDialog({
                     {source.kind === "text" && (
                       <>
                         <FileText className="h-3 w-3" />
-                        Text Note
+                        {t("textNote")}
                       </>
                     )}
                     {source.kind === "url" && (
                       <>
                         <Globe className="h-3 w-3" />
-                        Web Article
+                        {t("webArticle")}
                       </>
                     )}
                     {source.kind === "file" && (
                       <>
                         <File className="h-3 w-3" />
-                        Document File
+                        {t("documentFile")}
                       </>
                     )}
                   </Badge>
 
                   <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    {new Date(source.createdAt).toLocaleDateString(undefined, {
+                    {new Date(source.createdAt).toLocaleDateString(locale, {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
@@ -168,7 +168,7 @@ export function SourceViewerDialog({
                   <div className="flex items-center justify-between gap-3 bg-muted/40 border rounded-lg p-3 mt-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
-                        Source Link
+                        {t("sourceLink")}
                       </p>
                       <p className="text-xs text-foreground/80 truncate font-mono mt-0.5">
                         {source.url}
@@ -186,7 +186,7 @@ export function SourceViewerDialog({
                         rel="noopener noreferrer"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Open Webpage
+                        {t("openWebpage")}
                       </a>
                     </Button>
                   </div>
@@ -200,7 +200,7 @@ export function SourceViewerDialog({
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate text-foreground">
-                          {source.contentType || "Unknown document type"}
+                          {source.contentType || t("unknownDocType")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
                           {formatBytes(source.fileSize)}
@@ -219,7 +219,7 @@ export function SourceViewerDialog({
                       ) : (
                         <Download className="h-3.5 w-3.5" />
                       )}
-                      Download File
+                      {t("downloadFile")}
                     </Button>
                   </div>
                 )}
@@ -239,9 +239,11 @@ export function SourceViewerDialog({
                   ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground/80">
                       <FileText className="h-10 w-10 mb-2 stroke-[1.5]" />
-                      <p className="text-sm font-semibold">No extracted text</p>
+                      <p className="text-sm font-semibold">
+                        {t("noExtractedText")}
+                      </p>
                       <p className="text-xs max-w-xs mt-1">
-                        This source does not contain any readable text contents.
+                        {t("noExtractedTextDesc")}
                       </p>
                     </div>
                   )}
@@ -254,11 +256,11 @@ export function SourceViewerDialog({
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1">
                   <Hash className="h-3.5 w-3.5 text-muted-foreground/75" />
-                  {getCharCount(source.rawText)} characters
+                  {t("characters", { count: getCharCount(source.rawText) })}
                 </span>
                 <span className="flex items-center gap-1">
                   <Scale className="h-3.5 w-3.5 text-muted-foreground/75" />
-                  {getWordCount(source.rawText)} words
+                  {t("words", { count: getWordCount(source.rawText) })}
                 </span>
               </div>
             </div>

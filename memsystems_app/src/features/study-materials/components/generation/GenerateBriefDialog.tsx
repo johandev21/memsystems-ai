@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ export function GenerateBriefDialog({
   onOpenChange,
   onComplete,
 }: GenerateBriefDialogProps) {
+  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const startBackgroundGeneration = useGenerationStore(
     (s) => s.startBackgroundGeneration,
@@ -101,7 +103,9 @@ export function GenerateBriefDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Generate {kindLabel(kind)}</DialogTitle>
+          <DialogTitle>
+            {t("generateTitle", { kind: kindLabel(t, kind) })}
+          </DialogTitle>
         </DialogHeader>
         {connection?.openai?.ok ? (
           <BriefForm
@@ -122,26 +126,29 @@ export function GenerateBriefDialog({
               }
             }}
             onSubmit={handleSubmit}
-            submitLabel="Generate"
+            submitLabel={t("generate")}
             disabled={false}
           />
         ) : (
-          <OpenAIKeyPrompt description="An OpenAI API Key is required to generate study materials." />
+          <OpenAIKeyPrompt description={t("aiKeyRequired")} />
         )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function kindLabel(kind: StudyMaterialKind): string {
+function kindLabel(
+  t: (key: string) => string,
+  kind: StudyMaterialKind,
+): string {
   switch (kind) {
     case "simple_flashcard":
-      return "Flashcards";
+      return t("flashcards");
     case "slide_deck":
-      return "Slide Deck";
+      return t("slideDeck");
     case "mind_map":
-      return "Mind Map";
+      return t("mindMap");
     default:
-      return kind.charAt(0).toUpperCase() + kind.slice(1);
+      return t(kind);
   }
 }

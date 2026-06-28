@@ -309,34 +309,39 @@
 }
 
 /* Minimalistic cross-browser scrollbar */
-body {
+:root {
   --sb-track-color: var(--border);
   --sb-thumb-color: var(--muted-foreground);
   --sb-size: 10px;
 }
 
-body::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: var(--sb-size);
 }
 
-body::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: var(--sb-track-color);
 }
 
-body::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: var(--sb-thumb-color);
 }
 
-body::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
   background: var(--foreground);
 }
 
-body::-webkit-scrollbar-button {
+*::-webkit-scrollbar-button {
   display: none;
 }
 
 @supports not selector(::-webkit-scrollbar) {
-  body {
+  * {
     scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
   }
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
 }

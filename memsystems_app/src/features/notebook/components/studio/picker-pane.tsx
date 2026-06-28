@@ -31,9 +31,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
     <div className="flex h-full flex-col items-center justify-center p-6 gap-6">
       <div className="text-center space-y-1">
         <h3 className="text-sm font-semibold">{t("createStudyMaterial")}</h3>
-        <p className="text-xs text-muted-foreground">
-          {t("pickType")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("pickType")}</p>
       </div>
       <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm">
         {DISPLAY_ORDER.map((index) => {

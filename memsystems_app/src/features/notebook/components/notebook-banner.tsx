@@ -3,6 +3,7 @@
 import { AlertCircle } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import { NotebookIcon } from "@/components/ui/notebook-icon";
 
 export interface NotebookBannerProps {
@@ -22,28 +23,28 @@ export function NotebookBanner({
   updatedAt,
   isUntitled,
 }: NotebookBannerProps) {
+  const t = useTranslations("Notebook");
+  const locale = useLocale();
   const [imageError, setImageError] = useState(false);
   const formattedDate = useMemo(() => {
     try {
       const date = new Date(updatedAt);
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
         year: "numeric",
       });
     } catch {
-      return "recently";
+      return t("recently");
     }
-  }, [updatedAt]);
+  }, [updatedAt, locale, t]);
 
   const hasBanner = Boolean(bannerUrl);
 
   const handleImageError = useCallback(() => {
     setImageError(true);
-    toast.error(
-      "Failed to load banner image. The file may be corrupted or in an unsupported format.",
-    );
-  }, []);
+    toast.error(t("failedLoadBanner"));
+  }, [t]);
 
   const handleImageLoad = useCallback(() => {
     setImageError(false);
@@ -78,7 +79,7 @@ export function NotebookBanner({
           </div>
           <div className="flex flex-col gap-1 min-w-0">
             <h3 className="font-semibold text-sm truncate text-foreground">
-              {isUntitled ? "Untitled notebook" : title}
+              {isUntitled ? t("untitledNotebook") : title}
             </h3>
             <span className="text-xs text-muted-foreground">
               {formattedDate}

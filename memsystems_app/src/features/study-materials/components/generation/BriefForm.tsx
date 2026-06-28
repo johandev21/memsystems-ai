@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +44,8 @@ export function BriefForm({
 }: BriefFormProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const t = useTranslations("Notebook");
+
   useTextareaAutosize({
     ref: textareaRef,
     value: value.brief,
@@ -58,14 +61,14 @@ export function BriefForm({
     <div className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="brief">
-          What should the {kindLabel(kind)} focus on?
+          {t("briefLabel", { kind: t(kindKey(kind)) })}
         </Label>
         <Textarea
           id="brief"
           ref={textareaRef}
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
-          placeholder={getPlaceholder(kind)}
+          placeholder={t(placeholderKey(kind))}
           className="resize-none field-sizing-none"
           rows={3}
           disabled={disabled}
@@ -73,7 +76,7 @@ export function BriefForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>Sources</Label>
+        <Label>{t("sources")}</Label>
         <SourceMultiSelect
           notebookId={notebookId}
           value={value.sourceIds}
@@ -83,7 +86,7 @@ export function BriefForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>Destination folder</Label>
+        <Label>{t("destinationFolder")}</Label>
         <FolderPicker
           notebookId={notebookId}
           value={value.folderId}
@@ -93,7 +96,7 @@ export function BriefForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>Model</Label>
+        <Label>{t("model")}</Label>
         <DialogModelSelector
           models={models}
           selectedModel={value.model}
@@ -118,34 +121,34 @@ export function BriefForm({
   );
 }
 
-function kindLabel(kind: StudyMaterialKind): string {
+function kindKey(kind: StudyMaterialKind): string {
   switch (kind) {
     case "simple_flashcard":
       return "flashcards";
     case "slide_deck":
-      return "slide deck";
+      return "slideDeck";
     case "mind_map":
-      return "mind map";
+      return "mindMap";
     default:
       return kind;
   }
 }
 
-function getPlaceholder(kind: StudyMaterialKind): string {
+function placeholderKey(kind: StudyMaterialKind): string {
   switch (kind) {
     case "quiz":
-      return 'e.g. "Generate 10 multiple-choice questions focusing on the key formulas and concepts from the selected sources, aimed at intermediate level."';
+      return "briefPlaceholderQuiz";
     case "simple_flashcard":
-      return 'e.g. "Create a detailed flashcard covering a core definition, terminology, or key concept, with a concise answer on the back."';
+      return "briefPlaceholderFlashcard";
     case "roadmap":
-      return 'e.g. "A step-by-step learning roadmap organized by difficulty, focusing on core concepts and practical projects to build."';
+      return "briefPlaceholderRoadmap";
     case "slide_deck":
-      return 'e.g. "A structured 8-slide presentation outlining the main arguments, methodology, and key findings from the source text."';
+      return "briefPlaceholderSlideDeck";
     case "mind_map":
-      return 'e.g. "A hierarchical mind map displaying the central themes, supporting details, and relationships between the main topics."';
+      return "briefPlaceholderMindMap";
     case "report":
-      return 'e.g. "A comprehensive summary report highlighting the key takeaways, data points, and recommendations, structured with clear headings."';
+      return "briefPlaceholderReport";
     default:
-      return 'e.g. "Describe the specific topics, structure, quantity, and focus area you want to generate."';
+      return "briefPlaceholderDefault";
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Eraser } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +27,7 @@ export function ClearHistoryDialog({
   onConfirm,
   isClearing,
 }: ClearHistoryDialogProps) {
+  const t = useTranslations("Chat");
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent size="sm">
@@ -33,14 +35,15 @@ export function ClearHistoryDialog({
           <AlertDialogMedia>
             <Eraser className="text-muted-foreground" />
           </AlertDialogMedia>
-          <AlertDialogTitle>Clear chat history?</AlertDialogTitle>
+          <AlertDialogTitle>{t("clearHistoryTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete every message in this conversation.
-            This action cannot be undone.
+            {t("clearHistoryDesc")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isClearing}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isClearing}>
+            {t("cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={(event) => {
@@ -49,7 +52,7 @@ export function ClearHistoryDialog({
             }}
             disabled={isClearing}
           >
-            {isClearing ? "Clearing..." : "Clear history"}
+            {isClearing ? t("clearing") : t("clearHistory")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

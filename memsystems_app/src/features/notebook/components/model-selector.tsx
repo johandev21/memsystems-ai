@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -31,6 +32,7 @@ export function ModelSelector({
   selectedModel,
   onModelChange,
 }: ModelSelectorProps) {
+  const t = useTranslations("Notebook");
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -75,7 +77,7 @@ export function ModelSelector({
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground/70" />
           <input
             type="text"
-            placeholder="Search models..."
+            placeholder={t("searchModels")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="w-full h-8 pl-8 pr-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 outline-hidden placeholder:text-muted-foreground/60 transition-colors"
@@ -86,7 +88,7 @@ export function ModelSelector({
           <div className="space-y-0.5 pr-2">
             {filteredModels.length === 0 ? (
               <div className="text-[11px] text-muted-foreground text-center py-8">
-                No models found
+                {t("noModelsFound")}
               </div>
             ) : (
               filteredModels.map((model) => (

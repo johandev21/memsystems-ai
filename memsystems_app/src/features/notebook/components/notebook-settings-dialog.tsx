@@ -19,6 +19,18 @@ import {
 import { dynamicIconImports } from "lucide-react/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -59,6 +71,8 @@ interface NotebookSettingsDialogProps {
 export function NotebookSettingsDialog({
   notebookId,
 }: NotebookSettingsDialogProps) {
+  const t = useTranslations("Notebook");
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
@@ -80,6 +94,8 @@ export function NotebookSettingsDialog({
   );
   const [isDragging, setIsDragging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -142,6 +158,30 @@ export function NotebookSettingsDialog({
     });
   };
 
+  const handleDelete = async () => {
+    setDeleteDialogOpen(false);
+    setOpen(false);
+    setIsDeleting(true);
+    toast.loading(t("deleting"));
+    try {
+      const res = await fetch(`/api/notebooks/${notebookId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to delete notebook (${res.status})`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
+      toast.dismiss();
+      toast.success(t("deleteNotebookSuccess"));
+      router.push("/home");
+    } catch (err) {
+      console.error("Failed to delete notebook:", err);
+      toast.dismiss();
+      toast.error(t("deleteNotebookFailed"));
+      setIsDeleting(false);
+    }
+  };
+
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       resetState();
@@ -152,13 +192,15 @@ export function NotebookSettingsDialog({
   const handleFileSelect = (file: File) => {
     setError(null);
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      const msg = `Unsupported format "${file.type || "unknown"}". Only JPEG, PNG, and WebP images are supported.`;
+      const msg = t("unsupportedFormat", { format: file.type || "unknown" });
       setError(msg);
       toast.error(msg);
       return;
     }
     if (file.size > MAX_BANNER_BYTES) {
-      const msg = `File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum size is 2 MB.`;
+      const msg = t("fileTooLarge", {
+        size: (file.size / (1024 * 1024)).toFixed(1),
+      });
       setError(msg);
       toast.error(msg);
       return;
@@ -301,13 +343,13 @@ export function NotebookSettingsDialog({
         queryKey: ["notebooks", notebookId],
       });
       await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
-      toast.success("Notebook settings saved");
+      toast.success(t("settingsSaved"));
       setOpen(false);
       resetState();
     } catch (err) {
       console.error("Failed to save notebook settings:", err);
-      toast.error("Failed to save notebook settings");
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(t("settingsSaveFailed"));
+      setError(err instanceof Error ? err.message : t("somethingWentWrong"));
     } finally {
       setIsSaving(false);
     }
@@ -320,38 +362,36 @@ export function NotebookSettingsDialog({
           variant="ghost"
           size="icon"
           className="h-7 w-7"
-          aria-label="Notebook settings"
+          aria-label={t("notebookSettings")}
         >
           <Settings className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:w-1/3 sm:min-w-[765px] sm:max-w-[calc(100vw-2rem)]">
         <DialogHeader>
-          <DialogTitle>Notebook settings</DialogTitle>
-          <DialogDescription>
-            Update the title, description, icon, and banner for this notebook.
-          </DialogDescription>
+          <DialogTitle>{t("notebookSettings")}</DialogTitle>
+          <DialogDescription>{t("notebookSettingsDesc")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-5 py-2">
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t("title")}</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Notebook title"
+              placeholder={t("notebookTitlePlaceholder")}
               maxLength={200}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("description")}</Label>
             <Textarea
               id="description"
               ref={descriptionRef}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add a short description..."
+              placeholder={t("descriptionPlaceholder")}
               rows={3}
               maxLength={500}
               className="field-sizing-none break-words"
@@ -359,7 +399,7 @@ export function NotebookSettingsDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label>Icon</Label>
+            <Label>{t("icon")}</Label>
             <div className="flex flex-wrap gap-2">
               {PRESET_ICONS.map(({ name, Icon, label }) => (
                 <button
@@ -383,7 +423,7 @@ export function NotebookSettingsDialog({
                 <Input
                   value={icon || ""}
                   onChange={(e) => setIcon(e.target.value)}
-                  placeholder="Or type a custom icon name (e.g. home, rocket)"
+                  placeholder={t("iconPlaceholder")}
                   maxLength={50}
                   className={cn(
                     icon &&
@@ -406,15 +446,13 @@ export function NotebookSettingsDialog({
             </div>
             {icon && !isValidIcon && (
               <p className="text-[11px] text-destructive font-medium flex items-center gap-1">
-                <span>
-                  Icon "{icon}" not found. Falling back to default book.
-                </span>
+                <span>{t("iconNotFound", { icon })}</span>
               </p>
             )}
           </div>
 
           <div className="grid gap-2">
-            <Label>Banner</Label>
+            <Label>{t("banner")}</Label>
             <label
               htmlFor="banner-input"
               onDrop={handleDrop}
@@ -445,7 +483,7 @@ export function NotebookSettingsDialog({
                 <>
                   <img
                     src={currentBannerPreview}
-                    alt="Banner preview"
+                    alt={t("bannerPreview")}
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{
                       objectPosition: `${Math.round(focalPoint.x * 100)}% ${Math.round(focalPoint.y * 100)}%`,
@@ -454,7 +492,7 @@ export function NotebookSettingsDialog({
                   <div className="absolute inset-0 bg-black/40" />
                   <div className="relative z-10 flex flex-col items-center gap-2 text-white">
                     <ImageIcon className="size-6" />
-                    <span className="text-xs">Click to set focal point</span>
+                    <span className="text-xs">{t("setFocalPoint")}</span>
                   </div>
                   <button
                     type="button"
@@ -479,7 +517,7 @@ export function NotebookSettingsDialog({
                       }
                     }}
                     className="absolute inset-0 z-20 cursor-crosshair focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                    aria-label="Set banner focal point. Click the preview or use arrow keys to move the focal point."
+                    aria-label={t("focalPointAria")}
                   />
                   <div
                     className="pointer-events-none absolute z-30 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-primary shadow-sm"
@@ -505,12 +543,8 @@ export function NotebookSettingsDialog({
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Upload className="size-6" />
-                  <span className="text-xs">
-                    Drop an image here or click to upload
-                  </span>
-                  <span className="text-[10px]">
-                    JPEG, PNG, WebP up to 2 MB
-                  </span>
+                  <span className="text-xs">{t("dropImage")}</span>
+                  <span className="text-[10px]">{t("imageFormats")}</span>
                 </div>
               )}
             </label>
@@ -522,19 +556,59 @@ export function NotebookSettingsDialog({
             )}
           </div>
         </div>
+
+        <div className="border-t border-destructive/20 pt-4">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+            <p className="text-xs text-muted-foreground mb-3">
+              {t("deleteNotebookDesc")}
+            </p>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2 className="size-4 mr-2" />
+              {t("deleteNotebook")}
+            </Button>
+          </div>
+        </div>
+
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
             disabled={isSaving}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
-            {isSaving ? "Saving..." : "Save changes"}
+            {isSaving ? t("saving") : t("saveChanges")}
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteNotebook")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteNotebookConfirm", { title: notebook.title })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {t("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDelete}
+            >
+              {isDeleting ? t("deleting") : t("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

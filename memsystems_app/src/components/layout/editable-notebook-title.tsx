@@ -7,9 +7,11 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { notebookQueryOptions } from "@/lib/notebooks";
 
 export function EditableNotebookTitle({ id }: { id: string }) {
+  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(id));
   const [isEditing, setIsEditing] = useState(false);
@@ -41,12 +43,12 @@ export function EditableNotebookTitle({ id }: { id: string }) {
     onSuccess: (updated) => {
       queryClient.setQueryData(["notebooks", id], updated);
       queryClient.invalidateQueries({ queryKey: ["notebooks"] });
-      toast.success("Notebook renamed successfully");
+      toast.success(t("renamed"));
       setIsEditing(false);
     },
     onError: (error) => {
       console.error("Failed to rename notebook:", error);
-      toast.error("Failed to rename notebook");
+      toast.error(t("renameFailed"));
       setTitle(notebook.title);
       setIsEditing(false);
     },

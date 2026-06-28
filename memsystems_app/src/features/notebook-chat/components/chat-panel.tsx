@@ -11,6 +11,7 @@ import { DefaultChatTransport } from "ai";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { chatMessagesQueryOptions, clearChatHistory } from "@/lib/chat";
 import { clientLogger as logger } from "@/lib/client-logger";
@@ -30,6 +31,7 @@ const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 const log = logger.child({ feature: "chat-panel" });
 
 export function ChatPanel({ notebookId }: { notebookId: string }) {
+  const t = useTranslations("Chat");
   const logCtx = useMemo(() => log.child({ notebookId }), [notebookId]);
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
@@ -188,7 +190,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
         queryKey: ["chat", notebookId, "messages"],
       });
       setIsClearDialogOpen(false);
-      toast.success("Chat history cleared");
+      toast.success(t("cleared"));
     },
     onError: (err: Error) => {
       logCtx.error("clear history failed", { error: err.message });
@@ -216,17 +218,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       sendMessage({ text });
     },
     [input, isLoading, sendMessage, logCtx],
-  );
-
-  const handleCtaClick = useCallback(
-    (text: string) => {
-      logCtx.debug("CTA clicked", { length: text.length });
-      setInput(text);
-      setTimeout(() => {
-        composerTextareaRef.current?.focus();
-      }, 50);
-    },
-    [logCtx],
   );
 
   const handleCopy = useCallback(
@@ -273,7 +264,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
                   notebookTitle={notebook.title}
                   description={notebook.description}
                   isUntitled={isUntitled}
-                  onCtaClick={handleCtaClick}
                 />
               )}
             </div>

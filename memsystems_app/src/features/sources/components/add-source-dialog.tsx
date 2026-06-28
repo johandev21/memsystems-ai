@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -57,6 +58,7 @@ export function AddSourceDialog({
   notebookId: string;
   children: ReactNode;
 }) {
+  const t = useTranslations("Sources");
   const queryClient = useQueryClient();
   const { data: sources } = useQuery(sourcesQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
@@ -91,7 +93,7 @@ export function AddSourceDialog({
 
   const fileMutation = useMutation({
     mutationFn: (file: File) => createFileSource(notebookId, file),
-    onSuccess: () => onSuccess("File added"),
+    onSuccess: () => onSuccess(t("fileAdded")),
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -101,14 +103,14 @@ export function AddSourceDialog({
         url: urlValue,
         title: urlTitle || undefined,
       }),
-    onSuccess: () => onSuccess("Website added"),
+    onSuccess: () => onSuccess(t("websiteAdded")),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const textMutation = useMutation({
     mutationFn: () =>
       createTextSource(notebookId, { title: textTitle, rawText: textBody }),
-    onSuccess: () => onSuccess("Text added"),
+    onSuccess: () => onSuccess(t("textAdded")),
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -141,9 +143,7 @@ export function AddSourceDialog({
     const file = e.target.files?.[0];
     if (file) {
       if (!isClientSupportedFile(file)) {
-        toast.error(
-          "Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.",
-        );
+        toast.error(t("unsupportedFileType"));
         e.target.value = "";
         return;
       }
@@ -167,7 +167,7 @@ export function AddSourceDialog({
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/60 bg-card shadow-2xl">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="text-xl font-semibold text-center text-foreground">
-            Add Knowledge Sources
+            {t("addKnowledgeSources")}
           </DialogTitle>
         </DialogHeader>
 
@@ -207,12 +207,10 @@ export function AddSourceDialog({
                 )}
               </div>
               <h3 className="text-[17px] font-medium text-foreground mb-1.5 transition-colors group-hover:text-primary">
-                {fileMutation.isPending
-                  ? "Uploading..."
-                  : "Drop your files here"}
+                {fileMutation.isPending ? t("uploading") : t("dropFiles")}
               </h3>
               <p className="text-sm text-muted-foreground mb-8 text-center max-w-[280px]">
-                Support for PDFs, docs, markdown, and text files.
+                {t("supportFormats")}
               </p>
 
               <div className="flex flex-wrap justify-center gap-2.5 w-full relative z-10">
@@ -224,7 +222,7 @@ export function AddSourceDialog({
                   disabled={busy}
                 >
                   <Upload className="h-4 w-4 mr-2 text-muted-foreground" />
-                  Upload files
+                  {t("uploadFiles")}
                 </Button>
                 <Button
                   type="button"
@@ -234,17 +232,17 @@ export function AddSourceDialog({
                   disabled={busy}
                 >
                   <LinkIcon className="h-4 w-4 mr-2 text-blue-500/80" />
-                  Websites
+                  {t("websites")}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   disabled
                   className="h-10 px-5 bg-background shadow-sm transition-all opacity-50 cursor-not-allowed"
-                  title="Coming soon"
+                  title={t("comingSoon")}
                 >
                   <HardDrive className="h-4 w-4 mr-2 text-emerald-500/80" />
-                  Drive
+                  {t("drive")}
                 </Button>
                 <Button
                   type="button"
@@ -254,14 +252,14 @@ export function AddSourceDialog({
                   disabled={busy}
                 >
                   <Type className="h-4 w-4 mr-2 text-amber-500/80" />
-                  Copied text
+                  {t("copiedText")}
                 </Button>
               </div>
 
               {/* Full-area click target for file upload (sits behind the buttons) */}
               <button
                 type="button"
-                aria-label="Upload a file"
+                aria-label={t("uploadFiles")}
                 onClick={() => fileInputRef.current?.click()}
                 disabled={busy}
                 className="absolute inset-0 z-0 cursor-pointer disabled:cursor-progress"
@@ -284,10 +282,10 @@ export function AddSourceDialog({
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                {t("back")}
               </button>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="source-url">Website URL</Label>
+                <Label htmlFor="source-url">{t("websiteUrl")}</Label>
                 <Input
                   id="source-url"
                   type="url"
@@ -300,10 +298,10 @@ export function AddSourceDialog({
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="source-url-title">Title (optional)</Label>
+                <Label htmlFor="source-url-title">{t("titleOptional")}</Label>
                 <Input
                   id="source-url-title"
-                  placeholder="Defaults to the page title"
+                  placeholder={t("defaultsToPageTitle")}
                   value={urlTitle}
                   onChange={(e) => setUrlTitle(e.target.value)}
                   disabled={busy}
@@ -313,10 +311,10 @@ export function AddSourceDialog({
                 {urlMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Scraping...
+                    {t("scraping")}
                   </>
                 ) : (
-                  "Add website"
+                  t("addWebsite")
                 )}
               </Button>
             </form>
@@ -337,13 +335,13 @@ export function AddSourceDialog({
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                {t("back")}
               </button>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="source-text-title">Title</Label>
+                <Label htmlFor="source-text-title">{t("title")}</Label>
                 <Input
                   id="source-text-title"
-                  placeholder="My study notes"
+                  placeholder={t("myStudyNotes")}
                   value={textTitle}
                   onChange={(e) => setTextTitle(e.target.value)}
                   autoFocus
@@ -352,11 +350,11 @@ export function AddSourceDialog({
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="source-text-body">Content</Label>
+                <Label htmlFor="source-text-body">{t("content")}</Label>
                 <Textarea
                   id="source-text-body"
                   ref={textareaRef}
-                  placeholder="Paste or write your text here..."
+                  placeholder={t("pasteTextHere")}
                   value={textBody}
                   onChange={(e) => setTextBody(e.target.value)}
                   rows={3}
@@ -372,10 +370,10 @@ export function AddSourceDialog({
                 {textMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Adding...
+                    {t("adding")}
                   </>
                 ) : (
-                  "Add text"
+                  t("addText")
                 )}
               </Button>
             </form>
@@ -384,7 +382,7 @@ export function AddSourceDialog({
           {/* Progress / Quota */}
           <div className="flex flex-col gap-2 px-2">
             <div className="flex items-center justify-between text-[13px] font-medium text-muted-foreground">
-              <span>Sources limit</span>
+              <span>{t("sourcesLimit")}</span>
               <span className="text-foreground">
                 {count} / {SOURCE_LIMIT}
               </span>

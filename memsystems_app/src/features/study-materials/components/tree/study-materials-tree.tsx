@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -127,6 +128,7 @@ interface RealDataProps {
 
 export function StudyMaterialsTree(props: RealDataProps) {
   const { notebookId, onSelectMaterial, className } = props;
+  const t = useTranslations("StudyMaterials");
   const queryClient = useQueryClient();
   const foldersQuery = useQuery(foldersQueryOptions(notebookId));
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
@@ -150,11 +152,11 @@ export function StudyMaterialsTree(props: RealDataProps) {
       queryClient.invalidateQueries({
         queryKey: ["study-materials", notebookId],
       });
-      toast.success("Study material deleted successfully");
+      toast.success(t("deleted"));
       setMaterialToDelete(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message ?? "Failed to delete study material");
+      toast.error(err.message ?? t("deleteFailed"));
     },
   });
 
@@ -167,11 +169,11 @@ export function StudyMaterialsTree(props: RealDataProps) {
       queryClient.invalidateQueries({
         queryKey: ["study-materials", notebookId],
       });
-      toast.success("Folder deleted successfully");
+      toast.success(t("folderDeleted"));
       setFolderToDelete(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message ?? "Failed to delete folder");
+      toast.error(err.message ?? t("folderDeleteFailed"));
     },
   });
 
@@ -183,9 +185,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
 
   const handleDeleteFolderRequest = (id: string, name: string) => {
     if (hasActiveMaterials(id, folders, materials)) {
-      toast.error(
-        `Cannot delete folder "${name}": please delete all study materials inside first`,
-      );
+      toast.error(t("folderNotEmpty", { name }));
       return;
     }
     setFolderToDelete({ id, name });
@@ -241,11 +241,10 @@ export function StudyMaterialsTree(props: RealDataProps) {
             <Sparkles className="h-4 w-4" />
           </div>
           <h3 className="font-semibold text-xs text-foreground tracking-tight">
-            No study materials
+            {t("noStudyMaterials")}
           </h3>
           <p className="text-[10px] text-muted-foreground mt-1.5 max-w-[200px] leading-relaxed">
-            Generate quizzes, flashcards, or roadmaps from your sources in the
-            Studio panel above.
+            {t("generateFromSources")}
           </p>
         </div>
       ) : (
@@ -271,19 +270,18 @@ export function StudyMaterialsTree(props: RealDataProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Study Material</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteMaterialTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{materialToDelete?.name}
-              &quot;? This will move it to the trash.
+              {t("deleteMaterialDesc", { name: materialToDelete?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -297,15 +295,13 @@ export function StudyMaterialsTree(props: RealDataProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Folder</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteFolderTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete folder &quot;
-              {folderToDelete?.name}
-              &quot;? This will move it to the trash.
+              {t("deleteFolderDesc", { name: folderToDelete?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (folderToDelete) {
@@ -314,7 +310,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
               }}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,4 +1,3 @@
-import { FileText } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -6,7 +5,6 @@ interface NotebookCardProps {
   id: string;
   title: string;
   description: string;
-  fileCount: number;
   updatedAt: string;
   imageUrl?: string;
   icon: React.ReactNode;
@@ -17,7 +15,6 @@ export function NotebookCard({
   id,
   title,
   description,
-  fileCount,
   updatedAt,
   imageUrl,
   icon,
@@ -51,11 +48,7 @@ export function NotebookCard({
         </h3>
         <p className="line-clamp-2 text-sm text-foreground/75">{description}</p>
       </div>
-      <div className="flex items-center justify-between px-4 pb-4 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <FileText className="size-3.5" />
-          {fileCount} files
-        </span>
+      <div className="flex items-center px-4 pb-4 text-xs text-muted-foreground">
         <span>{updatedAt}</span>
       </div>
     </Link>
