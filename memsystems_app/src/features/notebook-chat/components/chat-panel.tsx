@@ -245,10 +245,10 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
 
   return (
     <div className="flex flex-1 h-full w-full flex-col min-h-0">
-      <div className="mx-auto w-full max-w-3xl flex flex-col min-h-0 flex-1">
+      <div className="mx-auto w-full max-w-4xl flex flex-col min-h-0 flex-1">
         <MessageScrollerProvider autoScroll>
           <MessageScroller className="flex-1 min-h-0">
-            <MessageScrollerViewport className="scroll-fade-b scrollbar-thin scrollbar-gutter-stable">
+            <MessageScrollerViewport>
               <MessageScrollerContent className="p-2 min-h-full flex flex-col justify-start gap-0">
                 <NotebookBanner
                   title={notebook.title}

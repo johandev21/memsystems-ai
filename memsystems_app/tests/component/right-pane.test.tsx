@@ -58,7 +58,9 @@ describe("RightPane", () => {
         onModeChange={() => {}}
       />,
     );
-    expect(screen.getByText("Select a study material to view its contents")).toBeInTheDocument();
+    expect(
+      screen.getByText("Select a study material to view its contents"),
+    ).toBeInTheDocument();
   });
 
   it("renders the viewer in viewer mode", () => {

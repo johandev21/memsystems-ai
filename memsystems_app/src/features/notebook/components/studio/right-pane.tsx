@@ -18,11 +18,7 @@ export interface RightPaneProps {
   onModeChange: (mode: RightPaneMode) => void;
 }
 
-export function RightPane({
-  notebookId,
-  mode,
-  onModeChange,
-}: RightPaneProps) {
+export function RightPane({ notebookId, mode, onModeChange }: RightPaneProps) {
   switch (mode.kind) {
     case "select":
       return (
@@ -94,4 +90,3 @@ function RightPaneViewerWrapper({
 
   return <MaterialViewer material={material} onClose={onClose} />;
 }
-

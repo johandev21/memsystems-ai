@@ -174,8 +174,8 @@ function AssistantMessage({
     return (
       <Message align="start">
         <MessageContent>
-          <Bubble variant="outline" className="max-w-[85%] w-full">
-            <BubbleContent className="p-5">
+          <Bubble variant="ghost" className="w-full max-w-full">
+            <BubbleContent className="p-0">
               <div className="flex flex-col gap-2.5 animate-pulse">
                 <div className="h-4 bg-muted-foreground/20 rounded-md w-[85%]" />
                 <div className="h-4 bg-muted-foreground/20 rounded-md w-[60%]" />
@@ -191,11 +191,8 @@ function AssistantMessage({
   return (
     <Message align="start">
       <MessageContent>
-        <Bubble
-          variant="outline"
-          className="group max-w-[85%] w-full rounded-xl border border-border/60 bg-card/50 shadow-sm"
-        >
-          <BubbleContent className="p-5">
+        <Bubble variant="ghost" className="group w-full max-w-full">
+          <BubbleContent className="p-0">
             {message.parts.map((part, index) =>
               isTextPart(part) ? (
                 <div key={`${message.id}-${index}`} className="sd-root">
