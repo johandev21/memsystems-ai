@@ -48,7 +48,7 @@ function pushSchema() {
   const result = spawnSync(
     process.platform === "win32" ? "pnpm.cmd" : "pnpm",
     ["exec", "drizzle-kit", "push"],
-    { stdio: "inherit", env: process.env, shell: false },
+    { stdio: "inherit", env: process.env, shell: process.platform === "win32" },
   );
   if (result.status !== 0) {
     throw new Error(`drizzle-kit push exited with status ${result.status}`);

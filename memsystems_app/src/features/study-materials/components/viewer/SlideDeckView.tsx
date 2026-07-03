@@ -149,7 +149,7 @@ export function SlideDeckView({
           return (
             <li
               key={`${index}-${cleanLine}`}
-              className="text-sm md:text-base leading-relaxed flex items-start gap-2.5 text-foreground/80"
+              className="text-base md:text-lg leading-relaxed flex items-start gap-2.5 text-foreground/80"
             >
               <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
               <span className="whitespace-pre-wrap">{cleanLine}</span>
@@ -175,7 +175,7 @@ export function SlideDeckView({
         {/* Fullscreen Header Controls */}
         {isFullscreen && (
           <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-10 select-none bg-background/60 backdrop-blur-md px-4 py-2 rounded-lg border border-border">
-            <span className="text-xs font-semibold text-muted-foreground font-mono">
+            <span className="text-sm font-semibold text-muted-foreground font-mono">
               {t("slideProgress", {
                 current: currentIdx + 1,
                 total: totalSlides,
@@ -186,7 +186,7 @@ export function SlideDeckView({
               variant="ghost"
               size="sm"
               onClick={toggleFullscreen}
-              className="h-8 text-xs cursor-pointer"
+              className="h-8 text-sm cursor-pointer"
             >
               <Minimize2 className="h-4 w-4 mr-1.5" />
               {t("exitFullscreen")}
@@ -239,7 +239,7 @@ export function SlideDeckView({
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </Button>
-            <span className="text-xs font-semibold text-muted-foreground font-mono">
+            <span className="text-sm font-semibold text-muted-foreground font-mono">
               {t("slideProgress", {
                 current: currentIdx + 1,
                 total: totalSlides,
@@ -276,7 +276,7 @@ export function SlideDeckView({
                 type="button"
                 variant={showNotes ? "secondary" : "ghost"}
                 size="sm"
-                className="h-8 text-xs cursor-pointer"
+                className="h-8 text-sm cursor-pointer"
                 onClick={() => setShowNotes(!showNotes)}
               >
                 <FileText className="h-3.5 w-3.5 mr-1.5" />
@@ -308,11 +308,11 @@ export function SlideDeckView({
       {/* Speaker Notes Drawer (Outside fullscreen) */}
       {!isFullscreen && currentSlide.notes && showNotes && (
         <div className="w-full max-w-3xl border border-border bg-card p-4 rounded-xl shadow-sm space-y-2 animate-in slide-in-from-bottom-2 duration-200">
-          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-wider">
             <FileText className="h-4 w-4 text-primary" />
             <span>{t("speakerNotes")}</span>
           </div>
-          <p className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">
+          <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">
             {currentSlide.notes}
           </p>
         </div>

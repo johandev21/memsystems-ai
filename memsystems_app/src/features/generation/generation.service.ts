@@ -354,29 +354,38 @@ export class GenerationService {
   }
 
   private generateTitle(kind: StudyMaterialKind, content: any): string {
+    let rawTitle = "";
     if (
       content.title &&
       typeof content.title === "string" &&
       content.title.trim()
     ) {
-      return content.title.trim();
+      rawTitle = content.title.trim();
+    } else {
+      switch (kind) {
+        case "quiz":
+          rawTitle = `Quiz (${content.questions?.length ?? 0} questions)`;
+          break;
+        case "simple_flashcard":
+          rawTitle = "Flashcards";
+          break;
+        case "report":
+          rawTitle = content.summary?.slice(0, 100) || "Report";
+          break;
+        case "roadmap":
+          rawTitle = `Roadmap (${content.phases?.length ?? 0} phases)`;
+          break;
+        case "slide_deck":
+          rawTitle = `Slides (${content.slides?.length ?? 0} slides)`;
+          break;
+        case "mind_map":
+          rawTitle = `Mind Map (${content.nodes?.length ?? 0} nodes)`;
+          break;
+        default:
+          rawTitle = "Untitled";
+      }
     }
-    switch (kind) {
-      case "quiz":
-        return `Quiz (${content.questions?.length ?? 0} questions)`;
-      case "simple_flashcard":
-        return "Flashcards";
-      case "report":
-        return content.summary?.slice(0, 100) || "Report";
-      case "roadmap":
-        return `Roadmap (${content.phases?.length ?? 0} phases)`;
-      case "slide_deck":
-        return `Slides (${content.slides?.length ?? 0} slides)`;
-      case "mind_map":
-        return `Mind Map (${content.nodes?.length ?? 0} nodes)`;
-      default:
-        return "Untitled";
-    }
+    return slugifyTitle(rawTitle, kind);
   }
 
   private async fetchSourceTexts(
@@ -812,4 +821,58 @@ function extractJson(text: string): string {
   }
 
   return text.trim();
+}
+
+/**
+ * Normalizes and slugifies a title and appends the proper English suffix for the study material kind.
+ */
+function slugifyTitle(title: string, kind: StudyMaterialKind): string {
+  const suffixMap: Record<StudyMaterialKind, string> = {
+    quiz: "-quiz",
+    simple_flashcard: "-flashcards",
+    report: "-report",
+    roadmap: "-roadmap",
+    slide_deck: "-slide-deck",
+    mind_map: "-mind-map",
+  };
+
+  const suffix = suffixMap[kind];
+  let base = title.trim();
+
+  // Strip existing suffix at the end if present (e.g. "-quiz", " quiz", "-flashcards")
+  const suffixWithoutHyphen = suffix.startsWith("-")
+    ? suffix.substring(1)
+    : suffix;
+  const suffixRegex = new RegExp(
+    `(?:[-\\s]${suffixWithoutHyphen}|^${suffixWithoutHyphen})$`,
+    "i",
+  );
+  if (suffixRegex.test(base)) {
+    base = base.replace(suffixRegex, "");
+  }
+
+  // Normalize Unicode accents (e.g., concepción -> concepcion)
+  let slug = base
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  // Replace any characters that aren't a-z, 0-9, space, or hyphen
+  slug = slug.replace(/[^a-z0-9 -]/g, "");
+
+  // Replace spaces and underscores with hyphens
+  slug = slug.replace(/[\s_]+/g, "-");
+
+  // Collapse consecutive hyphens
+  slug = slug.replace(/-+/g, "-");
+
+  // Trim leading/trailing hyphens from the slug
+  slug = slug.replace(/^-+|-+$/g, "");
+
+  // If the slug is empty, use a default kind-based name
+  if (!slug) {
+    slug = kind.replace("_", "-");
+  }
+
+  return `${slug}${suffix}`;
 }

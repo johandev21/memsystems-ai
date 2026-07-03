@@ -162,15 +162,21 @@ function AssistantMessage({
   onRegenerate: () => void;
   showRegenerate: boolean;
 }) {
+  const reasoningPart = message.parts.find(isReasoningPart);
+  const hasReasoning = reasoningPart && reasoningPart.text.trim().length > 0;
+
   const isStreaming = message.parts.some(
-    (part) => isTextPart(part) && part.state === "streaming",
+    (part) =>
+      (isTextPart(part) && part.state === "streaming") ||
+      (isReasoningPart(part) &&
+        (part as { state?: string }).state === "streaming"),
   );
   const fullText = message.parts
     .filter(isTextPart)
     .map((part) => sanitizeCitations(part.text ?? ""))
     .join("");
 
-  if (fullText.trim() === "") {
+  if (fullText.trim() === "" && !hasReasoning) {
     return (
       <Message align="start">
         <MessageContent>
@@ -192,7 +198,22 @@ function AssistantMessage({
     <Message align="start">
       <MessageContent>
         <Bubble variant="ghost" className="group w-full max-w-full">
-          <BubbleContent className="p-0">
+          <BubbleContent className="p-0 flex flex-col gap-2">
+            {hasReasoning && (
+              <div className="border-l-2 border-primary/40 pl-3 py-1.5 text-xs text-muted-foreground bg-muted/20 rounded-r-md">
+                <details className="group" open>
+                  <summary className="cursor-pointer font-semibold text-muted-foreground/80 hover:text-foreground select-none list-none flex items-center gap-1.5">
+                    <span className="inline-block text-[9px] transition-transform duration-200 group-open:rotate-90 text-primary">
+                      ▶
+                    </span>
+                    Thinking Process
+                  </summary>
+                  <div className="mt-2 whitespace-pre-wrap font-mono leading-relaxed max-h-60 overflow-y-auto pr-1 text-muted-foreground/80">
+                    {reasoningPart.text}
+                  </div>
+                </details>
+              </div>
+            )}
             {message.parts.map((part, index) =>
               isTextPart(part) ? (
                 <div key={`${message.id}-${index}`} className="sd-root">
@@ -210,7 +231,7 @@ function AssistantMessage({
               <CitedSources sources={citedSources} />
             )}
             {!isStreaming && (
-              <MessageFooter className="px-0 mt-3">
+              <MessageFooter className="px-0 mt-1">
                 <MessageActions
                   fullText={fullText}
                   onCopy={onCopy}
@@ -328,6 +349,15 @@ function CitedSources({ sources }: { sources: CitedSourceInfo[] }) {
 function isTextPart(part: UIMessage["parts"][number]): part is TextPart {
   const candidate = part as unknown as TextPart;
   return candidate.type === "text" && typeof candidate.text === "string";
+}
+
+type ReasoningPart = { type: "reasoning"; text: string };
+
+function isReasoningPart(
+  part: UIMessage["parts"][number],
+): part is ReasoningPart {
+  const candidate = part as unknown as ReasoningPart;
+  return candidate.type === "reasoning" && typeof candidate.text === "string";
 }
 
 function sanitizeCitations(text: string): string {

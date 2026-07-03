@@ -329,6 +329,7 @@
     "deleting": "Deleting..."
   },
   "QuizView": {
+    "checkAnswer": "Check Answer",
     "result": "Quiz Result: {correct} / {total}",
     "score": "Score: ",
     "perfectScoreText": "Perfect score! Outstanding work!",

@@ -280,6 +280,36 @@ describe("NotebookChatService", () => {
 
       expect(assistantMsg.citedSourceIds).toContain(source.id);
     });
+
+    it("onFinish persists assistant message with reasoning if generated", async () => {
+      const u = await seedUser();
+      const notebook = await seedNotebook(u.id, { title: "Chat" });
+
+      await service.sendMessage(u.id, notebook.id, {
+        content: "Explain quantum physics",
+        model: "openai/gpt-4o-mini",
+      });
+
+      const args = mocks.streamText.mock.calls[0][0] as StreamTextArgs;
+      const onFinish = args.onFinish;
+      expect(onFinish).toBeDefined();
+
+      const responseText = "Quantum physics is...";
+      const reasoningText = "Analyzing prompt. Formulating simple explanation.";
+      await (onFinish as any)({
+        text: responseText,
+        finishReason: "stop",
+        usage: { promptTokens: 10, completionTokens: 5 },
+        reasoning: reasoningText,
+      });
+
+      const msgs = await service.listMessages(u.id, notebook.id);
+      expect(msgs).toHaveLength(2); // user + assistant
+      const assistantMsg = msgs[1];
+      expect(assistantMsg.role).toBe("assistant");
+      expect(assistantMsg.content).toBe(responseText);
+      expect(assistantMsg.reasoning).toBe(reasoningText);
+    });
   });
 
   describe("listMessages", () => {

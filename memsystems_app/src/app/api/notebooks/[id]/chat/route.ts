@@ -15,10 +15,17 @@ const textPartSchema = z.object({
   state: z.enum(["streaming", "done"]).optional(),
 });
 
+const reasoningPartSchema = z.object({
+  type: z.literal("reasoning"),
+  text: z.string(),
+});
+
+const messagePartSchema = z.union([textPartSchema, reasoningPartSchema]);
+
 const messageSchema = z.object({
   id: z.string().optional(),
   role: z.enum(["user", "assistant"]),
-  parts: z.array(textPartSchema).min(1),
+  parts: z.array(messagePartSchema).min(1),
 });
 
 const allowedModels = [

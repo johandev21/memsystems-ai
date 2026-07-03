@@ -12,6 +12,7 @@ export interface ChatMessageDTO {
   id: string;
   role: "user" | "assistant";
   content: string;
+  reasoning?: string | null;
   citedSourceIds: string[] | null;
   citedSources: CitedSourceDTO[];
   createdAt: string;

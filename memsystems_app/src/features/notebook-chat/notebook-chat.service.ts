@@ -50,6 +50,7 @@ export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  reasoning?: string | null;
   citedSourceIds: string[] | null;
   citedSources: CitedSourceMeta[];
   createdAt: Date;
@@ -111,6 +112,7 @@ export class NotebookChatService {
         id: r.id,
         role: r.role,
         content: r.content,
+        reasoning: r.reasoning,
         citedSourceIds: r.citedSourceIds,
         citedSources,
         createdAt: r.createdAt,
@@ -243,12 +245,27 @@ export class NotebookChatService {
             stack: error instanceof Error ? error.stack : undefined,
           });
         },
-        onFinish: async ({ text, finishReason, usage }) => {
+        onFinish: async ({ text, finishReason, usage, reasoning }) => {
+          const reasoningString = reasoning
+            ? typeof reasoning === "string"
+              ? reasoning
+              : Array.isArray(reasoning)
+                ? reasoning
+                    .map((r) =>
+                      typeof r === "object" && r && "text" in r
+                        ? (r as { text: string }).text
+                        : "",
+                    )
+                    .join("")
+                : null
+            : null;
+
           logCtx.info("streamText onFinish", {
             finishReason,
             usage,
             textLength: text.length,
             textPreview: text.slice(0, 200),
+            hasReasoning: !!reasoningString,
           });
           const citedSourceIds = this.extractCitations(
             text,
@@ -263,6 +280,7 @@ export class NotebookChatService {
                 notebookId,
                 role: "assistant",
                 content: cleanContent,
+                reasoning: reasoningString,
                 citedSourceIds,
               })
               .returning();
@@ -290,7 +308,9 @@ export class NotebookChatService {
 
     logCtx.info("streamText started, returning UIMessageStreamResponse");
     return {
-      stream: result.toUIMessageStreamResponse(),
+      stream: result.toUIMessageStreamResponse({
+        sendReasoning: true,
+      }),
       userMessageId: userMessage.id,
     };
   }

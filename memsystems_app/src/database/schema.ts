@@ -191,6 +191,7 @@ export const notebookChatMessages = pgTable(
       .references(() => notebooks.id, { onDelete: "cascade" }),
     role: chatRoleEnum("role").notNull(),
     content: text("content").notNull(),
+    reasoning: text("reasoning"),
     citedSourceIds: jsonb("cited_source_ids").$type<string[]>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

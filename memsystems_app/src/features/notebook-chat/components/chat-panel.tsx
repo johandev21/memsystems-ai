@@ -115,13 +115,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               id: m.id,
               role: m.role,
               parts: m.parts.filter(
-                (
-                  p,
-                ): p is {
-                  type: "text";
-                  text: string;
-                  state?: "streaming" | "done";
-                } => p.type === "text",
+                (p) => p.type === "text" || p.type === "reasoning",
               ),
             })),
           },
@@ -145,7 +139,12 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       chatHistory.map((msg) => ({
         id: msg.id,
         role: msg.role as "user" | "assistant",
-        parts: [{ type: "text" as const, text: msg.content }],
+        parts: msg.reasoning
+          ? [
+              { type: "reasoning" as const, text: msg.reasoning },
+              { type: "text" as const, text: msg.content },
+            ]
+          : [{ type: "text" as const, text: msg.content }],
       })),
     [chatHistory],
   );

@@ -52,7 +52,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
     <div className="flex flex-col items-center justify-center w-full gap-5">
       {/* Deck Mastery Progress Bar */}
       <div className="w-full max-w-2xl bg-card border border-border p-3.5 rounded-xl shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+        <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground tracking-wider uppercase">
           <span>{t("deckMastery")}</span>
           <span>
             {t("cardsMastered", { mastered: masteredCount, total: totalCards })}
@@ -64,7 +64,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <div className="flex items-center justify-between text-[11px] pt-0.5">
+        <div className="flex items-center justify-between text-xs pt-0.5">
           <span className="font-bold text-foreground">
             {t("percentMastered", { percent: progressPercent })}
           </span>
@@ -75,7 +75,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
       </div>
 
       {/* Stats Header for Active Card */}
-      <div className="flex items-center justify-between w-full max-w-2xl text-xs px-1">
+      <div className="flex items-center justify-between w-full max-w-2xl text-sm px-1">
         <div className="flex items-center gap-2">
           <span className="bg-muted px-2 py-0.5 rounded-full text-muted-foreground font-medium font-mono">
             {t("reviewsCount", { count: currentCardStats.reviewCount })}
@@ -100,7 +100,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
           <button
             type="button"
             onClick={handleReset}
-            className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[10px]"
+            className="text-muted-foreground hover:text-foreground underline cursor-pointer text-xs"
           >
             {t("resetStats")}
           </button>
@@ -127,7 +127,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
         >
           {/* Front Face */}
           <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-between text-center shadow-md select-none">
-            <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+            <span className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
               {t("question")}
             </span>
             <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
@@ -137,14 +137,14 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
                 </p>
               </div>
             </div>
-            <span className="text-[10px] text-muted-foreground/60 flex items-center gap-1">
+            <span className="text-xs text-muted-foreground/60 flex items-center gap-1">
               <RotateCw className="h-3 w-3" /> {t("clickToFlip")}
             </span>
           </div>
 
           {/* Back Face */}
           <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-between text-center shadow-md select-none">
-            <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+            <span className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
               {t("answer")}
             </span>
             <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
@@ -163,7 +163,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
                   e.stopPropagation();
                   handleRate("dont-know");
                 }}
-                className="border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 text-xs px-3 h-8"
+                className="border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 text-sm px-3 h-8"
               >
                 {t("needPractice")}
               </Button>
@@ -175,7 +175,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
                   e.stopPropagation();
                   handleRate("know");
                 }}
-                className="border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs px-3 h-8"
+                className="border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm px-3 h-8"
               >
                 {t("knewThis")}
               </Button>
@@ -192,12 +192,12 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
           size="sm"
           onClick={handlePrev}
           disabled={totalCards <= 1}
-          className="h-8 text-xs gap-1"
+          className="h-8 text-sm gap-1"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {tCommon("previous")}
         </Button>
-        <span className="text-xs font-semibold text-muted-foreground font-mono">
+        <span className="text-sm font-semibold text-muted-foreground font-mono">
           {t("cardProgress", {
             current: currentCardIndex + 1,
             total: totalCards,
@@ -209,7 +209,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
           size="sm"
           onClick={handleNext}
           disabled={totalCards <= 1}
-          className="h-8 text-xs gap-1"
+          className="h-8 text-sm gap-1"
         >
           {tCommon("next")}
           <ChevronRight className="h-3.5 w-3.5" />
@@ -221,7 +221,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
         type="button"
         variant="ghost"
         size="sm"
-        className="text-muted-foreground text-xs"
+        className="text-muted-foreground text-sm"
         onClick={() => setIsFlipped(!isFlipped)}
       >
         {isFlipped ? (

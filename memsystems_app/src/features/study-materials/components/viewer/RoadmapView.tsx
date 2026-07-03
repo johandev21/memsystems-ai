@@ -35,7 +35,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-2 animate-in fade-in duration-200">
-        <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+        <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground tracking-wider uppercase">
           <span>{t("roadmapProgress")}</span>
           <span>
             {t("topicsMastered", {
@@ -50,7 +50,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <div className="flex items-center justify-between text-xs pt-1">
+        <div className="flex items-center justify-between text-sm pt-1">
           <span className="font-bold text-foreground">
             {t("percentMastered", { percent: progressPercent })}
           </span>
@@ -58,7 +58,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
             <button
               type="button"
               onClick={resetProgress}
-              className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[10px]"
+              className="text-muted-foreground hover:text-foreground underline cursor-pointer text-xs"
             >
               {t("resetProgress")}
             </button>
@@ -67,13 +67,13 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
       </div>
 
       {progressPercent === 100 && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-center text-xs font-medium text-emerald-800 dark:text-emerald-300 animate-in zoom-in-95 duration-200">
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-center text-sm font-medium text-emerald-800 dark:text-emerald-300 animate-in zoom-in-95 duration-200">
           {t("completedSuccess")}
         </div>
       )}
 
       {content.description && (
-        <p className="text-xs text-muted-foreground pl-1">
+        <p className="text-sm text-muted-foreground pl-1">
           {content.description}
         </p>
       )}
@@ -118,13 +118,13 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
                         {phase.title}
                       </h4>
                       {phase.description && !isExpanded && (
-                        <p className="text-xs text-muted-foreground truncate max-w-xs sm:max-w-md">
+                        <p className="text-sm text-muted-foreground truncate max-w-xs sm:max-w-md">
                           {phase.description}
                         </p>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-                      <span className="text-[10px] bg-muted/80 px-2 py-0.5 rounded-full font-mono tabular-nums text-muted-foreground">
+                      <span className="text-xs bg-muted/80 px-2 py-0.5 rounded-full font-mono tabular-nums text-muted-foreground">
                         {t("phaseDoneCount", {
                           completed: phaseCompletedCount,
                           total: phaseTopics.length,
@@ -163,7 +163,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
                               <div className="min-w-0 flex-1">
                                 <span
                                   className={cn(
-                                    "text-xs font-medium block leading-snug transition-all duration-200",
+                                    "text-sm font-medium block leading-snug transition-all duration-200",
                                     isDone
                                       ? "text-muted-foreground line-through opacity-70"
                                       : "text-foreground",
@@ -174,7 +174,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
                                 {topic.description && (
                                   <span
                                     className={cn(
-                                      "block text-[11px] leading-relaxed transition-all duration-200",
+                                      "block text-xs leading-relaxed transition-all duration-200",
                                       isDone
                                         ? "text-muted-foreground/50 line-through opacity-70"
                                         : "text-muted-foreground",

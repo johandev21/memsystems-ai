@@ -86,7 +86,7 @@ describe("GenerationService", () => {
 
     expect(saved).toHaveLength(1);
     expect(saved[0].kind).toBe("quiz");
-    expect(saved[0].title).toBe("Philosophy Quiz");
+    expect(saved[0].title).toBe("philosophy-quiz");
     expect((saved[0].content as any).questions[0].prompt).toBe(
       "What is metaphysics?",
     );
@@ -122,7 +122,7 @@ describe("GenerationService", () => {
 
     expect(saved).toHaveLength(1);
     expect(saved[0].kind).toBe("quiz");
-    expect(saved[0].title).toBe("Quiz (1 questions)");
+    expect(saved[0].title).toBe("quiz-1-questions-quiz");
     expect((saved[0].content as any).questions).toHaveLength(1);
     expect((saved[0].content as any).questions[0].prompt).toBe("Question");
     expect((saved[0].content as any).questions[0].options[0].text).toBe(

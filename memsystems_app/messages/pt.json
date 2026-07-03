@@ -329,6 +329,7 @@
     "deleting": "Excluindo..."
   },
   "QuizView": {
+    "checkAnswer": "Verificar resposta",
     "result": "Resultado do questionário: {correct} / {total}",
     "score": "Pontuação: ",
     "perfectScoreText": "Pontuação perfeita! Trabalho fantástico!",

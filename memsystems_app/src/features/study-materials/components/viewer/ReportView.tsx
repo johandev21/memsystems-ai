@@ -108,7 +108,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
             <>
               <div className="flex items-center gap-1.5 min-w-0">
                 <List className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
+                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground truncate">
                   {t("outline")}
                 </span>
               </div>
@@ -133,7 +133,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               >
                 <List className="h-4 w-4 text-primary" />
               </Button>
-              <span className="text-[10px] font-bold text-primary lg:rotate-90 lg:my-6 whitespace-nowrap">
+              <span className="text-xs font-bold text-primary lg:rotate-90 lg:my-6 whitespace-nowrap">
                 {progressPercent}%
               </span>
             </div>
@@ -149,9 +149,9 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                   key={section.id}
                   type="button"
                   onClick={() => scrollToSection(section.id)}
-                  className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors group"
+                  className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-muted text-sm font-medium transition-colors group"
                 >
-                  <span className="shrink-0 mt-0.5 text-[10px] text-muted-foreground/60 font-mono">
+                  <span className="shrink-0 mt-0.5 text-xs text-muted-foreground/60 font-mono">
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                   <span className="flex-1 truncate group-hover:text-primary transition-colors">
@@ -171,7 +171,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
       <div className="flex-1 space-y-6">
         {/* Progress Header Card */}
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
-          <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground tracking-wider uppercase">
             <span>{t("readingProgress")}</span>
             <span>
               {t("sectionsRead", {
@@ -186,7 +186,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-xs pt-0.5">
+          <div className="flex items-center justify-between text-sm pt-0.5">
             <span className="font-bold text-foreground">
               {t("percentCompleted", { percent: progressPercent })}
             </span>
@@ -194,7 +194,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               <button
                 type="button"
                 onClick={handleResetProgress}
-                className="text-muted-foreground hover:text-foreground underline cursor-pointer text-[10px]"
+                className="text-muted-foreground hover:text-foreground underline cursor-pointer text-xs"
               >
                 {t("resetProgress")}
               </button>
@@ -208,10 +208,10 @@ export function ReportView({ materialId, content }: ReportViewProps) {
             <div className="absolute top-0 right-0 p-3 opacity-15 pointer-events-none">
               <FileText className="h-16 w-16 text-indigo-500" />
             </div>
-            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+            <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
               {t("executiveSummary")}
             </h4>
-            <p className="text-sm font-medium leading-relaxed text-foreground/90">
+            <p className="text-base font-medium leading-relaxed text-foreground/90">
               {content.summary}
             </p>
           </div>
@@ -234,7 +234,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-primary font-mono tracking-wider uppercase">
+                    <span className="text-xs font-bold text-primary font-mono tracking-wider uppercase">
                       {t("sectionNumber", { number: idx + 1 })}
                     </span>
                     <h3 className="text-base font-bold text-foreground leading-snug">
@@ -248,7 +248,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                     size="sm"
                     onClick={() => toggleSectionCompletion(section.id)}
                     className={cn(
-                      "h-8 text-xs shrink-0 select-none cursor-pointer",
+                      "h-8 text-sm shrink-0 select-none cursor-pointer",
                       isCompleted
                         ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20"
                         : "hover:bg-muted",
@@ -270,8 +270,8 @@ export function ReportView({ materialId, content }: ReportViewProps) {
 
                 <Separator className="my-2.5 opacity-50" />
 
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-wrap">
                     {section.body}
                   </p>
                 </div>
