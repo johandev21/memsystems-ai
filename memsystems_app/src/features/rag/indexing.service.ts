@@ -62,7 +62,7 @@ export class IndexingService {
 
         await tx.execute(sql`
           INSERT INTO source_chunks (id, source_id, notebook_id, chunk_index, content, embedding)
-          VALUES (${id}, ${chunk.sourceId}, ${chunk.notebookId}, ${chunk.chunkIndex}, ${chunk.content}, ${sql.raw(`'${vectorLiteral}'::vector`)})
+          VALUES (${id}, ${chunk.sourceId}, ${chunk.notebookId}, ${chunk.chunkIndex}, ${chunk.content}, ${vectorLiteral}::vector)
         `);
       }
     });

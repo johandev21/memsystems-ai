@@ -1,3 +1,5 @@
+"use client";
+
 import { MoreVertical } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";

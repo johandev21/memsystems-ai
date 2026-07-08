@@ -45,11 +45,11 @@ export async function retrieveRelevantChunks(
         s.url,
         s.kind,
         sc.content,
-        1 - (sc.embedding <=> ${sql.raw(`'${vectorLiteral}'::vector`)}) AS score
+        1 - (sc.embedding <=> ${vectorLiteral}::vector) AS score
       FROM source_chunks sc
       JOIN sources s ON s.id = sc.source_id
       WHERE sc.notebook_id = ${notebookId}
-      ORDER BY sc.embedding <=> ${sql.raw(`'${vectorLiteral}'::vector`)}
+      ORDER BY sc.embedding <=> ${vectorLiteral}::vector
       LIMIT ${topK}
     `,
   );
