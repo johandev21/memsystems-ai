@@ -21,7 +21,7 @@ import {
   MessageScrollerButton,
 } from "@/components/ui/message-scroller";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
-import { NotebookBanner } from "@/features/notebook/components/notebook-banner";
+import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
 import {
   type CitedSourceDTO,
   chatMessagesQueryOptions,

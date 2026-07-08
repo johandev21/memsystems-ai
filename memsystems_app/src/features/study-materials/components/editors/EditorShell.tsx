@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
+import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
 import { clientLogger } from "@/lib/client-logger";
 import { createStudyMaterial } from "@/lib/study-materials";
 

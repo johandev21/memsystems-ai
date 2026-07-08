@@ -31,7 +31,7 @@ import {
   SOURCE_LIMIT,
   sourcesQueryOptions,
 } from "@/lib/sources";
-import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
+import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 
 type Mode = "menu" | "url" | "text";
 

@@ -22,7 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   RightPane,
   type RightPaneMode,
-} from "@/features/notebook/components/studio/right-pane";
+} from "@/features/notebooks/components/studio/right-pane";
 import { studyMaterialsQueryOptions } from "@/lib/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import { StudyMaterialsTree } from "./study-materials-tree";

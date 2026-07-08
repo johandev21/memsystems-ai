@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   RightPane,
   type RightPaneMode,
-} from "@/features/notebook/components/studio/right-pane";
+} from "@/features/notebooks/components/studio/right-pane";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface MobileExpandedStudyMaterialsProps {

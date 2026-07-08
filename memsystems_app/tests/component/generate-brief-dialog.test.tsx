@@ -39,16 +39,16 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-vi.mock("@/features/notebook/components/studio/folder-picker", () => ({
+vi.mock("@/features/notebooks/components/studio/folder-picker", () => ({
   FolderPicker: () => <div data-testid="folder-picker" />,
 }));
 
-vi.mock("@/features/notebook/components/studio/source-multi-select", () => ({
+vi.mock("@/features/notebooks/components/studio/source-multi-select", () => ({
   SourceMultiSelect: () => <div data-testid="source-multi-select" />,
 }));
 
 // Mock DialogModelSelector as a standard select to avoid Radix UI Select JSDOM issues
-vi.mock("@/features/notebook/components/model-selector", () => ({
+vi.mock("@/features/notebooks/components/model-selector", () => ({
   DialogModelSelector: ({
     models,
     selectedModel,

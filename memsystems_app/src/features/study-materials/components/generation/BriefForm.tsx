@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useTextareaAutosize } from "@/features/notebook/hooks/use-textarea-autosize";
+import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
-import { DialogModelSelector } from "@/features/notebook/components/model-selector";
-import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
-import { SourceMultiSelect } from "@/features/notebook/components/studio/source-multi-select";
+import { DialogModelSelector } from "@/features/notebooks/components/model-selector";
+import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
+import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
 
 export interface BriefFormData {
   brief: string;

@@ -37,7 +37,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { RightPane } from "@/features/notebook/components/studio/right-pane";
+import { RightPane } from "@/features/notebooks/components/studio/right-pane";
 
 beforeEach(() => {
   queryCache.clear();

@@ -30,7 +30,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { SourceMultiSelect } from "@/features/notebook/components/studio/source-multi-select";
+import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
 import type { Source } from "@/lib/sources";
 
 const NOTEBOOK_ID = "notebook-sms-1";

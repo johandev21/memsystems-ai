@@ -76,7 +76,7 @@ vi.mock("@tanstack/react-query", async () => {
   };
 });
 
-import { FolderPicker } from "@/features/notebook/components/studio/folder-picker";
+import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
 import type { FolderDTO } from "@/lib/folders";
 
 const NOTEBOOK_ID = "notebook-fp-1";
