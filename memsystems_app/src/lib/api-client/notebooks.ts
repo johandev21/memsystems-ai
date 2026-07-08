@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchApi } from "@/lib/utils";
+import { fetchApi } from "../utils";
+import { createQueryOptions } from "./factory";
 
 export interface Notebook {
   id: string;
@@ -43,13 +44,7 @@ export const notebooksQueryOptions = queryOptions({
 });
 
 export const notebookQueryOptions = (id: string) =>
-  queryOptions({
-    queryKey: ["notebooks", id],
-    queryFn: async () => {
-      const res = await fetchApi(`/api/notebooks/${id}`);
-      if (!res.ok) throw new Error(`Failed to fetch notebook (${res.status})`);
-      return res.json() as Promise<Notebook>;
-    },
+  createQueryOptions<Notebook>(["notebooks", id], `/api/notebooks/${id}`, {
     staleTime: 30_000,
     refetchOnMount: "always",
   });

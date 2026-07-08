@@ -32,10 +32,10 @@ function cache_set_safely(
 
 import type { Mock } from "vitest";
 
-vi.mock("@/lib/study-materials", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/study-materials")>(
-    "@/lib/study-materials",
-  );
+vi.mock("@/lib/api-client/study-materials", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/api-client/study-materials")
+  >("@/lib/api-client/study-materials");
   return {
     ...actual,
     createStudyMaterial: vi.fn(
@@ -114,8 +114,8 @@ vi.mock("@tanstack/react-query", async () => {
 import { FlashcardEditor } from "@/features/study-materials/components/editors/FlashcardEditor";
 import { QuizEditor } from "@/features/study-materials/components/editors/QuizEditor";
 import { RoadmapEditor } from "@/features/study-materials/components/editors/RoadmapEditor";
-import type { FolderDTO } from "@/lib/folders";
-import { createStudyMaterial } from "@/lib/study-materials";
+import type { FolderDTO } from "@/lib/api-client/folders";
+import { createStudyMaterial } from "@/lib/api-client/study-materials";
 
 const NOTEBOOK_ID = "notebook-ed-1";
 

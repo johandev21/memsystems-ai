@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ModelOption } from "@/lib/models";
+import type { ModelOption } from "@/lib/api-client/models";
 import { cn } from "@/lib/utils";
 
 export interface ModelSelectorProps {

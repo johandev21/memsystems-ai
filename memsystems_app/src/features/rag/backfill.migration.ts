@@ -17,7 +17,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 import { indexingService } from "./indexing.service";
 
 const log = logger.child({ feature: "rag-backfill" });

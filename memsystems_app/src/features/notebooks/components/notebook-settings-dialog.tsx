@@ -45,7 +45,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NotebookIcon } from "@/components/ui/notebook-icon";
 import { Textarea } from "@/components/ui/textarea";
-import { type Notebook, notebookQueryOptions } from "@/lib/notebooks";
+import {
+  type Notebook,
+  notebookQueryOptions,
+} from "@/lib/api-client/notebooks";
 import { cn } from "@/lib/utils";
 import { useTextareaAutosize } from "../hooks/use-textarea-autosize";
 

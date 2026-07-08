@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Logo } from "@/components/ui/logo";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 
 function GoogleIcon() {
   return (

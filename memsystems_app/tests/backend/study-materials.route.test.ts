@@ -5,9 +5,9 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
 }));
 
-vi.mock("@/lib/session", () => ({ getSession: mocks.getSession }));
+vi.mock("@/lib/auth", () => ({ getSession: mocks.getSession }));
 
-import { GET as getMaterial } from "@/app/api/study-materials/[id]/route";
+import { GET as getMaterial } from "../../src/app/api/study-materials/[id]/route";
 import { seedNotebook, seedStudyMaterial, seedUser } from "../fixtures";
 
 function makeUrl(path: string) {

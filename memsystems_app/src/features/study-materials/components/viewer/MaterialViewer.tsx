@@ -10,7 +10,7 @@ import type {
 } from "@/features/study-materials/editor-schemas";
 import type { ReportContentType } from "@/features/study-materials/shapes/report";
 import type { SlideDeckContentType } from "@/features/study-materials/shapes/slide-deck";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
+import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
 import { FlashcardView } from "./FlashcardView";
 import { MindMapView } from "./MindMapView";
 import { QuizView } from "./QuizView";

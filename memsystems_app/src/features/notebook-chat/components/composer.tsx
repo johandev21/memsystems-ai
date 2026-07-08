@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ModelSelector } from "@/features/notebooks/components/model-selector";
 import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
-import type { ModelOption } from "@/lib/models";
+import type { ModelOption } from "@/lib/api-client/models";
 import { cn } from "@/lib/utils";
 
 export interface ComposerProps {

@@ -1,7 +1,7 @@
 import { Output, parsePartialJson, streamText } from "ai";
 import { db } from "@/database/connection";
 import { studyMaterials } from "@/database/schema";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 import { getProviderForModel } from "../../ai/ai.service";
 import {
   MindMapContent,

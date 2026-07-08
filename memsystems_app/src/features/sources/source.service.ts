@@ -4,7 +4,7 @@ import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
 import { indexingService } from "@/features/rag/indexing.service";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 import {
   deleteObject,
   presignDownload,

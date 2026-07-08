@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { studyMaterialFolders, studyMaterials } from "@/database/schema";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 
 const jobLog = logger.child({ feature: "hard-purge-trash" });
 

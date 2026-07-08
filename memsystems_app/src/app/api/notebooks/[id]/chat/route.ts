@@ -4,7 +4,7 @@ import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
 import { createOpenaiProvider } from "@/features/ai/providers/openai";
 import { NotebookChatService } from "@/features/notebook-chat/notebook-chat.service";
 import { BadRequestError } from "@/lib/errors";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 
 const chatService = new NotebookChatService();
 const log = logger.child({ feature: "chat-route" });

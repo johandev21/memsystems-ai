@@ -13,13 +13,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { clientLogger } from "@/lib/client-logger";
 import {
   type CreateFolderInput,
   createFolder,
   type FolderDTO,
   foldersQueryOptions,
-} from "@/lib/folders";
+} from "@/lib/api-client/folders";
+import { clientLogger } from "@/lib/logging/client-logger";
 import { cn } from "@/lib/utils";
 
 const log = clientLogger.child({ feature: "folder-picker" });

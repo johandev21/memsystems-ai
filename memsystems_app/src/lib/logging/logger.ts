@@ -1,4 +1,4 @@
-import { correlationStorage } from "./correlation-storage";
+import { correlationStorage } from "./correlation";
 
 type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 

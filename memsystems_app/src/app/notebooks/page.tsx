@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { NotebookIcon } from "@/components/ui/notebook-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { allNotebooksQueryOptions } from "@/lib/notebooks";
+import { allNotebooksQueryOptions } from "@/lib/api-client/notebooks";
 
 function NotebooksContent() {
   const t = useTranslations("Home");

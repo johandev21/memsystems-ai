@@ -13,7 +13,7 @@ import {
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import type { ModelOption } from "@/lib/models";
+import type { ModelOption } from "@/lib/api-client/models";
 import { BriefForm } from "./BriefForm";
 
 export interface GenerateBriefDialogProps {

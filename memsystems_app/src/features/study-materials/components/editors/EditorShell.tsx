@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
-import { clientLogger } from "@/lib/client-logger";
-import { createStudyMaterial } from "@/lib/study-materials";
+import { createStudyMaterial } from "@/lib/api-client/study-materials";
+import { clientLogger } from "@/lib/logging/client-logger";
 
 const log = clientLogger.child({ feature: "manual-editors" });
 

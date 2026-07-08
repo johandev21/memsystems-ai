@@ -1,4 +1,4 @@
-import { getApiUrl } from "@/lib/utils";
+import { getApiUrl } from "../utils";
 
 export type StudyMaterialKind =
   | "quiz"

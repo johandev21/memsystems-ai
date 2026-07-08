@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 
 export function ConnectionBanner() {
   const t = useTranslations("AI");

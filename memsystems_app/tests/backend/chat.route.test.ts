@@ -29,7 +29,7 @@ vi.mock("@/features/ai/ai.service", () => ({
   }),
 }));
 
-vi.mock("@/lib/session", () => ({
+vi.mock("@/lib/auth", () => ({
   getSession: mocks.getSession,
 }));
 

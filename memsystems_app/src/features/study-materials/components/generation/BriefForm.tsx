@@ -10,7 +10,7 @@ import { FolderPicker } from "@/features/notebooks/components/studio/folder-pick
 import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
 import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import type { ModelOption } from "@/lib/models";
+import type { ModelOption } from "@/lib/api-client/models";
 
 export interface BriefFormData {
   brief: string;

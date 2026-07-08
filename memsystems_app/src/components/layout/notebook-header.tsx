@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/ui/logo";
 import { Skeleton } from "@/components/ui/skeleton";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { EditableNotebookTitle } from "./editable-notebook-title";
 
 export function NotebookHeader({ id }: { id: string }) {

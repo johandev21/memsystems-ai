@@ -3,13 +3,13 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { clientLogger } from "@/lib/client-logger";
 import {
   cancelGeneration,
   type StudyMaterialKind,
   startGeneration,
-} from "@/lib/generation";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
+} from "@/lib/api-client/generation";
+import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
+import { clientLogger } from "@/lib/logging/client-logger";
 
 const log = clientLogger.child({ feature: "use-generation-store" });
 

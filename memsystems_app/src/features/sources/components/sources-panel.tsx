@@ -20,7 +20,7 @@ import {
   type Source,
   type SourceKind,
   sourcesQueryOptions,
-} from "@/lib/sources";
+} from "@/lib/api-client/sources";
 import { cn } from "@/lib/utils";
 import { AddSourceDialog } from "./add-source-dialog";
 import { SourceViewerDialog } from "./source-viewer-dialog";

@@ -4,7 +4,7 @@ import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { retrieveRelevantChunks } from "@/features/rag/retrieval.service";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 import { getProviderForModel } from "../ai/ai.service";
 import { connectionService } from "../ai/connection.service";
 

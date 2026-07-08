@@ -22,7 +22,7 @@ function makeStream(
   })();
 }
 
-vi.mock("@/lib/generation", () => ({
+vi.mock("@/lib/api-client/generation", () => ({
   startGeneration: vi.fn((notebookId: string, input: unknown) => {
     generationCalls.push({ notebookId, input });
     return {
@@ -36,10 +36,10 @@ vi.mock("@/lib/generation", () => ({
   }),
 }));
 
-vi.mock("@/lib/study-materials", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/study-materials")>(
-    "@/lib/study-materials",
-  );
+vi.mock("@/lib/api-client/study-materials", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/api-client/study-materials")
+  >("@/lib/api-client/study-materials");
   return {
     ...actual,
     studyMaterialsQueryOptions: (notebookId: string) => ({
@@ -83,7 +83,7 @@ vi.mock("@tanstack/react-query", async () => {
 
 import { GenerationPane } from "@/features/study-materials/components/generation/GenerationPane";
 import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
+import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
 
 beforeEach(() => {
   generationCalls.length = 0;
@@ -140,7 +140,7 @@ describe("GenerationPane", () => {
   });
 
   it("calls onComplete with materialId directly when done event yields it", async () => {
-    const { startGeneration } = await import("@/lib/generation");
+    const { startGeneration } = await import("@/lib/api-client/generation");
     (
       startGeneration as unknown as ReturnType<typeof vi.fn>
     ).mockReturnValueOnce({
@@ -177,7 +177,7 @@ describe("GenerationPane", () => {
     const user = userEvent.setup();
     const onCancel = vi.fn();
     // Override the mock for this test only so the stream never completes.
-    const { startGeneration } = await import("@/lib/generation");
+    const { startGeneration } = await import("@/lib/api-client/generation");
     (
       startGeneration as unknown as ReturnType<typeof vi.fn>
     ).mockReturnValueOnce({

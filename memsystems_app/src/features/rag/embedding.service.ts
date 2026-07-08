@@ -2,7 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { embed, embedMany } from "ai";
 import { userSettingsService } from "@/features/ai/user-settings.service";
 import { ServiceUnavailableError } from "@/lib/errors";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 
 const log = logger.child({ feature: "rag" });
 

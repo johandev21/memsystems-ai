@@ -40,11 +40,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteFolder, foldersQueryOptions } from "@/lib/folders";
+import { deleteFolder, foldersQueryOptions } from "@/lib/api-client/folders";
 import {
   deleteStudyMaterial,
   studyMaterialsQueryOptions,
-} from "@/lib/study-materials";
+} from "@/lib/api-client/study-materials";
 import { cn } from "@/lib/utils";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import {

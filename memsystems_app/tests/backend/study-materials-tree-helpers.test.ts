@@ -3,8 +3,8 @@ import {
   buildStudyMaterialTree,
   countMaterialsInFolder,
 } from "@/features/study-materials/components/tree/study-materials-tree-helpers";
-import type { FolderDTO } from "@/lib/folders";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
+import type { FolderDTO } from "@/lib/api-client/folders";
+import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
 
 const f = (overrides: Partial<FolderDTO> = {}): FolderDTO => ({
   id: "f",

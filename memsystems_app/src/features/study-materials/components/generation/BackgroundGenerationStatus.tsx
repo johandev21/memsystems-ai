@@ -4,7 +4,7 @@ import { ChevronDown, Loader2, Terminal, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
-import type { StudyMaterialKind } from "@/lib/generation";
+import type { StudyMaterialKind } from "@/lib/api-client/generation";
 import { cn } from "@/lib/utils";
 
 export function BackgroundGenerationStatus() {

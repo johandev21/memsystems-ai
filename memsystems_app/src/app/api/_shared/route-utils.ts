@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError, type ZodSchema } from "zod";
+import { getSession } from "@/lib/auth";
 import { DomainError } from "@/lib/errors";
-import { getSession } from "@/lib/session";
 
 export type RouteHandler<TParams = Record<string, never>> = (
   req: Request,

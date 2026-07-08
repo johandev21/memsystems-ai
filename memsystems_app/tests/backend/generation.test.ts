@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { startGeneration } from "@/lib/generation";
+import { startGeneration } from "@/lib/api-client/generation";
 
 function makeNdjsonResponse(
   body: string,

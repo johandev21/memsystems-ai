@@ -8,7 +8,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { notebookQueryOptions } from "@/lib/notebooks";
+import { notebookQueryOptions } from "@/lib/api-client/notebooks";
 
 export function EditableNotebookTitle({ id }: { id: string }) {
   const t = useTranslations("Notebook");

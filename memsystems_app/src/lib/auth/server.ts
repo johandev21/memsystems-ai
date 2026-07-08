@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { headers } from "next/headers";
 import { db } from "@/database/connection";
 
 export const auth = betterAuth({
@@ -18,3 +19,8 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24,
   },
 });
+
+export async function getSession() {
+  const headersList = await headers();
+  return auth.api.getSession({ headers: headersList });
+}

@@ -31,7 +31,7 @@ import {
   createUrlSource,
   SOURCE_LIMIT,
   sourcesQueryOptions,
-} from "@/lib/sources";
+} from "@/lib/api-client/sources";
 
 type Mode = "menu" | "url" | "text";
 

@@ -25,7 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { sourceQueryOptions } from "@/lib/sources";
+import { sourceQueryOptions } from "@/lib/api-client/sources";
 import { fetchApi } from "@/lib/utils";
 
 interface SourceViewerDialogProps {

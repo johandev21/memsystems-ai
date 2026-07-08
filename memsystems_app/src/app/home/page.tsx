@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { NotebookIcon } from "@/components/ui/notebook-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { notebooksQueryOptions } from "@/lib/notebooks";
+import { notebooksQueryOptions } from "@/lib/api-client/notebooks";
 
 function _getBanner(bannerUrl: string | null): string | undefined {
   return bannerUrl ?? undefined;

@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logging/logger";
 import { embeddingService } from "./embedding.service";
 
 const log = logger.child({ feature: "rag" });

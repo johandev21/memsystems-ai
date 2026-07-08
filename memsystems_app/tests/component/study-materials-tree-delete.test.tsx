@@ -68,10 +68,10 @@ vi.mock("@tanstack/react-query", async () => {
 });
 
 // Mock deleteStudyMaterial API call
-vi.mock("@/lib/study-materials", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/study-materials")>(
-    "@/lib/study-materials",
-  );
+vi.mock("@/lib/api-client/study-materials", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/api-client/study-materials")
+  >("@/lib/api-client/study-materials");
   return {
     ...actual,
     deleteStudyMaterial: vi.fn(),
@@ -79,9 +79,10 @@ vi.mock("@/lib/study-materials", async () => {
 });
 
 // Mock deleteFolder API call
-vi.mock("@/lib/folders", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/lib/folders")>("@/lib/folders");
+vi.mock("@/lib/api-client/folders", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/api-client/folders")
+  >("@/lib/api-client/folders");
   return {
     ...actual,
     deleteFolder: vi.fn(),
@@ -96,8 +97,8 @@ vi.mock("sonner", () => ({
 }));
 
 import { StudyMaterialsTree } from "@/features/study-materials/components/tree/study-materials-tree";
-import { deleteFolder } from "@/lib/folders";
-import { deleteStudyMaterial } from "@/lib/study-materials";
+import { deleteFolder } from "@/lib/api-client/folders";
+import { deleteStudyMaterial } from "@/lib/api-client/study-materials";
 
 interface MockFolder {
   id: string;

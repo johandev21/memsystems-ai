@@ -46,7 +46,7 @@ vi.mock("@/features/sources/source-extraction.service", async () => {
   return { ...actual, extractText: mocks.extractText };
 });
 
-vi.mock("@/lib/session", () => ({ getSession: mocks.getSession }));
+vi.mock("@/lib/auth", () => ({ getSession: mocks.getSession }));
 
 import { eq } from "drizzle-orm";
 import { POST as createFileSource } from "@/app/api/notebooks/[id]/sources/file/route";

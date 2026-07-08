@@ -26,7 +26,7 @@ import { SourcesPanel } from "@/features/sources/components/sources-panel";
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { StudyMaterialsPanel } from "@/features/study-materials/components/tree/study-materials-panel";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { modelsQueryOptions } from "@/lib/models";
+import { modelsQueryOptions } from "@/lib/api-client/models";
 
 export default function NotebookPage() {
   const params = useParams<{ notebookId: string }>();

@@ -26,11 +26,11 @@ import {
   type CitedSourceDTO,
   chatMessagesQueryOptions,
   clearChatHistory,
-} from "@/lib/chat";
-import { clientLogger as logger } from "@/lib/client-logger";
-import type { ModelOption } from "@/lib/models";
-import { modelsQueryOptions } from "@/lib/models";
-import { notebookQueryOptions } from "@/lib/notebooks";
+} from "@/lib/api-client/chat";
+import type { ModelOption } from "@/lib/api-client/models";
+import { modelsQueryOptions } from "@/lib/api-client/models";
+import { notebookQueryOptions } from "@/lib/api-client/notebooks";
+import { clientLogger as logger } from "@/lib/logging/client-logger";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";

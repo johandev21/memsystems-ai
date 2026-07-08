@@ -11,7 +11,7 @@ import { SourcesPanel } from "@/features/sources/components/sources-panel";
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { MobileStudyMaterialsPanel } from "@/features/study-materials/components/tree/mobile-study-materials-panel";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { modelsQueryOptions } from "@/lib/models";
+import { modelsQueryOptions } from "@/lib/api-client/models";
 import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { StudioResources } from "./studio-resources";
 

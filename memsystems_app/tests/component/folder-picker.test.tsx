@@ -16,9 +16,10 @@ const queryCache = vi.hoisted(() => {
 
 let mutationCalls: Array<{ type: string; variables: unknown }> = [];
 
-vi.mock("@/lib/folders", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/lib/folders")>("@/lib/folders");
+vi.mock("@/lib/api-client/folders", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/api-client/folders")
+  >("@/lib/api-client/folders");
   return {
     ...actual,
     createFolder: vi.fn(
@@ -77,7 +78,7 @@ vi.mock("@tanstack/react-query", async () => {
 });
 
 import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
-import type { FolderDTO } from "@/lib/folders";
+import type { FolderDTO } from "@/lib/api-client/folders";
 
 const NOTEBOOK_ID = "notebook-fp-1";
 

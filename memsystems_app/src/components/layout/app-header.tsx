@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Logo } from "@/components/ui/logo";
 import { Skeleton } from "@/components/ui/skeleton";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 
 const TRIGGER_ZONE_HEIGHT = 20;
 
