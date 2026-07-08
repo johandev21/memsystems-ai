@@ -1,12 +1,6 @@
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+export type { StudyMaterialKind };
 import { getApiUrl } from "../utils";
-
-export type StudyMaterialKind =
-  | "quiz"
-  | "simple_flashcard"
-  | "report"
-  | "roadmap"
-  | "slide_deck"
-  | "mind_map";
 
 export interface StartGenerationInput {
   kind: StudyMaterialKind;

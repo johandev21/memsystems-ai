@@ -311,11 +311,6 @@ function folderChildrenIndex(
   return out;
 }
 
-// Keep the legacy mock export so existing imports of fileTreeData don't break.
-// The mock is no longer used by the desktop components but other tests may
-// import it; harmless to keep.
-export const fileTreeData: FileTreeItem[] = [];
-
 // Re-export so consumers can import the tree shape directly if needed.
 export type { TreeNode };
 // treeNodeToFileTreeItem is internal; keep it module-private.

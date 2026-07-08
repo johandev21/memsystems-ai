@@ -25,7 +25,6 @@ export interface MaterialViewerProps {
 
 export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
   const t = useTranslations("Common");
-  console.log("[MaterialViewer] Rendering material:", material);
   return (
     <div className="flex h-full flex-col">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">

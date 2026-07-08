@@ -19,19 +19,6 @@ export function StatCard({
   statusColor,
   className,
 }: StatCardProps) {
-  const colorStyles = {
-    rose: {
-      label: "text-muted-foreground",
-      status: "text-muted-foreground",
-    },
-    emerald: {
-      label: "text-muted-foreground",
-      status: "text-muted-foreground",
-    },
-  };
-
-  const styles = colorStyles[statusColor];
-
   return (
     <div
       className={cn(
@@ -39,12 +26,7 @@ export function StatCard({
         className,
       )}
     >
-      <span
-        className={cn(
-          "text-xs font-medium uppercase tracking-wide",
-          styles.label,
-        )}
-      >
+      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <div className="flex items-end justify-between">
@@ -52,12 +34,7 @@ export function StatCard({
           <span className="text-4xl font-bold text-foreground">{value}</span>
           <span className="text-sm text-muted-foreground">{unit}</span>
         </div>
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 text-sm",
-            styles.status,
-          )}
-        >
+        <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
           {statusIcon}
           {status}
         </span>

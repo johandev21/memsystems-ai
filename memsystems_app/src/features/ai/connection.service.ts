@@ -1,41 +1,56 @@
 import { ServiceUnavailableError } from "@/lib/errors";
 import type { HealthCheckResult, ProviderModel } from "./provider";
 import { createOpenaiProvider } from "./providers/openai";
-// import { opencodeProvider } from "./providers/opencode";
 import { userSettingsService } from "./user-settings.service";
 
-const _HEALTH_TTL_MS = 15_000;
 const OPENAI_HEALTH_TTL_MS = 60_000; // Cache OpenAI health for 60 seconds
 
-let _cachedResult: HealthCheckResult | null = null;
-let cachedAt = 0;
-let _cachedModels: ProviderModel[] = [];
+class TtlCache<T> {
+  private value: T | null = null;
+  private timestamp = 0;
+
+  constructor(private readonly ttlMs: number) {}
+
+  get(): T | null {
+    if (this.value === null) return null;
+    if (Date.now() - this.timestamp > this.ttlMs) return null;
+    return this.value;
+  }
+
+  set(value: T): void {
+    this.value = value;
+    this.timestamp = Date.now();
+  }
+
+  getTimestamp(): number {
+    return this.timestamp;
+  }
+
+  invalidate(): void {
+    this.value = null;
+    this.timestamp = 0;
+  }
+}
 
 // User-specific OpenAI health cache
 interface OpenAIHealthCache {
   ok: boolean;
   detail?: string;
-  checkedAt: number;
 }
-const openaiHealthCache = new Map<string, OpenAIHealthCache>();
-
-async function _refreshOpenCode(): Promise<void> {
-  // OpenCode disabled
-  _cachedResult = { ok: false, detail: "OpenCode provider is disabled." };
-  cachedAt = Date.now();
-  _cachedModels = [];
-}
-
-function _isOpenCodeStale(): boolean {
-  return false; // OpenCode disabled, never stale since it's never checked
-}
+const openaiHealthCache = new Map<string, TtlCache<OpenAIHealthCache>>();
 
 async function checkOpenaiHealth(
   userId: string,
   apiKey: string,
 ): Promise<HealthCheckResult> {
-  const cached = openaiHealthCache.get(userId);
-  if (cached && Date.now() - cached.checkedAt < OPENAI_HEALTH_TTL_MS) {
+  let userCache = openaiHealthCache.get(userId);
+  if (!userCache) {
+    userCache = new TtlCache<OpenAIHealthCache>(OPENAI_HEALTH_TTL_MS);
+    openaiHealthCache.set(userId, userCache);
+  }
+
+  const cached = userCache.get();
+  if (cached) {
     return { ok: cached.ok, detail: cached.detail };
   }
 
@@ -43,10 +58,9 @@ async function checkOpenaiHealth(
   const health = await provider.health();
 
   if (health.ok) {
-    openaiHealthCache.set(userId, {
+    userCache.set({
       ok: health.ok,
       detail: health.detail,
-      checkedAt: Date.now(),
     });
   }
 
@@ -106,6 +120,8 @@ export const connectionService = {
       hasKey: false,
     };
 
+    let checkedAtTimestamp = 0;
+
     if (userId) {
       const apiKey = await userSettingsService.getUserOpenaiApiKey(userId);
       if (apiKey) {
@@ -113,6 +129,10 @@ export const connectionService = {
         const health = await checkOpenaiHealth(userId, apiKey);
         openaiStatus.ok = health.ok;
         openaiStatus.detail = health.detail;
+        const userCache = openaiHealthCache.get(userId);
+        if (userCache) {
+          checkedAtTimestamp = userCache.getTimestamp();
+        }
       }
     }
 
@@ -124,7 +144,10 @@ export const connectionService = {
       ok: combinedOk,
       detail: combinedOk ? undefined : openaiStatus.detail,
       models: combinedModels,
-      checkedAt: cachedAt > 0 ? new Date(cachedAt).toISOString() : null,
+      checkedAt:
+        checkedAtTimestamp > 0
+          ? new Date(checkedAtTimestamp).toISOString()
+          : null,
       opencode: opencodeStatus,
       openai: openaiStatus,
     };
