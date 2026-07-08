@@ -1,10 +1,7 @@
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/database/connection";
-import {
-  notebooks,
-  studyMaterialFolders,
-  studyMaterials,
-} from "@/database/schema";
+import { studyMaterialFolders, studyMaterials } from "@/database/schema";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 
 export interface TrashItem {
@@ -17,7 +14,7 @@ export interface TrashItem {
 
 export class TrashService {
   async list(userId: string, notebookId: string) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const deletedMaterials = await db
       .select({
         id: studyMaterials.id,
@@ -81,19 +78,6 @@ export class TrashService {
       .where(eq(studyMaterialFolders.id, folderId));
   }
 
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!notebook) {
-      throw new NotFoundError("Notebook");
-    }
-    if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
-  }
-
   private async assertStudyMaterialOwned(userId: string, smId: string) {
     const [sm] = await db
       .select({ id: studyMaterials.id, notebookId: studyMaterials.notebookId })
@@ -102,7 +86,7 @@ export class TrashService {
     if (!sm) {
       throw new NotFoundError("Study material");
     }
-    await this.assertNotebookOwner(userId, sm.notebookId);
+    await assertNotebookOwner(userId, sm.notebookId);
   }
 
   private async assertFolderOwned(userId: string, folderId: string) {
@@ -116,6 +100,6 @@ export class TrashService {
     if (!folder) {
       throw new NotFoundError("Folder");
     }
-    await this.assertNotebookOwner(userId, folder.notebookId);
+    await assertNotebookOwner(userId, folder.notebookId);
   }
 }

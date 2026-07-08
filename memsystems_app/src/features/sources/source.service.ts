@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { notebooks, sources } from "@/database/schema";
+import { sources } from "@/database/schema";
 import { indexingService } from "@/features/rag/indexing.service";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logging/logger";
 import {
@@ -40,7 +41,7 @@ const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
 export class SourceService {
   async list(userId: string, notebookId: string) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     return db
       .select({
         id: sources.id,
@@ -67,7 +68,7 @@ export class SourceService {
     notebookId: string,
     input: CreateTextSourceInput,
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const title = input.title.trim();
     const rawText = input.rawText;
     if (rawText.trim().length === 0) {
@@ -101,7 +102,7 @@ export class SourceService {
     notebookId: string,
     input: CreateUrlSourceInput,
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const scraped = await scrapeUrl(input.url);
     const title = (input.title?.trim() || scraped.title).slice(0, 500);
     const [row] = await db
@@ -128,7 +129,7 @@ export class SourceService {
     notebookId: string,
     input: CreateFileSourceInput,
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const { file } = input;
     if (file.size === 0) {
       throw new BadRequestError("Uploaded file is empty");
@@ -216,25 +217,12 @@ export class SourceService {
     return { url, expiresIn: expiresInSeconds };
   }
 
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!notebook) {
-      throw new NotFoundError("Notebook");
-    }
-    if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
-  }
-
   private async fetchOwned(userId: string, id: string) {
     const [source] = await db.select().from(sources).where(eq(sources.id, id));
     if (!source) {
       throw new NotFoundError("Source");
     }
-    await this.assertNotebookOwner(userId, source.notebookId);
+    await assertNotebookOwner(userId, source.notebookId);
     return source;
   }
 }

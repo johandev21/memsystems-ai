@@ -1,10 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/database/connection";
-import {
-  notebooks,
-  studyMaterialFolders,
-  studyMaterials,
-} from "@/database/schema";
+import { studyMaterialFolders, studyMaterials } from "@/database/schema";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import {
   type StudyMaterialKind,
@@ -34,7 +31,7 @@ export class StudyMaterialService {
     notebookId: string,
     filters?: { folderId?: string; kind?: StudyMaterialKind },
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const conditions = [
       eq(studyMaterials.notebookId, notebookId),
       isNull(studyMaterials.deletedAt),
@@ -62,7 +59,7 @@ export class StudyMaterialService {
     notebookId: string,
     input: CreateStudyMaterialInput,
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const validatedContent = validateContent(input.kind, input.content);
     if (input.folderId) {
       await this.assertFolderOwned(userId, notebookId, input.folderId);
@@ -176,19 +173,6 @@ export class StudyMaterialService {
     return null;
   }
 
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!notebook) {
-      throw new NotFoundError("Notebook");
-    }
-    if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
-  }
-
   private async assertFolderOwned(
     _userId: string,
     notebookId: string,
@@ -221,7 +205,7 @@ export class StudyMaterialService {
     if (!sm) {
       throw new NotFoundError("Study material");
     }
-    await this.assertNotebookOwner(userId, sm.notebookId);
+    await assertNotebookOwner(userId, sm.notebookId);
     return sm;
   }
 }

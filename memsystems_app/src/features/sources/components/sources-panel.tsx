@@ -5,16 +5,7 @@ import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import {
   deleteSource,
   type Source,
@@ -109,35 +100,23 @@ export function SourcesPanel({
         }}
       />
 
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={sourceToDelete !== null}
         onOpenChange={(open) => {
           if (!open) setSourceToDelete(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteSource")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("deleteSourceConfirm", { title: sourceToDelete?.title ?? "" })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (sourceToDelete) {
-                  deleteMutation.mutate(sourceToDelete.id);
-                  setSourceToDelete(null);
-                }
-              }}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {t("delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={t("deleteSource")}
+        description={t("deleteSourceConfirm", {
+          title: sourceToDelete?.title ?? "",
+        })}
+        onConfirm={() => {
+          if (sourceToDelete) {
+            deleteMutation.mutate(sourceToDelete.id);
+            setSourceToDelete(null);
+          }
+        }}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

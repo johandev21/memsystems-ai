@@ -1,10 +1,7 @@
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/database/connection";
-import {
-  notebooks,
-  studyMaterialFolders,
-  studyMaterials,
-} from "@/database/schema";
+import { studyMaterialFolders, studyMaterials } from "@/database/schema";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 
 export interface CreateFolderInput {
@@ -19,7 +16,7 @@ export interface UpdateFolderInput {
 
 export class StudyMaterialFolderService {
   async list(userId: string, notebookId: string) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     return db
       .select()
       .from(studyMaterialFolders)
@@ -33,7 +30,7 @@ export class StudyMaterialFolderService {
   }
 
   async create(userId: string, notebookId: string, input: CreateFolderInput) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     const name = input.name.trim();
     if (name.length === 0) {
       throw new BadRequestError("Folder name cannot be empty");
@@ -185,19 +182,6 @@ export class StudyMaterialFolderService {
     return false;
   }
 
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!notebook) {
-      throw new NotFoundError("Notebook");
-    }
-    if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
-  }
-
   private async assertFolderOwned(
     _userId: string,
     notebookId: string,
@@ -226,7 +210,7 @@ export class StudyMaterialFolderService {
     if (!folder) {
       throw new NotFoundError("Folder");
     }
-    await this.assertNotebookOwner(userId, folder.notebookId);
+    await assertNotebookOwner(userId, folder.notebookId);
     return folder;
   }
 }

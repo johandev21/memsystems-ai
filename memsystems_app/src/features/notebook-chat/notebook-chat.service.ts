@@ -3,6 +3,7 @@ import { asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebookChatMessages, notebooks, sources } from "@/database/schema";
 import { retrieveRelevantChunks } from "@/features/rag/retrieval.service";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logging/logger";
 import { getProviderForModel } from "../ai/ai.service";
@@ -75,7 +76,7 @@ export class NotebookChatService {
   ): Promise<ChatMessage[]> {
     const logCtx = log.child({ method: "listMessages", userId, notebookId });
     logCtx.debug("listing messages");
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
 
     const rows = await db
       .select()
@@ -143,7 +144,7 @@ export class NotebookChatService {
       contentPreview: input.content.slice(0, 200),
     });
 
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     logCtx.debug("assertNotebookOwner passed");
     await connectionService.requireConnected(userId, input.model);
     logCtx.debug("connectionService.requireConnected passed");
@@ -328,7 +329,7 @@ export class NotebookChatService {
   async clearMessages(userId: string, notebookId: string): Promise<void> {
     const logCtx = log.child({ method: "clearMessages", userId, notebookId });
     logCtx.info("clearMessages invoked");
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
     logCtx.debug("assertNotebookOwner passed");
 
     await db
@@ -372,18 +373,5 @@ export class NotebookChatService {
 
   private stripCitations(text: string): string {
     return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
-  }
-
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!notebook) {
-      throw new NotFoundError("Notebook");
-    }
-    if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
   }
 }

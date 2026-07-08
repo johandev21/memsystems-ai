@@ -18,16 +18,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -252,59 +243,35 @@ export function StudyMaterialsTree(props: RealDataProps) {
         ))
       )}
 
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={materialToDelete !== null}
         onOpenChange={(open) => {
           if (!open) setMaterialToDelete(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteMaterialTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("deleteMaterialDesc", { name: materialToDelete?.name ?? "" })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {t("delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={t("deleteMaterialTitle")}
+        description={t("deleteMaterialDesc", {
+          name: materialToDelete?.name ?? "",
+        })}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+      />
 
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={folderToDelete !== null}
         onOpenChange={(open) => {
           if (!open) setFolderToDelete(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteFolderTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("deleteFolderDesc", { name: folderToDelete?.name ?? "" })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (folderToDelete) {
-                  deleteFolderMutation.mutate(folderToDelete.id);
-                }
-              }}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {t("delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={t("deleteFolderTitle")}
+        description={t("deleteFolderDesc", {
+          name: folderToDelete?.name ?? "",
+        })}
+        onConfirm={() => {
+          if (folderToDelete) {
+            deleteFolderMutation.mutate(folderToDelete.id);
+          }
+        }}
+        isLoading={deleteFolderMutation.isPending}
+      />
     </div>
   );
 }

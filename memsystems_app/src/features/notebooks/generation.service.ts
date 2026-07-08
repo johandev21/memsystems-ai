@@ -1,10 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/database/connection";
-import {
-  notebooks as notebooksSchema,
-  sources,
-  studyMaterials,
-} from "@/database/schema";
+import { sources } from "@/database/schema";
+import { assertNotebookOwner } from "@/features/notebooks/ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { connectionService } from "../ai/connection.service";
 import type { StudyMaterialKind } from "../study-materials/shapes";
@@ -34,7 +31,7 @@ export class GenerationService {
     notebookId: string,
     input: StartGenerationInput,
   ) {
-    await this.assertNotebookOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
 
     const modelId = input.model ?? MODELS_BY_KIND[input.kind];
     await connectionService.requireConnected(userId, modelId);
@@ -71,7 +68,7 @@ export class GenerationService {
     if (!request) {
       throw new NotFoundError("Generation request");
     }
-    await this.assertNotebookOwner(userId, request.notebookId);
+    await assertNotebookOwner(userId, request.notebookId);
     await this.requestManager.cancel(userId, requestId);
     return request;
   }
@@ -100,26 +97,5 @@ export class GenerationService {
     }
 
     return owned;
-  }
-
-  private async assertNotebookOwner(userId: string, notebookId: string) {
-    const [notebook] = await db
-      .select({ id: studyMaterials.id })
-      .from(studyMaterials)
-      .where(eq(studyMaterials.notebookId, notebookId))
-      .limit(1);
-
-    if (!notebook) {
-      const [nb] = await db
-        .select({ id: notebooksSchema.id, userId: notebooksSchema.userId })
-        .from(notebooksSchema)
-        .where(eq(notebooksSchema.id, notebookId));
-      if (!nb) {
-        throw new NotFoundError("Notebook");
-      }
-      if (nb.userId !== userId) {
-        throw new ForbiddenError("Notebook does not belong to user");
-      }
-    }
   }
 }

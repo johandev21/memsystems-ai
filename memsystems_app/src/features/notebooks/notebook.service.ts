@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
+import { assertNotebookOwner } from "./ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import {
   deleteObject,
@@ -183,7 +184,7 @@ export class NotebookService {
   }
 
   async removeBanner(userId: string, notebookId: string) {
-    await this.assertOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
 
     const [existing] = await db
       .select({ banner: notebooks.banner })
@@ -211,7 +212,7 @@ export class NotebookService {
     file: File | null,
     focalPoint?: { x: number; y: number },
   ) {
-    await this.assertOwner(userId, notebookId);
+    await assertNotebookOwner(userId, notebookId);
 
     if (!file) {
       throw new BadRequestError("File is required");
@@ -253,19 +254,6 @@ export class NotebookService {
     const res = toResponse(row);
     res.bannerUrl = await presignDownload(key, BANNER_PRESIGN_TTL);
     return res;
-  }
-
-  private async assertOwner(userId: string, notebookId: string) {
-    const [row] = await db
-      .select({ id: notebooks.id, userId: notebooks.userId })
-      .from(notebooks)
-      .where(eq(notebooks.id, notebookId));
-    if (!row) {
-      throw new NotFoundError("Notebook");
-    }
-    if (row.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
-    }
   }
 }
 
