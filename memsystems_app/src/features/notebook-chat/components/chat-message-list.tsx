@@ -15,24 +15,24 @@ import {
 import { type ComponentProps, useState } from "react";
 import { Streamdown } from "streamdown";
 import "streamdown/styles.css";
+import {
+  Attachment,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentTitle,
+  AttachmentTrigger,
+} from "@/components/ui/attachment";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
-import { MessageScrollerItem } from "@/components/ui/message-scroller";
+import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 import {
   Message,
   MessageContent,
   MessageFooter,
 } from "@/components/ui/message";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import {
-  Attachment,
-  AttachmentGroup,
-  AttachmentMedia,
-  AttachmentContent,
-  AttachmentTitle,
-  AttachmentDescription,
-  AttachmentTrigger,
-} from "@/components/ui/attachment";
-import { Marker, MarkerIcon, MarkerContent } from "@/components/ui/marker";
+import { MessageScrollerItem } from "@/components/ui/message-scroller";
 
 interface CitedSourceInfo {
   id: string;

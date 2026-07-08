@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
-import { GenerationService } from "@/features/generation/generation.service";
+import { GenerationService } from "@/features/notebooks/generation.service";
 
 const generationService = new GenerationService();
 

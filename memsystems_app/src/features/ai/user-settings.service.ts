@@ -16,7 +16,7 @@ export const userSettingsService = {
       }
 
       return decrypt(row.openaiApiKey);
-    } catch (error) {
+    } catch (_error) {
       // If decryption fails (e.g. key changed), return null
       return null;
     }
@@ -26,8 +26,7 @@ export const userSettingsService = {
     userId: string,
     apiKey: string | null,
   ): Promise<void> {
-    const encryptedKey =
-      apiKey && apiKey.trim() ? encrypt(apiKey.trim()) : null;
+    const encryptedKey = apiKey?.trim() ? encrypt(apiKey.trim()) : null;
 
     // Use upsert pattern
     await db

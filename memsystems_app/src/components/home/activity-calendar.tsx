@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Circle } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 function getMonthNames(locale: string): string[] {

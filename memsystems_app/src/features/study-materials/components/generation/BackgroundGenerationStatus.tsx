@@ -1,11 +1,11 @@
 "use client";
 
+import { ChevronDown, Loader2, Terminal, X } from "lucide-react";
 import { useState } from "react";
-import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import { Button } from "@/components/ui/button";
-import { Loader2, X, ChevronDown, Terminal } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import type { StudyMaterialKind } from "@/lib/generation";
+import { cn } from "@/lib/utils";
 
 export function BackgroundGenerationStatus() {
   const generations = useGenerationStore((s) => s.generations);

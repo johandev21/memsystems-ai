@@ -190,7 +190,7 @@ export class StudyMaterialService {
   }
 
   private async assertFolderOwned(
-    userId: string,
+    _userId: string,
     notebookId: string,
     folderId: string,
   ) {

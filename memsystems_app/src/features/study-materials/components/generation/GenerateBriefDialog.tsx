@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/models";
 import { BriefForm } from "./BriefForm";
-import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
-import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 
 export interface GenerateBriefDialogProps {
   notebookId: string;

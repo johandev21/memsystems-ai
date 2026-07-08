@@ -8,16 +8,15 @@ import type {
   QuizEditorContentType,
   RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
-import type { StudyMaterialDTO } from "@/lib/study-materials";
-import { QuizView } from "./QuizView";
-import { FlashcardView } from "./FlashcardView";
-import { RoadmapView } from "./RoadmapView";
-import { ReportView } from "./ReportView";
-import { SlideDeckView } from "./SlideDeckView";
-import { MindMapView } from "./MindMapView";
 import type { ReportContentType } from "@/features/study-materials/shapes/report";
 import type { SlideDeckContentType } from "@/features/study-materials/shapes/slide-deck";
-import type { MindMapContentType } from "@/features/study-materials/shapes/mind-map";
+import type { StudyMaterialDTO } from "@/lib/study-materials";
+import { FlashcardView } from "./FlashcardView";
+import { MindMapView } from "./MindMapView";
+import { QuizView } from "./QuizView";
+import { ReportView } from "./ReportView";
+import { RoadmapView } from "./RoadmapView";
+import { SlideDeckView } from "./SlideDeckView";
 
 export interface MaterialViewerProps {
   material: StudyMaterialDTO;

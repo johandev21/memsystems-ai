@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   PanelLeftClose,
@@ -11,6 +9,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { RefObject } from "react";
 import { useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
@@ -18,13 +17,13 @@ import { NotebookHeader } from "@/components/layout/notebook-header";
 import { Button } from "@/components/ui/button";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AddSourceDialog } from "@/features/sources/components/add-source-dialog";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook-chat/components/chat-panel-header";
 import { MobileNotebookLayout } from "@/features/notebooks/components/mobile-notebook-layout";
+import { StudioResources } from "@/features/notebooks/components/studio-resources";
+import { AddSourceDialog } from "@/features/sources/components/add-source-dialog";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
-import { StudioResources } from "@/features/notebooks/components/studio-resources";
 import { StudyMaterialsPanel } from "@/features/study-materials/components/tree/study-materials-panel";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { modelsQueryOptions } from "@/lib/models";

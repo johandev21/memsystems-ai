@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
-import { notebooks, notes, noteTypes, studyMaterials } from "@/database/schema";
+import { notebooks, noteTypes, studyMaterials } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { NoteService } from "./note.service";
 import type { FieldSchema } from "./note-type.service";

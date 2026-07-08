@@ -2,9 +2,9 @@ import { createId } from "@paralleldrive/cuid2";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { sourceChunks, sources } from "@/database/schema";
+import { logger } from "@/lib/logger";
 import { chunkSource } from "./chunking.service";
 import { embeddingService } from "./embedding.service";
-import { logger } from "@/lib/logger";
 
 const log = logger.child({ feature: "rag" });
 

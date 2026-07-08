@@ -3,15 +3,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
+  ExternalLink,
   Eye,
   EyeOff,
-  ExternalLink,
   Key,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getApiUrl } from "@/lib/utils";

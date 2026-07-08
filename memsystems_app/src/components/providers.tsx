@@ -2,9 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { ConnectionBanner } from "./connection-banner";
 import { Toaster } from "@/components/ui/sonner";
 import { BackgroundGenerationStatus } from "@/features/study-materials/components/generation/BackgroundGenerationStatus";
+import { ConnectionBanner } from "./connection-banner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

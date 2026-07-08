@@ -2,17 +2,17 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { BookOpen, MessageSquare, Sparkles } from "lucide-react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { modelsQueryOptions } from "@/lib/models";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
-import { MobileStudyMaterialsPanel } from "@/features/study-materials/components/tree/mobile-study-materials-panel";
-import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
+import { MobileStudyMaterialsPanel } from "@/features/study-materials/components/tree/mobile-study-materials-panel";
+import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { modelsQueryOptions } from "@/lib/models";
+import { NotebookSettingsDialog } from "./notebook-settings-dialog";
 import { StudioResources } from "./studio-resources";
 
 export function MobileNotebookLayout({ notebookId }: { notebookId: string }) {

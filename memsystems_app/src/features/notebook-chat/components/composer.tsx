@@ -1,14 +1,14 @@
 "use client";
 
 import { ArrowUp, Eraser, Square } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { FormEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useTranslations } from "next-intl";
+import { ModelSelector } from "@/features/notebooks/components/model-selector";
+import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import type { ModelOption } from "@/lib/models";
 import { cn } from "@/lib/utils";
-import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
-import { ModelSelector } from "@/features/notebooks/components/model-selector";
 
 export interface ComposerProps {
   input: string;

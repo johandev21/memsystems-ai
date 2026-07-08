@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks, sources } from "@/database/schema";
+import { indexingService } from "@/features/rag/indexing.service";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import {
@@ -9,7 +10,6 @@ import {
   presignDownload,
   putObject,
 } from "@/lib/storage/s3-client";
-import { indexingService } from "@/features/rag/indexing.service";
 import { extractText, isSupportedFile } from "./source-extraction.service";
 import { scrapeUrl } from "./web-scraper.service";
 

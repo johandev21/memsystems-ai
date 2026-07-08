@@ -27,11 +27,10 @@ export async function withRoute<TParams>(
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
     if (err instanceof ZodError) {
-      const details = err.issues.map((issue) => {
-        const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
-        return `${path}: ${issue.message}`;
-      });
-      return NextResponse.json({ error: details.join("; ") }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request body", issues: err.issues },
+        { status: 400 },
+      );
     }
     const message =
       err instanceof Error ? err.message : "Internal server error";

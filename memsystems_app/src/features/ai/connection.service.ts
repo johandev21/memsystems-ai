@@ -4,12 +4,12 @@ import { createOpenaiProvider } from "./providers/openai";
 // import { opencodeProvider } from "./providers/opencode";
 import { userSettingsService } from "./user-settings.service";
 
-const HEALTH_TTL_MS = 15_000;
+const _HEALTH_TTL_MS = 15_000;
 const OPENAI_HEALTH_TTL_MS = 60_000; // Cache OpenAI health for 60 seconds
 
-let cachedResult: HealthCheckResult | null = null;
+let _cachedResult: HealthCheckResult | null = null;
 let cachedAt = 0;
-let cachedModels: ProviderModel[] = [];
+let _cachedModels: ProviderModel[] = [];
 
 // User-specific OpenAI health cache
 interface OpenAIHealthCache {
@@ -19,14 +19,14 @@ interface OpenAIHealthCache {
 }
 const openaiHealthCache = new Map<string, OpenAIHealthCache>();
 
-async function refreshOpenCode(): Promise<void> {
+async function _refreshOpenCode(): Promise<void> {
   // OpenCode disabled
-  cachedResult = { ok: false, detail: "OpenCode provider is disabled." };
+  _cachedResult = { ok: false, detail: "OpenCode provider is disabled." };
   cachedAt = Date.now();
-  cachedModels = [];
+  _cachedModels = [];
 }
 
-function isOpenCodeStale(): boolean {
+function _isOpenCodeStale(): boolean {
   return false; // OpenCode disabled, never stale since it's never checked
 }
 

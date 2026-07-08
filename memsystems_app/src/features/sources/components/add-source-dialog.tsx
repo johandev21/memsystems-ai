@@ -10,9 +10,9 @@ import {
   Type,
   Upload,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import {
   createFileSource,
   createTextSource,
@@ -31,7 +32,6 @@ import {
   SOURCE_LIMIT,
   sourcesQueryOptions,
 } from "@/lib/sources";
-import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 
 type Mode = "menu" | "url" | "text";
 

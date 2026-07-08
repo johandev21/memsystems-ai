@@ -30,7 +30,7 @@ export async function getProviderForModel(
 }
 
 export class AiService {
-  listModels(userId?: string) {
+  listModels(_userId?: string) {
     // const opencodeModels = opencodeProvider.listModels();
     const openaiModels = createOpenaiProvider("").listModels();
     return openaiModels;

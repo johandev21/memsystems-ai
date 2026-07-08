@@ -1,5 +1,3 @@
-import { cardStateEnum } from "@/database/schema";
-
 export type CardState = "new" | "learning" | "review";
 export type ReviewGrade = 0 | 3 | 4 | 5;
 export const REVIEW_GRADES = { Again: 0, Hard: 3, Good: 4, Easy: 5 } as const;

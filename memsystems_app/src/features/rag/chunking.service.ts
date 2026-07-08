@@ -26,8 +26,8 @@ function splitOnBoundaries(text: string, chunkSize: number): string[] {
   let current = "";
 
   for (const para of paragraphs) {
-    if ((current + "\n\n" + para).trim().length <= chunkSize) {
-      current = current ? current + "\n\n" + para : para;
+    if (`${current}\n\n${para}`.trim().length <= chunkSize) {
+      current = current ? `${current}\n\n${para}` : para;
     } else {
       if (current) {
         chunks.push(current);
@@ -49,8 +49,8 @@ function splitOnBoundaries(text: string, chunkSize: number): string[] {
               const words = sentence.split(/\s+/);
               current = "";
               for (const word of words) {
-                if ((current + " " + word).trim().length <= chunkSize) {
-                  current = current ? current + " " + word : word;
+                if (`${current} ${word}`.trim().length <= chunkSize) {
+                  current = current ? `${current} ${word}` : word;
                 } else {
                   if (current) chunks.push(current.trim());
                   current = word;

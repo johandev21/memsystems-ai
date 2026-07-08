@@ -14,11 +14,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import {
-  MessageScrollerProvider,
   MessageScroller,
-  MessageScrollerViewport,
-  MessageScrollerContent,
   MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";

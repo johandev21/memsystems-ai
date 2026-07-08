@@ -2,11 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 import {
   type StudyMaterialDTO,
   studyMaterialQueryOptions,
 } from "@/lib/study-materials";
-import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 
 export type RightPaneMode =
   | { kind: "select" }
