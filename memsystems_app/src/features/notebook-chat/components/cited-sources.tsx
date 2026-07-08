@@ -7,7 +7,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
   AttachmentTrigger,
-} from "@/components/ui/attachment";
+} from "@/components/chat/attachment";
 
 export interface CitedSourceInfo {
   id: string;

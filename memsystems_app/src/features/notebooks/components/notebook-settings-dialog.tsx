@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NotebookIcon } from "@/components/ui/notebook-icon";
+import { NotebookIcon } from "@/components/branding/notebook-icon";
 import { Textarea } from "@/components/ui/textarea";
 import {
   type Notebook,

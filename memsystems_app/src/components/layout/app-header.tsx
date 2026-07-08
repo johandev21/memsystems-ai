@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/branding/logo";
 import { UserMenu } from "./user-menu";
 
 const TRIGGER_ZONE_HEIGHT = 20;

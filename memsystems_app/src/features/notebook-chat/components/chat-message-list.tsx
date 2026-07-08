@@ -2,8 +2,8 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
-import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
-import { MessageScrollerItem } from "@/components/ui/message-scroller";
+import { Marker, MarkerContent, MarkerIcon } from "@/components/chat/marker";
+import { MessageScrollerItem } from "@/components/chat/message-scroller";
 import { UserMessage } from "./user-message";
 import { AssistantMessage } from "./assistant-message";
 import type { CitedSourceInfo } from "./cited-sources";

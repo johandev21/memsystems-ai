@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/branding/logo";
 import { getSession } from "@/lib/auth";
 
 export default async function LandingPage() {

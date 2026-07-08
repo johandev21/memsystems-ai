@@ -7,7 +7,7 @@ import {
   MessageScrollerContent,
   MessageScrollerProvider,
   MessageScrollerViewport,
-} from "@/components/ui/message-scroller";
+} from "@/components/chat/message-scroller";
 import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";

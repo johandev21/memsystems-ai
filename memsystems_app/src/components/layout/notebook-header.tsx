@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/branding/logo";
 import { EditableNotebookTitle } from "./editable-notebook-title";
 import { UserMenu } from "./user-menu";
 

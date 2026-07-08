@@ -1,6 +1,6 @@
 import type { UIMessage } from "@ai-sdk/react";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Message, MessageContent } from "@/components/ui/message";
+import { Bubble, BubbleContent } from "@/components/chat/bubble";
+import { Message, MessageContent } from "@/components/chat/message";
 
 export function UserMessage({ message }: { message: UIMessage }) {
   const isTextPart = (

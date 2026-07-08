@@ -4,12 +4,12 @@ import type { UIMessage } from "@ai-sdk/react";
 import { code } from "@streamdown/code";
 import { Streamdown } from "streamdown";
 import "streamdown/styles.css";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import { Bubble, BubbleContent } from "@/components/chat/bubble";
 import {
   Message,
   MessageContent,
   MessageFooter,
-} from "@/components/ui/message";
+} from "@/components/chat/message";
 import { MessageActions } from "./message-actions";
 import { CitedSources, type CitedSourceInfo } from "./cited-sources";
 import { streamdownComponents } from "./streamdown-components";
