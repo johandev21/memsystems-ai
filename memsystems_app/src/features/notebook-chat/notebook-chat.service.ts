@@ -120,6 +120,16 @@ export class NotebookChatService {
     });
   }
 
+  extractUserMessageContent(
+    messages: { role: string; parts: { type: string; text: string }[] }[],
+  ): string {
+    const lastUserMessage = [...messages]
+      .reverse()
+      .find((m) => m.role === "user");
+    const textPart = lastUserMessage?.parts.find((p) => p.type === "text");
+    return textPart?.text ?? "";
+  }
+
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
     const logCtx = log.child({
       method: "sendMessage",

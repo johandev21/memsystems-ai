@@ -1,8 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
+import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
 import { NotebookService } from "@/features/notebooks/notebook.service";
-import { toErrorResponse } from "@/lib/api-error";
-import { getSession } from "@/lib/session";
 
 const service = new NotebookService();
 
@@ -16,54 +15,33 @@ const updateSchema = z.object({
     .optional(),
 });
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  try {
+export const GET = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (_req, { params, session }) => {
+    const { id } = await params;
     const notebook = await service.get(session.user.id, id);
     return NextResponse.json(notebook);
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  try {
-    const body = updateSchema.parse(await req.json());
+export const PATCH = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (req, { params, session }) => {
+    const { id } = await params;
+    const body = await parseBody(req, updateSchema);
     const notebook = await service.update(session.user.id, id, body);
     return NextResponse.json(notebook);
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  try {
+export const DELETE = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (_req, { params, session }) => {
+    const { id } = await params;
     await service.delete(session.user.id, id);
     return NextResponse.json({ success: true });
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });

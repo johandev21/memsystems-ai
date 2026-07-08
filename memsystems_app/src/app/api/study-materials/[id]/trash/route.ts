@@ -1,17 +1,15 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withRoute } from "@/app/api/_shared/route-utils";
 import { TrashService } from "@/features/study-materials/trash.service";
-import { getSession } from "@/lib/session";
 
 const service = new TrashService();
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { id } = await params;
-  await service.hardDeleteStudyMaterial(session.user.id, id);
-  return NextResponse.json({ success: true });
-}
+export const POST = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (_req, { params, session }) => {
+    const { id } = await params;
+    await service.hardDeleteStudyMaterial(session.user.id, id);
+    return NextResponse.json({ success: true });
+  });

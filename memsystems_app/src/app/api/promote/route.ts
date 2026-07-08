@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
+import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
 import { PromotionService } from "@/features/srs/promotion.service";
-import { getSession } from "@/lib/session";
 
 const service = new PromotionService();
 
@@ -12,16 +12,17 @@ const bodySchema = z.object({
   fieldOverrides: z.record(z.string(), z.string()).optional(),
 });
 
-export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const body = bodySchema.parse(await req.json());
-  const result = await service.promote(
-    session.user.id,
-    body.notebookId,
-    body.simpleFlashcardId,
-    body,
-  );
-  return NextResponse.json(result);
-}
+export const POST = (
+  req: Request,
+  context: { params: Promise<Record<string, never>> },
+) =>
+  withRoute(req, context, async (req, { session }) => {
+    const body = await parseBody(req, bodySchema);
+    const result = await service.promote(
+      session.user.id,
+      body.notebookId,
+      body.simpleFlashcardId,
+      body,
+    );
+    return NextResponse.json(result);
+  });

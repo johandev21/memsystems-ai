@@ -1,29 +1,26 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withRoute } from "@/app/api/_shared/route-utils";
 import { TrashService } from "@/features/study-materials/trash.service";
-import { toErrorResponse } from "@/lib/api-error";
-import { getSession } from "@/lib/session";
 
 const service = new TrashService();
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { id } = await params;
-  try {
+export const GET = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (_req, { params, session }) => {
+    const { id } = await params;
     const items = await service.list(session.user.id, id);
     return NextResponse.json(items);
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });
 
-export async function DELETE() {
-  return NextResponse.json(
-    { error: "Batch delete not implemented" },
-    { status: 400 },
-  );
-}
+export const DELETE = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async () => {
+    return NextResponse.json(
+      { error: "Batch delete not implemented" },
+      { status: 400 },
+    );
+  });

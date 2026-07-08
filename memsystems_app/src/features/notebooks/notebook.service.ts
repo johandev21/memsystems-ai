@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
@@ -63,7 +63,43 @@ export class NotebookService {
     return res;
   }
 
-  async list(userId: string) {
+  async list(
+    userId: string,
+    filter?: { limit?: number; offset?: number; search?: string },
+  ) {
+    if (filter?.limit !== undefined || filter?.search !== undefined) {
+      const conditions = [
+        eq(notebooks.userId, userId),
+        ...(filter.search
+          ? [
+              or(
+                ilike(notebooks.title, `%${filter.search}%`),
+                ilike(notebooks.description, `%${filter.search}%`),
+              )!,
+            ]
+          : []),
+      ];
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(notebooks)
+        .where(and(...conditions));
+      const total = Number(count);
+
+      const rows = await db
+        .select()
+        .from(notebooks)
+        .where(and(...conditions))
+        .orderBy(desc(notebooks.updatedAt))
+        .limit(filter.limit ?? 100)
+        .offset(filter.offset ?? 0);
+
+      const notebooksRes = await Promise.all(
+        rows.map((row) => this.formatNotebook(row)),
+      );
+
+      return { notebooks: notebooksRes, total };
+    }
+
     const rows = await db
       .select()
       .from(notebooks)
@@ -172,11 +208,14 @@ export class NotebookService {
   async uploadBanner(
     userId: string,
     notebookId: string,
-    file: File,
+    file: File | null,
     focalPoint?: { x: number; y: number },
   ) {
     await this.assertOwner(userId, notebookId);
 
+    if (!file) {
+      throw new BadRequestError("File is required");
+    }
     if (file.size === 0) {
       throw new BadRequestError("Uploaded file is empty");
     }

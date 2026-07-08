@@ -1,8 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
+import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
 import { StudyMaterialFolderService } from "@/features/study-materials/study-material-folder.service";
-import { toErrorResponse } from "@/lib/api-error";
-import { getSession } from "@/lib/session";
 
 const service = new StudyMaterialFolderService();
 
@@ -11,35 +10,23 @@ const createSchema = z.object({
   parentId: z.string().optional(),
 });
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { id } = await params;
-  try {
+export const GET = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (_req, { params, session }) => {
+    const { id } = await params;
     const folders = await service.list(session.user.id, id);
     return NextResponse.json(folders);
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { id } = await params;
-  try {
-    const body = createSchema.parse(await req.json());
+export const POST = (
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) =>
+  withRoute(req, context, async (req, { params, session }) => {
+    const { id } = await params;
+    const body = await parseBody(req, createSchema);
     const folder = await service.create(session.user.id, id, body);
     return NextResponse.json(folder);
-  } catch (err) {
-    return toErrorResponse(err);
-  }
-}
+  });

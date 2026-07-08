@@ -1,10 +1,7 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/database/connection";
-import { notebooks } from "@/database/schema";
+import { parseBody, withRoute } from "@/app/api/_shared/route-utils";
 import { NotebookService } from "@/features/notebooks/notebook.service";
-import { getSession } from "@/lib/session";
 
 const service = new NotebookService();
 
@@ -14,59 +11,30 @@ const createSchema = z.object({
   icon: z.string().max(50).optional(),
 });
 
-export async function GET(req: NextRequest) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const GET = (
+  req: Request,
+  context: { params: Promise<Record<string, never>> },
+) =>
+  withRoute(req, context, async (req, { session }) => {
+    const { searchParams } = new URL(req.url);
+    const limit = Number(searchParams.get("limit")) || undefined;
+    const offset = Number(searchParams.get("offset")) || 0;
+    const search = searchParams.get("search") || undefined;
 
-  const { searchParams } = new URL(req.url);
-  const limit = Number(searchParams.get("limit")) || undefined;
-  const offset = Number(searchParams.get("offset")) || 0;
-  const search = searchParams.get("search") || undefined;
+    const result = await service.list(session.user.id, {
+      limit,
+      offset,
+      search,
+    });
+    return NextResponse.json(result);
+  });
 
-  if (limit || search) {
-    const conditions = [
-      eq(notebooks.userId, session.user.id),
-      ...(search
-        ? [
-            or(
-              ilike(notebooks.title, `%${search}%`),
-              ilike(notebooks.description, `%${search}%`),
-            )!,
-          ]
-        : []),
-    ];
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(notebooks)
-      .where(and(...conditions));
-    const total = Number(count);
-
-    const rows = await db
-      .select()
-      .from(notebooks)
-      .where(and(...conditions))
-      .orderBy(desc(notebooks.updatedAt))
-      .limit(limit ?? 100)
-      .offset(offset ?? 0);
-
-    const notebooksRes = await Promise.all(
-      rows.map((row) => service.formatNotebook(row)),
-    );
-
-    return NextResponse.json({ notebooks: notebooksRes, total });
-  }
-
-  const all = await service.list(session.user.id);
-  return NextResponse.json(all);
-}
-
-export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body = createSchema.parse(await req.json());
-  const notebook = await service.create(session.user.id, body);
-  return NextResponse.json(notebook, { status: 201 });
-}
+export const POST = (
+  req: Request,
+  context: { params: Promise<Record<string, never>> },
+) =>
+  withRoute(req, context, async (req, { session }) => {
+    const body = await parseBody(req, createSchema);
+    const notebook = await service.create(session.user.id, body);
+    return NextResponse.json(notebook, { status: 201 });
+  });
