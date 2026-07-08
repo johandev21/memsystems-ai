@@ -4,6 +4,7 @@ import { ChevronDown, Loader2, Terminal, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
+import { KIND_LABELS } from "@/features/study-materials/shapes";
 import type { StudyMaterialKind } from "@/lib/api-client/generation";
 import { cn } from "@/lib/utils";
 
@@ -143,14 +144,5 @@ export function BackgroundGenerationStatus() {
 }
 
 function kindLabel(kind: StudyMaterialKind): string {
-  switch (kind) {
-    case "simple_flashcard":
-      return "Flashcards";
-    case "slide_deck":
-      return "Slide Deck";
-    case "mind_map":
-      return "Mind Map";
-    default:
-      return kind.charAt(0).toUpperCase() + kind.slice(1);
-  }
+  return KIND_LABELS[kind];
 }

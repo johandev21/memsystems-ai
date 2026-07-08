@@ -11,8 +11,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import {
+  KIND_LABELS,
+  type StudyMaterialKind,
+} from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/api-client/models";
 import { BriefForm } from "./BriefForm";
 
@@ -44,33 +48,18 @@ export function GenerateBriefDialog({
   const [brief, setBrief] = useState("");
   const [sourceIds, setSourceIds] = useState<string[]>([]);
   const [folderId, setFolderId] = useState<string | null>(null);
-  const [model, setModel] = useState("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("memsystems:selected-model");
-      if (stored) {
-        setModel(stored);
-      }
-    }
-  }, []);
+  const { model: persistedModel, setModel: setPersistedModel } =
+    useModelPersistence(notebookId);
+  const model = persistedModel ?? "";
 
   useEffect(() => {
     if (models && models.length > 0) {
       const exists = models.some((m) => m.id === model);
       if (!exists) {
-        const stored = localStorage.getItem("memsystems:selected-model");
-        const storedExists = stored
-          ? models.some((m) => m.id === stored)
-          : false;
-        if (storedExists && stored) {
-          setModel(stored);
-        } else {
-          setModel(models[0].id);
-        }
+        setPersistedModel(models[0].id);
       }
     }
-  }, [models, model]);
+  }, [models, model, setPersistedModel]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -119,10 +108,7 @@ export function GenerateBriefDialog({
               setSourceIds(next.sourceIds);
               setFolderId(next.folderId);
               if (next.model !== model) {
-                setModel(next.model);
-                if (typeof window !== "undefined") {
-                  localStorage.setItem("memsystems:selected-model", next.model);
-                }
+                setPersistedModel(next.model);
               }
             }}
             onSubmit={handleSubmit}
@@ -138,17 +124,8 @@ export function GenerateBriefDialog({
 }
 
 function kindLabel(
-  t: (key: string) => string,
+  _t: (key: string) => string,
   kind: StudyMaterialKind,
 ): string {
-  switch (kind) {
-    case "simple_flashcard":
-      return t("flashcards");
-    case "slide_deck":
-      return t("slideDeck");
-    case "mind_map":
-      return t("mindMap");
-    default:
-      return t(kind);
-  }
+  return KIND_LABELS[kind];
 }

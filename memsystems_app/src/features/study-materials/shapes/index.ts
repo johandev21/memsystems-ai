@@ -7,6 +7,7 @@ import { RoadmapContent } from "./roadmap";
 import { SimpleFlashcardContent } from "./simple-flashcard";
 import { SlideDeckContent } from "./slide-deck";
 
+export { KIND_LABELS } from "./kind-labels";
 export { MindMapContent } from "./mind-map";
 export { QuizContent, shuffleQuizOptions } from "./quiz";
 export { ReportContent } from "./report";

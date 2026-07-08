@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
+import { KIND_LABELS } from "@/features/study-materials/shapes";
 import { createStudyMaterial } from "@/lib/api-client/study-materials";
 import { clientLogger } from "@/lib/logging/client-logger";
 
@@ -140,12 +141,5 @@ export function EditorShell({
 }
 
 export function kindLabel(kind: EditorShellProps["kind"]): string {
-  switch (kind) {
-    case "quiz":
-      return "Quiz";
-    case "simple_flashcard":
-      return "Flashcard";
-    case "roadmap":
-      return "Roadmap";
-  }
+  return KIND_LABELS[kind];
 }

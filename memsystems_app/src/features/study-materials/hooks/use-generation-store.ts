@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-client/generation";
 import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
 import { clientLogger } from "@/lib/logging/client-logger";
+import { KIND_LABELS } from "../shapes";
 
 const log = clientLogger.child({ feature: "use-generation-store" });
 
@@ -272,14 +273,5 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
 }));
 
 function kindLabel(kind: StudyMaterialKind): string {
-  switch (kind) {
-    case "simple_flashcard":
-      return "Flashcards";
-    case "slide_deck":
-      return "Slide Deck";
-    case "mind_map":
-      return "Mind Map";
-    default:
-      return kind.charAt(0).toUpperCase() + kind.slice(1);
-  }
+  return KIND_LABELS[kind];
 }

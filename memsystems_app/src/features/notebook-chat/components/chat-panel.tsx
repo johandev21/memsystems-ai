@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/message-scroller";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
+import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import {
   type CitedSourceDTO,
   chatMessagesQueryOptions,
@@ -52,40 +53,25 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
 
   const modelOptions: ModelOption[] = models ?? [];
 
-  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL_ID);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("memsystems:selected-model");
-      if (stored) {
-        setSelectedModel(stored);
-      }
-    }
-  }, []);
+  const { model: persistedModel, setModel: setPersistedModel } =
+    useModelPersistence(notebookId);
+  const selectedModel = persistedModel ?? DEFAULT_MODEL_ID;
 
   useEffect(() => {
     if (modelOptions.length > 0) {
       const exists = modelOptions.some((m) => m.id === selectedModel);
       if (!exists) {
-        const stored = localStorage.getItem("memsystems:selected-model");
-        const storedExists = stored
-          ? modelOptions.some((m) => m.id === stored)
-          : false;
-        if (storedExists && stored) {
-          setSelectedModel(stored);
-        } else {
-          setSelectedModel(modelOptions[0].id);
-        }
+        setPersistedModel(modelOptions[0].id);
       }
     }
-  }, [modelOptions, selectedModel]);
+  }, [modelOptions, selectedModel, setPersistedModel]);
 
-  const handleModelChange = useCallback((modelId: string) => {
-    setSelectedModel(modelId);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("memsystems:selected-model", modelId);
-    }
-  }, []);
+  const handleModelChange = useCallback(
+    (modelId: string) => {
+      setPersistedModel(modelId);
+    },
+    [setPersistedModel],
+  );
 
   const selectedModelRef = useRef(selectedModel);
   selectedModelRef.current = selectedModel;
