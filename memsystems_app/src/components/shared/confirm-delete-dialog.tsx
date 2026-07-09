@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   AlertDialog,
@@ -11,7 +12,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -30,7 +30,7 @@ export function ConfirmDeleteDialog({
   onConfirm,
   isLoading = false,
 }: ConfirmDeleteDialogProps) {
-  const t = useTranslations();
+  const t = useTranslations("Common");
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

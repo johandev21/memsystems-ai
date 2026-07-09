@@ -4,13 +4,11 @@ import type { UIMessage } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
 import { Marker, MarkerContent, MarkerIcon } from "@/components/chat/marker";
 import { MessageScrollerItem } from "@/components/chat/message-scroller";
-import { UserMessage } from "./user-message";
 import { AssistantMessage } from "./assistant-message";
-import type { CitedSourceInfo } from "./cited-sources";
+import { UserMessage } from "./user-message";
 
 export interface ChatMessageListProps {
   messages: UIMessage[];
-  citedSourcesByMessageId?: Map<string, CitedSourceInfo[]>;
   isThinking: boolean;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
@@ -18,7 +16,6 @@ export interface ChatMessageListProps {
 
 export function ChatMessageList({
   messages,
-  citedSourcesByMessageId,
   isThinking,
   onCopy,
   onRegenerate,
@@ -35,7 +32,6 @@ export function ChatMessageList({
           >
             <MessageBubble
               message={message}
-              citedSources={citedSourcesByMessageId?.get(message.id)}
               onCopy={onCopy}
               onRegenerate={onRegenerate}
               isLast={isLast}
@@ -61,7 +57,6 @@ export function ChatMessageList({
 
 interface MessageBubbleProps {
   message: UIMessage;
-  citedSources?: CitedSourceInfo[];
   onCopy: (text: string) => void;
   onRegenerate: () => void;
   isLast: boolean;
@@ -69,7 +64,6 @@ interface MessageBubbleProps {
 
 function MessageBubble({
   message,
-  citedSources,
   onCopy,
   onRegenerate,
   isLast,
@@ -83,7 +77,6 @@ function MessageBubble({
   return (
     <AssistantMessage
       message={message}
-      citedSources={citedSources}
       onCopy={onCopy}
       onRegenerate={onRegenerate}
       showRegenerate={isLast}

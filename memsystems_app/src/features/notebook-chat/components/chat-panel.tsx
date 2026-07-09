@@ -1,6 +1,5 @@
 "use client";
 
-import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -8,23 +7,22 @@ import {
   MessageScrollerProvider,
   MessageScrollerViewport,
 } from "@/components/chat/message-scroller";
+import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
+import { useChatPanel } from "../hooks/use-chat-panel";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
-import { useChatPanel } from "../hooks/use-chat-panel";
 
 export function ChatPanel({ notebookId }: { notebookId: string }) {
   const {
-    t,
     notebook,
     connection,
     modelOptions,
     selectedModel,
     handleModelChange,
     messages,
-    citedSourcesByMessageId,
     status,
     isLoading,
     messageCount,
@@ -64,7 +62,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
                   {hasMessages ? (
                     <ChatMessageList
                       messages={messages}
-                      citedSourcesByMessageId={citedSourcesByMessageId}
                       isThinking={status === "submitted"}
                       onCopy={handleCopy}
                       onRegenerate={handleRegenerate}

@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import {
-  type CitedSourceDTO,
   chatMessagesQueryOptions,
   clearChatHistory,
 } from "@/lib/api-client/chat";
@@ -86,9 +85,7 @@ export function useChatPanel(notebookId: string) {
             messages: messages.map((m) => ({
               id: m.id,
               role: m.role,
-              parts: m.parts.filter(
-                (p) => p.type === "text" || p.type === "reasoning",
-              ),
+              parts: m.parts.filter((p) => p.type === "text"),
             })),
           },
         };
@@ -96,27 +93,12 @@ export function useChatPanel(notebookId: string) {
     });
   }, [notebookId, logCtx]);
 
-  const citedSourcesByMessageId = useMemo(() => {
-    const map = new Map<string, CitedSourceDTO[]>();
-    for (const msg of chatHistory) {
-      if (msg.citedSources?.length) {
-        map.set(msg.id, msg.citedSources);
-      }
-    }
-    return map;
-  }, [chatHistory]);
-
   const initialMessages = useMemo(
     () =>
       chatHistory.map((msg) => ({
         id: msg.id,
         role: msg.role as "user" | "assistant",
-        parts: msg.reasoning
-          ? [
-              { type: "reasoning" as const, text: msg.reasoning },
-              { type: "text" as const, text: msg.content },
-            ]
-          : [{ type: "text" as const, text: msg.content }],
+        parts: [{ type: "text" as const, text: msg.content }],
       })),
     [chatHistory],
   );
@@ -219,7 +201,6 @@ export function useChatPanel(notebookId: string) {
     selectedModel,
     handleModelChange,
     messages,
-    citedSourcesByMessageId,
     status,
     isLoading,
     messageCount,

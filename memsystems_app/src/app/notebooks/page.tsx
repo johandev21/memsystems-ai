@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { NotebookIcon } from "@/components/branding/notebook-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/shared/spinner";
+import { TypographyH1, TypographyMuted } from "@/components/ui/typography";
 import { allNotebooksQueryOptions } from "@/lib/api-client/notebooks";
 
 function NotebooksContent() {
@@ -81,12 +82,12 @@ function NotebooksContent() {
     <main className="mx-auto max-w-6xl px-6 md:px-0 pb-12">
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-heading font-bold">
+          <TypographyH1 className="text-xl font-heading font-bold text-left">
             {t("allNotebooks")}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          </TypographyH1>
+          <TypographyMuted className="mt-1">
             {t("notebookCount", { count: total })}
-          </p>
+          </TypographyMuted>
         </div>
         <Button
           onClick={handleCreateNotebook}
