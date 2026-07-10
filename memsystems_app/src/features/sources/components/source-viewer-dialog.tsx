@@ -177,17 +177,18 @@ export function SourceViewerDialog({
                     <Button
                       variant="outline"
                       size="sm"
-                      asChild
                       className="shrink-0 text-xs gap-1.5"
+                      nativeButton={false}
+                      render={
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
                     >
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        {t("openWebpage")}
-                      </a>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      {t("openWebpage")}
                     </Button>
                   </div>
                 )}

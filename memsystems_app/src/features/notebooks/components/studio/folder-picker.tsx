@@ -80,25 +80,27 @@ export function FolderPicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn(
-            "w-full justify-between font-normal",
-            value === null && "text-muted-foreground",
-            className,
-          )}
-        >
-          <span className="truncate flex items-center gap-2">
-            <Folder className="h-4 w-4 text-muted-foreground" />
-            {selectedName}
-          </span>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              "w-full justify-between font-normal",
+              value === null && "text-muted-foreground",
+              className,
+            )}
+          />
+        }
+      >
+        <span className="truncate flex items-center gap-2">
+          <Folder className="h-4 w-4 text-muted-foreground" />
+          {selectedName}
+        </span>
+        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-0" align="start">
         <div className="max-h-[260px] overflow-y-auto p-1">

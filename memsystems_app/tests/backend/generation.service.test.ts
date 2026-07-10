@@ -22,12 +22,11 @@ vi.mock("@/features/ai/ai.service", () => ({
   }),
 }));
 
-import { db } from "../db";
-import { resetDatabase } from "../db";
-import { seedNotebook, seedUser } from "../fixtures";
-import { GenerationService } from "@/features/notebooks/generation.service";
-import { studyMaterials } from "@/database/schema";
 import { eq } from "drizzle-orm";
+import { studyMaterials } from "@/database/schema";
+import { GenerationService } from "@/features/notebooks/generation.service";
+import { db, resetDatabase } from "../db";
+import { seedNotebook, seedUser } from "../fixtures";
 
 const service = new GenerationService();
 

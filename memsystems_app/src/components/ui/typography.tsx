@@ -90,11 +90,7 @@ export const TypographyTable = React.forwardRef<
   React.TableHTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
   <div className="my-6 w-full overflow-y-auto">
-    <table
-      ref={ref}
-      className={cn("w-full", className)}
-      {...props}
-    />
+    <table ref={ref} className={cn("w-full", className)} {...props} />
   </div>
 ));
 TypographyTable.displayName = "TypographyTable";

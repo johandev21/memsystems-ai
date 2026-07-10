@@ -1,5 +1,7 @@
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+
 export type { StudyMaterialKind };
+
 import { getApiUrl } from "../utils";
 
 export interface StartGenerationInput {

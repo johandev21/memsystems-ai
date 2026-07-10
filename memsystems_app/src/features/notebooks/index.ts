@@ -1,18 +1,17 @@
 // Services
-export { NotebookService } from "./notebook.service";
-export { assertNotebookOwner } from "./ownership";
 
+export { DesktopLayout } from "./components/desktop-layout";
+export { MobileNotebookLayout } from "./components/mobile-notebook-layout";
+export {
+  DialogModelSelector,
+  ModelSelector,
+} from "./components/model-selector";
 // Components
 export { NotebookBanner } from "./components/notebook-banner";
 export { NotebookSettingsDialog } from "./components/notebook-settings-dialog";
-export {
-  ModelSelector,
-  DialogModelSelector,
-} from "./components/model-selector";
-export { MobileNotebookLayout } from "./components/mobile-notebook-layout";
 export { StudioResources } from "./components/studio-resources";
-export { DesktopLayout } from "./components/desktop-layout";
-
+export { useModelPersistence } from "./hooks/use-model-persistence";
 // Hooks
 export { useTextareaAutosize } from "./hooks/use-textarea-autosize";
-export { useModelPersistence } from "./hooks/use-model-persistence";
+export { NotebookService } from "./notebook.service";
+export { assertNotebookOwner } from "./ownership";

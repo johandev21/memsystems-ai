@@ -7,7 +7,6 @@ import {
   MoreVertical,
   Trash2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -20,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import type { FileTreeItem } from "./study-materials-tree";
 import { RESOURCE_ICONS } from "./study-materials-tree";
 
@@ -98,15 +98,17 @@ export function FileTreeItemNode({
             </span>
           )}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-                aria-label={`Options for ${item.name}`}
-              >
-                <MoreVertical className="h-3.5 w-3.5" />
-              </button>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`Options for ${item.name}`}
+                />
+              }
+            >
+              <MoreVertical className="h-3.5 w-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem
@@ -128,15 +130,17 @@ export function FileTreeItemNode({
       {!isFolder && (
         <div className="ml-auto opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-                aria-label={`Options for ${item.name}`}
-              >
-                <MoreVertical className="h-3.5 w-3.5" />
-              </button>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`Options for ${item.name}`}
+                />
+              }
+            >
+              <MoreVertical className="h-3.5 w-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem
@@ -160,7 +164,7 @@ export function FileTreeItemNode({
   if (isFolder) {
     return (
       <ContextMenu>
-        <ContextMenuTrigger asChild>{nodeContent}</ContextMenuTrigger>
+        <ContextMenuTrigger render={nodeContent} />
         <ContextMenuContent className="w-40">
           <ContextMenuItem
             variant="destructive"
@@ -193,7 +197,7 @@ export function FileTreeItemNode({
 
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild>{nodeContent}</ContextMenuTrigger>
+      <ContextMenuTrigger render={nodeContent} />
       <ContextMenuContent className="w-40">
         <ContextMenuItem
           variant="destructive"

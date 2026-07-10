@@ -97,17 +97,22 @@ export function StudioResources({
             const label = t(resource.key as any);
             return (
               <Tooltip key={resource.key}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn("h-10 w-10 shrink-0", resource.colorClasses)}
-                    onClick={() => !disabled && onGenerate(resource.kind)}
-                    disabled={disabled}
-                  >
-                    <resource.icon className="h-5 w-5" />
-                    <span className="sr-only">{label}</span>
-                  </Button>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-10 w-10 shrink-0",
+                        resource.colorClasses,
+                      )}
+                      onClick={() => !disabled && onGenerate(resource.kind)}
+                      disabled={disabled}
+                    />
+                  }
+                >
+                  <resource.icon className="h-5 w-5" />
+                  <span className="sr-only">{label}</span>
                 </TooltipTrigger>
                 <TooltipContent side="left" sideOffset={10}>
                   {label}

@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { NotebookIcon } from "@/components/branding/notebook-icon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,7 +44,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NotebookIcon } from "@/components/branding/notebook-icon";
 import { Textarea } from "@/components/ui/textarea";
 import {
   type Notebook,
@@ -360,15 +360,17 @@ export function NotebookSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          aria-label={t("notebookSettings")}
-        >
-          <Settings className="size-4" />
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            aria-label={t("notebookSettings")}
+          />
+        }
+      >
+        <Settings className="size-4" />
       </DialogTrigger>
       <DialogContent className="sm:w-1/3 sm:min-w-[765px] sm:max-w-[calc(100vw-2rem)]">
         <DialogHeader>

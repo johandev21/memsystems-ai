@@ -1,7 +1,7 @@
+import type * as React from "react";
 import type { ComponentProps } from "react";
 import type { Streamdown } from "streamdown";
 import { CustomCodeBlock } from "./custom-code-block";
-import type * as React from "react";
 
 export const streamdownComponents: NonNullable<
   ComponentProps<typeof Streamdown>["components"]

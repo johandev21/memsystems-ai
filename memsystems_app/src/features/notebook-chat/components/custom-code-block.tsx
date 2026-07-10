@@ -1,8 +1,8 @@
 "use client";
 
 import { Check, Copy, Download } from "lucide-react";
-import { useState } from "react";
 import type * as React from "react";
+import { useState } from "react";
 
 export function CustomCodeBlock(props: {
   className?: string;

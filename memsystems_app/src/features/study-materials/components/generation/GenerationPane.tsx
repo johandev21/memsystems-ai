@@ -2,16 +2,16 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { clientLogger } from "@/lib/logging/client-logger";
 import {
   type StudyMaterialKind,
   startGeneration,
 } from "@/lib/api-client/generation";
 import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
+import { clientLogger } from "@/lib/logging/client-logger";
 
 const log = clientLogger.child({ feature: "generation-pane" });
 

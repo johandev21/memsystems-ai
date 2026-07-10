@@ -1,7 +1,8 @@
 // Services
-export { indexingService, IndexingService } from "./indexing.service";
+
+export { EmbeddingService, embeddingService } from "./embedding.service";
+export { IndexingService, indexingService } from "./indexing.service";
 export {
-  retrieveRelevantChunks,
   type RetrievedChunk,
+  retrieveRelevantChunks,
 } from "./retrieval.service";
-export { embeddingService, EmbeddingService } from "./embedding.service";

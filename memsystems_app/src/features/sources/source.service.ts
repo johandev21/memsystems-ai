@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { sources } from "@/database/schema";
-import { indexingService } from "@/features/rag/indexing.service";
 import { assertNotebookOwner } from "@/features/notebooks/ownership";
+import { indexingService } from "@/features/rag/indexing.service";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { logger } from "@/lib/logging/logger";
 import {

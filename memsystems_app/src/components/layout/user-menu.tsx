@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -26,6 +28,11 @@ export function UserMenu({
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   async function handleLogout() {
     await authClient.signOut();
     router.push("/");
@@ -33,32 +40,36 @@ export function UserMenu({
 
   return (
     <DropdownMenu onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="cursor-pointer">
-          <div className="size-6 flex items-center justify-center">
-            {isPending ? (
-              <Skeleton className="size-6 rounded-full" />
-            ) : (
-              <Avatar size="sm">
-                <AvatarImage
-                  src={user?.image ?? undefined}
-                  alt={user?.name ?? undefined}
-                />
-                <AvatarFallback>
-                  {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-                </AvatarFallback>
-              </Avatar>
-            )}
-          </div>
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" className="cursor-pointer" />
+        }
+      >
+        <div className="size-6 flex items-center justify-center">
+          {!mounted || isPending ? (
+            <Skeleton className="size-6 rounded-full" />
+          ) : (
+            <Avatar size="sm">
+              <AvatarImage
+                src={user?.image ?? undefined}
+                alt={user?.name ?? undefined}
+              />
+              <AvatarFallback>
+                {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+              </AvatarFallback>
+            </Avatar>
+          )}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium">{user?.name}</p>
-            <p className="text-xs text-muted-foreground">{user?.email}</p>
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => router.push("/settings")}

@@ -181,7 +181,7 @@ describe("StudyMaterialsTree - Deletion", () => {
     await user.click(optionsBtn);
 
     // Dropdown content should open containing "Delete"
-    const deleteBtn = screen.getByRole("menuitem", { name: /delete/i });
+    const deleteBtn = await screen.findByRole("menuitem", { name: /delete/i });
     expect(deleteBtn).toBeInTheDocument();
 
     // Click delete from dropdown
@@ -244,7 +244,7 @@ describe("StudyMaterialsTree - Deletion", () => {
     await user.click(optionsBtn);
 
     // Click delete from dropdown
-    const deleteBtn = screen.getByRole("menuitem", { name: /delete/i });
+    const deleteBtn = await screen.findByRole("menuitem", { name: /delete/i });
     await user.click(deleteBtn);
 
     // Verify it blocked the deletion and showed the error toast
@@ -269,7 +269,7 @@ describe("StudyMaterialsTree - Deletion", () => {
     await user.click(optionsBtn);
 
     // Click delete from dropdown
-    const deleteBtn = screen.getByRole("menuitem", { name: /delete/i });
+    const deleteBtn = await screen.findByRole("menuitem", { name: /delete/i });
     await user.click(deleteBtn);
 
     // Verify AlertDialog is shown

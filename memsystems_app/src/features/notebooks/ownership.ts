@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
-import { eq } from "drizzle-orm";
 import { ForbiddenError, NotFoundError } from "@/lib/errors/domain-error";
 
 export async function assertNotebookOwner(

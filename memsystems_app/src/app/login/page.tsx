@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Logo } from "@/components/branding/logo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Logo } from "@/components/branding/logo";
 import { authClient } from "@/lib/auth/client";
 
 function GoogleIcon() {

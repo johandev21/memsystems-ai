@@ -2,13 +2,13 @@ import { createHash } from "node:crypto";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/database/connection";
 import { notebooks } from "@/database/schema";
-import { assertNotebookOwner } from "./ownership";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import {
   deleteObject,
   presignDownload,
   putObject,
 } from "@/lib/storage/s3-client";
+import { assertNotebookOwner } from "./ownership";
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BANNER_BYTES = 2 * 1024 * 1024;

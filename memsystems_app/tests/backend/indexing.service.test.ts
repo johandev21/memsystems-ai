@@ -10,8 +10,8 @@ vi.mock("@/features/rag/embedding.service", () => ({
   },
 }));
 
-import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
+import { eq } from "drizzle-orm";
 import { sourceChunks } from "@/database/schema";
 import { IndexingService } from "@/features/rag/indexing.service";
 import { db } from "../db";

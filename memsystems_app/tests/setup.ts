@@ -1,5 +1,11 @@
 import "@testing-library/jest-dom/vitest";
 import { beforeAll, beforeEach, vi } from "vitest";
+
+// Polyfill Element.prototype.getAnimations for jsdom / Base UI compatibility
+if (typeof window !== "undefined" && !Element.prototype.getAnimations) {
+  Element.prototype.getAnimations = () => [];
+}
+
 import { ensureTestDatabase, resetDatabase } from "./db";
 
 // Quiet the service logger during tests (it writes JSON lines to stdout).

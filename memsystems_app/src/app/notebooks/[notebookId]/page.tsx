@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { NotebookHeader } from "@/components/layout/notebook-header";
-import { MobileNotebookLayout } from "@/features/notebooks/components/mobile-notebook-layout";
 import { DesktopLayout } from "@/features/notebooks/components/desktop-layout";
+import { MobileNotebookLayout } from "@/features/notebooks/components/mobile-notebook-layout";
 
 export default function NotebookPage() {
   const params = useParams<{ notebookId: string }>();

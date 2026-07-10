@@ -2,22 +2,22 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  TypographyBlockquote,
   TypographyH1,
   TypographyH2,
   TypographyH3,
   TypographyH4,
-  TypographyP,
-  TypographyBlockquote,
-  TypographyTable,
-  TypographyTableRow,
-  TypographyTableHead,
-  TypographyTableCell,
-  TypographyList,
   TypographyInlineCode,
-  TypographyLead,
   TypographyLarge,
-  TypographySmall,
+  TypographyLead,
+  TypographyList,
   TypographyMuted,
+  TypographyP,
+  TypographySmall,
+  TypographyTable,
+  TypographyTableCell,
+  TypographyTableHead,
+  TypographyTableRow,
 } from "@/components/ui/typography";
 
 describe("Typography components", () => {

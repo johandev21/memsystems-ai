@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/branding/logo";
-import { getSession } from "@/lib/auth";
 import { TypographyH1, TypographyLead } from "@/components/ui/typography";
+import { getSession } from "@/lib/auth";
 
 export default async function LandingPage() {
   const session = await getSession();
@@ -15,9 +15,7 @@ export default async function LandingPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
       <div className="max-w-md text-center flex flex-col items-center">
         <Logo className="mb-6 size-16 text-foreground" />
-        <TypographyH1 className="mb-4 text-5xl">
-          memsystems
-        </TypographyH1>
+        <TypographyH1 className="mb-4 text-5xl">memsystems</TypographyH1>
         <TypographyLead className="mb-8 text-lg">
           {t("description")}
         </TypographyLead>

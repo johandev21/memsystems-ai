@@ -1,9 +1,9 @@
 "use client";
 
-import { AppHeader } from "@/components/layout/app-header";
+import { DecksSection } from "@/components/home/decks-section";
 import { NotebooksSection } from "@/components/home/notebooks-section";
 import { StatsSection } from "@/components/home/stats-section";
-import { DecksSection } from "@/components/home/decks-section";
+import { AppHeader } from "@/components/layout/app-header";
 
 export default function HomePage() {
   return (

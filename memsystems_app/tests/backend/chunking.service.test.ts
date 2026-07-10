@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chunkText, chunkSource } from "@/features/rag/chunking.service";
+import { chunkSource, chunkText } from "@/features/rag/chunking.service";
 
 describe("chunkText", () => {
   it("returns empty array for empty text", () => {

@@ -51,25 +51,31 @@ export function MobileExpandedStudyMaterials({
   }, [isOpen, initialMaterialId]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-6 w-6">
-          <Maximize2 className="h-4 w-4" />
-          <span className="sr-only">Maximize study materials</span>
-        </Button>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open, details) => {
+        if (!open) {
+          if (details.reason === "outside-press") {
+            const target = details.event?.target as Element | undefined;
+            const isOverlay =
+              target?.getAttribute("data-slot") === "dialog-overlay";
+            if (!isOverlay) return;
+          }
+          setIsOpen(false);
+        } else {
+          setIsOpen(true);
+        }
+      }}
+    >
+      <DialogTrigger
+        render={<Button variant="ghost" size="icon" className="h-6 w-6" />}
+      >
+        <Maximize2 className="h-4 w-4" />
+        <span className="sr-only">Maximize study materials</span>
       </DialogTrigger>
       <DialogContent
         className="max-w-[100vw] w-[100vw] h-[100dvh] max-h-[100dvh] p-0 gap-0 flex flex-col sm:max-w-[100vw] overflow-hidden"
         showCloseButton={false}
-        onInteractOutside={(e) => {
-          const target = e.target as Element;
-          const isOverlay =
-            target.hasAttribute("data-slot") &&
-            target.getAttribute("data-slot") === "dialog-overlay";
-          if (!isOverlay) {
-            e.preventDefault();
-          }
-        }}
       >
         <DialogHeader className="px-4 py-3 shrink-0">
           <div className="flex items-center justify-between">
@@ -109,11 +115,11 @@ export function MobileExpandedStudyMaterials({
 
 function CloseButton() {
   return (
-    <DialogClose asChild>
-      <Button variant="ghost" size="icon-sm" className="h-7 w-7">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </Button>
+    <DialogClose
+      render={<Button variant="ghost" size="icon-sm" className="h-7 w-7" />}
+    >
+      <X className="h-4 w-4" />
+      <span className="sr-only">Close</span>
     </DialogClose>
   );
 }

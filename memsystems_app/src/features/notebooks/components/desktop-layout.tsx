@@ -12,7 +12,8 @@ import { useTranslations } from "next-intl";
 import type { RefObject } from "react";
 import { useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
@@ -84,14 +85,16 @@ export function DesktopLayout({
               <div className="flex items-center gap-0.5">
                 {!sourcesCollapsed && (
                   <AddSourceDialog notebookId={notebookId}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
+                    <button
+                      type="button"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-7 w-7 cursor-pointer",
+                      )}
                       aria-label={t("addSource")}
                     >
                       <Plus className="size-4" />
-                    </Button>
+                    </button>
                   </AddSourceDialog>
                 )}
                 <Button

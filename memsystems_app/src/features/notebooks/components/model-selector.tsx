@@ -58,16 +58,18 @@ export function ModelSelector({
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-9 px-3 gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center shadow-none cursor-pointer transition-colors hover:bg-muted/60"
-        >
-          <span className="max-w-[120px] truncate">
-            {activeModelDetails?.displayName || selectedModel}
-          </span>
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-9 px-3 gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center shadow-none cursor-pointer transition-colors hover:bg-muted/60"
+          />
+        }
+      >
+        <span className="max-w-[120px] truncate">
+          {activeModelDetails?.displayName || selectedModel}
+        </span>
       </PopoverTrigger>
       <PopoverContent
         align="start"
@@ -167,7 +169,9 @@ export function DialogModelSelector({
   return (
     <Select
       value={selectedModel}
-      onValueChange={onModelChange}
+      onValueChange={(val) => {
+        if (val) onModelChange(val);
+      }}
       disabled={disabled}
     >
       <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors">
@@ -175,12 +179,12 @@ export function DialogModelSelector({
           {activeModelDetails?.displayName || selectedModel}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent position="popper" className="w-[300px]">
+      <SelectContent className="w-[300px]">
         {models.map((model) => (
           <SelectItem
             key={model.id}
             value={model.id}
-            textValue={model.displayName}
+            label={model.displayName}
             className="text-xs py-2"
           >
             <div className="flex flex-col min-w-0">

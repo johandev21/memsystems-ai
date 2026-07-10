@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { type ReactNode, useState } from "react";
+import React, { type ReactElement, useState } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -19,8 +19,8 @@ import {
   sourcesQueryOptions,
 } from "@/lib/api-client/sources";
 import { FileUploadMode } from "./file-upload-mode";
-import { UrlInputMode } from "./url-input-mode";
 import { TextInputMode } from "./text-input-mode";
+import { UrlInputMode } from "./url-input-mode";
 
 type Mode = "menu" | "url" | "text";
 
@@ -29,7 +29,7 @@ export function AddSourceDialog({
   children,
 }: {
   notebookId: string;
-  children: ReactNode;
+  children: ReactElement;
 }) {
   const t = useTranslations("Sources");
   const queryClient = useQueryClient();
@@ -85,6 +85,8 @@ export function AddSourceDialog({
   const busy =
     fileMutation.isPending || urlMutation.isPending || textMutation.isPending;
 
+  const isNativeButton = children.type === "button";
+
   return (
     <Dialog
       open={open}
@@ -93,7 +95,7 @@ export function AddSourceDialog({
         if (!v) reset();
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger render={children} nativeButton={isNativeButton} />
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/60 bg-card shadow-2xl">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="text-xl font-semibold text-center text-foreground">

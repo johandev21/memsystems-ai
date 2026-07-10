@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
+      role="navigation"
       aria-label="pagination"
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
@@ -48,18 +49,19 @@ function PaginationLink({
 }: PaginationLinkProps) {
   return (
     <Button
-      asChild
       variant={isActive ? "outline" : "ghost"}
       size={size}
       className={cn(className)}
-    >
-      <a
-        aria-current={isActive ? "page" : undefined}
-        data-slot="pagination-link"
-        data-active={isActive}
-        {...props}
-      />
-    </Button>
+      nativeButton={false}
+      render={
+        <a
+          aria-current={isActive ? "page" : undefined}
+          data-slot="pagination-link"
+          data-active={isActive}
+          {...props}
+        />
+      }
+    />
   );
 }
 

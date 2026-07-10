@@ -1,10 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { Brain, Clock } from "lucide-react";
-import { StatCard } from "./stat-card";
+import { useTranslations } from "next-intl";
 import { ActivityCalendar } from "./activity-calendar";
 import { SectionHeader } from "./section-header";
+import { StatCard } from "./stat-card";
 
 export function StatsSection() {
   const t = useTranslations("Home");

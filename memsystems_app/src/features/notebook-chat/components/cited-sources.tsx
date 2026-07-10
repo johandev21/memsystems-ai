@@ -40,20 +40,22 @@ export function CitedSources({ sources }: { sources: CitedSourceInfo[] }) {
               orientation="horizontal"
               className="max-w-64 border-border/60 hover:bg-muted/40 transition-colors"
             >
-              <AttachmentTrigger asChild>
-                {source.url ? (
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="sr-only">Open {source.title}</span>
-                  </a>
-                ) : (
-                  <button type="button">
-                    <span className="sr-only">{source.title}</span>
-                  </button>
-                )}
+              <AttachmentTrigger
+                render={
+                  source.url ? (
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  ) : (
+                    <button type="button" />
+                  )
+                }
+              >
+                <span className="sr-only">
+                  {source.url ? `Open ${source.title}` : source.title}
+                </span>
               </AttachmentTrigger>
               <AttachmentMedia>
                 <Icon className="h-3.5 w-3.5" />

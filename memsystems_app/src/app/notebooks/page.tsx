@@ -12,13 +12,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
+import { NotebookIcon } from "@/components/branding/notebook-icon";
 import { NotebookCard } from "@/components/home/notebook-card";
 import { AppHeader } from "@/components/layout/app-header";
+import { Spinner } from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { NotebookIcon } from "@/components/branding/notebook-icon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/shared/spinner";
 import { TypographyH1, TypographyMuted } from "@/components/ui/typography";
 import { allNotebooksQueryOptions } from "@/lib/api-client/notebooks";
 

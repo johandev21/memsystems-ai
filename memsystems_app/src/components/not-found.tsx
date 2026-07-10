@@ -20,9 +20,7 @@ export function NotFound() {
         </h1>
         <p className="mb-2 text-lg font-medium">{t("pageNotFound")}</p>
         <p className="mb-8 text-muted-foreground">{t("pageNotFoundDesc")}</p>
-        <Button asChild>
-          <Link href="/">{t("goBackHome")}</Link>
-        </Button>
+        <Button render={<Link href="/" />}>{t("goBackHome")}</Button>
       </div>
     </div>
   );

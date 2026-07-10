@@ -1,9 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   FileUp,
   HardDrive,
@@ -12,6 +8,10 @@ import {
   Type,
   Upload,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx", ".txt", ".md", ".markdown"];
 const ACCEPTED_MIME_TYPES = [

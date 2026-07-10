@@ -5,13 +5,12 @@ import { validateContent } from "@/features/study-materials/shapes";
 const IN_SCOPE_KINDS = ["quiz", "simple_flashcard", "roadmap"] as const;
 
 describe("createEmptyStudyMaterial", () => {
-  it.each(IN_SCOPE_KINDS)(
-    "returns content that round-trips through validateContent for kind=%s",
-    (kind) => {
-      const empty = createEmptyStudyMaterial(kind);
-      expect(() => validateContent(kind, empty)).not.toThrow();
-    },
-  );
+  it.each(
+    IN_SCOPE_KINDS,
+  )("returns content that round-trips through validateContent for kind=%s", (kind) => {
+    const empty = createEmptyStudyMaterial(kind);
+    expect(() => validateContent(kind, empty)).not.toThrow();
+  });
 
   it("returns a quiz skeleton with one seeded question", () => {
     const empty = createEmptyStudyMaterial("quiz") as {
