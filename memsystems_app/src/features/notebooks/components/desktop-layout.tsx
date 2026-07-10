@@ -13,7 +13,11 @@ import type { RefObject } from "react";
 import { useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook-chat/components/chat-panel-header";
@@ -64,7 +68,7 @@ export function DesktopLayout({
     <div className="hidden lg:block h-full scrollbar-none">
       <ResizablePanelGroup
         orientation="horizontal"
-        className="max-w-full h-full gap-2.5"
+        className="max-w-full h-full"
       >
         <ResizablePanel
           collapsible
@@ -128,6 +132,10 @@ export function DesktopLayout({
             </ScrollArea>
           </div>
         </ResizablePanel>
+        <ResizableHandle
+          withHandle
+          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors"
+        />
         <ResizablePanel
           minSize="40%"
           defaultSize="60%"
@@ -140,6 +148,10 @@ export function DesktopLayout({
             </div>
           </div>
         </ResizablePanel>
+        <ResizableHandle
+          withHandle
+          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors"
+        />
         <ResizablePanel
           collapsible
           collapsedSize="48px"
