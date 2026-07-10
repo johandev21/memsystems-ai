@@ -7,13 +7,17 @@ import {
   EyeOff,
   Globe,
   Key,
+  Monitor,
+  Moon,
   RefreshCw,
+  Sun,
   Terminal,
   Trash2,
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { setUserLocale } from "@/app/actions";
@@ -27,6 +31,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+
 import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
 import { getApiUrl } from "@/lib/utils";
 
@@ -35,6 +40,7 @@ export default function ConfigurationsPage() {
   const currentLocale = useLocale();
   const router = useRouter();
   const [isPendingLocale, startTransition] = useTransition();
+  const { theme, setTheme } = useTheme();
 
   const { data: connection, isPending } = useConnectionStatus();
   const queryClient = useQueryClient();
@@ -152,45 +158,6 @@ export default function ConfigurationsPage() {
             {t("refreshStatus")}
           </Button>
         </div>
-
-        {/* Language Selection Card */}
-        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Globe className="h-4.5 w-4.5 text-muted-foreground" />
-              {t("language")}
-            </CardTitle>
-            <CardDescription className="text-xs">
-              {t("selectLanguage")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { code: "en", name: t("english"), desc: "English" },
-                { code: "es", name: t("spanish"), desc: "Español" },
-                { code: "pt", name: t("portuguese"), desc: "Português" },
-              ].map((lang) => (
-                <button
-                  key={lang.code}
-                  type="button"
-                  onClick={() => changeLocale(lang.code)}
-                  disabled={isPendingLocale}
-                  className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                    currentLocale === lang.code
-                      ? "border-primary bg-primary/5 text-primary shadow-sm"
-                      : "border-border/55 hover:border-border hover:bg-muted/40"
-                  } ${isPendingLocale ? "opacity-60 cursor-not-allowed" : ""}`}
-                >
-                  <span className="text-sm font-semibold">{lang.name}</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">
-                    {lang.desc}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* OpenAI Connection Card */}
         <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
@@ -318,7 +285,7 @@ export default function ConfigurationsPage() {
         </Card>
 
         {/* Setup Instructions Card */}
-        <Card className="border border-border/40 bg-card/60 backdrop-blur-md">
+        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-base">
               {t("setupInstructions")}
@@ -333,6 +300,86 @@ export default function ConfigurationsPage() {
                 </p>
                 <p className="text-xs">{t("usingOpenaiDesc")}</p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+
+        {/* Language Selection Card */}
+        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Globe className="h-4.5 w-4.5 text-muted-foreground" />
+              {t("language")}
+            </CardTitle>
+            <CardDescription className="text-xs">
+              {t("selectLanguage")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { code: "en", name: t("english"), desc: "English" },
+                { code: "es", name: t("spanish"), desc: "Español" },
+                { code: "pt", name: t("portuguese"), desc: "Português" },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => changeLocale(lang.code)}
+                  disabled={isPendingLocale}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all cursor-pointer select-none ${
+                    currentLocale === lang.code
+                      ? "border-primary bg-primary/5 text-primary shadow-sm"
+                      : "border-border/55 hover:border-border hover:bg-muted/40"
+                  } ${isPendingLocale ? "opacity-60 cursor-not-allowed" : ""}`}
+                >
+                  <span className="text-sm font-semibold">{lang.name}</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    {lang.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Theme Card */}
+        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sun className="h-4.5 w-4.5 text-muted-foreground" />
+              {t("theme")}
+            </CardTitle>
+            <CardDescription className="text-xs">
+              {t("themeDesc")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "light", icon: Sun, name: t("themeLight") },
+                { value: "dark", icon: Moon, name: t("themeDark") },
+                { value: "system", icon: Monitor, name: t("themeSystem") },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSelected = (theme ?? "system") === item.value;
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setTheme(item.value)}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all cursor-pointer select-none ${
+                      isSelected
+                        ? "border-primary bg-primary/5 text-primary shadow-sm"
+                        : "border-border/55 hover:border-border hover:bg-muted/40"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5 mb-1.5" />
+                    <span className="text-sm font-semibold">{item.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
