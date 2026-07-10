@@ -44,11 +44,11 @@ function TitledEmptyState({
   const t = useTranslations("Chat");
 
   return (
-    <div className="py-8 font-mono">
+    <div className="py-8">
       <h2 className="text-base font-bold mb-4 tracking-tight text-foreground uppercase">
         {t("welcomeTo", { title: notebookTitle })}
       </h2>
-      <div className="font-mono leading-relaxed text-muted-foreground space-y-4 text-xs">
+      <div className="leading-relaxed text-muted-foreground space-y-4 text-xs">
         <p className="whitespace-pre-wrap">
           {description || t("fallbackDescription", { title: notebookTitle })}
         </p>

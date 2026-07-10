@@ -8,7 +8,7 @@ export default async function NotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
       <div className="max-w-md text-center">
         <div className="mb-6 flex justify-center">
-          <div className="flex size-14 items-center justify-center border border-border bg-muted/50">
+          <div className="flex size-14 items-center justify-center border border-border bg-muted/50 rounded-2xl">
             <FileQuestion className="size-6 text-muted-foreground" />
           </div>
         </div>
@@ -23,7 +23,7 @@ export default async function NotFound() {
         </p>
         <Link
           href="/"
-          className="inline-flex h-9 items-center justify-center border border-border bg-foreground px-5 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+          className="inline-flex h-9 items-center justify-center border border-border bg-foreground px-5 text-xs font-semibold text-background hover:opacity-90 transition-opacity rounded-2xl"
         >
           {t("goBackHome")}
         </Link>

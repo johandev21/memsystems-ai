@@ -65,7 +65,7 @@ export function DesktopLayout({
   };
 
   return (
-    <div className="hidden lg:block h-full py-3 scrollbar-none">
+    <div className="hidden lg:block h-full scrollbar-none">
       <ResizablePanelGroup
         orientation="horizontal"
         className="max-w-full h-full"
@@ -134,7 +134,7 @@ export function DesktopLayout({
         </ResizablePanel>
         <ResizableHandle
           withHandle
-          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors"
+          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
           minSize="40%"
@@ -150,7 +150,7 @@ export function DesktopLayout({
         </ResizablePanel>
         <ResizableHandle
           withHandle
-          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors"
+          className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
           collapsible
