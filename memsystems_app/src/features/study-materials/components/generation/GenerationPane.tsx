@@ -223,13 +223,13 @@ export function GenerationPane({
         </div>
 
         {errorMessage && (
-          <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive mb-4">
+          <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive mb-4">
             {errorMessage}
           </div>
         )}
 
         {latestPartial ? (
-          <pre className="rounded-md bg-muted p-3 text-[11px] font-mono overflow-auto max-h-[60vh] w-full max-w-full whitespace-pre-wrap break-words">
+          <pre className="rounded-xl bg-muted p-3 text-[11px] font-mono overflow-auto max-h-[60vh] w-full max-w-full whitespace-pre-wrap break-words">
             {JSON.stringify(latestPartial, null, 2)}
           </pre>
         ) : null}

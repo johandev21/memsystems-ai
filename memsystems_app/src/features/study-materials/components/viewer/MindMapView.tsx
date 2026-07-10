@@ -315,7 +315,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
           {/* Floating UI controls */}
           <Panel
             position="top-left"
-            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-lg border border-border/80 shadow-sm"
+            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
           >
             <Button
               type="button"
@@ -357,7 +357,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
           {/* Search bar inside canvas */}
           <Panel
             position="top-right"
-            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-border/80 shadow-sm w-60"
+            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-2xl border border-border/80 shadow-sm w-60"
           >
             <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <Input
@@ -381,7 +381,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
           {/* Bottom Zoom & View Controls */}
           <Panel
             position="bottom-right"
-            className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-lg border border-border/80 shadow-sm"
+            className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
           >
             <Button
               type="button"
@@ -415,7 +415,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
 
           <Panel
             position="bottom-left"
-            className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-md border border-border/50 font-medium max-w-xs shadow-sm"
+            className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-xl border border-border/50 font-medium max-w-xs shadow-sm"
           >
             <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
             <span>{t("navInstructions")}</span>
@@ -427,7 +427,7 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             nodeColor={(n) => (n.data?.color as string) || "#4f46e5"}
             maskColor="rgba(0, 0, 0, 0.08)"
             style={{ width: 100, height: 70 }}
-            className="border border-border/60 rounded-md bg-card/65"
+            className="border border-border/60 rounded-2xl bg-card/65"
           />
         </ReactFlow>
       </Card>

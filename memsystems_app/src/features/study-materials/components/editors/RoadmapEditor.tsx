@@ -176,7 +176,7 @@ export function RoadmapEditor({
         {content.phases.map((phase, pi) => (
           <div
             key={phase.id}
-            className="rounded-md border border-border/60 bg-card p-3 space-y-2.5"
+            className="rounded-2xl border border-border/60 bg-card p-3 space-y-2.5"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">

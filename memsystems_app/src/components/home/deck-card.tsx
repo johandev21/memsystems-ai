@@ -27,7 +27,7 @@ export function DeckCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col justify-between p-5 bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200",
+        "group relative flex flex-col justify-between p-5 bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 rounded-[min(var(--radius-4xl),24px)]",
         className,
       )}
     >
@@ -52,19 +52,19 @@ export function DeckCard({
       <div className="flex flex-wrap gap-1.5 mt-4">
         <Badge
           variant="outline"
-          className="bg-muted/15 text-muted-foreground border-border/40 text-[10px] px-1.5 py-0.5 rounded-none font-normal"
+          className="bg-muted/15 text-muted-foreground border-border/40 text-[10px] px-1.5 py-0.5 font-normal"
         >
           {tHome("newCountText", { count: newCount })}
         </Badge>
         <Badge
           variant="outline"
-          className="bg-muted/40 text-muted-foreground border-border/80 text-[10px] px-1.5 py-0.5 rounded-none font-normal"
+          className="bg-muted/40 text-muted-foreground border-border/80 text-[10px] px-1.5 py-0.5 font-normal"
         >
           {tHome("learnCountText", { count: learnCount })}
         </Badge>
         <Badge
           variant="outline"
-          className="bg-foreground/5 text-foreground border-foreground/15 text-[10px] px-1.5 py-0.5 font-medium rounded-none"
+          className="bg-foreground/5 text-foreground border-foreground/15 text-[10px] px-1.5 py-0.5 font-medium"
         >
           {tHome("dueCountText", { count: dueCount })}
         </Badge>

@@ -321,10 +321,14 @@
 
 *::-webkit-scrollbar-track {
   background: var(--sb-track-color);
+  border-radius: 24px;
+  margin: 6px 0px;
 }
 
 *::-webkit-scrollbar-thumb {
   background: var(--sb-thumb-color);
+  border-radius: 24px;
+  border: 2px solid var(--sb-track-color);
 }
 
 *::-webkit-scrollbar-thumb:hover {

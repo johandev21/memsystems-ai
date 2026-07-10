@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

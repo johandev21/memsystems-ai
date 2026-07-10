@@ -138,7 +138,7 @@ export function StudioResources({
             disabled={disabled}
             onClick={() => !disabled && onGenerate(resource.kind)}
             className={cn(
-              "group flex items-center h-[52px] w-full justify-between px-3 gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+              "group flex items-center h-[52px] w-full justify-between px-3 gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-2xl",
               resource.colorClasses,
               disabled && "opacity-50 cursor-not-allowed",
             )}

@@ -67,7 +67,7 @@ export function FileTreeItemNode({
       }}
       style={{ paddingLeft: `${paddingLeft}px` }}
       className={cn(
-        "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none",
+        "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none rounded-xl",
         isFolder
           ? "text-foreground hover:bg-muted/50"
           : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
@@ -102,7 +102,7 @@ export function FileTreeItemNode({
               render={
                 <button
                   type="button"
-                  className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                   aria-label={`Options for ${item.name}`}
                 />
@@ -134,7 +134,7 @@ export function FileTreeItemNode({
               render={
                 <button
                   type="button"
-                  className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                   aria-label={`Options for ${item.name}`}
                 />

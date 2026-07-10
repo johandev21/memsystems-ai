@@ -102,7 +102,7 @@ export function NotebooksSection() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="flex flex-col overflow-hidden ring-1 ring-foreground/10"
+                className="flex flex-col overflow-hidden ring-1 ring-foreground/10 rounded-[min(var(--radius-4xl),24px)]"
               >
                 <Skeleton className="h-36 w-full rounded-none" />
                 <div className="flex flex-col gap-1 p-4 pt-8">

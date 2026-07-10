@@ -81,7 +81,7 @@ export function OpenAIKeyPrompt({
       className={`w-full rounded-xl border border-border/50 bg-card/65 backdrop-blur-md p-5 shadow-sm transition-all focus-within:shadow-md ${className}`}
     >
       <div className="flex items-start gap-3 mb-4">
-        <div className="rounded-lg bg-primary/10 p-2 text-primary">
+        <div className="rounded-xl bg-primary/10 p-2 text-primary">
           <Key className="h-5 w-5" />
         </div>
         <div className="space-y-1">
@@ -140,7 +140,7 @@ export function OpenAIKeyPrompt({
       </form>
 
       {errorMessage && (
-        <div className="flex items-start gap-1.5 mt-3 text-xs text-destructive rounded-md bg-destructive/10 border border-destructive/20 p-2.5">
+        <div className="flex items-start gap-1.5 mt-3 text-xs text-destructive rounded-xl bg-destructive/10 border border-destructive/20 p-2.5">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
           <span className="leading-normal">{errorMessage}</span>
         </div>

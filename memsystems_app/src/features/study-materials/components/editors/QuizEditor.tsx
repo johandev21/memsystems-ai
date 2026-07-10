@@ -159,7 +159,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
         {content.questions.map((q, qi) => (
           <div
             key={q.id}
-            className="rounded-md border border-border/60 bg-card p-3 space-y-2.5"
+            className="rounded-2xl border border-border/60 bg-card p-3 space-y-2.5"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
@@ -191,7 +191,7 @@ export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
                   <div
                     key={`${q.id}-opt-${oi}`}
                     className={cn(
-                      "flex items-start gap-2 rounded-sm border px-2 py-1.5",
+                      "flex items-start gap-2 rounded-xl border px-2 py-1.5",
                       isCorrect
                         ? "border-emerald-500/50 bg-emerald-500/5"
                         : "border-border/40",

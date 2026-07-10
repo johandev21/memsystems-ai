@@ -24,7 +24,7 @@ export function NotebookCard({
     <Link
       href={`/notebooks/${id}`}
       className={cn(
-        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 cursor-pointer block",
+        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
         className,
       )}
     >

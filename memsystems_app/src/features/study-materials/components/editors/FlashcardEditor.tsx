@@ -105,7 +105,7 @@ export function FlashcardEditor({
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: cards list in draft does not have unique IDs
               key={ci}
-              className="rounded-md border border-border/60 bg-card p-3 space-y-2.5 relative animate-in fade-in slide-in-from-top-1 duration-150"
+              className="rounded-2xl border border-border/60 bg-card p-3 space-y-2.5 relative animate-in fade-in slide-in-from-top-1 duration-150"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">

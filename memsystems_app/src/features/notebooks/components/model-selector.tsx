@@ -73,7 +73,7 @@ export function ModelSelector({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[300px] p-3 overflow-hidden border border-border bg-popover text-foreground shadow-2xl"
+        className="w-[300px] p-3 overflow-hidden border border-border bg-popover text-foreground shadow-2xl rounded-2xl"
       >
         <div className="relative mb-2">
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground/70" />
@@ -82,7 +82,7 @@ export function ModelSelector({
             placeholder={t("searchModels")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full h-8 pl-8 pr-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 outline-hidden placeholder:text-muted-foreground/60 transition-colors"
+            className="w-full h-8 pl-8 pr-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 outline-hidden placeholder:text-muted-foreground/60 transition-colors rounded-xl"
           />
         </div>
 
@@ -132,7 +132,7 @@ function ModelRow({ model, selectedModel, onSelectModel }: ModelRowProps) {
       onClick={() => onSelectModel(model.id)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "flex items-center p-2 cursor-pointer transition-colors group/row",
+        "flex items-center p-2 cursor-pointer transition-colors group/row rounded-xl",
         isSelected
           ? "bg-muted/90 text-foreground"
           : "hover:bg-muted/40 text-muted-foreground hover:text-foreground",
@@ -174,7 +174,7 @@ export function DialogModelSelector({
       }}
       disabled={disabled}
     >
-      <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors">
+      <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors rounded-2xl">
         <SelectValue placeholder={t("selectModelPlaceholder")}>
           {activeModelDetails?.displayName || selectedModel}
         </SelectValue>

@@ -283,8 +283,11 @@ describe("ChatPanel", () => {
     const modelRow = await screen.findByText("GPT-4o");
     await user.click(modelRow);
 
-    // Verify state updated in UI
-    expect(screen.getByText("GPT-4o")).toBeInTheDocument();
+    // Wait for popover to close and verify state updated in UI
+    await waitFor(() => {
+      const elements = screen.queryAllByText("GPT-4o");
+      expect(elements.length).toBe(1);
+    });
 
     // Verify saved to localStorage
     expect(localStorage.getItem("memsystems:selected-model")).toBe(

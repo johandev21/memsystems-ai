@@ -96,7 +96,7 @@ export function AddSourceDialog({
       }}
     >
       <DialogTrigger render={children} nativeButton={isNativeButton} />
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/60 bg-card shadow-2xl">
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/60 bg-card shadow-2xl rounded-[min(var(--radius-4xl),24px)]">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="text-xl font-semibold text-center text-foreground">
             {t("addKnowledgeSources")}
@@ -148,9 +148,9 @@ export function AddSourceDialog({
                 {count} / {SOURCE_LIMIT}
               </span>
             </div>
-            <div className="h-1.5 w-full bg-muted overflow-hidden">
+            <div className="h-1.5 w-full bg-muted overflow-hidden rounded-full">
               <div
-                className="h-full bg-primary transition-all duration-500"
+                className="h-full bg-primary transition-all duration-500 rounded-full"
                 style={{ width: `${usedPercent}%` }}
               />
             </div>

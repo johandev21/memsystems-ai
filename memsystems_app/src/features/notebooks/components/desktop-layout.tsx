@@ -13,7 +13,6 @@ import type { RefObject } from "react";
 import { useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
@@ -25,6 +24,7 @@ import { GenerateBriefDialog } from "@/features/study-materials/components/gener
 import { StudyMaterialsPanel } from "@/features/study-materials/components/tree/study-materials-panel";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { modelsQueryOptions } from "@/lib/api-client/models";
+import { cn } from "@/lib/utils";
 
 export function DesktopLayout({
   notebookId,
@@ -73,7 +73,7 @@ export function DesktopLayout({
           defaultSize="20%"
           panelRef={sourcesRef}
           onResize={onSyncSources}
-          className="overflow-hidden shadow-sm dark:shadow-none"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg min-h-[44px]">
@@ -131,7 +131,7 @@ export function DesktopLayout({
         <ResizablePanel
           minSize="40%"
           defaultSize="60%"
-          className="overflow-hidden shadow-sm dark:shadow-none"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <ChatPanelHeader notebookId={notebookId} />
@@ -147,7 +147,7 @@ export function DesktopLayout({
           defaultSize="20%"
           panelRef={studioRef}
           onResize={onSyncStudio}
-          className="overflow-hidden shadow-sm dark:shadow-none"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg">

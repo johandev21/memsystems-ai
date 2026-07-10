@@ -52,9 +52,9 @@ export function AssistantMessage({
           <Bubble variant="ghost" className="w-full max-w-full">
             <BubbleContent className="p-0">
               <div className="flex flex-col gap-2.5 animate-pulse">
-                <div className="h-4 bg-muted-foreground/20 rounded-md w-[85%]" />
-                <div className="h-4 bg-muted-foreground/20 rounded-md w-[60%]" />
-                <div className="h-4 bg-muted-foreground/20 rounded-md w-[40%]" />
+                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[85%]" />
+                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[60%]" />
+                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[40%]" />
               </div>
             </BubbleContent>
           </Bubble>

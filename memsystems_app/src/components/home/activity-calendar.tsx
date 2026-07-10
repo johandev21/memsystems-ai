@@ -74,7 +74,7 @@ export function ActivityCalendar({ className }: ActivityCalendarProps) {
 
   return (
     <div
-      className={`flex flex-col gap-4 bg-card p-4 ring-1 ring-foreground/10 ${className}`}
+      className={`flex flex-col gap-4 bg-card p-4 ring-1 ring-foreground/10 rounded-[min(var(--radius-4xl),24px)] ${className}`}
     >
       <div ref={scrollRef} className="scrollbar-none overflow-x-auto">
         <div

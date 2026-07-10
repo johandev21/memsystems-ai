@@ -21,7 +21,7 @@ export default async function LandingPage() {
         </TypographyLead>
         <Link
           href="/login"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+          className="inline-flex items-center justify-center rounded-2xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
           {t("getStarted")}
         </Link>

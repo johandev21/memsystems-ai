@@ -230,7 +230,7 @@ function FolderRow({
       onClick={onClick}
       style={{ paddingLeft: 8 + depth * 16 }}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-sm py-1.5 pr-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group flex w-full items-center gap-2 rounded-xl py-1.5 pr-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected ? "bg-muted" : "hover:bg-muted/60",
       )}
     >

@@ -51,7 +51,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                   }
                 }}
                 className={cn(
-                  "group flex items-center justify-center gap-2 h-11 px-5 w-full border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-lg",
+                  "group flex items-center justify-center gap-2 h-11 px-5 w-full border transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-2xl",
                   inScope
                     ? isSelected
                       ? "bg-primary/15 border-primary/30 text-primary dark:bg-primary/20 dark:border-primary/50 font-bold select-none cursor-pointer"
@@ -76,7 +76,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    className="h-7 flex-1 text-[11px] font-medium border border-border/20 dark:border-border/40 hover:bg-secondary/80 cursor-pointer rounded-md"
+                    className="h-7 flex-1 text-[11px] font-medium border border-border/20 dark:border-border/40 hover:bg-secondary/80 cursor-pointer rounded-2xl"
                     onClick={() => onChoose(kind, "manual")}
                   >
                     {t("manual")}
@@ -84,7 +84,7 @@ export function PickerPane({ onChoose }: PickerPaneProps) {
                   <Button
                     type="button"
                     size="sm"
-                    className="h-7 flex-1 text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer rounded-md"
+                    className="h-7 flex-1 text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer rounded-2xl"
                     onClick={() => onChoose(kind, "generate")}
                   >
                     AI

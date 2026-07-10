@@ -88,7 +88,7 @@ export function FileUploadMode({
 
   return (
     <div
-      className={`group relative flex flex-col items-center justify-center border-2 border-dashed py-12 px-6 transition-all duration-300 ${
+      className={`group relative flex flex-col items-center justify-center border-2 border-dashed py-12 px-6 transition-all duration-300 rounded-2xl ${
         isDragging
           ? "border-primary bg-primary/5"
           : "border-border/60 bg-muted/20 hover:bg-primary/5 hover:border-primary/40"
@@ -109,7 +109,7 @@ export function FileUploadMode({
         onChange={handleFileChange}
       />
 
-      <div className="bg-background p-4 shadow-sm mb-4 border border-border/50 transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-primary/30">
+      <div className="bg-background p-4 shadow-sm mb-4 border border-border/50 rounded-2xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-primary/30">
         {isUploading ? (
           <Loader2
             className="h-6 w-6 text-primary animate-spin"

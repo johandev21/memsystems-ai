@@ -88,7 +88,7 @@ export function SourceViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 overflow-hidden rounded-lg border bg-background shadow-lg">
+      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 overflow-hidden rounded-[min(var(--radius-4xl),24px)] border bg-background shadow-lg">
         {isPending && (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground animate-pulse">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -127,7 +127,7 @@ export function SourceViewerDialog({
                 <div className="flex items-center gap-2">
                   <Badge
                     variant="secondary"
-                    className="gap-1 px-2 py-0.5 rounded-md"
+                    className="gap-1 px-2 py-0.5 rounded-xl"
                   >
                     {source.kind === "text" && (
                       <>
@@ -165,7 +165,7 @@ export function SourceViewerDialog({
 
                 {/* Sub-info banner / Action depending on kind */}
                 {source.kind === "url" && source.url && (
-                  <div className="flex items-center justify-between gap-3 bg-muted/40 border rounded-lg p-3 mt-2">
+                  <div className="flex items-center justify-between gap-3 bg-muted/40 border rounded-2xl p-3 mt-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
                         {t("sourceLink")}
@@ -194,9 +194,9 @@ export function SourceViewerDialog({
                 )}
 
                 {source.kind === "file" && (
-                  <div className="flex items-center justify-between gap-4 bg-muted/40 border rounded-lg p-3 mt-2">
+                  <div className="flex items-center justify-between gap-4 bg-muted/40 border rounded-2xl p-3 mt-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-9 w-9 rounded-md bg-secondary text-secondary-foreground flex items-center justify-center shrink-0">
+                      <div className="h-9 w-9 rounded-xl bg-secondary text-secondary-foreground flex items-center justify-center shrink-0">
                         <HardDrive className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
