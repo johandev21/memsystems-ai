@@ -65,7 +65,7 @@ export function DesktopLayout({
   };
 
   return (
-    <div className="hidden lg:block h-full scrollbar-none">
+    <div className="hidden lg:block h-full py-3 scrollbar-none">
       <ResizablePanelGroup
         orientation="horizontal"
         className="max-w-full h-full"
@@ -77,7 +77,7 @@ export function DesktopLayout({
           defaultSize="20%"
           panelRef={sourcesRef}
           onResize={onSyncSources}
-          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg min-h-[44px]">
@@ -139,7 +139,7 @@ export function DesktopLayout({
         <ResizablePanel
           minSize="40%"
           defaultSize="60%"
-          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <ChatPanelHeader notebookId={notebookId} />
@@ -159,7 +159,7 @@ export function DesktopLayout({
           defaultSize="20%"
           panelRef={studioRef}
           onResize={onSyncStudio}
-          className="overflow-hidden shadow-sm dark:shadow-none rounded-2xl border border-border bg-card"
+          className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
             <header className="flex items-center justify-between p-1.5 bg-panel-header-bg">
