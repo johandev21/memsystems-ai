@@ -179,6 +179,10 @@ export class NotebookChatService {
       MAX_HISTORY_MESSAGES,
     );
 
+    logCtx.debug("prior history fetched for chat", {
+      count: priorHistory.length,
+    });
+
     const [userMessage] = await db
       .insert(notebookChatMessages)
       .values({
@@ -354,9 +358,10 @@ export class NotebookChatService {
     sourceTexts: { id: string; title: string }[],
   ): string[] {
     const citedIds = new Set<string>();
+    const sourceIdMap = new Map(sourceTexts.map((s) => [s.id, s.id]));
 
     for (const m of text.matchAll(/\[source:([a-zA-Z0-9]+)\]/g)) {
-      const id = sourceTexts.find((s) => s.id === m[1])?.id;
+      const id = sourceIdMap.get(m[1]);
       if (id) citedIds.add(id);
     }
 

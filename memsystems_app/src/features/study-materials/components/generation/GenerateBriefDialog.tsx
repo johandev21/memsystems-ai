@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useConnectionStatus } from "@/features/ai";
 import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import {
@@ -52,14 +52,16 @@ export function GenerateBriefDialog({
     useModelPersistence(notebookId);
   const model = persistedModel ?? "";
 
-  useEffect(() => {
+  const [prevModels, setPrevModels] = useState<ModelOption[] | null>(null);
+  if (models !== prevModels) {
+    setPrevModels(models);
     if (models && models.length > 0) {
       const exists = models.some((m) => m.id === model);
       if (!exists) {
         setPersistedModel(models[0].id);
       }
     }
-  }, [models, model, setPersistedModel]);
+  }
 
   const handleClose = () => {
     onOpenChange(false);

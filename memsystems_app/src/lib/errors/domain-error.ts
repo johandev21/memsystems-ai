@@ -18,7 +18,7 @@ export class DomainError extends Error {
   }
 }
 
-export class InternalError extends DomainError {
+class InternalError extends DomainError {
   constructor(message = "Internal server error", options?: DomainErrorOptions) {
     super(message, 500, "internal_error", options);
     this.name = "InternalError";

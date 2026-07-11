@@ -38,17 +38,21 @@ export function MobileExpandedStudyMaterials({
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialMaterialId, setPrevInitialMaterialId] = useState(initialMaterialId);
   const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
 
-  useEffect(() => {
+  if (isOpen !== prevIsOpen || initialMaterialId !== prevInitialMaterialId) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialMaterialId(initialMaterialId);
     if (isOpen) {
-      if (initialMaterialId) {
-        setMode({ kind: "viewer", materialId: initialMaterialId });
-      } else {
-        setMode({ kind: "select" });
-      }
+      setMode(
+        initialMaterialId
+          ? { kind: "viewer", materialId: initialMaterialId }
+          : { kind: "select" },
+      );
     }
-  }, [isOpen, initialMaterialId]);
+  }
 
   return (
     <Dialog

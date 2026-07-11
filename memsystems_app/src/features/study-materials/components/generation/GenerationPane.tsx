@@ -148,7 +148,7 @@ export function GenerationPane({
               input: {
                 kind,
                 brief: brief.slice(0, 200),
-                sourceIds,
+                sourceIds: sourceIdsKey ? sourceIdsKey.split(",") : [],
                 folderId,
                 model,
               },
@@ -166,7 +166,7 @@ export function GenerationPane({
           input: {
             kind,
             brief: brief.slice(0, 200),
-            sourceIds,
+            sourceIds: sourceIdsKey ? sourceIdsKey.split(",") : [],
             folderId,
             model,
           },

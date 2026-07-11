@@ -158,20 +158,19 @@ export function getLayoutedElements(
   });
 
   // Map raw edges to React Flow edges if both source and target are visible
-  const rfEdges = rawEdges
-    .filter(
-      (edge) =>
-        visibleNodes.has(edge.sourceId) && visibleNodes.has(edge.targetId),
-    )
-    .map((edge) => {
-      const isEdgeSelected =
-        selectedNodeId === edge.sourceId || selectedNodeId === edge.targetId;
-      const isEdgeFocused =
-        !focusMode ||
-        (focusedNodeIds.has(edge.sourceId) &&
-          focusedNodeIds.has(edge.targetId));
+  const rfEdges = rawEdges.flatMap((edge) => {
+    if (!visibleNodes.has(edge.sourceId) || !visibleNodes.has(edge.targetId)) {
+      return [];
+    }
+    const isEdgeSelected =
+      selectedNodeId === edge.sourceId || selectedNodeId === edge.targetId;
+    const isEdgeFocused =
+      !focusMode ||
+      (focusedNodeIds.has(edge.sourceId) &&
+        focusedNodeIds.has(edge.targetId));
 
-      return {
+    return [
+      {
         id: edge.id,
         source: edge.sourceId,
         target: edge.targetId,
@@ -183,8 +182,9 @@ export function getLayoutedElements(
           opacity: isEdgeFocused ? 1 : 0.15,
           transition: "opacity 0.25s, stroke 0.25s",
         },
-      };
-    });
+      },
+    ];
+  });
 
   return { nodes: rfNodes, edges: rfEdges };
 }

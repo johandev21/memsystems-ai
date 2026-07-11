@@ -16,15 +16,26 @@ export interface MonthGroup {
   weeks: WeekColumn[];
 }
 
+const monthFormattersCache = new Map<string, Intl.DateTimeFormat>();
+const weekdayFormattersCache = new Map<string, Intl.DateTimeFormat>();
+
 export function getMonthNames(locale: string): string[] {
-  const formatter = new Intl.DateTimeFormat(locale, { month: "short" });
+  let formatter = monthFormattersCache.get(locale);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, { month: "short" });
+    monthFormattersCache.set(locale, formatter);
+  }
   return Array.from({ length: 12 }, (_, i) =>
     formatter.format(new Date(2024, i, 1)),
   );
 }
 
 export function getDayLabels(locale: string): { id: string; label: string }[] {
-  const formatter = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
+  let formatter = weekdayFormattersCache.get(locale);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
+    weekdayFormattersCache.set(locale, formatter);
+  }
   return Array.from({ length: 7 }, (_, i) => {
     const date = new Date(2024, 0, i + 1);
     const label = formatter.format(date);

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface NotebookCardProps {
@@ -30,10 +31,13 @@ export function NotebookCard({
     >
       <div className="relative h-36 overflow-hidden">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={title}
-            className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
+            className="object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted" />

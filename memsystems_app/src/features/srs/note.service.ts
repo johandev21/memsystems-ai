@@ -51,7 +51,7 @@ export class NoteService {
       })
       .from(noteTags)
       .innerJoin(tags, eq(noteTags.tagId, tags.id))
-      .where(eq(noteTags.noteId, noteId));
+      .where(eq(noteTags.noteId, note.id));
 
     return { ...note, tags: noteTagsList };
   }
@@ -63,7 +63,7 @@ export class NoteService {
       name: string;
       required?: boolean;
     }>;
-    const fieldNames = fieldSchemas.map((f) => f.name);
+    const fieldNamesSet = new Set(fieldSchemas.map((f) => f.name));
 
     for (const field of fieldSchemas) {
       if (field.required && !input.fieldValues[field.name]) {
@@ -72,7 +72,7 @@ export class NoteService {
     }
 
     for (const key of Object.keys(input.fieldValues)) {
-      if (!fieldNames.includes(key)) {
+      if (!fieldNamesSet.has(key)) {
         throw new BadRequestError(
           `Unknown field "${key}" for note type "${nt.name}"`,
         );
@@ -102,10 +102,10 @@ export class NoteService {
     if (input.fieldValues !== undefined) {
       const nt = await this.fetchNoteType(note.noteTypeId);
       const fieldSchemas = nt.fieldsSchema as Array<{ name: string }>;
-      const fieldNames = fieldSchemas.map((f) => f.name);
+      const fieldNamesSet = new Set(fieldSchemas.map((f) => f.name));
 
       for (const key of Object.keys(input.fieldValues)) {
-        if (!fieldNames.includes(key)) {
+        if (!fieldNamesSet.has(key)) {
           throw new BadRequestError(
             `Unknown field "${key}" for note type "${nt.name}"`,
           );
@@ -135,7 +135,7 @@ export class NoteService {
       .select({ id: tags.id, name: tags.name })
       .from(noteTags)
       .innerJoin(tags, eq(noteTags.tagId, tags.id))
-      .where(eq(noteTags.noteId, noteId));
+      .where(eq(noteTags.noteId, updated.id));
 
     return { ...updated, tags: noteTagsList };
   }

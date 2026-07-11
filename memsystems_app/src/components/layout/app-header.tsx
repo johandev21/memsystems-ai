@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "motion/react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/branding/logo";
 import { UserMenu } from "./user-menu";
@@ -9,7 +9,6 @@ import { UserMenu } from "./user-menu";
 const TRIGGER_ZONE_HEIGHT = 20;
 
 export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
-  const router = useRouter();
   const [isMouseNear, setIsMouseNear] = useState(!autoHide);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const isVisible = isMouseNear || dropdownOpen;
@@ -47,16 +46,16 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
           : "bg-background"
       }`}
     >
-      <div className="flex w-full max-w-6xl items-center justify-between">
-        <div
+      <div className="flex w-full max-w-360 px-6 items-center justify-between">
+        <Link
+          href="/home"
           className="flex items-center gap-1.5 select-none cursor-pointer"
-          onClick={() => router.push("/home")}
         >
           <Logo className="size-6 text-foreground" />
           <span className="font-heading font-bold text-sm tracking-tight text-foreground">
             memsystems
           </span>
-        </div>
+        </Link>
         <UserMenu onOpenChange={setDropdownOpen} />
       </div>
     </header>
@@ -66,18 +65,20 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
 
   return (
     <div ref={containerRef} className="absolute inset-x-0 top-0 z-50">
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            initial={{ y: "-100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.12, ease: "easeInOut" }}
-          >
-            {headerContent}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence>
+          {isVisible && (
+            <m.div
+              initial={{ y: "-100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-100%" }}
+              transition={{ duration: 0.12, ease: "easeInOut" }}
+            >
+              {headerContent}
+            </m.div>
+          )}
+        </AnimatePresence>
+      </LazyMotion>
     </div>
   );
 }

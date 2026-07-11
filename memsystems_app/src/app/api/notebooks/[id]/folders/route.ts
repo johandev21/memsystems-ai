@@ -25,8 +25,10 @@ export const POST = (
   context: { params: Promise<{ id: string }> },
 ) =>
   withRoute(req, context, async (req, { params, session }) => {
-    const { id } = await params;
-    const body = await parseBody(req, createSchema);
+    const [{ id }, body] = await Promise.all([
+      params,
+      parseBody(req, createSchema),
+    ]);
     const folder = await service.create(session.user.id, id, body);
     return NextResponse.json(folder);
   });

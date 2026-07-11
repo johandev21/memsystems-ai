@@ -3,7 +3,7 @@
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useConnectionStatus } from "@/features/ai";
 import { authClient } from "@/lib/auth/client";
 
 export function ConnectionBanner() {
@@ -34,7 +34,7 @@ export function ConnectionBanner() {
   );
 }
 
-export function ConnectionIndicator() {
+function ConnectionIndicator() {
   const t = useTranslations("AI");
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();

@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ export function NotebookBanner({
         month: "short",
         day: "numeric",
         year: "numeric",
+        timeZone: "UTC",
       });
     } catch {
       return t("recently");
@@ -56,10 +58,13 @@ export function NotebookBanner({
   return (
     <div className="relative w-full aspect-[3/1] overflow-hidden rounded-xl mb-6 select-none">
       {hasBanner && !imageError ? (
-        <img
+        <Image
           src={bannerUrl ?? ""}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          sizes="100vw"
+          unoptimized
+          className="object-cover"
           style={{ objectPosition: `${focalX}% ${focalY}%` }}
           onError={handleImageError}
           onLoad={handleImageLoad}

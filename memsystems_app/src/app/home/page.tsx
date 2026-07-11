@@ -10,7 +10,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <AppHeader />
 
-      <main className="mx-auto max-w-6xl px-6 md:px-0 pb-12">
+      <main className="mx-auto max-w-360 px-6 pb-12">
         <NotebooksSection />
         <StatsSection />
         <DecksSection />

@@ -4,7 +4,7 @@ import type { StudyMaterialKind } from "./shapes";
 export type { StudyMaterialKind };
 
 // Mirror the API-side enum so the client doesn't import from route handlers.
-export const STUDY_MATERIAL_KINDS: readonly StudyMaterialKind[] = [
+const STUDY_MATERIAL_KINDS: readonly StudyMaterialKind[] = [
   "quiz",
   "simple_flashcard",
   "report",
@@ -27,12 +27,12 @@ const QuizQuestionInput = z.object({
   correctOptionIndex: z.number().int().min(0).max(5),
 });
 
-export const QuizEditorContent = z.object({
+const QuizEditorContent = z.object({
   questions: z.array(QuizQuestionInput).min(1).max(50),
 });
 export type QuizEditorContentType = z.infer<typeof QuizEditorContent>;
 
-export const FlashcardEditorContent = z.preprocess(
+const FlashcardEditorContent = z.preprocess(
   (val) => {
     if (val && typeof val === "object" && "front" in val && "back" in val) {
       return {
@@ -75,7 +75,7 @@ const RoadmapPhaseInput = z.object({
   topics: z.array(RoadmapTopicInput).max(100),
 });
 
-export const RoadmapEditorContent = z.object({
+const RoadmapEditorContent = z.object({
   description: z.string().max(5000).optional(),
   phases: z.array(RoadmapPhaseInput).min(1).max(20),
 });

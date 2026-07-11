@@ -24,243 +24,203 @@ export interface QuizViewProps {
   };
 }
 
-export function QuizView({ content }: QuizViewProps) {
-  const t = useTranslations("QuizView");
-  const tCommon = useTranslations("Common");
+interface QuizResultsReviewProps {
+  questions: QuizViewProps["content"]["questions"];
+  selectedOptions: Record<string, number>;
+  scorePercent: number;
+  correctCount: number;
+  totalQuestions: number;
+  handleRetry: () => void;
+  t: (key: string, values?: any) => string;
+  tCommon: (key: string, values?: any) => string;
+}
 
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, number>
-  >({});
-  const [checkedQuestions, setCheckedQuestions] = useState<
-    Record<string, boolean>
-  >({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const questions = content.questions;
-  const totalQuestions = questions.length;
-
-  const handleSelectOption = (questionId: string, optionIndex: number) => {
-    if (isSubmitted || checkedQuestions[questionId]) return;
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [questionId]: optionIndex,
-    }));
-  };
-
-  const handleCheckAnswer = () => {
-    if (totalQuestions === 0) return;
-    const q = questions[currentIdx];
-    if (selectedOptions[q.id] === undefined) return;
-
-    setCheckedQuestions((prev) => ({
-      ...prev,
-      [q.id]: true,
-    }));
-  };
-
-  const handleSubmit = () => {
-    if (totalQuestions === 0) return;
-    const q = questions[currentIdx];
-    if (selectedOptions[q.id] === undefined) return;
-
-    // Ensure the current question is checked when submitting
-    setCheckedQuestions((prev) => ({
-      ...prev,
-      [q.id]: true,
-    }));
-    setIsSubmitted(true);
-  };
-
-  const handleRetry = () => {
-    setSelectedOptions({});
-    setCheckedQuestions({});
-    setCurrentIdx(0);
-    setIsSubmitted(false);
-  };
-
-  const handleNext = () => {
-    if (currentIdx < totalQuestions - 1) {
-      setCurrentIdx((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIdx > 0) {
-      setCurrentIdx((prev) => prev - 1);
-    }
-  };
-
-  // Grade calculation
-  let correctCount = 0;
-  for (const q of questions) {
-    if (selectedOptions[q.id] === q.correctOptionIndex) {
-      correctCount++;
-    }
-  }
-  const scorePercent =
-    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-
-  if (totalQuestions === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-        <AlertCircle className="h-8 w-8 mb-2" />
-        <p>No questions available.</p>
-      </div>
-    );
-  }
-
-  if (isSubmitted) {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6 shadow-md max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-300">
-        <div className="text-center py-4 space-y-3">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary animate-in zoom-in duration-300">
-            {scorePercent >= 70 ? (
-              <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-            ) : (
-              <AlertCircle className="h-8 w-8 text-amber-500" />
-            )}
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
-              {t("result", { correct: correctCount, total: totalQuestions })}
-            </h2>
-            <div className="text-sm font-medium text-muted-foreground">
-              {t("score")}
-              <span
-                className={cn(
-                  "font-bold text-base ml-1",
-                  scorePercent >= 70
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-amber-600 dark:text-amber-400",
-                )}
-              >
-                {scorePercent}%
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto mt-1">
-              {scorePercent === 100
-                ? t("perfectScoreText")
-                : scorePercent >= 70
-                  ? t("passedText")
-                  : t("failedText")}
-            </p>
-          </div>
-          <div className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleRetry}
-              className="inline-flex items-center gap-1.5"
+function QuizResultsReview({
+  questions,
+  selectedOptions,
+  scorePercent,
+  correctCount,
+  totalQuestions,
+  handleRetry,
+  t,
+  tCommon,
+}: QuizResultsReviewProps) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 shadow-md max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-300">
+      <div className="text-center py-4 space-y-3">
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary animate-in zoom-in duration-300">
+          {scorePercent >= 70 ? (
+            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+          ) : (
+            <AlertCircle className="h-8 w-8 text-amber-500" />
+          )}
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">
+            {t("result", { correct: correctCount, total: totalQuestions })}
+          </h2>
+          <div className="text-sm font-medium text-muted-foreground">
+            {t("score")}
+            <span
+              className={cn(
+                "font-bold text-base ml-1",
+                scorePercent >= 70
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-amber-600 dark:text-amber-400",
+              )}
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              {tCommon("tryAgain")}
-            </Button>
+              {scorePercent}%
+            </span>
           </div>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto mt-1">
+            {scorePercent === 100
+              ? t("perfectScoreText")
+              : scorePercent >= 70
+                ? t("passedText")
+                : t("failedText")}
+          </p>
         </div>
-
-        <div className="border-t border-border pt-6">
-          <h3 className="text-sm font-semibold text-foreground mb-4">
-            Review Your Answers
-          </h3>
-          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar">
-            {questions.map((q, qi) => {
-              const selectedIdx = selectedOptions[q.id];
-              const isCorrect = selectedIdx === q.correctOptionIndex;
-              const isIncorrectSelected =
-                selectedIdx !== undefined && !isCorrect;
-
-              return (
-                <div
-                  key={q.id}
-                  className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm"
-                >
-                  <div className="flex items-start gap-2 justify-between">
-                    <p className="text-sm font-medium leading-snug text-foreground">
-                      {qi + 1}. {q.prompt}
-                    </p>
-                    {isCorrect ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                    ) : selectedIdx !== undefined ? (
-                      <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                    )}
-                  </div>
-
-                  <div className="grid gap-2 pl-1">
-                    {q.options.map((opt, oi) => {
-                      const isCurrentSelected = selectedIdx === oi;
-                      const isCurrentCorrect = oi === q.correctOptionIndex;
-
-                      let optionStyle =
-                        "border-border opacity-60 text-muted-foreground pointer-events-none";
-                      let badge = (
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-[10px] font-semibold">
-                          {String.fromCharCode(65 + oi)}
-                        </span>
-                      );
-
-                      if (isCurrentCorrect) {
-                        optionStyle =
-                          "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
-                        badge = (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                        );
-                      } else if (isCurrentSelected && isIncorrectSelected) {
-                        optionStyle =
-                          "border-destructive bg-destructive/10 text-destructive";
-                        badge = (
-                          <XCircle className="h-4 w-4 text-destructive shrink-0" />
-                        );
-                      }
-
-                      return (
-                        <div
-                          key={`${q.id}-review-${oi}`}
-                          className={cn(
-                            "w-full text-left text-sm py-2 px-3 rounded-lg border flex items-center gap-2",
-                            optionStyle,
-                          )}
-                        >
-                          {badge}
-                          <span className="flex-1 text-left">{opt.text}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {selectedIdx !== undefined &&
-                    q.options[selectedIdx]?.explanation && (
-                      <div className="mt-2 animate-in slide-in-from-top-1 duration-200">
-                        <div className="rounded-lg bg-muted/50 p-2.5 text-sm text-muted-foreground border border-border/40">
-                          <span className="font-semibold block mb-0.5 text-[11px] text-foreground">
-                            {isCorrect
-                              ? t("explanationCorrect")
-                              : t("explanationIncorrect")}
-                          </span>
-                          {q.options[selectedIdx].explanation}
-                        </div>
-                      </div>
-                    )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleRetry}
+            className="inline-flex items-center gap-1.5"
+          >
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+            {tCommon("tryAgain")}
+          </Button>
         </div>
       </div>
-    );
-  }
 
-  // Stepper mode:
+      <div className="border-t border-border pt-6">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
+          Review Your Answers
+        </h3>
+        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar">
+          {questions.map((q, qi) => {
+            const selectedIdx = selectedOptions[q.id];
+            const isCorrect = selectedIdx === q.correctOptionIndex;
+            const isIncorrectSelected =
+              selectedIdx !== undefined && !isCorrect;
+
+            return (
+              <div
+                key={q.id}
+                className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm"
+              >
+                <div className="flex items-start gap-2 justify-between">
+                  <p className="text-sm font-medium leading-snug text-foreground">
+                    {qi + 1}. {q.prompt}
+                  </p>
+                  {isCorrect ? (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                  ) : selectedIdx !== undefined ? (
+                    <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                  )}
+                </div>
+
+                <div className="grid gap-2 pl-1">
+                  {q.options.map((opt, oi) => {
+                    const isCurrentSelected = selectedIdx === oi;
+                    const isCurrentCorrect = oi === q.correctOptionIndex;
+
+                    let optionStyle =
+                      "border-border opacity-60 text-muted-foreground pointer-events-none";
+                    let badge = (
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current text-[10px] font-semibold">
+                        {String.fromCharCode(65 + oi)}
+                      </span>
+                    );
+
+                    if (isCurrentCorrect) {
+                      optionStyle =
+                        "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+                      badge = (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                      );
+                    } else if (isCurrentSelected && isIncorrectSelected) {
+                      optionStyle =
+                        "border-destructive bg-destructive/10 text-destructive";
+                      badge = (
+                        <XCircle className="h-4 w-4 text-destructive shrink-0" />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={`${q.id}-review-${oi}`}
+                        className={cn(
+                          "w-full text-left text-sm py-2 px-3 rounded-lg border flex items-center gap-2",
+                          optionStyle,
+                        )}
+                      >
+                        {badge}
+                        <span className="flex-1 text-left">{opt.text}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {selectedIdx !== undefined &&
+                  q.options[selectedIdx]?.explanation && (
+                    <div className="mt-2 animate-in slide-in-from-top-1 duration-200">
+                      <div className="rounded-lg bg-muted/50 p-2.5 text-sm text-muted-foreground border border-border/40">
+                        <span className="font-semibold block mb-0.5 text-[11px] text-foreground">
+                          {isCorrect
+                            ? t("explanationCorrect")
+                            : t("explanationIncorrect")}
+                        </span>
+                        {q.options[selectedIdx].explanation}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface QuizActiveStepperProps {
+  questions: QuizViewProps["content"]["questions"];
+  currentIdx: number;
+  selectedOptions: Record<string, number>;
+  checkedQuestions: Record<string, boolean>;
+  handleSelectOption: (questionId: string, optionIndex: number) => void;
+  handleCheckAnswer: () => void;
+  handleSubmit: () => void;
+  handlePrev: () => void;
+  handleNext: () => void;
+  t: (key: string, values?: any) => string;
+  tCommon: (key: string, values?: any) => string;
+}
+
+function QuizActiveStepper({
+  questions,
+  currentIdx,
+  selectedOptions,
+  checkedQuestions,
+  handleSelectOption,
+  handleCheckAnswer,
+  handleSubmit,
+  handlePrev,
+  handleNext,
+  t,
+  tCommon,
+}: QuizActiveStepperProps) {
   const q = questions[currentIdx];
   const selectedIdx = selectedOptions[q.id];
   const isChecked = checkedQuestions[q.id] ?? false;
   const isCorrect = selectedIdx === q.correctOptionIndex;
   const isIncorrectSelected = selectedIdx !== undefined && !isCorrect;
-  const isLastQuestion = currentIdx === totalQuestions - 1;
-  const progressPercent = ((currentIdx + 1) / totalQuestions) * 100;
+  const isLastQuestion = currentIdx === questions.length - 1;
+  const progressPercent = ((currentIdx + 1) / questions.length) * 100;
 
   return (
     <div className="w-full max-w-2xl mx-auto animate-in fade-in duration-300">
@@ -271,11 +231,11 @@ export function QuizView({ content }: QuizViewProps) {
             <span>
               {t("answeredProgress", {
                 answered: Object.keys(selectedOptions).length,
-                total: totalQuestions,
+                total: questions.length,
               })}
             </span>
             <span>
-              {currentIdx + 1} / {totalQuestions}
+              {currentIdx + 1} / {questions.length}
             </span>
           </div>
           <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
@@ -449,5 +409,123 @@ export function QuizView({ content }: QuizViewProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export function QuizView({ content }: QuizViewProps) {
+  const t = useTranslations("QuizView");
+  const tCommon = useTranslations("Common");
+
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<
+    Record<string, number>
+  >({});
+  const [checkedQuestions, setCheckedQuestions] = useState<
+    Record<string, boolean>
+  >({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const questions = content.questions;
+  const totalQuestions = questions.length;
+
+  const handleSelectOption = (questionId: string, optionIndex: number) => {
+    if (isSubmitted || checkedQuestions[questionId]) return;
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [questionId]: optionIndex,
+    }));
+  };
+
+  const handleCheckAnswer = () => {
+    if (totalQuestions === 0) return;
+    const q = questions[currentIdx];
+    if (selectedOptions[q.id] === undefined) return;
+
+    setCheckedQuestions((prev) => ({
+      ...prev,
+      [q.id]: true,
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (totalQuestions === 0) return;
+    const q = questions[currentIdx];
+    if (selectedOptions[q.id] === undefined) return;
+
+    // Ensure the current question is checked when submitting
+    setCheckedQuestions((prev) => ({
+      ...prev,
+      [q.id]: true,
+    }));
+    setIsSubmitted(true);
+  };
+
+  const handleRetry = () => {
+    setSelectedOptions({});
+    setCheckedQuestions({});
+    setCurrentIdx(0);
+    setIsSubmitted(false);
+  };
+
+  const handleNext = () => {
+    if (currentIdx < totalQuestions - 1) {
+      setCurrentIdx((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIdx > 0) {
+      setCurrentIdx((prev) => prev - 1);
+    }
+  };
+
+  // Grade calculation
+  let correctCount = 0;
+  for (const q of questions) {
+    if (selectedOptions[q.id] === q.correctOptionIndex) {
+      correctCount++;
+    }
+  }
+  const scorePercent =
+    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+  if (totalQuestions === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
+        <AlertCircle className="h-8 w-8 mb-2" />
+        <p>No questions available.</p>
+      </div>
+    );
+  }
+
+  if (isSubmitted) {
+    return (
+      <QuizResultsReview
+        questions={questions}
+        selectedOptions={selectedOptions}
+        scorePercent={scorePercent}
+        correctCount={correctCount}
+        totalQuestions={totalQuestions}
+        handleRetry={handleRetry}
+        t={t}
+        tCommon={tCommon}
+      />
+    );
+  }
+
+  return (
+    <QuizActiveStepper
+      questions={questions}
+      currentIdx={currentIdx}
+      selectedOptions={selectedOptions}
+      checkedQuestions={checkedQuestions}
+      handleSelectOption={handleSelectOption}
+      handleCheckAnswer={handleCheckAnswer}
+      handleSubmit={handleSubmit}
+      handlePrev={handlePrev}
+      handleNext={handleNext}
+      t={t}
+      tCommon={tCommon}
+    />
   );
 }

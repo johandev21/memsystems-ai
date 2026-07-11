@@ -24,8 +24,10 @@ export const POST = (
   context: { params: Promise<{ id: string }> },
 ) =>
   withRoute(req, context, async (req, { params, session }) => {
-    const { id } = await params;
-    const body = await parseBody(req, bodySchema);
+    const [{ id }, body] = await Promise.all([
+      params,
+      parseBody(req, bodySchema),
+    ]);
     const { stream, requestId } = await generationService.generate(
       session.user.id,
       id,

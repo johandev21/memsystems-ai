@@ -44,7 +44,7 @@ export function validateContent(kind: string, content: unknown) {
   return result.data;
 }
 
-export function getContentSchema(kind: string) {
+function getContentSchema(kind: string) {
   if (!(kind in contentSchemas)) {
     throw new BadRequestError(`Invalid study material kind: ${kind}`);
   }

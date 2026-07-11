@@ -78,9 +78,9 @@ export async function extractDocx(buffer: Buffer): Promise<ExtractionResult> {
   const result = await mammoth.extractRawText({ buffer });
   return {
     text: normalizeText(result.value),
-    warnings: result.messages
-      ?.filter((m) => m.type === "warning")
-      .map((m) => m.message),
+    warnings: result.messages?.flatMap((m) =>
+      m.type === "warning" ? [m.message] : [],
+    ),
   };
 }
 

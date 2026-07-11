@@ -40,10 +40,12 @@ export function AssistantMessage({
   const isStreaming = message.parts.some(
     (part) => isTextPart(part) && part.state === "streaming",
   );
-  const fullText = message.parts
-    .filter(isTextPart)
-    .map((part) => sanitizeCitations(part.text ?? ""))
-    .join("");
+  const fullText = message.parts.reduce((acc, part) => {
+    if (isTextPart(part)) {
+      return acc + sanitizeCitations(part.text ?? "");
+    }
+    return acc;
+  }, "");
 
   if (fullText.trim() === "") {
     return (

@@ -1,20 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Brain,
-  ChevronRight,
-  FileText,
-  Folder,
-  FolderOpen,
-  HelpCircle,
-  type LucideIcon,
-  Map as MapIcon,
-  MoreVertical,
-  Network,
-  Presentation,
-  Trash2,
-} from "lucide-react";
+import { ChevronRight, Folder, FolderOpen, MoreVertical, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -71,22 +58,6 @@ export interface FileTreeItem {
   isOpen?: boolean;
   materialCount?: number;
 }
-
-export const RESOURCE_ICONS: Record<
-  ResourceType,
-  { icon: LucideIcon; className: string }
-> = {
-  quiz: { icon: HelpCircle, className: "text-muted-foreground" },
-  flashcards: { icon: Brain, className: "text-muted-foreground" },
-  report: { icon: FileText, className: "text-muted-foreground" },
-  roadmap: { icon: MapIcon, className: "text-muted-foreground" },
-  slidedeck: {
-    icon: Presentation,
-    className: "text-muted-foreground",
-  },
-  mindmap: { icon: Network, className: "text-muted-foreground" },
-  folder: { icon: Folder, className: "text-muted-foreground" },
-};
 
 function treeNodeToFileTreeItem(
   node: TreeNode,
@@ -184,15 +155,21 @@ export function StudyMaterialsTree(props: RealDataProps) {
   };
 
   const baseTree = useMemo(
-    () => buildStudyMaterialTree({ folders, materials }),
-    [folders, materials],
+    () =>
+      buildStudyMaterialTree({
+        folders: foldersQuery.data ?? [],
+        materials: materialsQuery.data ?? [],
+      }),
+    [foldersQuery.data, materialsQuery.data],
   );
 
   const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(() => {
     // Default-open every root folder for friendliness; the user can collapse.
-    return new Set(
-      baseTree.filter((n) => n.type === "folder").map((n) => n.id),
-    );
+    const ids = new Set<string>();
+    for (const n of baseTree) {
+      if (n.type === "folder") ids.add(n.id);
+    }
+    return ids;
   });
 
   const toggleFolder = (id: string) => {
@@ -314,7 +291,7 @@ function folderChildrenIndex(
 // Re-export so consumers can import the tree shape directly if needed.
 export type { TreeNode };
 // treeNodeToFileTreeItem is internal; keep it module-private.
-export const __test__ = { treeNodeToFileTreeItem };
+const __test__ = { treeNodeToFileTreeItem };
 
 function hasActiveMaterials(
   folderId: string,

@@ -13,6 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
+function scrollToSection(id: string) {
+  const el = document.getElementById(`section-${id}`);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 export interface ReportSection {
   id: string;
   heading: string;
@@ -29,7 +36,7 @@ export interface ReportViewProps {
 
 export function ReportView({ materialId, content }: ReportViewProps) {
   const t = useTranslations("ReportView");
-  const sections = content.sections || [];
+  const sections = useMemo(() => content.sections ?? [], [content.sections]);
   const totalSections = sections.length;
 
   const [completedSections, setCompletedSections] = useState<
@@ -83,14 +90,6 @@ export function ReportView({ materialId, content }: ReportViewProps) {
       ? Math.round((completedCount / totalSections) * 100)
       : 0;
   }, [totalSections, completedCount]);
-
-  // Scroll to section helper
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(`section-${id}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
   return (
     <div className="flex h-full flex-col lg:flex-row gap-4 animate-in fade-in duration-200">

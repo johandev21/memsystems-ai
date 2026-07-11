@@ -40,6 +40,13 @@ function NotebooksContent() {
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / 12));
 
+  const visiblePages: number[] = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+      visiblePages.push(p);
+    }
+  }
+
   function setParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
@@ -79,7 +86,7 @@ function NotebooksContent() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 md:px-0 pb-12">
+    <main className="mx-auto max-w-360 px-6 pb-12">
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <TypographyH1 className="text-xl font-heading font-bold text-left">
@@ -210,25 +217,21 @@ function NotebooksContent() {
             <ChevronLeft className="size-4" />
             {t("previous")}
           </Button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(
-              (p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1,
-            )
-            .map((p, idx, arr) => (
-              <span key={p} className="flex items-center gap-1">
-                {idx > 0 && arr[idx - 1] !== p - 1 && (
-                  <span className="text-muted-foreground px-1">...</span>
-                )}
-                <Button
-                  variant={p === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePage(p)}
-                  className="min-w-9 cursor-pointer"
-                >
-                  {p}
-                </Button>
-              </span>
-            ))}
+          {visiblePages.map((p, idx) => (
+            <span key={p} className="flex items-center gap-1">
+              {idx > 0 && visiblePages[idx - 1] !== p - 1 && (
+                <span className="text-muted-foreground px-1">...</span>
+              )}
+              <Button
+                variant={p === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePage(p)}
+                className="min-w-9 cursor-pointer"
+              >
+                {p}
+              </Button>
+            </span>
+          ))}
           <Button
             variant="outline"
             size="sm"

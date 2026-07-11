@@ -28,7 +28,7 @@ type ResourceConfig = {
   hoverBgClasses: string;
 };
 
-export const RESOURCES: ResourceConfig[] = [
+const RESOURCES: ResourceConfig[] = [
   {
     key: "quiz",
     kind: "quiz",

@@ -9,11 +9,175 @@ import {
   Play,
   RotateCcw,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+function FullscreenHeader({
+  currentIdx,
+  totalSlides,
+  toggleFullscreen,
+  t,
+}: {
+  currentIdx: number;
+  totalSlides: number;
+  toggleFullscreen: () => void;
+  t: (key: string, values?: Record<string, number | string>) => string;
+}) {
+  return (
+    <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-10 select-none bg-background/60 backdrop-blur-md px-4 py-2 rounded-lg border border-border">
+      <span className="text-sm font-semibold text-muted-foreground font-mono">
+        {t("slideProgress", {
+          current: currentIdx + 1,
+          total: totalSlides,
+        })}
+      </span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={toggleFullscreen}
+        className="h-8 text-sm cursor-pointer"
+      >
+        <Minimize2 className="h-4 w-4 mr-1.5" />
+        {t("exitFullscreen")}
+      </Button>
+    </div>
+  );
+}
+
+function SlidePlayerControls({
+  currentIdx,
+  totalSlides,
+  hasNotes,
+  showNotes,
+  isFullscreen,
+  onPrev,
+  onNext,
+  onReset,
+  onToggleNotes,
+  onToggleFullscreen,
+  t,
+}: {
+  currentIdx: number;
+  totalSlides: number;
+  hasNotes: boolean;
+  showNotes: boolean;
+  isFullscreen: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  onReset: () => void;
+  onToggleNotes: () => void;
+  onToggleFullscreen: () => void;
+  t: (key: string, values?: Record<string, number | string>) => string;
+}) {
+  return (
+    <div className="px-4 py-3 bg-muted/15 border-t border-border flex items-center justify-between gap-4 select-none">
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 cursor-pointer"
+          onClick={onReset}
+          disabled={currentIdx === 0}
+          title={t("restartPresentationTooltip")}
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
+        <span className="text-sm font-semibold text-muted-foreground font-mono">
+          {t("slideProgress", {
+            current: currentIdx + 1,
+            total: totalSlides,
+          })}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 cursor-pointer"
+          onClick={onPrev}
+          disabled={currentIdx === 0}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 cursor-pointer"
+          onClick={onNext}
+          disabled={currentIdx === totalSlides - 1}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {hasNotes && (
+          <Button
+            type="button"
+            variant={showNotes ? "secondary" : "ghost"}
+            size="sm"
+            className="h-8 text-sm cursor-pointer"
+            onClick={onToggleNotes}
+          >
+            <FileText className="h-3.5 w-3.5 mr-1.5" />
+            {t("notes")}
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 cursor-pointer"
+          onClick={onToggleFullscreen}
+          title={
+            isFullscreen
+              ? t("exitFullscreenTooltip")
+              : t("enterFullscreenTooltip")
+          }
+        >
+          {isFullscreen ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function renderSlideBody(bodyText: string) {
+  if (!bodyText) return null;
+  const lines = bodyText.split("\n").flatMap((line) => {
+    const trimmed = line.trim();
+    return trimmed ? [trimmed] : [];
+  });
+
+  return (
+    <ul className="space-y-3.5 text-left inline-block max-w-full">
+      {lines.map((line, index) => {
+        const cleanLine = line.replace(/^[-*+•]\s*/, "");
+        return (
+          <li
+            key={`${index}-${cleanLine}`}
+            className="text-base md:text-lg leading-relaxed flex items-start gap-2.5 text-foreground/80"
+          >
+            <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
+            <span className="whitespace-pre-wrap">{cleanLine}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export interface SlideDeckSlide {
   id: string;
@@ -45,23 +209,41 @@ export function SlideDeckView({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Keyboard navigation
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleNext and handlePrev are not memoized, but adding them to deps causes unnecessary re-renders
+  const handleNext = useCallback(() => {
+    if (currentIdx < totalSlides - 1) {
+      setDirection("next");
+      setCurrentIdx((prev) => prev + 1);
+    }
+  }, [currentIdx, totalSlides]);
+
+  const handlePrev = useCallback(() => {
+    if (currentIdx > 0) {
+      setDirection("prev");
+      setCurrentIdx((prev) => prev - 1);
+    }
+  }, [currentIdx]);
+
+  const handleNextRef = useRef(handleNext);
+  handleNextRef.current = handleNext;
+  const handlePrevRef = useRef(handlePrev);
+  handlePrevRef.current = handlePrev;
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "Space") {
         e.preventDefault();
-        handleNext();
+        handleNextRef.current();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        handlePrev();
+        handlePrevRef.current();
       } else if (e.key === "Escape" && isFullscreen) {
         setIsFullscreen(false);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIdx, isFullscreen]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isFullscreen]);
 
   // Fullscreen state listener (for browser fullscreen exit via ESC)
   useEffect(() => {
@@ -75,20 +257,6 @@ export function SlideDeckView({
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
-
-  const handleNext = () => {
-    if (currentIdx < totalSlides - 1) {
-      setDirection("next");
-      setCurrentIdx((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIdx > 0) {
-      setDirection("prev");
-      setCurrentIdx((prev) => prev - 1);
-    }
-  };
 
   const handleReset = () => {
     setDirection("prev");
@@ -133,33 +301,6 @@ export function SlideDeckView({
     }),
   };
 
-  // Helper to render slide body as simple list elements or paragraphs
-  const renderSlideBody = (bodyText: string) => {
-    if (!bodyText) return null;
-    const lines = bodyText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    return (
-      <ul className="space-y-3.5 text-left inline-block max-w-full">
-        {lines.map((line, index) => {
-          // Clean markdown bullet prefix
-          const cleanLine = line.replace(/^[-*+•]\s*/, "");
-          return (
-            <li
-              key={`${index}-${cleanLine}`}
-              className="text-base md:text-lg leading-relaxed flex items-start gap-2.5 text-foreground/80"
-            >
-              <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
-              <span className="whitespace-pre-wrap">{cleanLine}</span>
-            </li>
-          );
-        })}
-      </ul>
-    );
-  };
-
   return (
     <div className="flex flex-col items-center justify-center w-full gap-5">
       {/* Slide Deck Player Container */}
@@ -172,49 +313,38 @@ export function SlideDeckView({
             : "h-[400px] rounded-2xl",
         )}
       >
-        {/* Fullscreen Header Controls */}
         {isFullscreen && (
-          <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-10 select-none bg-background/60 backdrop-blur-md px-4 py-2 rounded-lg border border-border">
-            <span className="text-sm font-semibold text-muted-foreground font-mono">
-              {t("slideProgress", {
-                current: currentIdx + 1,
-                total: totalSlides,
-              })}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={toggleFullscreen}
-              className="h-8 text-sm cursor-pointer"
-            >
-              <Minimize2 className="h-4 w-4 mr-1.5" />
-              {t("exitFullscreen")}
-            </Button>
-          </div>
+          <FullscreenHeader
+            currentIdx={currentIdx}
+            totalSlides={totalSlides}
+            toggleFullscreen={toggleFullscreen}
+            t={t}
+          />
         )}
 
         {/* Slide Canvas */}
         <div className="flex-1 w-full overflow-hidden relative flex items-center justify-center px-8 md:px-16 py-12 select-none">
-          <AnimatePresence initial={false} custom={direction} mode="popLayout">
-            <motion.div
-              key={currentIdx}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ type: "tween", ease: "easeInOut", duration: 0.35 }}
-              className="w-full flex flex-col items-center text-center justify-center space-y-6"
-            >
-              <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-foreground select-text">
-                {currentSlide.title}
-              </h2>
-              <div className="w-full max-h-[220px] overflow-y-auto px-4 select-text">
-                {renderSlideBody(currentSlide.body)}
-              </div>
-            </motion.div>
-          </AnimatePresence>
+          <LazyMotion features={domAnimation}>
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <m.div
+                key={currentIdx}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.35 }}
+                className="w-full flex flex-col items-center text-center justify-center space-y-6"
+              >
+                <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-foreground select-text">
+                  {currentSlide.title}
+                </h2>
+                <div className="w-full max-h-[220px] overflow-y-auto px-4 select-text">
+                  {renderSlideBody(currentSlide.body)}
+                </div>
+              </m.div>
+            </AnimatePresence>
+          </LazyMotion>
         </div>
 
         {/* Progress Bar */}
@@ -225,84 +355,19 @@ export function SlideDeckView({
           />
         </div>
 
-        {/* Player Controls Footer */}
-        <div className="px-4 py-3 bg-muted/15 border-t border-border flex items-center justify-between gap-4 select-none">
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={handleReset}
-              disabled={currentIdx === 0}
-              title={t("restartPresentationTooltip")}
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </Button>
-            <span className="text-sm font-semibold text-muted-foreground font-mono">
-              {t("slideProgress", {
-                current: currentIdx + 1,
-                total: totalSlides,
-              })}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={handlePrev}
-              disabled={currentIdx === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={handleNext}
-              disabled={currentIdx === totalSlides - 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {currentSlide.notes && (
-              <Button
-                type="button"
-                variant={showNotes ? "secondary" : "ghost"}
-                size="sm"
-                className="h-8 text-sm cursor-pointer"
-                onClick={() => setShowNotes(!showNotes)}
-              >
-                <FileText className="h-3.5 w-3.5 mr-1.5" />
-                {t("notes")}
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 cursor-pointer"
-              onClick={toggleFullscreen}
-              title={
-                isFullscreen
-                  ? t("exitFullscreenTooltip")
-                  : t("enterFullscreenTooltip")
-              }
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
+        <SlidePlayerControls
+          currentIdx={currentIdx}
+          totalSlides={totalSlides}
+          hasNotes={!!currentSlide.notes}
+          showNotes={showNotes}
+          isFullscreen={isFullscreen}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onReset={handleReset}
+          onToggleNotes={() => setShowNotes(!showNotes)}
+          onToggleFullscreen={toggleFullscreen}
+          t={t}
+        />
       </div>
 
       {/* Speaker Notes Drawer (Outside fullscreen) */}

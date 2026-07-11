@@ -158,6 +158,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
                                 type="checkbox"
                                 checked={isDone}
                                 onChange={() => toggleTopic(topic.id)}
+                                aria-label={topic.title}
                                 className="h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary mt-0.5 cursor-pointer accent-primary"
                               />
                               <div className="min-w-0 flex-1">

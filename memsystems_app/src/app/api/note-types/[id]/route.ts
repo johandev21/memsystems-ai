@@ -16,8 +16,10 @@ export const PATCH = (
   context: { params: Promise<{ id: string }> },
 ) =>
   withRoute(req, context, async (req, { params, session }) => {
-    const { id } = await params;
-    const body = await parseBody(req, updateSchema);
+    const [{ id }, body] = await Promise.all([
+      params,
+      parseBody(req, updateSchema),
+    ]);
     const noteType = await service.update(session.user.id, id, body);
     return NextResponse.json(noteType);
   });

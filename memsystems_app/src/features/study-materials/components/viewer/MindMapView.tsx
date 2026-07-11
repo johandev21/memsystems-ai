@@ -13,7 +13,7 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import "@xyflow/react/dist/style.css";
 
 import {
@@ -100,11 +100,266 @@ const getClosestNodeInDirection = (
   return best;
 };
 
+interface MindMapDetailsCardProps {
+  selectedNode: MindMapNodeData;
+  selectedNodeParent: MindMapNodeData | null;
+  selectedNodeChildren: (MindMapNodeData | undefined)[];
+  setSelectedNodeId: (id: string | null) => void;
+  t: (key: string, values?: any) => string;
+}
+
+function MindMapDetailsCard({
+  selectedNode,
+  selectedNodeParent,
+  selectedNodeChildren,
+  setSelectedNodeId,
+  t,
+}: MindMapDetailsCardProps) {
+  return (
+    <Card className="p-4 border border-border bg-card shadow-sm space-y-3 animate-in slide-in-from-bottom-2 duration-200 shrink-0">
+      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <Network className="h-4 w-4 text-primary" />
+        <span>{t("conceptDetails")}</span>
+      </div>
+
+      <div className="space-y-1">
+        <h3 className="text-sm font-bold text-foreground">
+          {selectedNode.label}
+        </h3>
+        {selectedNodeParent && (
+          <p className="text-[11px] text-muted-foreground">
+            {t("parentConcept")}{" "}
+            <button
+              type="button"
+              onClick={() => setSelectedNodeId(selectedNodeParent.id)}
+              className="text-primary hover:underline font-semibold cursor-pointer"
+            >
+              {selectedNodeParent.label}
+            </button>
+          </p>
+        )}
+      </div>
+
+      {selectedNodeChildren.length > 0 && (
+        <div className="space-y-1.5">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+            {t("subConcepts", { count: selectedNodeChildren.length })}
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {selectedNodeChildren.map((child) => {
+              if (!child) return null;
+              return (
+                <Button
+                  key={child.id}
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSelectedNodeId(child.id)}
+                  className="h-6 text-[10px] font-medium border border-border/20 px-2.5 cursor-pointer rounded-full"
+                >
+                  {child.label}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+interface MindMapControlPanelsProps {
+  direction: "LR" | "TB";
+  setDirection: (dir: "LR" | "TB") => void;
+  focusMode: boolean;
+  setFocusMode: React.Dispatch<React.SetStateAction<boolean>>;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  isFullscreen: boolean;
+  setIsFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
+  fitView: (options?: any) => void;
+  t: (key: string) => string;
+  tCommon: (key: string) => string;
+}
+
+function MindMapControlPanels({
+  direction,
+  setDirection,
+  focusMode,
+  setFocusMode,
+  searchQuery,
+  setSearchQuery,
+  isFullscreen,
+  setIsFullscreen,
+  fitView,
+  t,
+  tCommon,
+}: MindMapControlPanelsProps) {
+  return (
+    <>
+      {/* Floating UI controls */}
+      <Panel
+        position="top-left"
+        className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
+      >
+        <Button
+          type="button"
+          variant={direction === "LR" ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => setDirection("LR")}
+          className="h-7 px-2.5 text-xs font-semibold"
+          title={t("horizontalTooltip")}
+        >
+          {t("horizontal")}
+        </Button>
+        <Button
+          type="button"
+          variant={direction === "TB" ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => setDirection("TB")}
+          className="h-7 px-2.5 text-xs font-semibold"
+          title={t("verticalTooltip")}
+        >
+          {t("vertical")}
+        </Button>
+        <div className="h-4 w-px bg-border/60 mx-1" />
+        <Button
+          type="button"
+          variant={focusMode ? "default" : "ghost"}
+          size="sm"
+          onClick={() => setFocusMode((f) => !f)}
+          className={cn(
+            "h-7 px-2.5 text-xs font-semibold gap-1",
+            focusMode && "bg-primary text-primary-foreground",
+          )}
+          title={t("focusModeTooltip")}
+        >
+          <Focus className="h-3.5 w-3.5" />
+          {t("focusMode")}
+        </Button>
+      </Panel>
+
+      {/* Search bar inside canvas */}
+      <Panel
+        position="top-right"
+        className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-2xl border border-border/80 shadow-sm w-60"
+      >
+        <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <Input
+          type="text"
+          placeholder={t("searchPlaceholder")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="h-6 text-xs bg-transparent border-none p-0 focus-visible:ring-0 shadow-none"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="text-[10px] text-muted-foreground hover:text-foreground font-semibold"
+          >
+            {tCommon("clear")}
+          </button>
+        )}
+      </Panel>
+
+      {/* Bottom Zoom & View Controls */}
+      <Panel
+        position="bottom-right"
+        className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => fitView({ duration: 300 })}
+          title={t("recenterTooltip")}
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => setIsFullscreen((f) => !f)}
+          title={
+            isFullscreen
+              ? t("exitFullscreenTooltip")
+              : t("enterFullscreenTooltip")
+          }
+        >
+          {isFullscreen ? (
+            <Minimize2 className="h-3.5 w-3.5" />
+          ) : (
+            <Maximize2 className="h-3.5 w-3.5" />
+          )}
+        </Button>
+      </Panel>
+
+      <Panel
+        position="bottom-left"
+        className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-xl border border-border/50 font-medium max-w-xs shadow-sm"
+      >
+        <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
+        <span>{t("navInstructions")}</span>
+      </Panel>
+    </>
+  );
+}
+
+type FlowState = {
+  selectedNodeId: string | null;
+  collapsedNodeIds: Set<string>;
+  focusMode: boolean;
+  searchQuery: string;
+};
+
+type FlowAction =
+  | { type: "RESET"; initialRoot: string | null }
+  | { type: "SET_SELECTED_NODE_ID"; id: string | null }
+  | { type: "TOGGLE_COLLAPSE"; id: string }
+  | { type: "SET_FOCUS_MODE"; mode: boolean }
+  | { type: "TOGGLE_FOCUS_MODE" }
+  | { type: "SET_SEARCH_QUERY"; query: string };
+
+function flowReducer(state: FlowState, action: FlowAction): FlowState {
+  switch (action.type) {
+    case "RESET":
+      return {
+        selectedNodeId: action.initialRoot,
+        collapsedNodeIds: new Set(),
+        focusMode: false,
+        searchQuery: "",
+      };
+    case "SET_SELECTED_NODE_ID":
+      return { ...state, selectedNodeId: action.id };
+    case "TOGGLE_COLLAPSE": {
+      const next = new Set(state.collapsedNodeIds);
+      if (next.has(action.id)) {
+        next.delete(action.id);
+      } else {
+        next.add(action.id);
+      }
+      return { ...state, collapsedNodeIds: next };
+    }
+    case "SET_FOCUS_MODE":
+      return { ...state, focusMode: action.mode };
+    case "TOGGLE_FOCUS_MODE":
+      return { ...state, focusMode: !state.focusMode };
+    case "SET_SEARCH_QUERY":
+      return { ...state, searchQuery: action.query };
+    default:
+      return state;
+  }
+}
+
 function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
   const t = useTranslations("MindMapView");
   const tCommon = useTranslations("Common");
-  const rawNodes = content.nodes || [];
-  const rawEdges = content.edges || [];
+  const rawNodes = useMemo(() => content.nodes ?? [], [content.nodes]);
+  const rawEdges = useMemo(() => content.edges ?? [], [content.edges]);
 
   const { fitView } = useReactFlow();
 
@@ -112,15 +367,42 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // UX Interaction States
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [collapsedNodeIds, setCollapsedNodeIds] = useState<Set<string>>(
-    new Set(),
-  );
+  // UX Interaction States using useReducer
+  const [state, dispatch] = useReducer(flowReducer, {
+    selectedNodeId: content.rootId || (content.nodes && content.nodes[0]?.id) || null,
+    collapsedNodeIds: new Set<string>(),
+    focusMode: false,
+    searchQuery: "",
+  });
+  const { selectedNodeId, collapsedNodeIds, focusMode, searchQuery } = state;
   const [direction, setDirection] = useState<"LR" | "TB">("LR");
-  const [focusMode, setFocusMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Sync state inline during render if content changes
+  const [prevContent, setPrevContent] = useState(content);
+  if (content !== prevContent) {
+    setPrevContent(content);
+    dispatch({
+      type: "RESET",
+      initialRoot: content.rootId || (content.nodes && content.nodes[0]?.id) || null,
+    });
+  }
+
+  const setSelectedNodeId = useCallback((id: string | null) => {
+    dispatch({ type: "SET_SELECTED_NODE_ID", id });
+  }, []);
+
+  const setFocusMode = useCallback((modeOrFn: boolean | ((prev: boolean) => boolean)) => {
+    if (typeof modeOrFn === "function") {
+      dispatch({ type: "TOGGLE_FOCUS_MODE" });
+    } else {
+      dispatch({ type: "SET_FOCUS_MODE", mode: modeOrFn });
+    }
+  }, []);
+
+  const setSearchQuery = useCallback((query: string) => {
+    dispatch({ type: "SET_SEARCH_QUERY", query });
+  }, []);
 
   // Parent Map & Adjacency lists for Detail card and traversal
   const { adjacencyList, parentMap } = useMemo(() => {
@@ -139,28 +421,11 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     return { adjacencyList: adj, parentMap: parents };
   }, [rawNodes, rawEdges]);
 
-  // Reset when content changes
-  useEffect(() => {
-    const initialRoot = content.rootId || rawNodes[0]?.id || null;
-    setSelectedNodeId(initialRoot);
-    setCollapsedNodeIds(new Set());
-    setFocusMode(false);
-    setSearchQuery("");
-  }, [content, rawNodes]);
-
   // Toggle node collapse state callback
   const handleToggleCollapse = useCallback(
     (id: string, e?: React.MouseEvent) => {
       if (e) e.stopPropagation();
-      setCollapsedNodeIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        return next;
-      });
+      dispatch({ type: "TOGGLE_COLLAPSE", id });
     },
     [],
   );
@@ -258,9 +523,10 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
   const selectedNode = rawNodes.find((n) => n.id === selectedNodeId);
   const selectedNodeChildren = useMemo(() => {
     if (!selectedNodeId) return [];
-    return (adjacencyList[selectedNodeId] || [])
-      .map((id) => rawNodes.find((n) => n.id === id))
-      .filter(Boolean);
+    return (adjacencyList[selectedNodeId] || []).flatMap((id) => {
+      const found = rawNodes.find((n) => n.id === id);
+      return found ? [found] : [];
+    });
   }, [selectedNodeId, adjacencyList, rawNodes]);
 
   const selectedNodeParent = useMemo(() => {
@@ -274,17 +540,15 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
   }, []);
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: captured keystrokes for geometric traversing
     <div
+      role="application"
       className={cn(
-        "flex flex-col gap-4 animate-in fade-in duration-200 w-full",
+        "flex flex-col gap-4 animate-in fade-in duration-200 w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         isFullscreen &&
           "fixed inset-0 z-50 bg-background p-6 w-screen h-screen overflow-hidden",
       )}
       onKeyDown={handleKeyDown}
-      // biome-ignore lint/a11y/noNoninteractiveTabindex: focusable element to receive keyboard events
       tabIndex={0}
-      style={{ outline: "none" }}
     >
       <Card
         className={cn(
@@ -312,114 +576,20 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             className="opacity-75"
           />
 
-          {/* Floating UI controls */}
-          <Panel
-            position="top-left"
-            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
-          >
-            <Button
-              type="button"
-              variant={direction === "LR" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setDirection("LR")}
-              className="h-7 px-2.5 text-xs font-semibold"
-              title={t("horizontalTooltip")}
-            >
-              {t("horizontal")}
-            </Button>
-            <Button
-              type="button"
-              variant={direction === "TB" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setDirection("TB")}
-              className="h-7 px-2.5 text-xs font-semibold"
-              title={t("verticalTooltip")}
-            >
-              {t("vertical")}
-            </Button>
-            <div className="h-4 w-px bg-border/60 mx-1" />
-            <Button
-              type="button"
-              variant={focusMode ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setFocusMode((f) => !f)}
-              className={cn(
-                "h-7 px-2.5 text-xs font-semibold gap-1",
-                focusMode && "bg-primary text-primary-foreground",
-              )}
-              title={t("focusModeTooltip")}
-            >
-              <Focus className="h-3.5 w-3.5" />
-              {t("focusMode")}
-            </Button>
-          </Panel>
-
-          {/* Search bar inside canvas */}
-          <Panel
-            position="top-right"
-            className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-2xl border border-border/80 shadow-sm w-60"
-          >
-            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <Input
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-6 text-xs bg-transparent border-none p-0 focus-visible:ring-0 shadow-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="text-[10px] text-muted-foreground hover:text-foreground font-semibold"
-              >
-                {tCommon("clear")}
-              </button>
-            )}
-          </Panel>
-
-          {/* Bottom Zoom & View Controls */}
-          <Panel
-            position="bottom-right"
-            className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
-          >
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => fitView({ duration: 300 })}
-              title={t("recenterTooltip")}
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => setIsFullscreen((f) => !f)}
-              title={
-                isFullscreen
-                  ? t("exitFullscreenTooltip")
-                  : t("enterFullscreenTooltip")
-              }
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-3.5 w-3.5" />
-              ) : (
-                <Maximize2 className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </Panel>
-
-          <Panel
-            position="bottom-left"
-            className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-xl border border-border/50 font-medium max-w-xs shadow-sm"
-          >
-            <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
-            <span>{t("navInstructions")}</span>
-          </Panel>
+          {/* Floating UI controls, search bar, zoom, info panels */}
+          <MindMapControlPanels
+            direction={direction}
+            setDirection={setDirection}
+            focusMode={focusMode}
+            setFocusMode={setFocusMode}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isFullscreen={isFullscreen}
+            setIsFullscreen={setIsFullscreen}
+            fitView={fitView}
+            t={t}
+            tCommon={tCommon}
+          />
 
           {/* Interactive Minimap */}
           <MiniMap
@@ -434,55 +604,13 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
 
       {/* Selected Node Details Card */}
       {selectedNode && (
-        <Card className="p-4 border border-border bg-card shadow-sm space-y-3 animate-in slide-in-from-bottom-2 duration-200 shrink-0">
-          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-            <Network className="h-4 w-4 text-primary" />
-            <span>{t("conceptDetails")}</span>
-          </div>
-
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-foreground">
-              {selectedNode.label}
-            </h3>
-            {selectedNodeParent && (
-              <p className="text-[11px] text-muted-foreground">
-                {t("parentConcept")}
-                <button
-                  type="button"
-                  onClick={() => setSelectedNodeId(selectedNodeParent.id)}
-                  className="text-primary hover:underline font-semibold cursor-pointer"
-                >
-                  {selectedNodeParent.label}
-                </button>
-              </p>
-            )}
-          </div>
-
-          {selectedNodeChildren.length > 0 && (
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                {t("subConcepts", { count: selectedNodeChildren.length })}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedNodeChildren.map((child) => {
-                  if (!child) return null;
-                  return (
-                    <Button
-                      key={child.id}
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setSelectedNodeId(child.id)}
-                      className="h-6 text-[10px] font-medium border border-border/20 px-2.5 cursor-pointer rounded-full"
-                    >
-                      {child.label}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </Card>
+        <MindMapDetailsCard
+          selectedNode={selectedNode}
+          selectedNodeParent={selectedNodeParent}
+          selectedNodeChildren={selectedNodeChildren}
+          setSelectedNodeId={setSelectedNodeId}
+          t={t}
+        />
       )}
     </div>
   );

@@ -24,7 +24,7 @@ export function FlashcardEditor({
   onCancel,
 }: FlashcardEditorProps) {
   const t = useTranslations("StudyMaterials");
-  const [title, setTitle] = useState(t("untitledFlashcards"));
+  const [title, setTitle] = useState(() => t("untitledFlashcards"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<FlashcardEditorContentType>(
     () =>

@@ -234,12 +234,12 @@ export class CardService {
   }
 
   async unsuspend(userId: string, cardId: string): Promise<CardWithNote> {
-    const _card = await this.fetchOwned(userId, cardId);
+    const card = await this.fetchOwned(userId, cardId);
 
     const [updated] = await db
       .update(cards)
       .set({ suspended: false })
-      .where(eq(cards.id, cardId))
+      .where(eq(cards.id, card.id))
       .returning();
 
     const note = await this.fetchNote(updated.noteId);

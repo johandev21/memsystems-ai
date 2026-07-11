@@ -140,6 +140,6 @@ export function EditorShell({
   );
 }
 
-export function kindLabel(kind: EditorShellProps["kind"]): string {
+function kindLabel(kind: EditorShellProps["kind"]): string {
   return KIND_LABELS[kind];
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -20,6 +22,7 @@ export function SourceMultiSelect({
   className,
 }: SourceMultiSelectProps) {
   const { data: sources = [] } = useQuery(sourcesQueryOptions(notebookId));
+  const valueSet = useMemo(() => new Set(value), [value]);
 
   const toggle = (id: string, checked: boolean) => {
     if (checked) {
@@ -54,7 +57,7 @@ export function SourceMultiSelect({
         <SourceRow
           key={source.id}
           source={source}
-          checked={value.includes(source.id)}
+          checked={valueSet.has(source.id)}
           onToggle={(checked) => toggle(source.id, checked)}
         />
       ))}

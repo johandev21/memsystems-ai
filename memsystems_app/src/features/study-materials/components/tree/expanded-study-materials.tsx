@@ -45,21 +45,25 @@ export function ExpandedStudyMaterials({
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialMaterialId, setPrevInitialMaterialId] = useState(initialMaterialId);
   const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
+
+  if (isOpen !== prevIsOpen || initialMaterialId !== prevInitialMaterialId) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialMaterialId(initialMaterialId);
+    if (isOpen) {
+      setMode(
+        initialMaterialId
+          ? { kind: "viewer", materialId: initialMaterialId }
+          : { kind: "select" },
+      );
+    }
+  }
 
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
   const hasMaterials =
     (materialsQuery.data?.length ?? 0) > 0 || !!initialMaterialId;
-
-  useEffect(() => {
-    if (isOpen) {
-      if (initialMaterialId) {
-        setMode({ kind: "viewer", materialId: initialMaterialId });
-      } else {
-        setMode({ kind: "select" });
-      }
-    }
-  }, [isOpen, initialMaterialId]);
 
   return (
     <Dialog

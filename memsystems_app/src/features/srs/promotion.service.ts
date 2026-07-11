@@ -34,21 +34,20 @@ export class PromotionService {
 
     const flashcardContent = sm.content as any;
     if (flashcardContent && Array.isArray(flashcardContent.cards)) {
-      const notesCreated = [];
-      for (const card of flashcardContent.cards) {
+      const promises = flashcardContent.cards.map((card) => {
         const adaptedValues = this.adaptCardToFields(
           card,
           sm.title,
           fieldSchemas,
           input.fieldOverrides,
         );
-        const note = await noteService.create(userId, {
+        return noteService.create(userId, {
           noteTypeId: input.noteTypeId,
           fieldValues: adaptedValues,
           originSimpleFlashcardId: simpleFlashcardId,
         });
-        notesCreated.push(note);
-      }
+      });
+      const notesCreated = await Promise.all(promises);
       return notesCreated[0] || null;
     } else {
       const adaptedValues = this.adaptFlashcardToFields(

@@ -3,7 +3,7 @@
 import { LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,10 +28,11 @@ export function UserMenu({
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   async function handleLogout() {
     await authClient.signOut();
@@ -46,7 +47,7 @@ export function UserMenu({
         }
       >
         <div className="size-6 flex items-center justify-center">
-          {!mounted || isPending ? (
+          {!isClient || isPending ? (
             <Skeleton className="size-6 rounded-full" />
           ) : (
             <Avatar size="sm">

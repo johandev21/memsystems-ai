@@ -88,8 +88,9 @@ export class GenerationService {
       .from(sources)
       .where(eq(sources.notebookId, notebookId));
 
+    const sourceIdsSet = new Set(sourceIds);
     const owned = rows.filter(
-      (r) => sourceIds.includes(r.id) && r.notebookId === notebookId,
+      (r) => sourceIdsSet.has(r.id) && r.notebookId === notebookId,
     );
 
     if (owned.length === 0) {

@@ -25,7 +25,7 @@ export function RoadmapEditor({
   onCancel,
 }: RoadmapEditorProps) {
   const t = useTranslations("StudyMaterials");
-  const [title, setTitle] = useState(t("untitledRoadmap"));
+  const [title, setTitle] = useState(() => t("untitledRoadmap"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<RoadmapEditorContentType>(
     () => createEmptyStudyMaterial("roadmap") as RoadmapEditorContentType,

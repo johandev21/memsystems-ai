@@ -22,7 +22,7 @@ export interface QuizEditorProps {
 
 export function QuizEditor({ notebookId, onSaved, onCancel }: QuizEditorProps) {
   const t = useTranslations("StudyMaterials");
-  const [title, setTitle] = useState(t("untitledQuiz"));
+  const [title, setTitle] = useState(() => t("untitledQuiz"));
   const [folderId, setFolderId] = useState<string | null>(null);
   const [content, setContent] = useState<QuizEditorContentType>(
     () => createEmptyStudyMaterial("quiz") as QuizEditorContentType,

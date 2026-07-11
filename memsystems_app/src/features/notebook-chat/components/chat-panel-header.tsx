@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { NotebookSettingsDialog } from "@/features/notebooks/components/notebook-settings-dialog";
+import { NotebookSettingsDialog } from "@/features/notebooks";
 
 interface ChatPanelHeaderProps {
   notebookId: string;

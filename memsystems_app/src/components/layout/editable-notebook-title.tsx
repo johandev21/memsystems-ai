@@ -15,13 +15,14 @@ export function EditableNotebookTitle({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const { data: notebook } = useSuspenseQuery(notebookQueryOptions(id));
   const [isEditing, setIsEditing] = useState(false);
+  const [prevDbTitle, setPrevDbTitle] = useState(notebook.title);
   const [title, setTitle] = useState(notebook.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Update local title if query updates
-  useEffect(() => {
+  if (notebook.title !== prevDbTitle) {
+    setPrevDbTitle(notebook.title);
     setTitle(notebook.title);
-  }, [notebook.title]);
+  }
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -73,6 +74,7 @@ export function EditableNotebookTitle({ id }: { id: string }) {
       <input
         ref={inputRef}
         type="text"
+        aria-label="Edit notebook title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onBlur={handleSave}
@@ -91,11 +93,12 @@ export function EditableNotebookTitle({ id }: { id: string }) {
   }
 
   return (
-    <div
+    <button
+      type="button"
       onClick={() => setIsEditing(true)}
       className="font-mono text-sm font-semibold px-2 py-0.5 border border-transparent hover:border-foreground/20 cursor-text select-none text-foreground transition-all duration-150 rounded-xl"
     >
       {notebook.title}
-    </div>
+    </button>
   );
 }

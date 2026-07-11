@@ -3,8 +3,10 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 
 const DEFAULT_ROOT = resolve(process.cwd(), "dev-storage");
-const TOKEN_SECRET =
-  process.env.DEV_STORAGE_TOKEN_SECRET || "dev-storage-secret-fallback-123456";
+const TOKEN_SECRET = process.env.DEV_STORAGE_TOKEN_SECRET;
+if (!TOKEN_SECRET) {
+  throw new Error("DEV_STORAGE_TOKEN_SECRET environment variable is required");
+}
 const DEFAULT_EXPIRES_SECONDS = 300;
 
 let cachedRoot: string | null = null;
@@ -73,11 +75,11 @@ export interface LocalFileMeta {
   contentType?: string;
 }
 
-export function localStat(_key: string): LocalFileMeta {
+function localStat(_key: string): LocalFileMeta {
   return { exists: true };
 }
 
-export function localPublicBaseUrl(): string {
+function localPublicBaseUrl(): string {
   return process.env.DEV_STORAGE_PUBLIC_URL ?? "http://localhost:3000";
 }
 
@@ -132,6 +134,6 @@ export function isLocalStorageEnabled(): boolean {
   return !process.env.S3_ENDPOINT;
 }
 
-export function sha256Hex(buffer: Uint8Array | Buffer): string {
+function sha256Hex(buffer: Uint8Array | Buffer): string {
   return createHash("sha256").update(buffer).digest("hex");
 }

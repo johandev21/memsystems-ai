@@ -12,7 +12,8 @@ import { useTranslations } from "next-intl";
 import type { RefObject } from "react";
 import { useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import {
   ResizableHandle,
   ResizablePanel,

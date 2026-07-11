@@ -69,6 +69,11 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
         <button
           type="button"
           onClick={(e) => data.onToggleCollapse?.(id, e)}
+          aria-label={
+            data.isCollapsed
+              ? t("expandBranchTooltip")
+              : t("collapseBranchTooltip")
+          }
           className={cn(
             "absolute flex items-center justify-center h-5 w-5 rounded-full border border-border bg-background text-foreground shadow-sm cursor-pointer hover:bg-muted hover:text-primary transition-all duration-150 active:scale-95 z-20",
             isHorizontal

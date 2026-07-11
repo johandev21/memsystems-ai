@@ -84,6 +84,7 @@ export function CustomCodeBlock(props: {
           <button
             onClick={handleDownload}
             type="button"
+            aria-label="Download code"
             className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors cursor-pointer"
             title="Download code"
           >
@@ -92,6 +93,7 @@ export function CustomCodeBlock(props: {
           <button
             onClick={handleCopy}
             type="button"
+            aria-label="Copy code"
             className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors cursor-pointer flex items-center gap-1"
             title="Copy code"
           >

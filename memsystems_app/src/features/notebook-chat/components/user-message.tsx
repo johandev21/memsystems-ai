@@ -2,13 +2,13 @@ import type { UIMessage } from "@ai-sdk/react";
 import { Bubble, BubbleContent } from "@/components/chat/bubble";
 import { Message, MessageContent } from "@/components/chat/message";
 
-export function UserMessage({ message }: { message: UIMessage }) {
-  const isTextPart = (
-    part: UIMessage["parts"][number],
-  ): part is { type: "text"; text: string; state?: "streaming" | "done" } => {
-    return part.type === "text";
-  };
+const isTextPart = (
+  part: UIMessage["parts"][number],
+): part is { type: "text"; text: string; state?: "streaming" | "done" } => {
+  return part.type === "text";
+};
 
+export function UserMessage({ message }: { message: UIMessage }) {
   return (
     <Message align="end">
       <MessageContent>

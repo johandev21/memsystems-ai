@@ -92,7 +92,7 @@ export class StudyMaterialFolderService {
     const folder = await this.fetchOwned(userId, folderId);
 
     // Get all descendant folder IDs recursively (including the folder itself)
-    const descendantFolderIds = await this.getDescendantFolderIds(folderId);
+    const descendantFolderIds = await this.getDescendantFolderIds(folder.id);
 
     // Check if there are active (non-deleted) study materials in these folders
     const activeMaterials = await db
@@ -127,8 +127,10 @@ export class StudyMaterialFolderService {
           isNull(studyMaterialFolders.deletedAt),
         ),
       );
-    for (const child of children) {
-      const childIds = await this.getDescendantFolderIds(child.id);
+    const descendantIdsArrays = await Promise.all(
+      children.map((child) => this.getDescendantFolderIds(child.id)),
+    );
+    for (const childIds of descendantIdsArrays) {
       ids.push(...childIds);
     }
     return ids;
@@ -160,9 +162,9 @@ export class StudyMaterialFolderService {
       .select({ id: studyMaterialFolders.id })
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.parentId, parentId));
-    for (const child of children) {
-      await this.softDeleteSubtree(child.id, deletedAt);
-    }
+    await Promise.all(
+      children.map((child) => this.softDeleteSubtree(child.id, deletedAt)),
+    );
   }
 
   private async wouldCreateCycle(

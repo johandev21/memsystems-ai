@@ -28,6 +28,24 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { sourceQueryOptions } from "@/lib/api-client/sources";
 import { fetchApi } from "@/lib/utils";
 
+function getWordCount(text: string) {
+  if (!text) return 0;
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function getCharCount(text: string) {
+  return text?.length || 0;
+}
+
+function formatBytes(bytes: number | null, t: (key: string) => string) {
+  if (bytes === null || bytes === undefined) return t("unknownSize");
+  if (bytes === 0) return t("zeroBytes");
+  const k = 1024;
+  const sizes = [t("bytes"), t("kb"), t("mb"), t("gb")];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
+}
+
 interface SourceViewerDialogProps {
   sourceId: string | null;
   open: boolean;
@@ -66,24 +84,6 @@ export function SourceViewerDialog({
     } finally {
       setDownloading(false);
     }
-  };
-
-  const getWordCount = (text: string) => {
-    if (!text) return 0;
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  };
-
-  const getCharCount = (text: string) => {
-    return text?.length || 0;
-  };
-
-  const formatBytes = (bytes: number | null) => {
-    if (bytes === null || bytes === undefined) return t("unknownSize");
-    if (bytes === 0) return t("zeroBytes");
-    const k = 1024;
-    const sizes = [t("bytes"), t("kb"), t("mb"), t("gb")];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
   return (
@@ -155,6 +155,7 @@ export function SourceViewerDialog({
                       year: "numeric",
                       month: "short",
                       day: "numeric",
+                      timeZone: "UTC",
                     })}
                   </span>
                 </div>
@@ -180,10 +181,12 @@ export function SourceViewerDialog({
                       className="shrink-0 text-xs gap-1.5"
                       nativeButton={false}
                       render={
+                        // biome-ignore lint/a11y/useAnchorContent: aria-label provides accessible content
                         <a
                           href={source.url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={t("openWebpage")}
                         />
                       }
                     >
@@ -204,7 +207,7 @@ export function SourceViewerDialog({
                           {source.contentType || t("unknownDocType")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {formatBytes(source.fileSize)}
+                          {formatBytes(source.fileSize, t)}
                         </p>
                       </div>
                     </div>

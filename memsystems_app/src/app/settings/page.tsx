@@ -32,16 +32,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useConnectionStatus } from "@/features/ai";
 import { getApiUrl } from "@/lib/utils";
 
-export default function ConfigurationsPage() {
+function OpenAiConnectionCard() {
   const t = useTranslations("Settings");
-  const currentLocale = useLocale();
-  const router = useRouter();
-  const [isPendingLocale, startTransition] = useTransition();
-  const { theme, setTheme } = useTheme();
-
   const { data: connection, isPending } = useConnectionStatus();
   const queryClient = useQueryClient();
 
@@ -58,11 +53,6 @@ export default function ConfigurationsPage() {
       setApiKeyInput("");
     }
   }, [connection?.openai?.hasKey]);
-
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["connection-status"] });
-    queryClient.invalidateQueries({ queryKey: ["models"] });
-  };
 
   const handleSaveKey = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +112,150 @@ export default function ConfigurationsPage() {
     }
   };
 
+  const isPlaceholderKey = apiKeyInput === "••••••••••••••••••••••••••••••••";
+
+  return (
+    <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Key className="h-4.5 w-4.5 text-muted-foreground" />
+          {t("openaiProvider")}
+        </CardTitle>
+        <CardDescription className="text-xs">
+          {t("openaiProviderDesc")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form onSubmit={handleSaveKey} className="space-y-3">
+          <div className="flex gap-2 relative items-center">
+            <div className="relative flex-1">
+              <Input
+                type={showKey ? "text" : "password"}
+                placeholder={t("enterApiKey")}
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                disabled={isSaving || isDeleting}
+                className="pr-10"
+              />
+              {apiKeyInput && !isPlaceholderKey && (
+                <button
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  aria-label={showKey ? "Hide API key" : "Show API key"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  {showKey ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="sm"
+              disabled={
+                isSaving || isDeleting || !apiKeyInput || isPlaceholderKey
+              }
+              className="cursor-pointer shrink-0"
+            >
+              {isSaving ? t("saving") : t("saveKey")}
+            </Button>
+
+            {connection?.openai?.hasKey && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteKey}
+                disabled={isSaving || isDeleting}
+                className="cursor-pointer shrink-0"
+                title={t("deleteKey")}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </form>
+
+        {isPending ? (
+          <div className="text-sm text-muted-foreground animate-pulse">
+            {t("checkingOpenai")}
+          </div>
+        ) : connection?.openai ? (
+          <div className="space-y-4 pt-2 border-t border-border/40">
+            <div className="flex items-center gap-2">
+              {connection.openai.hasKey ? (
+                connection.openai.ok ? (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                    <span className="text-sm font-medium text-emerald-700">
+                      {t("activeVerified")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="h-5 w-5 text-red-500" />
+                    <span className="text-sm font-medium text-red-700">
+                      {t("verificationFailed")}
+                    </span>
+                  </>
+                )
+              ) : (
+                <div className="text-xs text-muted-foreground">
+                  {t("noKeyConfigured")}
+                </div>
+              )}
+            </div>
+
+            {connection.openai.hasKey && connection.openai.detail && (
+              <div className="rounded bg-muted p-3 text-xs text-muted-foreground">
+                {connection.openai.detail}
+              </div>
+            )}
+
+            {connection.openai.ok &&
+              connection.openai.models.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground mb-2">
+                    {t("availableModels")} ({connection.openai.models.length})
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {connection.openai.models.map((model) => (
+                      <span
+                        key={model.id}
+                        className="inline-flex items-center rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground"
+                      >
+                        {model.displayName}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function ConfigurationsPage() {
+  const t = useTranslations("Settings");
+  const currentLocale = useLocale();
+  const router = useRouter();
+  const [isPendingLocale, startTransition] = useTransition();
+  const { theme, setTheme } = useTheme();
+
+  const { isPending } = useConnectionStatus();
+  const queryClient = useQueryClient();
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["connection-status"] });
+    queryClient.invalidateQueries({ queryKey: ["models"] });
+  };
+
   const changeLocale = (localeCode: string) => {
     if (localeCode === currentLocale) return;
     startTransition(async () => {
@@ -130,8 +264,6 @@ export default function ConfigurationsPage() {
       toast.success(t("saved"));
     });
   };
-
-  const isPlaceholderKey = apiKeyInput === "••••••••••••••••••••••••••••••••";
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,129 +292,7 @@ export default function ConfigurationsPage() {
         </div>
 
         {/* OpenAI Connection Card */}
-        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Key className="h-4.5 w-4.5 text-muted-foreground" />
-              {t("openaiProvider")}
-            </CardTitle>
-            <CardDescription className="text-xs">
-              {t("openaiProviderDesc")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSaveKey} className="space-y-3">
-              <div className="flex gap-2 relative items-center">
-                <div className="relative flex-1">
-                  <Input
-                    type={showKey ? "text" : "password"}
-                    placeholder={t("enterApiKey")}
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
-                    disabled={isSaving || isDeleting}
-                    className="pr-10"
-                  />
-                  {apiKeyInput && !isPlaceholderKey && (
-                    <button
-                      type="button"
-                      onClick={() => setShowKey(!showKey)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      {showKey ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={
-                    isSaving || isDeleting || !apiKeyInput || isPlaceholderKey
-                  }
-                  className="cursor-pointer shrink-0"
-                >
-                  {isSaving ? t("saving") : t("saveKey")}
-                </Button>
-
-                {connection?.openai?.hasKey && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDeleteKey}
-                    disabled={isSaving || isDeleting}
-                    className="cursor-pointer shrink-0"
-                    title={t("deleteKey")}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </form>
-
-            {isPending ? (
-              <div className="text-sm text-muted-foreground animate-pulse">
-                {t("checkingOpenai")}
-              </div>
-            ) : connection?.openai ? (
-              <div className="space-y-4 pt-2 border-t border-border/40">
-                <div className="flex items-center gap-2">
-                  {connection.openai.hasKey ? (
-                    connection.openai.ok ? (
-                      <>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                        <span className="text-sm font-medium text-emerald-700">
-                          {t("activeVerified")}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="h-5 w-5 text-red-500" />
-                        <span className="text-sm font-medium text-red-700">
-                          {t("verificationFailed")}
-                        </span>
-                      </>
-                    )
-                  ) : (
-                    <div className="text-xs text-muted-foreground">
-                      {t("noKeyConfigured")}
-                    </div>
-                  )}
-                </div>
-
-                {connection.openai.hasKey && connection.openai.detail && (
-                  <div className="rounded bg-muted p-3 text-xs text-muted-foreground">
-                    {connection.openai.detail}
-                  </div>
-                )}
-
-                {connection.openai.ok &&
-                  connection.openai.models.length > 0 && (
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-2">
-                        {t("availableModels")} (
-                        {connection.openai.models.length})
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {connection.openai.models.map((model) => (
-                          <span
-                            key={model.id}
-                            className="inline-flex items-center rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground"
-                          >
-                            {model.displayName}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+        <OpenAiConnectionCard />
 
         {/* Setup Instructions Card */}
         <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
@@ -303,7 +313,6 @@ export default function ConfigurationsPage() {
             </div>
           </CardContent>
         </Card>
-
 
         {/* Language Selection Card */}
         <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">

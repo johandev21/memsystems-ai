@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useConnectionStatus } from "@/features/ai/hooks/use-connection-status";
+import { useConnectionStatus } from "@/features/ai";
 import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import {
   chatMessagesQueryOptions,
@@ -36,7 +36,7 @@ export function useChatPanel(notebookId: string) {
   );
   const { data: connection } = useConnectionStatus();
 
-  const modelOptions: ModelOption[] = models ?? [];
+  const modelOptions = useMemo(() => models ?? [], [models]);
 
   const { model: persistedModel, setModel: setPersistedModel } =
     useModelPersistence(notebookId);

@@ -15,36 +15,37 @@ export interface TrashItem {
 export class TrashService {
   async list(userId: string, notebookId: string) {
     await assertNotebookOwner(userId, notebookId);
-    const deletedMaterials = await db
-      .select({
-        id: studyMaterials.id,
-        kind: studyMaterials.kind,
-        title: studyMaterials.title,
-        deletedAt: studyMaterials.deletedAt,
-      })
-      .from(studyMaterials)
-      .where(
-        and(
-          eq(studyMaterials.notebookId, notebookId),
-          isNotNull(studyMaterials.deletedAt),
-        ),
-      )
-      .orderBy(desc(studyMaterials.deletedAt));
-
-    const deletedFolders = await db
-      .select({
-        id: studyMaterialFolders.id,
-        name: studyMaterialFolders.name,
-        deletedAt: studyMaterialFolders.deletedAt,
-      })
-      .from(studyMaterialFolders)
-      .where(
-        and(
-          eq(studyMaterialFolders.notebookId, notebookId),
-          isNotNull(studyMaterialFolders.deletedAt),
-        ),
-      )
-      .orderBy(desc(studyMaterialFolders.deletedAt));
+    const [deletedMaterials, deletedFolders] = await Promise.all([
+      db
+        .select({
+          id: studyMaterials.id,
+          kind: studyMaterials.kind,
+          title: studyMaterials.title,
+          deletedAt: studyMaterials.deletedAt,
+        })
+        .from(studyMaterials)
+        .where(
+          and(
+            eq(studyMaterials.notebookId, notebookId),
+            isNotNull(studyMaterials.deletedAt),
+          ),
+        )
+        .orderBy(desc(studyMaterials.deletedAt)),
+      db
+        .select({
+          id: studyMaterialFolders.id,
+          name: studyMaterialFolders.name,
+          deletedAt: studyMaterialFolders.deletedAt,
+        })
+        .from(studyMaterialFolders)
+        .where(
+          and(
+            eq(studyMaterialFolders.notebookId, notebookId),
+            isNotNull(studyMaterialFolders.deletedAt),
+          ),
+        )
+        .orderBy(desc(studyMaterialFolders.deletedAt)),
+    ]);
 
     const items: TrashItem[] = [
       ...deletedMaterials.map((m) => ({

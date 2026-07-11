@@ -92,9 +92,9 @@ export class IndexingService {
       count: notebookSources.length,
     });
 
-    for (const source of notebookSources) {
-      await this.indexSource(source.id, userId);
-    }
+    await Promise.all(
+      notebookSources.map((source) => this.indexSource(source.id, userId)),
+    );
 
     logCtx.info("notebook reindexed", { sourceCount: notebookSources.length });
   }

@@ -89,8 +89,9 @@ export class NoteTypeService {
       );
       const newFields = input.fieldsSchema.map((f) => f.name);
 
+      const newFieldsSet = new Set(newFields);
       const removedFields = existingFields.filter(
-        (f) => !newFields.includes(f),
+        (f) => !newFieldsSet.has(f),
       );
       if (removedFields.length > 0) {
         throw new BadRequestError(
