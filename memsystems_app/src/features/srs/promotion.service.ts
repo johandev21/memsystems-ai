@@ -34,7 +34,7 @@ export class PromotionService {
 
     const flashcardContent = sm.content as any;
     if (flashcardContent && Array.isArray(flashcardContent.cards)) {
-      const promises = flashcardContent.cards.map((card) => {
+      const promises = flashcardContent.cards.map((card: { front: string; back: string }) => {
         const adaptedValues = this.adaptCardToFields(
           card,
           sm.title,

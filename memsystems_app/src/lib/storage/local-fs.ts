@@ -3,10 +3,11 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 
 const DEFAULT_ROOT = resolve(process.cwd(), "dev-storage");
-const TOKEN_SECRET = process.env.DEV_STORAGE_TOKEN_SECRET;
-if (!TOKEN_SECRET) {
+const rawTokenSecret = process.env.DEV_STORAGE_TOKEN_SECRET;
+if (!rawTokenSecret) {
   throw new Error("DEV_STORAGE_TOKEN_SECRET environment variable is required");
 }
+const TOKEN_SECRET: string = rawTokenSecret;
 const DEFAULT_EXPIRES_SECONDS = 300;
 
 let cachedRoot: string | null = null;

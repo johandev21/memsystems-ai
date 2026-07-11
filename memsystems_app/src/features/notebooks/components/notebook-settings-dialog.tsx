@@ -68,8 +68,8 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
 interface IconPickerSectionProps {
-  icon: string;
-  setIcon: (val: string) => void;
+  icon: string | null;
+  setIcon: (val: string | null) => void;
   isValidIcon: boolean;
   t: (key: string, values?: any) => string;
 }
@@ -374,8 +374,8 @@ function useNotebookSettingsSave({
 }: {
   notebook: Notebook;
   title: string;
-  description: string;
-  icon: string;
+  description: string | null;
+  icon: string | null;
   bannerFile: File | null;
   bannerRemoved: boolean;
   focalPoint: { x: number; y: number };
@@ -411,10 +411,10 @@ function useNotebookSettingsSave({
           body.title = trimmedTitle;
         }
         if (description !== notebook.description) {
-          body.description = description;
+          body.description = description ?? undefined;
         }
         if (icon !== notebook.icon) {
-          body.icon = icon;
+          body.icon = icon ?? undefined;
         }
         if (shouldUpdateFocalPoint) {
           body.bannerFocalPoint = focalPoint;
@@ -616,7 +616,7 @@ function NotebookSettingsForm({
 
   useTextareaAutosize({
     ref: descriptionRef,
-    value: description,
+    value: description ?? "",
     maxHeight: 200,
   });
 
@@ -754,7 +754,7 @@ function NotebookSettingsForm({
           <Textarea
             id="description"
             ref={descriptionRef}
-            value={description}
+            value={description ?? ""}
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("descriptionPlaceholder")}
             rows={3}

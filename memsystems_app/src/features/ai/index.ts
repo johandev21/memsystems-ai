@@ -1,6 +1,2 @@
-// Services
-export { AiService, getProviderForModel } from "./ai.service";
-export { connectionService } from "./connection.service";
-// Hooks
+// Client-facing barrel — keep server-only exports out to avoid bundling pg on the client
 export { useConnectionStatus } from "./hooks/use-connection-status";
-export { userSettingsService } from "./user-settings.service";
