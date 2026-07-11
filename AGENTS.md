@@ -21,12 +21,13 @@ Next.js App Router application at `memsystems_app/`. Single app (no monorepo).
 ## Tech Stack
 
 - **Framework**: Next.js 16 + React 19
-- **Language**: TypeScript strict, import alias `@/*` -> `./src/*`
+- **Language**: TypeScript 7 strict (native Go port, 8-12x faster), import alias `@/*` -> `./src/*`
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), `tw-animate-css`, shadcn/ui
 - **Database**: PostgreSQL via Drizzle ORM (`node-postgres` Pool, timezone UTC)
 - **Auth**: Better Auth (Google OAuth only, DB-backed sessions — no JWT)
 - **AI**: OpenCode-only (`ai-sdk-provider-opencode-sdk`). Operator-configured (no per-user keys). Chat runs read-only `plan` agent in `os.tmpdir()/memsystems-llm-cwd` (no shell/edit/search). Model allow-listed against `opencodeProvider.listModels()`.
 - **Storage**: S3-compatible (MinIO dev, R2 prod). `next.config.ts` marks `pg`, `drizzle-orm`, S3 SDK, `jsdom`, `pdf-parse`, `mammoth` as `serverExternalPackages`.
+- **Build**: Next.js built-in type-check disabled (`typescript.ignoreBuildErrors: true`) — rely on `pnpm run typecheck` separately (TS 7 native binary not yet supported by Next.js programmatic API).
 
 ## Testing
 

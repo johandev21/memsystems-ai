@@ -1,4 +1,4 @@
-minimumReleaseAge: 10080
+minimumReleaseAge: 0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - reselect@5.1.1
