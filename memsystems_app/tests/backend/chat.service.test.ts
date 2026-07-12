@@ -233,7 +233,7 @@ describe("NotebookChatService", () => {
       expect(args.system).not.toContain("Source:");
     });
 
-    it("onFinish persists assistant message with stripped citations and cited source IDs", async () => {
+    it("onFinish persists assistant message with cited source entries", async () => {
       const u = await seedUser();
       const notebook = await seedNotebook(u.id, { title: "Chat" });
       const source = await seedSource(notebook.id, {
@@ -260,7 +260,7 @@ describe("NotebookChatService", () => {
       const onFinish = args.onFinish;
       expect(onFinish).toBeDefined();
 
-      const responseText = `The capital is Paris [source:${source.id}] (France History)`;
+      const responseText = "The capital is Paris (France History)";
       await (onFinish as NonNullable<typeof onFinish>)({
         text: responseText,
         finishReason: "stop",
@@ -272,13 +272,15 @@ describe("NotebookChatService", () => {
       const assistantMsg = msgs[1];
       expect(assistantMsg.role).toBe("assistant");
 
-      // stripCitations removes [source:...] markers
-      expect(assistantMsg.content).toContain("The capital is Paris");
-      expect(assistantMsg.content).not.toContain("[source:");
-      // title-parenthesis citations are kept in content
-      expect(assistantMsg.content).toContain("(France History)");
+      expect(assistantMsg.content).toBe(
+        "The capital is Paris (France History)",
+      );
 
-      expect(assistantMsg.citedSourceIds).toContain(source.id);
+      expect(assistantMsg.citedSourceIds).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ sourceId: source.id, number: 1 }),
+        ]),
+      );
     });
 
     it("onFinish persists assistant message with reasoning if generated", async () => {

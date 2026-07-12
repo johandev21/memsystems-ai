@@ -46,7 +46,8 @@ export function ExpandedStudyMaterials({
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-  const [prevInitialMaterialId, setPrevInitialMaterialId] = useState(initialMaterialId);
+  const [prevInitialMaterialId, setPrevInitialMaterialId] =
+    useState(initialMaterialId);
   const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
 
   if (isOpen !== prevIsOpen || initialMaterialId !== prevInitialMaterialId) {

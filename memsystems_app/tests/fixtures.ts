@@ -51,13 +51,14 @@ export async function seedChatMessage(
     role: (typeof chatRoleEnum.enumValues)[number];
     content: string;
     createdAt?: Date;
-    citedSourceIds?: string[] | null;
+    citedSourceIds?:
+      | { sourceId: string; number: number; quote: string | null }[]
+      | null;
   },
 ): Promise<{ id: string }> {
   const [row] = await db
     .insert(notebookChatMessages)
     .values({
-      id: createId(),
       notebookId,
       role: input.role,
       content: input.content,

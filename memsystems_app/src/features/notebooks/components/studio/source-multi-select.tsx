@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { type Source, sourcesQueryOptions } from "@/lib/api-client/sources";

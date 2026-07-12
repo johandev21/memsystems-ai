@@ -369,7 +369,8 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
 
   // UX Interaction States using useReducer
   const [state, dispatch] = useReducer(flowReducer, {
-    selectedNodeId: content.rootId || (content.nodes && content.nodes[0]?.id) || null,
+    selectedNodeId:
+      content.rootId || (content.nodes && content.nodes[0]?.id) || null,
     collapsedNodeIds: new Set<string>(),
     focusMode: false,
     searchQuery: "",
@@ -384,7 +385,8 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     setPrevContent(content);
     dispatch({
       type: "RESET",
-      initialRoot: content.rootId || (content.nodes && content.nodes[0]?.id) || null,
+      initialRoot:
+        content.rootId || (content.nodes && content.nodes[0]?.id) || null,
     });
   }
 
@@ -392,13 +394,16 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     dispatch({ type: "SET_SELECTED_NODE_ID", id });
   }, []);
 
-  const setFocusMode = useCallback((modeOrFn: boolean | ((prev: boolean) => boolean)) => {
-    if (typeof modeOrFn === "function") {
-      dispatch({ type: "TOGGLE_FOCUS_MODE" });
-    } else {
-      dispatch({ type: "SET_FOCUS_MODE", mode: modeOrFn });
-    }
-  }, []);
+  const setFocusMode = useCallback(
+    (modeOrFn: boolean | ((prev: boolean) => boolean)) => {
+      if (typeof modeOrFn === "function") {
+        dispatch({ type: "TOGGLE_FOCUS_MODE" });
+      } else {
+        dispatch({ type: "SET_FOCUS_MODE", mode: modeOrFn });
+      }
+    },
+    [],
+  );
 
   const setSearchQuery = useCallback((query: string) => {
     dispatch({ type: "SET_SEARCH_QUERY", query });

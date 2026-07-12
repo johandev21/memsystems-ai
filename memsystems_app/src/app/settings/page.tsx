@@ -216,24 +216,23 @@ function OpenAiConnectionCard() {
               </div>
             )}
 
-            {connection.openai.ok &&
-              connection.openai.models.length > 0 && (
-                <div>
-                  <div className="text-xs font-medium text-muted-foreground mb-2">
-                    {t("availableModels")} ({connection.openai.models.length})
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {connection.openai.models.map((model) => (
-                      <span
-                        key={model.id}
-                        className="inline-flex items-center rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground"
-                      >
-                        {model.displayName}
-                      </span>
-                    ))}
-                  </div>
+            {connection.openai.ok && connection.openai.models.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  {t("availableModels")} ({connection.openai.models.length})
                 </div>
-              )}
+                <div className="flex flex-wrap gap-1.5">
+                  {connection.openai.models.map((model) => (
+                    <span
+                      key={model.id}
+                      className="inline-flex items-center rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground"
+                    >
+                      {model.displayName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : null}
       </CardContent>

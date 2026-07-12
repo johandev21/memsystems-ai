@@ -2,13 +2,13 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
-import { Marker, MarkerContent, MarkerIcon } from "@/components/chat/marker";
-import { MessageScrollerItem } from "@/components/chat/message-scroller";
+import type { CitedSourceDTO } from "@/lib/api-client/chat";
 import { AssistantMessage } from "./assistant-message";
 import { UserMessage } from "./user-message";
 
 export interface ChatMessageListProps {
   messages: UIMessage[];
+  citedSourcesMap: Map<string, CitedSourceDTO[]>;
   isThinking: boolean;
   onCopy: (text: string) => void;
   onRegenerate: () => void;
@@ -16,47 +16,40 @@ export interface ChatMessageListProps {
 
 export function ChatMessageList({
   messages,
+  citedSourcesMap,
   isThinking,
   onCopy,
   onRegenerate,
 }: ChatMessageListProps) {
   return (
-    <div className="w-full flex-1">
+    <>
       {messages.map((message, index) => {
         const isLast = index === messages.length - 1;
+        const citedSources = citedSourcesMap.get(message.id) ?? [];
         return (
-          <MessageScrollerItem
+          <MessageBubble
             key={message.id}
-            scrollAnchor={isLast && !isThinking}
-            className="mb-6"
-          >
-            <MessageBubble
-              message={message}
-              onCopy={onCopy}
-              onRegenerate={onRegenerate}
-              isLast={isLast}
-            />
-          </MessageScrollerItem>
+            message={message}
+            citedSources={citedSources}
+            onCopy={onCopy}
+            onRegenerate={onRegenerate}
+            isLast={isLast}
+          />
         );
       })}
       {isThinking && (
-        <MessageScrollerItem scrollAnchor={true} className="mb-6">
-          <Marker>
-            <MarkerIcon>
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            </MarkerIcon>
-            <MarkerContent className="shimmer text-[14px]">
-              Thinking...
-            </MarkerContent>
-          </Marker>
-        </MessageScrollerItem>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Thinking...</span>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 
 interface MessageBubbleProps {
   message: UIMessage;
+  citedSources: CitedSourceDTO[];
   onCopy: (text: string) => void;
   onRegenerate: () => void;
   isLast: boolean;
@@ -64,19 +57,19 @@ interface MessageBubbleProps {
 
 function MessageBubble({
   message,
+  citedSources,
   onCopy,
   onRegenerate,
   isLast,
 }: MessageBubbleProps) {
-  const isUser = message.role === "user";
-
-  if (isUser) {
+  if (message.role === "user") {
     return <UserMessage message={message} />;
   }
 
   return (
     <AssistantMessage
       message={message}
+      citedSources={citedSources}
       onCopy={onCopy}
       onRegenerate={onRegenerate}
       showRegenerate={isLast}

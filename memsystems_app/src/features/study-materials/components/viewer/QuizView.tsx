@@ -102,8 +102,7 @@ function QuizResultsReview({
           {questions.map((q, qi) => {
             const selectedIdx = selectedOptions[q.id];
             const isCorrect = selectedIdx === q.correctOptionIndex;
-            const isIncorrectSelected =
-              selectedIdx !== undefined && !isCorrect;
+            const isIncorrectSelected = selectedIdx !== undefined && !isCorrect;
 
             return (
               <div

@@ -1,7 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, Folder, FolderOpen, MoreVertical, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  Folder,
+  FolderOpen,
+  MoreVertical,
+  Trash2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";

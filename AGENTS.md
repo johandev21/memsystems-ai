@@ -38,6 +38,10 @@ Next.js App Router application at `memsystems_app/`. Single app (no monorepo).
 - **Test layout**: `tests/backend/` (12 files), `tests/component/` (15 files), `tests/db.ts` (helpers), `tests/fixtures.ts` (seeders).
 - **When to test**: Only run tests when implementing new features that change business logic. Skip for UI-only changes, refactors, or fixes with no behavioral change.
 
+## Quality
+
+- **React Doctor**: Run `npx react-doctor@latest` from `memsystems_app/` to scan for security, performance, and correctness issues. Aim for a score of **≥ 90**. Run with `--diff` to scan only changes. See [react.doctor/docs](https://react.doctor/docs/overview/quickstart) for full docs.
+
 ## Architecture
 
 - **Routes**: App Router `src/app/api/.../route.ts`

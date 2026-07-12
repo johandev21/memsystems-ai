@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, LazyMotion, domAnimation, m } from "motion/react";
+import { AnimatePresence, domAnimation, LazyMotion, m } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/branding/logo";

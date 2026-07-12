@@ -56,7 +56,7 @@ export function NotebookBanner({
   const focalY = Math.round((bannerFocalPoint?.y ?? 0.5) * 100);
 
   return (
-    <div className="relative w-full aspect-[3/1] overflow-hidden rounded-xl mb-6 select-none">
+    <div className="relative w-full aspect-3/1 overflow-hidden rounded-4xl border border-border mb-6 select-none">
       {hasBanner && !imageError ? (
         <Image
           src={bannerUrl ?? ""}
@@ -64,7 +64,7 @@ export function NotebookBanner({
           fill
           sizes="100vw"
           unoptimized
-          className="object-cover"
+          className="object-cover overflow-hidden"
           style={{ objectPosition: `${focalX}% ${focalY}%` }}
           onError={handleImageError}
           onLoad={handleImageLoad}
@@ -77,7 +77,7 @@ export function NotebookBanner({
         </div>
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 bg-background/60 backdrop-blur-md">
+      <div className="absolute bottom-0 inset-x-0 bg-background/70 rounded-b-4xl backdrop-blur-sm overflow-clip">
         <div className="flex items-center gap-4 px-6 py-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border/40 bg-background/40 text-foreground rounded-lg shadow-xs">
             <NotebookIcon name={icon} className="h-5 w-5" />

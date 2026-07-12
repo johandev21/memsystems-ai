@@ -20,8 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import type { FileTreeItem } from "./study-materials-tree";
 import { RESOURCE_ICONS } from "./resource-icons";
+import type { FileTreeItem } from "./study-materials-tree";
 
 export function FileTreeItemNode({
   item,

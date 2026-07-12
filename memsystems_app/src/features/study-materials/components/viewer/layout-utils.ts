@@ -166,8 +166,7 @@ export function getLayoutedElements(
       selectedNodeId === edge.sourceId || selectedNodeId === edge.targetId;
     const isEdgeFocused =
       !focusMode ||
-      (focusedNodeIds.has(edge.sourceId) &&
-        focusedNodeIds.has(edge.targetId));
+      (focusedNodeIds.has(edge.sourceId) && focusedNodeIds.has(edge.targetId));
 
     return [
       {

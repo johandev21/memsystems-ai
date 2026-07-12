@@ -1,6 +1,9 @@
 import type { UIMessage } from "@ai-sdk/react";
-import { Bubble, BubbleContent } from "@/components/chat/bubble";
-import { Message, MessageContent } from "@/components/chat/message";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
 
 const isTextPart = (
   part: UIMessage["parts"][number],
@@ -10,22 +13,15 @@ const isTextPart = (
 
 export function UserMessage({ message }: { message: UIMessage }) {
   return (
-    <Message align="end">
+    <Message from="user">
       <MessageContent>
-        <Bubble variant="default">
-          <BubbleContent className="px-4 py-2.5 text-[15px] font-medium">
-            {message.parts.map((part, index) =>
-              isTextPart(part) ? (
-                <p
-                  key={`${message.id}-${index}`}
-                  className="whitespace-pre-wrap"
-                >
-                  {part.text}
-                </p>
-              ) : null,
-            )}
-          </BubbleContent>
-        </Bubble>
+        {message.parts.map((part, index) =>
+          isTextPart(part) ? (
+            <MessageResponse key={`${message.id}-${index}`}>
+              {part.text}
+            </MessageResponse>
+          ) : null,
+        )}
       </MessageContent>
     </Message>
   );

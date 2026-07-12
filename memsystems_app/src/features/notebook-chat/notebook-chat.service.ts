@@ -31,7 +31,7 @@ Never treat source availability as permission to answer. Sources provide evidenc
 
 Avoid discussing retrieval mechanics unless the user asks. Do not mention loaded documents, source counts, indexing status, or internal IDs.
 
-When citing a source, refer to it by its title in parentheses at the end of the relevant sentence, e.g. (Ethics Definition). You may cite multiple sources. Never use internal source IDs or bracketed identifiers in your responses.
+When citing a source, refer to it by its exact title in parentheses at the end of the relevant sentence, e.g. (Ethics Definition). You may cite multiple sources. Use the exact title as provided — do not abbreviate or rephrase source titles.
 
 Prioritize helping the user over explaining system limitations.
 
@@ -43,25 +43,35 @@ FORMATTING RULES:
 
 CRITICAL OUTPUT RULES (do not violate):
 - Respond ONLY to the most recent user message. Do not simulate, anticipate, or fabricate additional user turns, follow-up questions, or a multi-turn conversation.
-- Produce a single assistant response. Do not write any text that looks like a "User:", "Q:", "Question:", "Human:", or any other speaker label, except the citations described above.
+- Produce a single assistant response. Do not write any text that looks like a "User:", "Q:", "Question:", "Human:", or any other speaker label.
+- Never use square-bracket numbered markers like [1], [2] — use parenthetical titles as described above.
 - Do not ask the user a question in the same turn as your answer unless the user's request explicitly requires it. If you do ask, ask at most one short clarifying question at the end of the response.
 - Never end your response with a prompt that invites the user to keep talking, then answer it yourself.`;
+
+interface CitedSourceEntry {
+  sourceId: string;
+  number: number;
+  quote: string | null;
+}
 
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   reasoning?: string | null;
-  citedSourceIds: string[] | null;
+  citedSourceIds: CitedSourceEntry[] | null;
   citedSources: CitedSourceMeta[];
   createdAt: Date;
 }
 
 interface CitedSourceMeta {
   id: string;
+  number: number;
   title: string;
   kind: string;
   url: string | null;
+  description: string | null;
+  quote: string | null;
 }
 
 export interface SendInput {
@@ -87,8 +97,16 @@ export class NotebookChatService {
     logCtx.info("listed messages", { count: rows.length });
 
     const allCitedIds = [
-      ...new Set(rows.flatMap((r) => r.citedSourceIds ?? [])),
+      ...new Set(
+        rows.flatMap((r) => {
+          const raw = r.citedSourceIds ?? [];
+          return raw.map((e) =>
+            typeof e === "string" ? e : (e as CitedSourceEntry).sourceId,
+          );
+        }),
+      ),
     ];
+
     const citedMetaMap = new Map<string, CitedSourceMeta>();
     if (allCitedIds.length > 0) {
       const sourceRows = await db
@@ -101,20 +119,39 @@ export class NotebookChatService {
         .from(sources)
         .where(inArray(sources.id, allCitedIds));
       for (const src of sourceRows) {
-        citedMetaMap.set(src.id, src);
+        citedMetaMap.set(src.id, {
+          id: src.id,
+          number: 0,
+          title: src.title,
+          kind: src.kind,
+          url: src.url,
+          description: null,
+          quote: null,
+        });
       }
     }
 
     return rows.map((r) => {
-      const citedSources: CitedSourceMeta[] = (r.citedSourceIds ?? [])
-        .map((id) => citedMetaMap.get(id))
+      const rawEntries = (r.citedSourceIds ?? []) as (
+        | string
+        | CitedSourceEntry
+      )[];
+      const entries: CitedSourceEntry[] = rawEntries.map((e) =>
+        typeof e === "string" ? { sourceId: e, number: 0, quote: null } : e,
+      );
+      const citedSources: CitedSourceMeta[] = entries
+        .map((e) => {
+          const meta = citedMetaMap.get(e.sourceId);
+          if (!meta) return null;
+          return { ...meta, number: e.number, quote: e.quote };
+        })
         .filter((s): s is CitedSourceMeta => !!s);
       return {
         id: r.id,
         role: r.role,
         content: r.content,
         reasoning: r.reasoning,
-        citedSourceIds: r.citedSourceIds,
+        citedSourceIds: entries,
         citedSources,
         createdAt: r.createdAt,
       };
@@ -235,6 +272,15 @@ export class NotebookChatService {
       title: c.title,
     }));
 
+    // Build a map of sourceId → best chunk content for quotes
+    const chunkQuotes = new Map<string, string>();
+    for (const chunk of retrievedChunks) {
+      const existing = chunkQuotes.get(chunk.sourceId);
+      if (!existing || chunk.score > existing.length) {
+        chunkQuotes.set(chunk.sourceId, chunk.content);
+      }
+    }
+
     const messagesForLlm = history.map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,
@@ -282,11 +328,22 @@ export class NotebookChatService {
             textPreview: text.slice(0, 200),
             hasReasoning: !!reasoningString,
           });
+
           const citedSourceIds = this.extractCitations(
             text,
             sourceTextsForCitations,
           );
-          const cleanContent = this.stripCitations(text);
+
+          // Assign sequential numbers and attach quotes
+          const citedEntries: CitedSourceEntry[] = citedSourceIds.map(
+            (sourceId, index) => ({
+              sourceId,
+              number: index + 1,
+              quote: chunkQuotes.get(sourceId)?.slice(0, 500) ?? null,
+            }),
+          );
+
+          const cleanContent = text;
 
           try {
             const [saved] = await db
@@ -296,13 +353,13 @@ export class NotebookChatService {
                 role: "assistant",
                 content: cleanContent,
                 reasoning: reasoningString,
-                citedSourceIds,
+                citedSourceIds: citedEntries,
               })
               .returning();
             logCtx.info("assistant message persisted", {
               messageId: saved.id,
               contentLength: saved.content.length,
-              citedSourceIds,
+              citedSourceIds: citedEntries,
             });
           } catch (dbError) {
             logCtx.error("failed to persist assistant message", {
@@ -374,9 +431,5 @@ export class NotebookChatService {
     }
 
     return [...citedIds];
-  }
-
-  private stripCitations(text: string): string {
-    return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
   }
 }

@@ -2,9 +2,12 @@ import { apiDelete, createQueryOptions } from "./factory";
 
 export interface CitedSourceDTO {
   id: string;
+  number: number;
   title: string;
   kind: string;
   url: string | null;
+  description: string | null;
+  quote: string | null;
 }
 
 export interface ChatMessageDTO {
@@ -12,9 +15,15 @@ export interface ChatMessageDTO {
   role: "user" | "assistant";
   content: string;
   reasoning?: string | null;
-  citedSourceIds: string[] | null;
+  citedSourceIds: CitedSourceEntry[] | null;
   citedSources: CitedSourceDTO[];
   createdAt: string;
+}
+
+export interface CitedSourceEntry {
+  sourceId: string;
+  number: number;
+  quote: string | null;
 }
 
 export const chatMessagesQueryOptions = (notebookId: string) =>

@@ -10,10 +10,7 @@ export const POST = (
   context: { params: Promise<{ id: string }> },
 ) =>
   withRoute(req, context, async (req, { params, session }) => {
-    const [{ id }, formData] = await Promise.all([
-      params,
-      req.formData(),
-    ]);
+    const [{ id }, formData] = await Promise.all([params, req.formData()]);
     const file = formData.get("file") as File | null;
     if (!file) throw new BadRequestError("File is required");
     const title = formData.get("title") as string | undefined;

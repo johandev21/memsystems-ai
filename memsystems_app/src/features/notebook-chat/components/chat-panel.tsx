@@ -1,12 +1,10 @@
 "use client";
 
 import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "@/components/chat/message-scroller";
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
 import { useChatPanel } from "../hooks/use-chat-panel";
@@ -23,6 +21,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     selectedModel,
     handleModelChange,
     messages,
+    citedSourcesMap,
     status,
     isLoading,
     messageCount,
@@ -45,40 +44,35 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   return (
     <div className="flex flex-1 h-full w-full flex-col min-h-0">
       <div className="mx-auto w-full max-w-4xl flex flex-col min-h-0 flex-1">
-        <MessageScrollerProvider autoScroll>
-          <MessageScroller className="flex-1 min-h-0">
-            <MessageScrollerViewport>
-              <MessageScrollerContent className="p-2 min-h-full flex flex-col justify-start gap-0">
-                <NotebookBanner
-                  title={notebook.title}
-                  icon={notebook.icon}
-                  bannerUrl={notebook.bannerUrl}
-                  bannerFocalPoint={notebook.bannerFocalPoint}
-                  updatedAt={notebook.updatedAt}
-                  isUntitled={showBannerAsUntitled}
-                />
+        <Conversation className="flex-1 min-h-0">
+          <ConversationContent>
+            <NotebookBanner
+              title={notebook.title}
+              icon={notebook.icon}
+              bannerUrl={notebook.bannerUrl}
+              bannerFocalPoint={notebook.bannerFocalPoint}
+              updatedAt={notebook.updatedAt}
+              isUntitled={showBannerAsUntitled}
+            />
 
-                <div className="w-full flex-1 flex flex-col justify-start">
-                  {hasMessages ? (
-                    <ChatMessageList
-                      messages={messages}
-                      isThinking={status === "submitted"}
-                      onCopy={handleCopy}
-                      onRegenerate={handleRegenerate}
-                    />
-                  ) : (
-                    <ChatEmptyState
-                      notebookTitle={notebook.title}
-                      description={notebook.description}
-                      isUntitled={isUntitled}
-                    />
-                  )}
-                </div>
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            <MessageScrollerButton direction="end" />
-          </MessageScroller>
-        </MessageScrollerProvider>
+            {hasMessages ? (
+              <ChatMessageList
+                messages={messages}
+                citedSourcesMap={citedSourcesMap}
+                isThinking={status === "submitted"}
+                onCopy={handleCopy}
+                onRegenerate={handleRegenerate}
+              />
+            ) : (
+              <ChatEmptyState
+                notebookTitle={notebook.title}
+                description={notebook.description}
+                isUntitled={isUntitled}
+              />
+            )}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
 
         <div className="shrink-0 p-2">
           <ClearHistoryDialog

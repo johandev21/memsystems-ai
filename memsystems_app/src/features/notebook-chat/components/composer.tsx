@@ -1,19 +1,37 @@
 "use client";
 
-import { ArrowUp, Eraser, Square } from "lucide-react";
+import { CheckIcon, Eraser } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { FormEvent, RefObject } from "react";
+import { type RefObject, useMemo, useState } from "react";
+import {
+  ModelSelector,
+  ModelSelectorContent,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorInput,
+  ModelSelectorItem,
+  ModelSelectorList,
+  ModelSelectorLogo,
+  ModelSelectorName,
+  ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputButton,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ModelSelector } from "@/features/notebooks/components/model-selector";
 import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import type { ModelOption } from "@/lib/api-client/models";
-import { cn } from "@/lib/utils";
 
 export interface ComposerProps {
   input: string;
   onInputChange: (value: string) => void;
-  onSubmit: (event?: FormEvent) => void;
+  onSubmit: (text: string) => void;
   isLoading: boolean;
   onStop: () => void;
   models: ModelOption[];
@@ -24,6 +42,13 @@ export interface ComposerProps {
   canClearHistory: boolean;
   isClearingHistory: boolean;
 }
+
+const providerNames: Record<string, string> = {
+  openai: "OpenAI",
+  opencode: "OpenCode",
+  google: "Google",
+  anthropic: "Anthropic",
+};
 
 export function Composer({
   input,
@@ -42,96 +67,140 @@ export function Composer({
   const t = useTranslations("Notebook");
   useTextareaAutosize({ ref: textareaRef, value: input });
 
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
   const hasInput = input.trim().length > 0;
 
-  return (
-    <div className="w-full">
-      <form onSubmit={onSubmit}>
-        <div className="flex w-full flex-col bg-composer-bg p-2 shadow-sm border border-border/40 rounded-xl transition-shadow focus-within:shadow-md focus-within:ring-4 focus-within:ring-ring/10">
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(event) => onInputChange(event.target.value)}
-            placeholder={t("typeMessage")}
-            className="min-h-[60px] resize-none scrollbar-width-thin scrollbar-color-[var(--border)_transparent] field-sizing-none border-none bg-transparent dark:bg-transparent px-4 py-3 text-[15px] placeholder:text-muted-foreground/70 focus-visible:border-transparent focus-visible:ring-0 focus:outline-none"
-            rows={1}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                onSubmit();
-              }
-            }}
-          />
+  const handleSubmit = ({ text }: { text: string }) => {
+    if (text.trim()) {
+      onSubmit(text);
+    }
+  };
 
-          <div className="flex items-center justify-between px-2 pb-1 pt-2">
-            <div className="flex items-center gap-1.5">
-              <ModelSelector
-                models={models}
-                selectedModel={selectedModel}
-                onModelChange={onModelChange}
-              />
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                onClick={onClearHistory}
-                disabled={!canClearHistory || isClearingHistory}
-                aria-label={t("clearChatHistory")}
-                title={t("clearChatHistory")}
-                className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
-              >
-                <Eraser className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <ComposerSubmitButton
-              isLoading={isLoading}
-              onStop={onStop}
-              hasInput={hasInput}
-            />
-          </div>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-interface ComposerSubmitButtonProps {
-  isLoading: boolean;
-  onStop: () => void;
-  hasInput: boolean;
-}
-
-function ComposerSubmitButton({
-  isLoading,
-  onStop,
-  hasInput,
-}: ComposerSubmitButtonProps) {
-  if (isLoading) {
-    return (
-      <Button
-        type="button"
-        size="icon"
-        onClick={onStop}
-        className="h-9 w-9 shrink-0 bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-sm cursor-pointer"
-      >
-        <Square className="h-4 w-4" />
-      </Button>
+  const filteredModels = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return models;
+    return models.filter(
+      (m) =>
+        m.displayName.toLowerCase().includes(query) ||
+        m.id.toLowerCase().includes(query),
     );
-  }
+  }, [models, search]);
+
+  const groupedModels = useMemo(() => {
+    const groups: Record<string, ModelOption[]> = {};
+    for (const m of filteredModels) {
+      const provider = m.id.split("/")[0] || "openai";
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(m);
+    }
+    return groups;
+  }, [filteredModels]);
+
+  const activeModelDetails = useMemo(
+    () => models.find((m) => m.id === selectedModel),
+    [models, selectedModel],
+  );
+
+  const activeProvider = useMemo(() => {
+    return selectedModel.split("/")[0] || "openai";
+  }, [selectedModel]);
 
   return (
-    <Button
-      type="submit"
-      size="icon"
-      className={cn(
-        "h-9 w-9 shrink-0 transition-all shadow-sm cursor-pointer",
-        hasInput
-          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-          : "bg-muted text-muted-foreground hover:bg-muted/80",
-      )}
+    <PromptInput
+      onSubmit={handleSubmit}
+      className="w-full [&_[data-slot=input-group]]:flex-col [&_[data-slot=input-group]]:items-stretch [&_[data-slot=input-group]]:p-2 [&_[data-slot=input-group]]:pb-1.5"
     >
-      <ArrowUp className="h-4 w-4" />
-    </Button>
+      <PromptInputBody>
+        <PromptInputTextarea
+          ref={textareaRef}
+          value={input}
+          onChange={(e) => onInputChange(e.currentTarget.value)}
+          placeholder={t("typeMessage")}
+          className="min-h-[44px] max-h-[200px] px-2 py-1 text-[14.5px] border-0 focus:ring-0 focus-visible:ring-0"
+        />
+      </PromptInputBody>
+      <PromptInputFooter className="px-1 pt-1 pb-0.5">
+        <PromptInputTools>
+          <ModelSelector
+            open={modelSelectorOpen}
+            onOpenChange={setModelSelectorOpen}
+          >
+            <ModelSelectorTrigger
+              render={
+                <PromptInputButton className="flex items-center gap-2 cursor-pointer transition-colors hover:bg-muted/60 h-8 px-2 text-xs">
+                  <ModelSelectorLogo provider={activeProvider} />
+                  <ModelSelectorName>
+                    {activeModelDetails?.displayName || selectedModel}
+                  </ModelSelectorName>
+                </PromptInputButton>
+              }
+            />
+            <ModelSelectorContent title={t("searchModels")}>
+              <ModelSelectorInput
+                placeholder={t("searchModels")}
+                value={search}
+                onValueChange={setSearch}
+              />
+              <ModelSelectorList>
+                <ModelSelectorEmpty>{t("noModelsFound")}</ModelSelectorEmpty>
+                {Object.entries(groupedModels).map(
+                  ([provider, providerModels]) => {
+                    const providerName =
+                      providerNames[provider] ||
+                      provider.charAt(0).toUpperCase() + provider.slice(1);
+                    return (
+                      <ModelSelectorGroup heading={providerName} key={provider}>
+                        {providerModels.map((m) => (
+                          <ModelSelectorItem
+                            key={m.id}
+                            value={m.id}
+                            onSelect={() => {
+                              onModelChange(m.id);
+                              setModelSelectorOpen(false);
+                            }}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <ModelSelectorLogo provider={provider} />
+                            <ModelSelectorName>
+                              {m.displayName}
+                            </ModelSelectorName>
+                            {selectedModel === m.id ? (
+                              <CheckIcon className="ml-auto size-4" />
+                            ) : (
+                              <div className="ml-auto size-4" />
+                            )}
+                          </ModelSelectorItem>
+                        ))}
+                      </ModelSelectorGroup>
+                    );
+                  },
+                )}
+              </ModelSelectorList>
+            </ModelSelectorContent>
+          </ModelSelector>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={onClearHistory}
+            disabled={!canClearHistory || isClearingHistory}
+            aria-label={t("clearChatHistory")}
+            title={t("clearChatHistory")}
+            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
+          >
+            <Eraser className="h-4 w-4" />
+          </Button>
+        </PromptInputTools>
+        <PromptInputSubmit
+          status={isLoading ? "streaming" : "ready"}
+          onStop={onStop}
+          disabled={!hasInput && !isLoading}
+        />
+      </PromptInputFooter>
+    </PromptInput>
   );
 }

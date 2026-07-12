@@ -9,12 +9,12 @@ import {
 } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { useTranslations } from "next-intl";
-import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useConnectionStatus } from "@/features/ai";
 import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
 import {
+  type CitedSourceDTO,
   chatMessagesQueryOptions,
   clearChatHistory,
 } from "@/lib/api-client/chat";
@@ -103,6 +103,16 @@ export function useChatPanel(notebookId: string) {
     [chatHistory],
   );
 
+  const citedSourcesMap = useMemo(() => {
+    const map = new Map<string, CitedSourceDTO[]>();
+    for (const msg of chatHistory) {
+      if (msg.citedSources?.length) {
+        map.set(msg.id, msg.citedSources);
+      }
+    }
+    return map;
+  }, [chatHistory]);
+
   useEffect(() => {
     logCtx.info("chat history loaded", { count: chatHistory.length });
   }, [chatHistory.length, logCtx]);
@@ -122,10 +132,17 @@ export function useChatPanel(notebookId: string) {
     useChat({
       transport,
       messages: initialMessages,
-      onFinish: ({ isError }) => {
+      onFinish: async ({ isError }) => {
         logCtx.info("useChat stream finished", { isError });
         if (!isError) {
-          invalidateNotebookCaches();
+          await queryClient.refetchQueries({
+            queryKey: ["chat", notebookId, "messages"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["notebooks", notebookId],
+          });
+          queryClient.invalidateQueries({ queryKey: ["notebooks", "home"] });
+          queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
         }
       },
       onError: (error) => {
@@ -169,15 +186,13 @@ export function useChatPanel(notebookId: string) {
   });
 
   const handleSubmit = useCallback(
-    (event?: FormEvent) => {
-      event?.preventDefault();
-      const text = input.trim();
-      if (!text || isLoading) return;
+    (text: string) => {
+      if (!text.trim() || isLoading) return;
       logCtx.info("user submitted message", { length: text.length });
       setInput("");
       sendMessage({ text });
     },
-    [input, isLoading, sendMessage, logCtx],
+    [isLoading, sendMessage, logCtx],
   );
 
   const handleCopy = useCallback(
@@ -201,6 +216,7 @@ export function useChatPanel(notebookId: string) {
     selectedModel,
     handleModelChange,
     messages,
+    citedSourcesMap,
     status,
     isLoading,
     messageCount,

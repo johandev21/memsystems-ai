@@ -9,7 +9,7 @@ import {
   Play,
   RotateCcw,
 } from "lucide-react";
-import { AnimatePresence, LazyMotion, domAnimation, m } from "motion/react";
+import { AnimatePresence, domAnimation, LazyMotion, m } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -325,7 +325,11 @@ export function SlideDeckView({
         {/* Slide Canvas */}
         <div className="flex-1 w-full overflow-hidden relative flex items-center justify-center px-8 md:px-16 py-12 select-none">
           <LazyMotion features={domAnimation}>
-            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <AnimatePresence
+              initial={false}
+              custom={direction}
+              mode="popLayout"
+            >
               <m.div
                 key={currentIdx}
                 custom={direction}
@@ -333,7 +337,11 @@ export function SlideDeckView({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: "tween", ease: "easeInOut", duration: 0.35 }}
+                transition={{
+                  type: "tween",
+                  ease: "easeInOut",
+                  duration: 0.35,
+                }}
                 className="w-full flex flex-col items-center text-center justify-center space-y-6"
               >
                 <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-foreground select-text">

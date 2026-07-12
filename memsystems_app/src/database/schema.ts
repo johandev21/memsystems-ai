@@ -192,7 +192,10 @@ export const notebookChatMessages = pgTable(
     role: chatRoleEnum("role").notNull(),
     content: text("content").notNull(),
     reasoning: text("reasoning"),
-    citedSourceIds: jsonb("cited_source_ids").$type<string[]>(),
+    citedSourceIds:
+      jsonb("cited_source_ids").$type<
+        { sourceId: string; number: number; quote: string | null }[]
+      >(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

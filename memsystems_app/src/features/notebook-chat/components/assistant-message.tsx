@@ -1,20 +1,22 @@
 "use client";
 
 import type { UIMessage } from "@ai-sdk/react";
-import { code } from "@streamdown/code";
-import { Streamdown } from "streamdown";
-import "streamdown/styles.css";
-import { Bubble, BubbleContent } from "@/components/chat/bubble";
 import {
   Message,
   MessageContent,
-  MessageFooter,
-} from "@/components/chat/message";
-import { MessageActions } from "./message-actions";
-import { streamdownComponents } from "./streamdown-components";
+  MessageResponse,
+  type MessageResponseProps,
+} from "@/components/ai-elements/message";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning";
+import type { CitedSourceDTO } from "@/lib/api-client/chat";
 
 interface AssistantMessageProps {
   message: UIMessage;
+  citedSources: CitedSourceDTO[];
   onCopy: (text: string) => void;
   onRegenerate: () => void;
   showRegenerate: boolean;
@@ -27,74 +29,71 @@ function isTextPart(part: UIMessage["parts"][number]): part is TextPart {
   return candidate.type === "text" && typeof candidate.text === "string";
 }
 
-function sanitizeCitations(text: string): string {
-  return text.replace(/\[source:[a-zA-Z0-9]+\]/g, "").trim();
+function getReasoningText(parts: UIMessage["parts"]): string {
+  return parts
+    .filter(
+      (p): p is { type: "reasoning"; text: string } => p.type === "reasoning",
+    )
+    .map((p) => p.text)
+    .join("\n\n");
 }
 
-export function AssistantMessage({
-  message,
-  onCopy,
-  onRegenerate,
-  showRegenerate,
-}: AssistantMessageProps) {
+type MessageComponents = NonNullable<MessageResponseProps["components"]>;
+
+const messageComponents: MessageComponents = {
+  a: (props) => (
+    <a
+      {...props}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary font-medium underline underline-offset-[3px] decoration-1 transition-opacity hover:opacity-80"
+    />
+  ),
+};
+
+export function AssistantMessage({ message }: AssistantMessageProps) {
   const isStreaming = message.parts.some(
     (part) => isTextPart(part) && part.state === "streaming",
   );
-  const fullText = message.parts.reduce((acc, part) => {
-    if (isTextPart(part)) {
-      return acc + sanitizeCitations(part.text ?? "");
-    }
-    return acc;
-  }, "");
 
-  if (fullText.trim() === "") {
+  const reasoningText = getReasoningText(message.parts);
+  const hasReasoning = reasoningText.length > 0;
+
+  const lastPart = message.parts.at(-1);
+  const isReasoningStreaming = isStreaming && lastPart?.type === "reasoning";
+
+  const textParts = message.parts.filter(isTextPart);
+
+  const isEmpty = textParts.length === 0 && !hasReasoning;
+
+  if (isEmpty) {
     return (
-      <Message align="start">
+      <Message from="assistant">
         <MessageContent>
-          <Bubble variant="ghost" className="w-full max-w-full">
-            <BubbleContent className="p-0">
-              <div className="flex flex-col gap-2.5 animate-pulse">
-                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[85%]" />
-                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[60%]" />
-                <div className="h-4 bg-muted-foreground/20 rounded-xl w-[40%]" />
-              </div>
-            </BubbleContent>
-          </Bubble>
+          <MessageResponse> </MessageResponse>
         </MessageContent>
       </Message>
     );
   }
 
   return (
-    <Message align="start">
+    <Message from="assistant">
       <MessageContent>
-        <Bubble variant="ghost" className="group w-full max-w-full">
-          <BubbleContent className="p-0 flex flex-col gap-2">
-            {message.parts.map((part, index) =>
-              isTextPart(part) ? (
-                <div key={`${message.id}-${index}`} className="sd-root">
-                  <Streamdown
-                    shikiTheme={["github-light", "github-dark"]}
-                    components={streamdownComponents}
-                    plugins={{ code }}
-                  >
-                    {sanitizeCitations(part.text)}
-                  </Streamdown>
-                </div>
-              ) : null,
-            )}
-            {!isStreaming && (
-              <MessageFooter className="px-0 mt-1">
-                <MessageActions
-                  fullText={fullText}
-                  onCopy={onCopy}
-                  onRegenerate={onRegenerate}
-                  showRegenerate={showRegenerate}
-                />
-              </MessageFooter>
-            )}
-          </BubbleContent>
-        </Bubble>
+        {hasReasoning && (
+          <Reasoning isStreaming={isReasoningStreaming}>
+            <ReasoningTrigger />
+            <ReasoningContent>{reasoningText}</ReasoningContent>
+          </Reasoning>
+        )}
+
+        {textParts.map((part, index) => (
+          <MessageResponse
+            key={`${message.id}-${index}`}
+            components={messageComponents}
+          >
+            {part.text ?? ""}
+          </MessageResponse>
+        ))}
       </MessageContent>
     </Message>
   );

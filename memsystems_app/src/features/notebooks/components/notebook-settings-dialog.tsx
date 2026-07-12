@@ -19,7 +19,7 @@ import {
 import { dynamicIconImports } from "lucide-react/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { toast } from "sonner";
 import { NotebookIcon } from "@/components/branding/notebook-icon";
 import {
@@ -188,10 +188,9 @@ function BannerUploaderSection({
           id="banner-input"
           ref={fileInputRef}
           type="file"
-          accept={[
-            ...ACCEPTED_IMAGE_TYPES,
-            ...ACCEPTED_IMAGE_EXTENSIONS,
-          ].join(",")}
+          accept={[...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_IMAGE_EXTENSIONS].join(
+            ",",
+          )}
           className="sr-only"
           onChange={handleInputChange}
         />
@@ -724,7 +723,9 @@ function NotebookSettingsForm({
     }
   };
 
-  const handleInputChangeWithError = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChangeWithError = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       handleFileSelectWithError(file);
