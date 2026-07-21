@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { NotebookCardPreview } from "@/features/notebooks";
+import { NotebookCardPreview } from "@/features/notebooks/components/shared/notebook-card-preview";
 
 describe("NotebookCardPreview", () => {
   afterEach(() => {

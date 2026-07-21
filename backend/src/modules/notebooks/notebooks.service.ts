@@ -1,15 +1,19 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { createHash } from "node:crypto";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { notebooks } from "../../database/schema";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/domain-error";
-import { DRIZZLE } from "../database/database.module";
-import { StorageService } from "../storage/storage.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { createHash } from 'node:crypto';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { notebooks } from '../../database/schema';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/domain-error';
+import { DRIZZLE } from '../database/database.module';
+import { StorageService } from '../storage/storage.service';
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_BANNER_BYTES = 2 * 1024 * 1024;
 const BANNER_PRESIGN_TTL = 86400;
 
@@ -44,8 +48,8 @@ function toResponse(nb: typeof notebooks.$inferSelect): NotebookResponse {
     id: nb.id,
     userId: nb.userId,
     title: nb.title,
-    description: nb.description ?? "",
-    icon: nb.icon ?? "notebook",
+    description: nb.description ?? '',
+    icon: nb.icon ?? 'notebook',
     banner: nb.banner,
     bannerUrl: null,
     bannerFocalPoint: nb.bannerFocalPoint ?? null,
@@ -55,8 +59,8 @@ function toResponse(nb: typeof notebooks.$inferSelect): NotebookResponse {
 }
 
 function pickExtension(originalName: string): string {
-  const idx = originalName.lastIndexOf(".");
-  if (idx === -1 || idx === originalName.length - 1) return "";
+  const idx = originalName.lastIndexOf('.');
+  if (idx === -1 || idx === originalName.length - 1) return '';
   return originalName.slice(idx).toLowerCase();
 }
 
@@ -75,10 +79,10 @@ export class NotebooksService {
       .where(eq(notebooks.id, notebookId))
       .limit(1);
     if (!notebook) {
-      throw new NotFoundError("Notebook");
+      throw new NotFoundError('Notebook');
     }
     if (notebook.userId !== userId) {
-      throw new ForbiddenError("Notebook does not belong to user");
+      throw new ForbiddenError('Notebook does not belong to user');
     }
   }
 
@@ -142,7 +146,7 @@ export class NotebooksService {
       .from(notebooks)
       .where(and(eq(notebooks.id, id), eq(notebooks.userId, userId)));
     if (!row) {
-      throw new NotFoundError("Notebook");
+      throw new NotFoundError('Notebook');
     }
     return this.formatNotebook(row);
   }
@@ -153,8 +157,8 @@ export class NotebooksService {
       .values({
         userId,
         title: input.title,
-        description: input.description?.trim().slice(0, 500) ?? "",
-        icon: input.icon?.trim().slice(0, 50) ?? "notebook",
+        description: input.description?.trim().slice(0, 500) ?? '',
+        icon: input.icon?.trim().slice(0, 50) ?? 'notebook',
       })
       .returning();
     return toResponse(row);
@@ -183,11 +187,14 @@ export class NotebooksService {
       .where(and(eq(notebooks.id, id), eq(notebooks.userId, userId)))
       .returning();
     if (!row) {
-      throw new NotFoundError("Notebook");
+      throw new NotFoundError('Notebook');
     }
     const res = toResponse(row);
     res.bannerUrl = row.banner
-      ? await this.storageService.presignDownload(row.banner, BANNER_PRESIGN_TTL)
+      ? await this.storageService.presignDownload(
+          row.banner,
+          BANNER_PRESIGN_TTL,
+        )
       : null;
     return res;
   }
@@ -198,7 +205,7 @@ export class NotebooksService {
       .from(notebooks)
       .where(and(eq(notebooks.id, id), eq(notebooks.userId, userId)));
     if (!row) {
-      throw new NotFoundError("Notebook");
+      throw new NotFoundError('Notebook');
     }
     if (row.banner) {
       await this.storageService.deleteObject(row.banner).catch(() => {});
@@ -243,22 +250,26 @@ export class NotebooksService {
     await this.assertNotebookOwner(userId, notebookId);
 
     if (fileBuffer.length === 0) {
-      throw new BadRequestError("Uploaded file is empty");
+      throw new BadRequestError('Uploaded file is empty');
     }
     if (fileBuffer.length > MAX_BANNER_BYTES) {
-      throw new BadRequestError("Banner image exceeds maximum size of 2 MB");
+      throw new BadRequestError('Banner image exceeds maximum size of 2 MB');
     }
     if (!ACCEPTED_IMAGE_TYPES.includes(fileType)) {
       throw new BadRequestError(
-        `Unsupported file type: ${fileType || "unknown"}. Accepted: JPEG, PNG, WebP`,
+        `Unsupported file type: ${fileType || 'unknown'}. Accepted: JPEG, PNG, WebP`,
       );
     }
 
-    const sha256 = createHash("sha256").update(fileBuffer).digest("hex");
+    const sha256 = createHash('sha256').update(fileBuffer).digest('hex');
     const ext = pickExtension(fileName);
     const key = `banners/${sha256}${ext}`;
 
-    await this.storageService.putObject({ key, body: fileBuffer, contentType: fileType });
+    await this.storageService.putObject({
+      key,
+      body: fileBuffer,
+      contentType: fileType,
+    });
 
     const [existing] = await this.db
       .select({ banner: notebooks.banner })
@@ -276,7 +287,10 @@ export class NotebooksService {
       .returning();
 
     const res = toResponse(row);
-    res.bannerUrl = await this.storageService.presignDownload(key, BANNER_PRESIGN_TTL);
+    res.bannerUrl = await this.storageService.presignDownload(
+      key,
+      BANNER_PRESIGN_TTL,
+    );
     return res;
   }
 }

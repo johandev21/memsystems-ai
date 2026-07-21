@@ -1,13 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { createId } from "@paralleldrive/cuid2";
-import { eq, sql } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { sourceChunks, sources } from "../../database/schema";
-import { DRIZZLE } from "../database/database.module";
-import { ChunkingService } from "./chunking.service";
-import { EmbeddingService } from "./embedding.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { createId } from '@paralleldrive/cuid2';
+import { eq, sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { sourceChunks, sources } from '../../database/schema';
+import { DRIZZLE } from '../database/database.module';
+import { ChunkingService } from './chunking.service';
+import { EmbeddingService } from './embedding.service';
 
 @Injectable()
 export class IndexingService {
@@ -31,7 +31,9 @@ export class IndexingService {
 
     if (!source) return;
 
-    await this.db.delete(sourceChunks).where(eq(sourceChunks.sourceId, sourceId));
+    await this.db
+      .delete(sourceChunks)
+      .where(eq(sourceChunks.sourceId, sourceId));
 
     const chunks = this.chunkingService.chunkSource(source);
     if (chunks.length === 0) return;
@@ -48,7 +50,7 @@ export class IndexingService {
         const embedding = embeddings[i];
         const id = createId();
 
-        const vectorLiteral = `[${embedding.join(",")}]`;
+        const vectorLiteral = `[${embedding.join(',')}]`;
 
         await tx.execute(sql`
           INSERT INTO source_chunks (id, source_id, notebook_id, chunk_index, content, embedding)
@@ -59,7 +61,9 @@ export class IndexingService {
   }
 
   async deleteSourceChunks(sourceId: string): Promise<void> {
-    await this.db.delete(sourceChunks).where(eq(sourceChunks.sourceId, sourceId));
+    await this.db
+      .delete(sourceChunks)
+      .where(eq(sourceChunks.sourceId, sourceId));
   }
 
   async reindexNotebook(notebookId: string, userId: string): Promise<void> {

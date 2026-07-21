@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { createHmac, timingSafeEqual } from "node:crypto";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, resolve, sep } from "node:path";
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { dirname, resolve, sep } from 'node:path';
 
 export interface UploadInput {
   key: string;
@@ -23,17 +23,19 @@ export class StorageService {
   private s3Bucket: string | null = null;
 
   constructor(private readonly configService: ConfigService) {
-    const endpoint = this.configService.get<string>("S3_ENDPOINT");
+    const endpoint = this.configService.get<string>('S3_ENDPOINT');
     if (endpoint) {
-      this.s3Bucket = this.configService.get<string>("S3_BUCKET") || "";
+      this.s3Bucket = this.configService.get<string>('S3_BUCKET') || '';
       this.s3Client = new S3Client({
         endpoint,
-        region: this.configService.get<string>("S3_REGION") || "us-east-1",
+        region: this.configService.get<string>('S3_REGION') || 'us-east-1',
         credentials: {
-          accessKeyId: this.configService.get<string>("S3_ACCESS_KEY_ID") || "",
-          secretAccessKey: this.configService.get<string>("S3_SECRET_ACCESS_KEY") || "",
+          accessKeyId: this.configService.get<string>('S3_ACCESS_KEY_ID') || '',
+          secretAccessKey:
+            this.configService.get<string>('S3_SECRET_ACCESS_KEY') || '',
         },
-        forcePathStyle: this.configService.get<string>("S3_FORCE_PATH_STYLE") === "true",
+        forcePathStyle:
+          this.configService.get<string>('S3_FORCE_PATH_STYLE') === 'true',
       });
     }
   }
@@ -43,7 +45,9 @@ export class StorageService {
   }
 
   private getLocalStorageRoot(): string {
-    const configured = this.configService.get<string>("DEV_STORAGE_DIR") || resolve(process.cwd(), "dev-storage");
+    const configured =
+      this.configService.get<string>('DEV_STORAGE_DIR') ||
+      resolve(process.cwd(), 'dev-storage');
     return resolve(configured);
   }
 
@@ -80,7 +84,9 @@ export class StorageService {
       await rm(path, { force: true });
       return;
     }
-    await this.s3Client!.send(new DeleteObjectCommand({ Bucket: this.s3Bucket!, Key: key }));
+    await this.s3Client!.send(
+      new DeleteObjectCommand({ Bucket: this.s3Bucket!, Key: key }),
+    );
   }
 
   async getObjectBuffer(key: string): Promise<Buffer> {
@@ -101,21 +107,25 @@ export class StorageService {
     downloadFilename?: string,
   ): Promise<string> {
     if (this.isLocalStorage()) {
-      const secret = this.configService.get<string>("DEV_STORAGE_TOKEN_SECRET") || "dev_secret";
+      const secret =
+        this.configService.get<string>('DEV_STORAGE_TOKEN_SECRET') ||
+        'dev_secret';
       const expires = Math.floor(Date.now() / 1000) + expiresInSeconds;
       const payload = `${key}:${expires}`;
-      const signature = createHmac("sha256", secret)
+      const signature = createHmac('sha256', secret)
         .update(payload)
-        .digest("hex")
+        .digest('hex')
         .slice(0, 32);
       const params = new URLSearchParams({
         expires: String(expires),
         sig: signature,
       });
       if (downloadFilename) {
-        params.set("filename", downloadFilename);
+        params.set('filename', downloadFilename);
       }
-      const base = this.configService.get<string>("DEV_STORAGE_PUBLIC_URL") || "http://localhost:4000";
+      const base =
+        this.configService.get<string>('DEV_STORAGE_PUBLIC_URL') ||
+        'http://localhost:4000';
       return `${base}/api/dev-storage/${encodeURIComponent(key)}?${params.toString()}`;
     }
 
@@ -124,58 +134,62 @@ export class StorageService {
       Key: key,
       ...(downloadFilename
         ? {
-            ResponseContentDisposition: `attachment; filename="${downloadFilename.replace(/"/g, "")}"`,
+            ResponseContentDisposition: `attachment; filename="${downloadFilename.replace(/"/g, '')}"`,
           }
         : {}),
     });
-    return getSignedUrl(this.s3Client!, command, { expiresIn: expiresInSeconds });
+    return getSignedUrl(this.s3Client!, command, {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   verifyLocalToken(
     key: string,
     expiresStr: string | null,
     sig: string | null,
-  ): { ok: boolean; reason?: "missing" | "expired" | "bad_sig" } {
-    if (!expiresStr || !sig) return { ok: false, reason: "missing" };
+  ): { ok: boolean; reason?: 'missing' | 'expired' | 'bad_sig' } {
+    if (!expiresStr || !sig) return { ok: false, reason: 'missing' };
     const expires = Number(expiresStr);
-    if (!Number.isFinite(expires)) return { ok: false, reason: "missing" };
+    if (!Number.isFinite(expires)) return { ok: false, reason: 'missing' };
     if (Math.floor(Date.now() / 1000) > expires) {
-      return { ok: false, reason: "expired" };
+      return { ok: false, reason: 'expired' };
     }
-    const secret = this.configService.get<string>("DEV_STORAGE_TOKEN_SECRET") || "dev_secret";
-    const expected = createHmac("sha256", secret)
+    const secret =
+      this.configService.get<string>('DEV_STORAGE_TOKEN_SECRET') ||
+      'dev_secret';
+    const expected = createHmac('sha256', secret)
       .update(`${key}:${expires}`)
-      .digest("hex")
+      .digest('hex')
       .slice(0, 32);
-    if (sig.length !== expected.length) return { ok: false, reason: "bad_sig" };
-    const a = Buffer.from(sig, "hex");
-    const b = Buffer.from(expected, "hex");
-    if (a.length !== b.length) return { ok: false, reason: "bad_sig" };
-    if (!timingSafeEqual(a, b)) return { ok: false, reason: "bad_sig" };
+    if (sig.length !== expected.length) return { ok: false, reason: 'bad_sig' };
+    const a = Buffer.from(sig, 'hex');
+    const b = Buffer.from(expected, 'hex');
+    if (a.length !== b.length) return { ok: false, reason: 'bad_sig' };
+    if (!timingSafeEqual(a, b)) return { ok: false, reason: 'bad_sig' };
     return { ok: true };
   }
 
   contentTypeForKey(key: string): string {
-    const ext = key.toLowerCase().split(".").pop() ?? "";
+    const ext = key.toLowerCase().split('.').pop() ?? '';
     switch (ext) {
-      case "pdf":
-        return "application/pdf";
-      case "md":
-      case "markdown":
-        return "text/markdown";
-      case "txt":
-        return "text/plain";
-      case "docx":
-        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-      case "jpg":
-      case "jpeg":
-        return "image/jpeg";
-      case "png":
-        return "image/png";
-      case "webp":
-        return "image/webp";
+      case 'pdf':
+        return 'application/pdf';
+      case 'md':
+      case 'markdown':
+        return 'text/markdown';
+      case 'txt':
+        return 'text/plain';
+      case 'docx':
+        return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'webp':
+        return 'image/webp';
       default:
-        return "application/octet-stream";
+        return 'application/octet-stream';
     }
   }
 }

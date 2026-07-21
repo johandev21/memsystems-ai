@@ -8,23 +8,23 @@ import {
   Res,
   UseGuards,
   UsePipes,
-} from "@nestjs/common";
-import type { Response } from "express";
-import { z } from "zod";
-import { BadRequestError } from "../../common/errors/domain-error";
-import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
-import { AuthGuard } from "../auth/auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import { ChatService } from "./chat.service";
+} from '@nestjs/common';
+import type { Response } from 'express';
+import { z } from 'zod';
+import { BadRequestError } from '../../common/errors/domain-error';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { AuthGuard } from '../auth/auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { ChatService } from './chat.service';
 
 const textPartSchema = z.object({
-  type: z.literal("text"),
+  type: z.literal('text'),
   text: z.string(),
-  state: z.enum(["streaming", "done"]).optional(),
+  state: z.enum(['streaming', 'done']).optional(),
 });
 
 const reasoningPartSchema = z.object({
-  type: z.literal("reasoning"),
+  type: z.literal('reasoning'),
   text: z.string(),
 });
 
@@ -32,7 +32,7 @@ const messagePartSchema = z.union([textPartSchema, reasoningPartSchema]);
 
 const messageSchema = z.object({
   id: z.string().optional(),
-  role: z.enum(["user", "assistant"]),
+  role: z.enum(['user', 'assistant']),
   parts: z.array(messagePartSchema).min(1),
 });
 
@@ -41,15 +41,15 @@ const chatRequestSchema = z.object({
   model: z.string().min(1),
 });
 
-@Controller("notebooks/:id/chat")
+@Controller('notebooks/:id/chat')
 @UseGuards(AuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Get()
   async list(
-    @CurrentUser("id") userId: string,
-    @Param("id") notebookId: string,
+    @CurrentUser('id') userId: string,
+    @Param('id') notebookId: string,
   ) {
     return this.chatService.listMessages(userId, notebookId);
   }
@@ -57,14 +57,14 @@ export class ChatController {
   @Post()
   @UsePipes(new ZodValidationPipe(chatRequestSchema))
   async sendMessage(
-    @CurrentUser("id") userId: string,
-    @Param("id") notebookId: string,
+    @CurrentUser('id') userId: string,
+    @Param('id') notebookId: string,
     @Body() body: z.infer<typeof chatRequestSchema>,
     @Res() res: Response,
   ) {
     const content = this.chatService.extractUserMessageContent(body.messages);
     if (!content.trim()) {
-      throw new BadRequestError("Empty user message");
+      throw new BadRequestError('Empty user message');
     }
 
     const { streamResponse } = await this.chatService.sendMessage(
@@ -95,8 +95,8 @@ export class ChatController {
 
   @Delete()
   async clearMessages(
-    @CurrentUser("id") userId: string,
-    @Param("id") notebookId: string,
+    @CurrentUser('id') userId: string,
+    @Param('id') notebookId: string,
   ) {
     await this.chatService.clearMessages(userId, notebookId);
     return { success: true };

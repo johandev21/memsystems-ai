@@ -1,24 +1,30 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { sources } from "../../database/schema";
-import { BadRequestError, NotFoundError } from "../../common/errors/domain-error";
-import { ConnectionService } from "../ai/connection.service";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
-import { GenerationRequestManager, StartGenerationInput } from "./generation-request-manager";
-import { StudyMaterialKind } from "./shapes";
-import { StreamHandler } from "./stream-handler";
+import { Inject, Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { sources } from '../../database/schema';
+import {
+  BadRequestError,
+  NotFoundError,
+} from '../../common/errors/domain-error';
+import { ConnectionService } from '../ai/connection.service';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
+import {
+  GenerationRequestManager,
+  StartGenerationInput,
+} from './generation-request-manager';
+import { StudyMaterialKind } from './shapes';
+import { StreamHandler } from './stream-handler';
 
 const MODELS_BY_KIND: Record<StudyMaterialKind, string> = {
-  quiz: "openai/gpt-4o-mini",
-  simple_flashcard: "openai/gpt-4o-mini",
-  report: "openai/gpt-4o-mini",
-  roadmap: "openai/gpt-4o-mini",
-  slide_deck: "openai/gpt-4o-mini",
-  mind_map: "openai/gpt-4o-mini",
+  quiz: 'openai/gpt-4o-mini',
+  simple_flashcard: 'openai/gpt-4o-mini',
+  report: 'openai/gpt-4o-mini',
+  roadmap: 'openai/gpt-4o-mini',
+  slide_deck: 'openai/gpt-4o-mini',
+  mind_map: 'openai/gpt-4o-mini',
 };
 
 @Injectable()
@@ -72,7 +78,7 @@ export class GenerationService {
   async cancel(userId: string, requestId: string) {
     const request = await this.requestManager.get(requestId);
     if (!request) {
-      throw new NotFoundError("Generation request");
+      throw new NotFoundError('Generation request');
     }
     await this.notebooksService.assertNotebookOwner(userId, request.notebookId);
     await this.requestManager.cancel(userId, requestId);
@@ -100,7 +106,7 @@ export class GenerationService {
     );
 
     if (owned.length === 0) {
-      throw new BadRequestError("No valid sources found");
+      throw new BadRequestError('No valid sources found');
     }
 
     return owned;

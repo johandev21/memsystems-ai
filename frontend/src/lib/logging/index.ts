@@ -1,2 +1,1 @@
-export * from "./client-logger";
-export * from "./logger";
+// Barrel deliberately empty — consumers import directly from "./logger" or "./client-logger"

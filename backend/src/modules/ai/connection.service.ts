@@ -1,7 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { ServiceUnavailableError } from "../../common/errors/domain-error";
-import { createOpenaiProvider, HealthCheckResult, ProviderModel } from "./openai.provider";
-import { UserSettingsService } from "./user-settings.service";
+import { Injectable } from '@nestjs/common';
+import { ServiceUnavailableError } from '../../common/errors/domain-error';
+import {
+  createOpenaiProvider,
+  HealthCheckResult,
+  ProviderModel,
+} from './openai.provider';
+import { UserSettingsService } from './user-settings.service';
 
 const OPENAI_HEALTH_TTL_MS = 60_000;
 
@@ -72,38 +76,38 @@ export class ConnectionService {
   }
 
   async requireConnected(userId: string, modelId: string): Promise<void> {
-    if (modelId.startsWith("openai/")) {
+    if (modelId.startsWith('openai/')) {
       const apiKey = await this.userSettingsService.getUserOpenaiApiKey(userId);
       if (!apiKey) {
         throw new ServiceUnavailableError(
-          "OpenAI API Key is not configured. Please add your key in the Connection settings.",
+          'OpenAI API Key is not configured. Please add your key in the Connection settings.',
         );
       }
       const health = await this.checkOpenaiHealth(userId, apiKey);
       if (!health.ok) {
         throw new ServiceUnavailableError(
-          health.detail ?? "OpenAI connection failed",
+          health.detail ?? 'OpenAI connection failed',
         );
       }
       return;
     }
 
     throw new ServiceUnavailableError(
-      "Only OpenAI models are supported. OpenCode provider is disabled.",
+      'Only OpenAI models are supported. OpenCode provider is disabled.',
     );
   }
 
   async snapshot(userId?: string) {
     const opencodeStatus = {
       ok: false,
-      detail: "OpenCode provider is disabled.",
+      detail: 'OpenCode provider is disabled.',
       models: [],
     };
 
     const openaiStatus = {
       ok: false,
-      detail: "OpenAI API Key is not configured." as string | undefined,
-      models: createOpenaiProvider("").listModels(),
+      detail: 'OpenAI API Key is not configured.' as string | undefined,
+      models: createOpenaiProvider('').listModels(),
       hasKey: false,
     };
 

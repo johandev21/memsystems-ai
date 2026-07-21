@@ -1,12 +1,16 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { studyMaterialFolders, studyMaterials } from "../../database/schema";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/domain-error";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { studyMaterialFolders, studyMaterials } from '../../database/schema';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/domain-error';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
 
 export interface CreateFolderInput {
   name: string;
@@ -44,7 +48,7 @@ export class StudyMaterialFolderService {
     await this.notebooksService.assertNotebookOwner(userId, notebookId);
     const name = input.name.trim();
     if (name.length === 0) {
-      throw new BadRequestError("Folder name cannot be empty");
+      throw new BadRequestError('Folder name cannot be empty');
     }
     if (input.parentId) {
       await this.assertFolderOwned(userId, notebookId, input.parentId);
@@ -66,13 +70,13 @@ export class StudyMaterialFolderService {
     if (input.name !== undefined) {
       const name = input.name.trim();
       if (name.length === 0) {
-        throw new BadRequestError("Folder name cannot be empty");
+        throw new BadRequestError('Folder name cannot be empty');
       }
       updates.name = name;
     }
     if (input.parentId !== undefined) {
       if (input.parentId === folderId) {
-        throw new BadRequestError("Folder cannot be its own parent");
+        throw new BadRequestError('Folder cannot be its own parent');
       }
       if (input.parentId) {
         await this.assertFolderOwned(userId, folder.notebookId, input.parentId);
@@ -82,7 +86,7 @@ export class StudyMaterialFolderService {
         );
         if (wouldCycle) {
           throw new BadRequestError(
-            "Cannot reparent folder under one of its descendants",
+            'Cannot reparent folder under one of its descendants',
           );
         }
       }
@@ -115,7 +119,7 @@ export class StudyMaterialFolderService {
 
     if (activeMaterials.length > 0) {
       throw new BadRequestError(
-        "Cannot delete folder: please delete all study materials inside first",
+        'Cannot delete folder: please delete all study materials inside first',
       );
     }
 
@@ -205,10 +209,10 @@ export class StudyMaterialFolderService {
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.id, folderId));
     if (!folder) {
-      throw new NotFoundError("Folder");
+      throw new NotFoundError('Folder');
     }
     if (folder.notebookId !== notebookId) {
-      throw new ForbiddenError("Folder does not belong to this notebook");
+      throw new ForbiddenError('Folder does not belong to this notebook');
     }
   }
 
@@ -218,7 +222,7 @@ export class StudyMaterialFolderService {
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.id, folderId));
     if (!folder) {
-      throw new NotFoundError("Folder");
+      throw new NotFoundError('Folder');
     }
     await this.notebooksService.assertNotebookOwner(userId, folder.notebookId);
     return folder;

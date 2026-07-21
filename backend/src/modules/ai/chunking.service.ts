@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 export interface ChunkOptions {
   chunkSize?: number;
@@ -24,7 +24,7 @@ function splitOnBoundaries(text: string, chunkSize: number): string[] {
 
   const chunks: string[] = [];
   const paragraphs = text.split(/\n\n+/);
-  let current = "";
+  let current = '';
 
   for (const para of paragraphs) {
     if (`${current}\n\n${para}`.trim().length <= chunkSize) {
@@ -38,7 +38,7 @@ function splitOnBoundaries(text: string, chunkSize: number): string[] {
         current = para;
       } else {
         const sentences = para.match(/[^.!?\n]+[.!?]+\s*/g) ?? [para];
-        current = "";
+        current = '';
         for (const sentence of sentences) {
           if ((current + sentence).trim().length <= chunkSize) {
             current += sentence;
@@ -48,7 +48,7 @@ function splitOnBoundaries(text: string, chunkSize: number): string[] {
               current = sentence;
             } else {
               const words = sentence.split(/\s+/);
-              current = "";
+              current = '';
               for (const word of words) {
                 if (`${current} ${word}`.trim().length <= chunkSize) {
                   current = current ? `${current} ${word}` : word;

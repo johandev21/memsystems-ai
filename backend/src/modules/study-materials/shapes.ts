@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { BadRequestError } from "../../common/errors/domain-error";
+import { z } from 'zod';
+import { BadRequestError } from '../../common/errors/domain-error';
 
 export type StudyMaterialKind =
-  | "quiz"
-  | "simple_flashcard"
-  | "report"
-  | "roadmap"
-  | "slide_deck"
-  | "mind_map";
+  | 'quiz'
+  | 'simple_flashcard'
+  | 'report'
+  | 'roadmap'
+  | 'slide_deck'
+  | 'mind_map';
 
 export const QuizQuestionOption = z.object({
   text: z.string().min(1).max(2000),
@@ -28,7 +28,7 @@ export const QuizContent = z.object({
 
 export const SimpleFlashcardContent = z.preprocess(
   (val) => {
-    if (val && typeof val === "object" && "front" in val && "back" in val) {
+    if (val && typeof val === 'object' && 'front' in val && 'back' in val) {
       return {
         cards: [{ front: (val as any).front, back: (val as any).back }],
       };
@@ -155,7 +155,10 @@ export function validateContent(kind: string, content: unknown) {
 export function shuffleQuizOptions(content: any) {
   const shuffled = {
     questions: content.questions.map((q: any) => {
-      const pairs = q.options.map((opt: any, i: number) => ({ opt, originalIndex: i }));
+      const pairs = q.options.map((opt: any, i: number) => ({
+        opt,
+        originalIndex: i,
+      }));
       for (let i = pairs.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pairs[i], pairs[j]] = [pairs[j], pairs[i]];

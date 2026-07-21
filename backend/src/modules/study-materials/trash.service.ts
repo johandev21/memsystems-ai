@@ -1,16 +1,16 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { studyMaterialFolders, studyMaterials } from "../../database/schema";
-import { NotFoundError } from "../../common/errors/domain-error";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { and, desc, eq, isNotNull } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { studyMaterialFolders, studyMaterials } from '../../database/schema';
+import { NotFoundError } from '../../common/errors/domain-error';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
 
 export interface TrashItem {
   id: string;
-  type: "study_material" | "folder";
+  type: 'study_material' | 'folder';
   deletedAt: Date;
   name?: string;
   kind?: string;
@@ -61,14 +61,14 @@ export class TrashService {
     const items: TrashItem[] = [
       ...deletedMaterials.map((m) => ({
         id: m.id,
-        type: "study_material" as const,
+        type: 'study_material' as const,
         deletedAt: m.deletedAt!,
         name: m.title,
         kind: m.kind,
       })),
       ...deletedFolders.map((f) => ({
         id: f.id,
-        type: "folder" as const,
+        type: 'folder' as const,
         deletedAt: f.deletedAt!,
         name: f.name,
       })),
@@ -96,7 +96,7 @@ export class TrashService {
       .from(studyMaterials)
       .where(eq(studyMaterials.id, smId));
     if (!sm) {
-      throw new NotFoundError("Study material");
+      throw new NotFoundError('Study material');
     }
     await this.notebooksService.assertNotebookOwner(userId, sm.notebookId);
   }
@@ -110,7 +110,7 @@ export class TrashService {
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.id, folderId));
     if (!folder) {
-      throw new NotFoundError("Folder");
+      throw new NotFoundError('Folder');
     }
     await this.notebooksService.assertNotebookOwner(userId, folder.notebookId);
   }

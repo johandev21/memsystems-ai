@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { isProbablyReaderable, Readability } from "@mozilla/readability";
-import { JSDOM } from "jsdom";
-import { BadRequestError } from "../../common/errors/domain-error";
+import { Injectable } from '@nestjs/common';
+import { isProbablyReaderable, Readability } from '@mozilla/readability';
+import { JSDOM } from 'jsdom';
+import { BadRequestError } from '../../common/errors/domain-error';
 
 export interface ScrapedPage {
   title: string;
@@ -16,25 +16,25 @@ export class WebScrapeError extends BadRequestError {
   constructor(
     message: string,
     public readonly code:
-      | "fetch_failed"
-      | "invalid_content_type"
-      | "not_readerable"
-      | "extraction_failed",
+      | 'fetch_failed'
+      | 'invalid_content_type'
+      | 'not_readerable'
+      | 'extraction_failed',
   ) {
     super(message);
-    this.name = "WebScrapeError";
+    this.name = 'WebScrapeError';
   }
 }
 
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_BYTES = 10 * 1024 * 1024;
 const USER_AGENT =
-  "Mozilla/5.0 (compatible; memsystems/1.0; +https://memsystems.ai/bot)";
+  'Mozilla/5.0 (compatible; memsystems/1.0; +https://memsystems.ai/bot)';
 
 function isValidHttpUrl(input: string): boolean {
   try {
     const u = new URL(input);
-    return u.protocol === "http:" || u.protocol === "https:";
+    return u.protocol === 'http:' || u.protocol === 'https:';
   } catch {
     return false;
   }
@@ -42,43 +42,49 @@ function isValidHttpUrl(input: string): boolean {
 
 function normalizeText(text: string): string {
   return text
-    .replace(/\r\n/g, "\n")
-    .replace(/\u0000/g, "")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\r\n/g, '\n')
+    .replace(/\u0000/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
 function deriveTitleFromHtml(document: Document): string | undefined {
   const ogTitle = document
     .querySelector('meta[property="og:title"]')
-    ?.getAttribute("content")
+    ?.getAttribute('content')
     ?.trim();
   if (ogTitle) return ogTitle;
   const docTitle = document.title?.trim();
   return docTitle || undefined;
 }
 
-async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  timeoutMs: number,
+): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, {
       headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "text/html,application/xhtml+xml",
+        'User-Agent': USER_AGENT,
+        Accept: 'text/html,application/xhtml+xml',
       },
       signal: controller.signal,
-      redirect: "follow",
+      redirect: 'follow',
     });
   } finally {
     clearTimeout(timer);
   }
 }
 
-async function readBoundedText(response: Response, maxBytes: number): Promise<string> {
+async function readBoundedText(
+  response: Response,
+  maxBytes: number,
+): Promise<string> {
   const reader = response.body?.getReader();
-  if (!reader) return "";
+  if (!reader) return '';
   const chunks: Uint8Array[] = [];
   let total = 0;
   while (true) {
@@ -90,7 +96,7 @@ async function readBoundedText(response: Response, maxBytes: number): Promise<st
         await reader.cancel();
         throw new WebScrapeError(
           `Response exceeded ${maxBytes} bytes`,
-          "fetch_failed",
+          'fetch_failed',
         );
       }
       chunks.push(value);
@@ -102,14 +108,14 @@ async function readBoundedText(response: Response, maxBytes: number): Promise<st
     merged.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return new TextDecoder("utf-8").decode(merged);
+  return new TextDecoder('utf-8').decode(merged);
 }
 
 @Injectable()
 export class WebScraperService {
   async scrapeUrl(input: string): Promise<ScrapedPage> {
     if (!isValidHttpUrl(input)) {
-      throw new WebScrapeError(`Invalid URL: ${input}`, "fetch_failed");
+      throw new WebScrapeError(`Invalid URL: ${input}`, 'fetch_failed');
     }
 
     const response = await fetchWithTimeout(input, FETCH_TIMEOUT_MS);
@@ -117,26 +123,26 @@ export class WebScraperService {
     if (!response.ok) {
       throw new WebScrapeError(
         `Fetch failed: HTTP ${response.status}`,
-        "fetch_failed",
+        'fetch_failed',
       );
     }
 
-    const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.toLowerCase().includes("text/html")) {
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.toLowerCase().includes('text/html')) {
       throw new WebScrapeError(
-        `Unsupported content-type: ${contentType || "unknown"}`,
-        "invalid_content_type",
+        `Unsupported content-type: ${contentType || 'unknown'}`,
+        'invalid_content_type',
       );
     }
 
     const html = await readBoundedText(response, MAX_BYTES);
     const dom = new JSDOM(html, { url: input });
-    const document = dom.window.document as unknown as Document;
+    const document = dom.window.document;
 
     if (!isProbablyReaderable(document)) {
       throw new WebScrapeError(
-        "Page does not contain article-like content",
-        "not_readerable",
+        'Page does not contain article-like content',
+        'not_readerable',
       );
     }
 
@@ -146,8 +152,8 @@ export class WebScraperService {
 
     if (!article || !article.textContent) {
       throw new WebScrapeError(
-        "Could not extract main content from page",
-        "extraction_failed",
+        'Could not extract main content from page',
+        'extraction_failed',
       );
     }
 

@@ -13,42 +13,42 @@ export class DomainError extends Error {
     options?: DomainErrorOptions,
   ) {
     super(message, { cause: options?.cause });
-    this.name = "DomainError";
+    this.name = 'DomainError';
     this.internalMessage = options?.internalMessage;
   }
 }
 
 export class InternalError extends DomainError {
-  constructor(message = "Internal server error", options?: DomainErrorOptions) {
-    super(message, 500, "internal_error", options);
-    this.name = "InternalError";
+  constructor(message = 'Internal server error', options?: DomainErrorOptions) {
+    super(message, 500, 'internal_error', options);
+    this.name = 'InternalError';
   }
 }
 
 export class NotFoundError extends DomainError {
-  constructor(resource = "Resource") {
-    super(`${resource} not found`, 404, "not_found");
-    this.name = "NotFoundError";
+  constructor(resource = 'Resource') {
+    super(`${resource} not found`, 404, 'not_found');
+    this.name = 'NotFoundError';
   }
 }
 
 export class ForbiddenError extends DomainError {
-  constructor(message = "Forbidden") {
-    super(message, 403, "forbidden");
-    this.name = "ForbiddenError";
+  constructor(message = 'Forbidden') {
+    super(message, 403, 'forbidden');
+    this.name = 'ForbiddenError';
   }
 }
 
 export class BadRequestError extends DomainError {
-  constructor(message = "Bad request") {
-    super(message, 400, "bad_request");
-    this.name = "BadRequestError";
+  constructor(message = 'Bad request') {
+    super(message, 400, 'bad_request');
+    this.name = 'BadRequestError';
   }
 }
 
 export class ServiceUnavailableError extends DomainError {
-  constructor(message = "Service unavailable", options?: DomainErrorOptions) {
-    super(message, 503, "service_unavailable", options);
-    this.name = "ServiceUnavailableError";
+  constructor(message = 'Service unavailable', options?: DomainErrorOptions) {
+    super(message, 503, 'service_unavailable', options);
+    this.name = 'ServiceUnavailableError';
   }
 }

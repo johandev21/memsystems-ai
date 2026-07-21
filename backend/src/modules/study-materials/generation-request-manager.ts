@@ -1,12 +1,12 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { generationRequests } from "../../database/schema";
-import { NotFoundError } from "../../common/errors/domain-error";
-import { DRIZZLE } from "../database/database.module";
-import { StudyMaterialKind } from "./shapes";
+import { Inject, Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { generationRequests } from '../../database/schema';
+import { NotFoundError } from '../../common/errors/domain-error';
+import { DRIZZLE } from '../database/database.module';
+import { StudyMaterialKind } from './shapes';
 
 export interface StartGenerationInput {
   kind: StudyMaterialKind;
@@ -36,7 +36,7 @@ export class GenerationRequestManager {
         brief: input.brief,
         sourceIds: input.sourceIds,
         targetFolderId: input.folderId ?? null,
-        status: "streaming",
+        status: 'streaming',
       })
       .returning();
     return request.id;
@@ -46,7 +46,7 @@ export class GenerationRequestManager {
     await this.db
       .update(generationRequests)
       .set({
-        status: "completed",
+        status: 'completed',
         completedAt: new Date(),
       })
       .where(eq(generationRequests.id, requestId));
@@ -55,7 +55,7 @@ export class GenerationRequestManager {
   async markFailed(requestId: string, _error?: string): Promise<void> {
     await this.db
       .update(generationRequests)
-      .set({ status: "failed" })
+      .set({ status: 'failed' })
       .where(eq(generationRequests.id, requestId));
   }
 
@@ -65,12 +65,12 @@ export class GenerationRequestManager {
       .from(generationRequests)
       .where(eq(generationRequests.id, requestId));
     if (!request) {
-      throw new NotFoundError("Generation request");
+      throw new NotFoundError('Generation request');
     }
-    if (request.status === "streaming") {
+    if (request.status === 'streaming') {
       await this.db
         .update(generationRequests)
-        .set({ status: "cancelled" })
+        .set({ status: 'cancelled' })
         .where(eq(generationRequests.id, requestId));
     }
   }

@@ -1,19 +1,22 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { createHash } from "node:crypto";
-import { desc, eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { sources } from "../../database/schema";
-import { BadRequestError, NotFoundError } from "../../common/errors/domain-error";
-import { IndexingService } from "../ai/indexing.service";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
-import { StorageService } from "../storage/storage.service";
-import { SourceExtractionService } from "./source-extraction.service";
-import { WebScraperService } from "./web-scraper.service";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'node:crypto';
+import { desc, eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { sources } from '../../database/schema';
+import {
+  BadRequestError,
+  NotFoundError,
+} from '../../common/errors/domain-error';
+import { IndexingService } from '../ai/indexing.service';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
+import { StorageService } from '../storage/storage.service';
+import { SourceExtractionService } from './source-extraction.service';
+import { WebScraperService } from './web-scraper.service';
 
-export type SourceKind = "text" | "url" | "file";
+export type SourceKind = 'text' | 'url' | 'file';
 
 export interface CreateTextSourceInput {
   title: string;
@@ -43,8 +46,8 @@ function buildS3Key(
 }
 
 function pickExtension(originalName: string): string {
-  const idx = originalName.lastIndexOf(".");
-  if (idx === -1 || idx === originalName.length - 1) return "";
+  const idx = originalName.lastIndexOf('.');
+  if (idx === -1 || idx === originalName.length - 1) return '';
   return originalName.slice(idx).toLowerCase();
 }
 
@@ -93,9 +96,9 @@ export class SourcesService {
     const title = input.title.trim();
     const rawText = input.rawText;
     if (rawText.trim().length === 0) {
-      throw new BadRequestError("rawText must be non-empty");
+      throw new BadRequestError('rawText must be non-empty');
     }
-    if (Buffer.byteLength(rawText, "utf8") > MAX_RAW_TEXT_BYTES) {
+    if (Buffer.byteLength(rawText, 'utf8') > MAX_RAW_TEXT_BYTES) {
       throw new BadRequestError(
         `rawText exceeds maximum size of ${MAX_RAW_TEXT_BYTES} bytes`,
       );
@@ -104,14 +107,14 @@ export class SourcesService {
       .insert(sources)
       .values({
         notebookId,
-        kind: "text",
+        kind: 'text',
         title: title.slice(0, 500),
         rawText,
       })
       .returning();
 
     this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error("Failed to index source after text creation", {
+      this.logger.error('Failed to index source after text creation', {
         sourceId: row.id,
         error: err instanceof Error ? err.message : String(err),
       });
@@ -131,7 +134,7 @@ export class SourcesService {
       .insert(sources)
       .values({
         notebookId,
-        kind: "url",
+        kind: 'url',
         title,
         rawText: scraped.text,
         url: input.url,
@@ -139,7 +142,7 @@ export class SourcesService {
       .returning();
 
     this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error("Failed to index source after URL creation", {
+      this.logger.error('Failed to index source after URL creation', {
         sourceId: row.id,
         error: err instanceof Error ? err.message : String(err),
       });
@@ -157,7 +160,7 @@ export class SourcesService {
   ) {
     await this.notebooksService.assertNotebookOwner(userId, notebookId);
     if (fileBuffer.length === 0) {
-      throw new BadRequestError("Uploaded file is empty");
+      throw new BadRequestError('Uploaded file is empty');
     }
     if (fileBuffer.length > MAX_FILE_BYTES) {
       throw new BadRequestError(
@@ -166,22 +169,26 @@ export class SourcesService {
     }
     if (!this.sourceExtractionService.isSupportedFile(fileType, fileName)) {
       throw new BadRequestError(
-        `Unsupported file type: ${fileType || "unknown"} (${fileName})`,
+        `Unsupported file type: ${fileType || 'unknown'} (${fileName})`,
       );
     }
 
-    const sha256 = createHash("sha256").update(fileBuffer).digest("hex");
+    const sha256 = createHash('sha256').update(fileBuffer).digest('hex');
     const s3Key = buildS3Key(notebookId, sha256, fileName);
 
     await this.storageService.putObject({
       key: s3Key,
       body: fileBuffer,
-      contentType: fileType || "application/octet-stream",
+      contentType: fileType || 'application/octet-stream',
     });
 
     let extracted: { text: string };
     try {
-      extracted = await this.sourceExtractionService.extractText(fileBuffer, fileType, fileName);
+      extracted = await this.sourceExtractionService.extractText(
+        fileBuffer,
+        fileType,
+        fileName,
+      );
     } catch (err) {
       await this.storageService.deleteObject(s3Key).catch(() => {});
       throw err;
@@ -193,7 +200,7 @@ export class SourcesService {
       .insert(sources)
       .values({
         notebookId,
-        kind: "file",
+        kind: 'file',
         title,
         rawText: extracted.text,
         s3Key,
@@ -204,7 +211,7 @@ export class SourcesService {
       .returning();
 
     this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error("Failed to index source after file creation", {
+      this.logger.error('Failed to index source after file creation', {
         sourceId: row.id,
         error: err instanceof Error ? err.message : String(err),
       });
@@ -214,7 +221,7 @@ export class SourcesService {
 
   async delete(userId: string, id: string) {
     const source = await this.fetchOwned(userId, id);
-    if (source.kind === "file" && source.s3Key) {
+    if (source.kind === 'file' && source.s3Key) {
       await this.storageService.deleteObject(source.s3Key).catch(() => {});
     }
     await this.indexingService.deleteSourceChunks(id).catch(() => {});
@@ -231,8 +238,8 @@ export class SourcesService {
     expiresInSeconds = 300,
   ): Promise<DownloadInfo> {
     const source = await this.fetchOwned(userId, id);
-    if (source.kind !== "file" || !source.s3Key) {
-      throw new BadRequestError("Source has no downloadable file");
+    if (source.kind !== 'file' || !source.s3Key) {
+      throw new BadRequestError('Source has no downloadable file');
     }
     const url = await this.storageService.presignDownload(
       source.s3Key,
@@ -243,9 +250,12 @@ export class SourcesService {
   }
 
   private async fetchOwned(userId: string, id: string) {
-    const [source] = await this.db.select().from(sources).where(eq(sources.id, id));
+    const [source] = await this.db
+      .select()
+      .from(sources)
+      .where(eq(sources.id, id));
     if (!source) {
-      throw new NotFoundError("Source");
+      throw new NotFoundError('Source');
     }
     await this.notebooksService.assertNotebookOwner(userId, source.notebookId);
     return source;

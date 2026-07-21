@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { createOpenAI } from "@ai-sdk/openai";
-import { embed, embedMany } from "ai";
-import { ServiceUnavailableError } from "../../common/errors/domain-error";
-import { UserSettingsService } from "./user-settings.service";
+import { Injectable } from '@nestjs/common';
+import { createOpenAI } from '@ai-sdk/openai';
+import { embed, embedMany } from 'ai';
+import { ServiceUnavailableError } from '../../common/errors/domain-error';
+import { UserSettingsService } from './user-settings.service';
 
-export const EMBEDDING_MODEL = "text-embedding-3-small";
+export const EMBEDDING_MODEL = 'text-embedding-3-small';
 export const EMBEDDING_DIMENSIONS = 1536;
 
 @Injectable()
@@ -15,7 +15,7 @@ export class EmbeddingService {
     const apiKey = await this.userSettingsService.getUserOpenaiApiKey(userId);
     if (!apiKey) {
       throw new ServiceUnavailableError(
-        "OpenAI API key not configured. Please add your key in Connection settings.",
+        'OpenAI API key not configured. Please add your key in Connection settings.',
       );
     }
     const openai = createOpenAI({ apiKey });

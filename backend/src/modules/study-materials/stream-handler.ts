@@ -1,12 +1,12 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { Output, parsePartialJson, streamText } from "ai";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { studyMaterials } from "../../database/schema";
-import { AiService } from "../ai/ai.service";
-import { DRIZZLE } from "../database/database.module";
-import { getPromptTemplate } from "./prompts";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Output, parsePartialJson, streamText } from 'ai';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { studyMaterials } from '../../database/schema';
+import { AiService } from '../ai/ai.service';
+import { DRIZZLE } from '../database/database.module';
+import { getPromptTemplate } from './prompts';
 import {
   MindMapContent,
   QuizContent,
@@ -16,12 +16,12 @@ import {
   SlideDeckContent,
   StudyMaterialKind,
   validateContent,
-} from "./shapes";
+} from './shapes';
 import {
   extractJson,
   generateTitle,
   normalizeContent,
-} from "./content-normalizer";
+} from './content-normalizer';
 
 export interface StreamResult {
   materialId: string;
@@ -55,8 +55,11 @@ export class StreamHandler {
     const systemPrompt = promptTemplate.system;
     const concatenatedSources = sourceTexts
       .map((s) => `[${s.title}]\n${s.rawText}`)
-      .join("\n\n---\n\n");
-    const userPrompt = promptTemplate.user(input.brief, concatenatedSources.slice(0, 100000));
+      .join('\n\n---\n\n');
+    const userPrompt = promptTemplate.user(
+      input.brief,
+      concatenatedSources.slice(0, 100000),
+    );
     const schema = this.getContentSchema(input.kind);
 
     const stream = new ReadableStream({
@@ -64,7 +67,10 @@ export class StreamHandler {
         let model: any;
         try {
           const modelId = input.model!;
-          const provider = await this.aiService.getProviderForModel(modelId, userId);
+          const provider = await this.aiService.getProviderForModel(
+            modelId,
+            userId,
+          );
           model = provider.createModel(modelId);
 
           const result = streamText({
@@ -121,7 +127,7 @@ export class StreamHandler {
               prompt: userPrompt,
             });
 
-            let accumulatedText = "";
+            let accumulatedText = '';
             for await (const chunk of fallbackResult.textStream) {
               accumulatedText += chunk;
 
@@ -130,8 +136,8 @@ export class StreamHandler {
               try {
                 const parsed = await parsePartialJson(cleanText);
                 if (
-                  parsed.state === "successful-parse" ||
-                  parsed.state === "repaired-parse"
+                  parsed.state === 'successful-parse' ||
+                  parsed.state === 'repaired-parse'
                 ) {
                   controller.enqueue(
                     new TextEncoder().encode(
@@ -153,8 +159,8 @@ export class StreamHandler {
               try {
                 const partialParsed = await parsePartialJson(cleanText);
                 if (
-                  partialParsed.state === "successful-parse" ||
-                  partialParsed.state === "repaired-parse"
+                  partialParsed.state === 'successful-parse' ||
+                  partialParsed.state === 'repaired-parse'
                 ) {
                   parsedContent = partialParsed.value;
                 } else {
@@ -195,7 +201,10 @@ export class StreamHandler {
             controller.close();
             onDone({ materialId: inserted.id });
           } catch (fallbackError) {
-            this.logger.error("Generation stream failed on fallback", fallbackError);
+            this.logger.error(
+              'Generation stream failed on fallback',
+              fallbackError,
+            );
 
             const standardError =
               fallbackError instanceof Error

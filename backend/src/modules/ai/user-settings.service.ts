@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { userSettings } from "../../database/schema";
-import { DRIZZLE } from "../database/database.module";
+import { Inject, Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { userSettings } from '../../database/schema';
+import { DRIZZLE } from '../database/database.module';
 
 @Injectable()
 export class UserSettingsService {
@@ -45,8 +45,6 @@ export class UserSettingsService {
   }
 
   async removeUserOpenaiApiKey(userId: string): Promise<void> {
-    await this.db
-      .delete(userSettings)
-      .where(eq(userSettings.userId, userId));
+    await this.db.delete(userSettings).where(eq(userSettings.userId, userId));
   }
 }

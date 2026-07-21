@@ -1,16 +1,20 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { streamText } from "ai";
-import { asc, eq, inArray } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { notebookChatMessages, notebooks, sources } from "../../database/schema";
-import { BadRequestError } from "../../common/errors/domain-error";
-import { AiService } from "../ai/ai.service";
-import { ConnectionService } from "../ai/connection.service";
-import { RetrievalService } from "../ai/retrieval.service";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { streamText } from 'ai';
+import { asc, eq, inArray } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import {
+  notebookChatMessages,
+  notebooks,
+  sources,
+} from '../../database/schema';
+import { BadRequestError } from '../../common/errors/domain-error';
+import { AiService } from '../ai/ai.service';
+import { ConnectionService } from '../ai/connection.service';
+import { RetrievalService } from '../ai/retrieval.service';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
 
 const MAX_HISTORY_MESSAGES = 6;
 const MAX_SOURCE_TEXT = 80000;
@@ -37,7 +41,7 @@ interface CitedSourceEntry {
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   reasoning?: string | null;
   citedSourceIds: CitedSourceEntry[] | null;
@@ -89,9 +93,7 @@ export class ChatService {
       ...new Set(
         rows.flatMap((r) => {
           const raw = r.citedSourceIds ?? [];
-          return raw.map((e) =>
-            typeof e === "string" ? e : (e as CitedSourceEntry).sourceId,
-          );
+          return raw.map((e) => (typeof e === 'string' ? e : e.sourceId));
         }),
       ),
     ];
@@ -122,11 +124,10 @@ export class ChatService {
 
     return rows.map((r) => {
       const rawEntries = (r.citedSourceIds ?? []) as (
-        | string
-        | CitedSourceEntry
+        string | CitedSourceEntry
       )[];
       const entries: CitedSourceEntry[] = rawEntries.map((e) =>
-        typeof e === "string" ? { sourceId: e, number: 0, quote: null } : e,
+        typeof e === 'string' ? { sourceId: e, number: 0, quote: null } : e,
       );
       const citedSources: CitedSourceMeta[] = entries
         .map((e) => {
@@ -152,9 +153,9 @@ export class ChatService {
   ): string {
     const lastUserMessage = [...messages]
       .reverse()
-      .find((m) => m.role === "user");
-    const textPart = lastUserMessage?.parts.find((p) => p.type === "text");
-    return textPart?.text ?? "";
+      .find((m) => m.role === 'user');
+    const textPart = lastUserMessage?.parts.find((p) => p.type === 'text');
+    return textPart?.text ?? '';
   }
 
   async sendMessage(userId: string, notebookId: string, input: SendInput) {
@@ -173,7 +174,7 @@ export class ChatService {
         (c) =>
           `Source: "${c.title}" (relevance: ${c.score.toFixed(2)})\n${c.content}`,
       )
-      .join("\n\n---\n\n")
+      .join('\n\n---\n\n')
       .slice(0, MAX_SOURCE_TEXT);
 
     const priorHistory = await this.getRecentHistory(
@@ -185,7 +186,7 @@ export class ChatService {
       .insert(notebookChatMessages)
       .values({
         notebookId,
-        role: "user",
+        role: 'user',
         content: input.content,
       })
       .returning();
@@ -199,7 +200,7 @@ export class ChatService {
       ...priorHistory,
       {
         id: userMessage.id,
-        role: "user" as const,
+        role: 'user' as const,
         content: userMessage.content,
         citedSourceIds: null,
         createdAt: userMessage.createdAt,
@@ -229,7 +230,7 @@ export class ChatService {
     }
 
     const messagesForLlm = history.map((m) => ({
-      role: m.role as "user" | "assistant",
+      role: m.role,
       content: m.content,
     }));
 
@@ -240,22 +241,22 @@ export class ChatService {
         system: systemMessage,
         messages: messagesForLlm,
         onError: ({ error }) => {
-          this.logger.error("streamText onError", {
+          this.logger.error('streamText onError', {
             error: error instanceof Error ? error.message : String(error),
           });
         },
         onFinish: async ({ text, finishReason, usage, reasoning }) => {
           const reasoningString = reasoning
-            ? typeof reasoning === "string"
+            ? typeof reasoning === 'string'
               ? reasoning
               : Array.isArray(reasoning)
                 ? reasoning
                     .map((r) =>
-                      typeof r === "object" && r && "text" in r
+                      typeof r === 'object' && r && 'text' in r
                         ? (r as { text: string }).text
-                        : "",
+                        : '',
                     )
-                    .join("")
+                    .join('')
                 : null
             : null;
 
@@ -277,19 +278,19 @@ export class ChatService {
               .insert(notebookChatMessages)
               .values({
                 notebookId,
-                role: "assistant",
+                role: 'assistant',
                 content: text,
                 reasoning: reasoningString,
                 citedSourceIds: citedEntries,
               })
               .returning();
           } catch (dbError) {
-            this.logger.error("failed to persist assistant message", dbError);
+            this.logger.error('failed to persist assistant message', dbError);
           }
         },
       });
     } catch (error) {
-      this.logger.error("streamText threw synchronously", error);
+      this.logger.error('streamText threw synchronously', error);
       throw error;
     }
 
@@ -331,8 +332,8 @@ export class ChatService {
     }
 
     for (const s of sourceTexts) {
-      const escaped = s.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const titleRegex = new RegExp(`\\(${escaped}\\)`, "i");
+      const escaped = s.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const titleRegex = new RegExp(`\\(${escaped}\\)`, 'i');
       if (titleRegex.test(text)) {
         citedIds.add(s.id);
       }

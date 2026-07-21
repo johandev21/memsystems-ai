@@ -1,17 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, isNull } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { studyMaterialFolders, studyMaterials } from "../../database/schema";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/domain-error";
-import { DRIZZLE } from "../database/database.module";
-import { NotebooksService } from "../notebooks/notebooks.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { and, desc, eq, isNull } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { studyMaterialFolders, studyMaterials } from '../../database/schema';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/domain-error';
+import { DRIZZLE } from '../database/database.module';
+import { NotebooksService } from '../notebooks/notebooks.service';
 import {
   shuffleQuizOptions,
   StudyMaterialKind,
   validateContent,
-} from "./shapes";
+} from './shapes';
 
 export interface CreateStudyMaterialInput {
   kind: StudyMaterialKind;
@@ -94,7 +98,7 @@ export class StudyMaterialService {
       updates.title = input.title.trim().slice(0, 200);
     }
     if (input.content !== undefined) {
-      updates.content = validateContent(sm.kind as StudyMaterialKind, input.content);
+      updates.content = validateContent(sm.kind, input.content);
     }
     if (Object.keys(updates).length === 0) {
       return sm;
@@ -144,8 +148,8 @@ export class StudyMaterialService {
 
   async shuffle(userId: string, smId: string) {
     const sm = await this.fetchOwned(userId, smId);
-    if (sm.kind !== "quiz") {
-      throw new BadRequestError("Only quizzes can be shuffled");
+    if (sm.kind !== 'quiz') {
+      throw new BadRequestError('Only quizzes can be shuffled');
     }
     const shuffledContent = shuffleQuizOptions(sm.content as any);
     const [updated] = await this.db
@@ -197,13 +201,13 @@ export class StudyMaterialService {
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.id, folderId));
     if (!folder) {
-      throw new NotFoundError("Folder");
+      throw new NotFoundError('Folder');
     }
     if (folder.notebookId !== notebookId) {
-      throw new ForbiddenError("Folder does not belong to this notebook");
+      throw new ForbiddenError('Folder does not belong to this notebook');
     }
     if (folder.deletedAt) {
-      throw new BadRequestError("Cannot move to a folder in Trash");
+      throw new BadRequestError('Cannot move to a folder in Trash');
     }
   }
 
@@ -213,7 +217,7 @@ export class StudyMaterialService {
       .from(studyMaterials)
       .where(eq(studyMaterials.id, smId));
     if (!sm) {
-      throw new NotFoundError("Study material");
+      throw new NotFoundError('Study material');
     }
     await this.notebooksService.assertNotebookOwner(userId, sm.notebookId);
     return sm;

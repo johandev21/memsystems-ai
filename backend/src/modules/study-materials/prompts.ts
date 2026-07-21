@@ -1,4 +1,4 @@
-import { StudyMaterialKind } from "./shapes";
+import { StudyMaterialKind } from './shapes';
 
 interface PromptTemplate {
   system: string;
@@ -14,10 +14,10 @@ Randomize which option is correct across questions.`,
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate a quiz based on these instructions: ${brief}`
-      : "Generate a general quiz.";
+      : 'Generate a general quiz.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a quiz with questions, each having 2-6 options and exactly one correct answer.`;
   },
 };
@@ -31,10 +31,10 @@ Generate between 5 to 15 flashcards depending on the depth of the source materia
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate flashcards based on these instructions: ${brief}`
-      : "Generate a set of flashcards.";
+      : 'Generate a set of flashcards.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a set of flashcards, each containing a front (question) and back (answer).`;
   },
 };
@@ -47,10 +47,10 @@ Sections should flow logically and cover the key topics.`,
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate a report based on these instructions: ${brief}`
-      : "Generate a general report.";
+      : 'Generate a general report.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a report with a summary and structured sections.`;
   },
 };
@@ -64,10 +64,10 @@ Include estimated minutes for each topic when possible.`,
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate a learning roadmap based on these instructions: ${brief}`
-      : "Generate a general learning roadmap.";
+      : 'Generate a general learning roadmap.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a learning roadmap with phases and ordered topics.`;
   },
 };
@@ -81,10 +81,10 @@ Optional speaker notes should provide additional context.`,
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate a slide deck based on these instructions: ${brief}`
-      : "Generate a general slide deck.";
+      : 'Generate a general slide deck.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a slide deck with titled slides and markdown content.`;
   },
 };
@@ -98,10 +98,10 @@ Identify the root node that represents the main topic.`,
   user: (brief, sourceTexts) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : "";
+      : '';
     const instructionsBlock = brief
       ? `Generate a mind map based on these instructions: ${brief}`
-      : "Generate a general mind map.";
+      : 'Generate a general mind map.';
     return `${sourceBlock}${instructionsBlock}\n\nGenerate a mind map with nodes and labeled edges showing relationships.`;
   },
 };

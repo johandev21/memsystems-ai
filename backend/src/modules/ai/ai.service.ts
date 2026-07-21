@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { convertToModelMessages, streamText } from "ai";
-import { BadRequestError } from "../../common/errors/domain-error";
-import { ConnectionService } from "./connection.service";
-import { createOpenaiProvider, Provider } from "./openai.provider";
-import { UserSettingsService } from "./user-settings.service";
+import { Injectable } from '@nestjs/common';
+import { convertToModelMessages, streamText } from 'ai';
+import { BadRequestError } from '../../common/errors/domain-error';
+import { ConnectionService } from './connection.service';
+import { createOpenaiProvider, Provider } from './openai.provider';
+import { UserSettingsService } from './user-settings.service';
 
 type ConvertInput = Parameters<typeof convertToModelMessages>[0];
 
@@ -18,14 +18,14 @@ export class AiService {
     modelId: string,
     userId?: string,
   ): Promise<Provider> {
-    if (modelId.startsWith("openai/")) {
+    if (modelId.startsWith('openai/')) {
       if (!userId) {
-        throw new BadRequestError("User context required for OpenAI provider.");
+        throw new BadRequestError('User context required for OpenAI provider.');
       }
       const apiKey = await this.userSettingsService.getUserOpenaiApiKey(userId);
       if (!apiKey) {
         throw new BadRequestError(
-          "OpenAI API key not configured. Please add your key in the Connection settings.",
+          'OpenAI API key not configured. Please add your key in the Connection settings.',
         );
       }
       return createOpenaiProvider(apiKey);
@@ -36,7 +36,7 @@ export class AiService {
   }
 
   listModels(_userId?: string) {
-    return createOpenaiProvider("").listModels();
+    return createOpenaiProvider('').listModels();
   }
 
   async generateStream(
@@ -45,7 +45,7 @@ export class AiService {
     userId?: string,
   ): Promise<any> {
     if (!userId) {
-      throw new BadRequestError("User context required to generate stream.");
+      throw new BadRequestError('User context required to generate stream.');
     }
     await this.connectionService.requireConnected(userId, modelId);
     const provider = await this.getProviderForModel(modelId, userId);

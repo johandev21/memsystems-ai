@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { sql } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as authSchema from "../../database/auth-schema";
-import * as appSchema from "../../database/schema";
-import { DRIZZLE } from "../database/database.module";
-import { EmbeddingService } from "./embedding.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as authSchema from '../../database/auth-schema';
+import * as appSchema from '../../database/schema';
+import { DRIZZLE } from '../database/database.module';
+import { EmbeddingService } from './embedding.service';
 
 export interface RetrievedChunk {
   sourceId: string;
@@ -36,7 +36,7 @@ export class RetrievalService {
       userId,
     );
 
-    const vectorLiteral = `[${queryEmbedding.join(",")}]`;
+    const vectorLiteral = `[${queryEmbedding.join(',')}]`;
 
     const result = await this.db.execute(
       sql`

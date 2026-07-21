@@ -1,7 +1,7 @@
-import { Module } from "@nestjs/common";
-import { NotebooksModule } from "../notebooks/notebooks.module";
-import { ChatController } from "./chat.controller";
-import { ChatService } from "./chat.service";
+import { Module } from '@nestjs/common';
+import { NotebooksModule } from '../notebooks/notebooks.module';
+import { ChatController } from './chat.controller';
+import { ChatService } from './chat.service';
 
 @Module({
   imports: [NotebooksModule],

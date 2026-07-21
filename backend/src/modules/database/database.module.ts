@@ -1,9 +1,9 @@
-import { Global, Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { createDatabaseConnection } from "../../database/connection";
+import { Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createDatabaseConnection } from '../../database/connection';
 
-export const DRIZZLE = "DRIZZLE";
-export const PG_POOL = "PG_POOL";
+export const DRIZZLE = 'DRIZZLE';
+export const PG_POOL = 'PG_POOL';
 
 @Global()
 @Module({
@@ -11,7 +11,7 @@ export const PG_POOL = "PG_POOL";
     {
       provide: DRIZZLE,
       useFactory: (configService: ConfigService) => {
-        const dbUrl = configService.get<string>("DATABASE_URL");
+        const dbUrl = configService.get<string>('DATABASE_URL');
         const { db } = createDatabaseConnection(dbUrl);
         return db;
       },
@@ -20,7 +20,7 @@ export const PG_POOL = "PG_POOL";
     {
       provide: PG_POOL,
       useFactory: (configService: ConfigService) => {
-        const dbUrl = configService.get<string>("DATABASE_URL");
+        const dbUrl = configService.get<string>('DATABASE_URL');
         const { pool } = createDatabaseConnection(dbUrl);
         return pool;
       },
