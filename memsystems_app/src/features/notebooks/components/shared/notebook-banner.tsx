@@ -77,19 +77,18 @@ export function NotebookBanner({
         </div>
       )}
 
-      <div className="absolute bottom-0 inset-x-0 bg-background/70 rounded-b-4xl backdrop-blur-sm overflow-clip">
-        <div className="flex items-center gap-4 px-6 py-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border/40 bg-background/40 text-foreground rounded-lg shadow-xs">
-            <NotebookIcon name={icon} className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col gap-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate text-foreground">
-              {isUntitled ? t("untitledNotebook") : title}
-            </h3>
-            <span className="text-xs text-muted-foreground">
-              {formattedDate}
-            </span>
-          </div>
+      {/* Floating Inset Glassmorphic Metadata Card */}
+      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 max-w-[calc(100%-1rem)] flex items-center gap-3 rounded-2xl border border-white/30 bg-background/85 p-3 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-background/80">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background shadow-xs">
+          <NotebookIcon name={icon} className="size-4 text-foreground" />
+        </div>
+        <div className="flex flex-col gap-0.5 min-w-0 pr-1">
+          <h3 className="text-sm font-medium tracking-tight text-foreground truncate">
+            {isUntitled ? t("untitledNotebook") : title}
+          </h3>
+          <span className="text-xs text-muted-foreground/80 font-medium">
+            {formattedDate}
+          </span>
         </div>
       </div>
     </div>

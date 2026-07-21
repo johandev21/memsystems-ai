@@ -47,28 +47,33 @@ vi.mock("@/features/notebooks/components/studio/source-multi-select", () => ({
   SourceMultiSelect: () => <div data-testid="source-multi-select" />,
 }));
 
-// Mock DialogModelSelector as a standard select to avoid Radix UI Select JSDOM issues
-vi.mock("@/features/notebooks/components/model-selector", () => ({
-  DialogModelSelector: ({
-    models,
-    selectedModel,
-    onModelChange,
-    disabled,
-  }: any) => (
-    <select
-      data-testid="model-select"
-      value={selectedModel}
-      disabled={disabled}
-      onChange={(e) => onModelChange(e.target.value)}
-    >
-      {models.map((m: any) => (
-        <option key={m.id} value={m.id}>
-          {m.displayName}
-        </option>
-      ))}
-    </select>
-  ),
-}));
+vi.mock("@/features/notebooks", async () => {
+  const actual = await vi.importActual<typeof import("@/features/notebooks")>(
+    "@/features/notebooks",
+  );
+  return {
+    ...actual,
+    DialogModelSelector: ({
+      models,
+      selectedModel,
+      onModelChange,
+      disabled,
+    }: any) => (
+      <select
+        data-testid="model-select"
+        value={selectedModel}
+        disabled={disabled}
+        onChange={(e) => onModelChange(e.target.value)}
+      >
+        {models.map((m: any) => (
+          <option key={m.id} value={m.id}>
+            {m.displayName}
+          </option>
+        ))}
+      </select>
+    ),
+  };
+});
 
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 

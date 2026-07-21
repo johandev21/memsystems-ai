@@ -6,7 +6,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
-import { NotebookBanner } from "@/features/notebooks/components/notebook-banner";
+import { NotebookBanner } from "@/features/notebooks";
 import { useChatPanel } from "../hooks/use-chat-panel";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
@@ -54,6 +54,14 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               updatedAt={notebook.updatedAt}
               isUntitled={showBannerAsUntitled}
             />
+
+            {notebook.description?.trim() ? (
+              <div className="mb-6 px-1">
+                <p className="text-sm text-muted-foreground leading-relaxed font-normal whitespace-pre-wrap">
+                  {notebook.description}
+                </p>
+              </div>
+            ) : null}
 
             {hasMessages ? (
               <ChatMessageList

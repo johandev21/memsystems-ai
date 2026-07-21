@@ -79,13 +79,15 @@ const RESOURCES: ResourceConfig[] = [
   },
 ];
 
+export interface StudioResourcesProps {
+  collapsed: boolean;
+  onGenerate: (kind: StudyMaterialKind) => void;
+}
+
 export function StudioResources({
   collapsed,
   onGenerate,
-}: {
-  collapsed: boolean;
-  onGenerate: (kind: StudyMaterialKind) => void;
-}) {
+}: StudioResourcesProps) {
   const t = useTranslations("Notebook");
 
   if (collapsed) {

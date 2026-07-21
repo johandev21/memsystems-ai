@@ -26,15 +26,14 @@ export function ChatEmptyState({
     );
   }
 
+  if (description?.trim()) {
+    return null;
+  }
+
   return (
     <ConversationEmptyState
       title={t("welcomeTo", { title: notebookTitle })}
-      description={
-        description
-          ? description
-          : `${t("fallbackDescription", { title: notebookTitle })}\n\n${t("useChatPanel")}`
-      }
-      icon={<MessageSquare className="size-8" />}
+      description={`${t("fallbackDescription", { title: notebookTitle })}\n\n${t("useChatPanel")}`}
     />
   );
 }
