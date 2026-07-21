@@ -4,11 +4,11 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const sessionToken = req.cookies.get("better-auth.session_token");
 
-  // Public routes
+  // Public routes and API requests (handled by NestJS backend)
   if (
     pathname === "/" ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api") ||
     pathname.startsWith("/dev-storage")
   ) {
     return NextResponse.next();
