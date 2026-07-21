@@ -1,6 +1,6 @@
 # memsystems - Agent Instructions
 
-pnpm workspace monorepo with two packages: `memsystems_app/` (Next.js App Router) and `backend/` (NestJS API).
+pnpm workspace monorepo with two packages: `frontend/` (Next.js App Router) and `backend/` (NestJS API).
 
 ## Commands
 
@@ -9,20 +9,20 @@ Run from repo root. Each also works from the package directory with `pnpm run`.
 | Command | Purpose |
 |---------|---------|
 | `pnpm run dev` | Parallel dev servers (frontend :3000, backend :4000) |
-| `pnpm run dev:frontend` | Next.js dev server only (`--filter memsystems_app`) |
+| `pnpm run dev:frontend` | Next.js dev server only (`--filter frontend`) |
 | `pnpm run dev:backend` | NestJS dev server only (`--filter backend`) |
 | `pnpm run build` | Build both packages recursively |
 | `pnpm run typecheck` | `tsc --noEmit` in both packages |
 | `pnpm run lint` | Biome check (frontend) + ESLint (backend) |
 | `pnpm run test` | Vitest run in both packages |
 
-**Single-package**: `pnpm --filter <name> run <cmd>` (names: `memsystems_app`, `backend`).
+**Single-package**: `pnpm --filter <name> run <cmd>` (names: `frontend`, `backend`).
 
 **PowerShell workaround**: `cmd /c "cd /d <pkg-dir> && pnpm run test"`.
 
 **Quality Gate**: `lint` -> `typecheck` -> `test` (fastest first). Build is CI-only.
 
-## memsystems_app (Next.js Frontend)
+## frontend (Next.js Frontend)
 
 - **Framework**: Next.js 16 + React 19. Import alias `@/*` -> `./src/*`.
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), `tw-animate-css`, shadcn/ui.
@@ -44,7 +44,7 @@ Run from repo root. Each also works from the package directory with `pnpm run`.
 - **Auth**: `AuthGuard` guard + `@CurrentUser()` decorator in `modules/auth/`.
 - **Error handling**: Global `DomainExceptionFilter` catches `DomainError` (from `common/errors/domain-error.ts`) with `{error, code}` JSON response.
 - **Modules**: `modules/{ai,auth,chat,database,notebooks,sources,storage,study-materials}/`.
-- **Env loading**: `ConfigModule` reads `[../memsystems_app/.env.local, .env.local, ../.env.local, .env]`.
+- **Env loading**: `ConfigModule` reads `[../frontend/.env.local, .env.local, ../.env.local, .env]`.
 - **Lint/Format**: ESLint + Prettier (not Biome).
 - **Build**: `nest build` -> `dist/`. `tsconfig.build.json` excludes test files.
 - **Legacy**: `test/` dir has unused Jest e2e config. All active tests are in `tests/` (Vitest).

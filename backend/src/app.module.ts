@@ -15,7 +15,7 @@ import { StudyMaterialsModule } from "./modules/study-materials/study-materials.
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ["../memsystems_app/.env.local", ".env.local", "../.env.local", ".env"],
+      envFilePath: ["../frontend/.env.local", ".env.local", "../.env.local", ".env"],
     }),
     DatabaseModule,
     AuthModule,
