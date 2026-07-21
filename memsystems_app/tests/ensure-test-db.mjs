@@ -47,7 +47,7 @@ function pushSchema() {
   console.log("[ensure-test-db] running drizzle-kit push ...");
   const result = spawnSync(
     process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-    ["exec", "drizzle-kit", "push"],
+    ["exec", "drizzle-kit", "push", "--force"],
     { stdio: "inherit", env: process.env, shell: process.platform === "win32" },
   );
   if (result.status !== 0) {

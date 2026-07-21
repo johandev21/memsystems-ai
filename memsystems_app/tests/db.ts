@@ -7,11 +7,6 @@ export { db };
 
 // All tables across the auth + app schemas. Order is irrelevant with CASCADE.
 const TABLES = [
-  "note_tags",
-  "tags",
-  "cards",
-  "notes",
-  "note_types",
   "notebook_chat_messages",
   "generation_requests",
   "source_chunks",
