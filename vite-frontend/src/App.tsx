@@ -1,6 +1,6 @@
 function App() {
   return (
-    <div>Hello, new frontend!</div>
+    <div className="font-bold text-2xl bg-blue-200">Hello, new frontend!</div>
   )
 }
 
