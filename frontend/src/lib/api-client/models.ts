@@ -1,11 +1,31 @@
-import { createQueryOptions } from "./factory";
+import { queryOptions } from "@tanstack/react-query";
+import { fetchApi } from "../utils";
 
 export interface ModelOption {
   id: string;
   displayName: string;
 }
 
-export const modelsQueryOptions = createQueryOptions<ModelOption[]>(
-  ["models"],
-  "/api/ai/models",
-);
+export interface ModelsResponse {
+  models: ModelOption[];
+}
+
+export const modelsQueryOptions = queryOptions({
+  queryKey: ["models"],
+  queryFn: async (): Promise<ModelOption[]> => {
+    const res = await fetchApi("/api/ai/models");
+    if (!res.ok) throw new Error(`Failed to fetch models (${res.status})`);
+    const data = (await res.json()) as ModelsResponse | ModelOption[];
+    if (Array.isArray(data)) return data;
+    if (
+      data &&
+      typeof data === "object" &&
+      "models" in data &&
+      Array.isArray((data as ModelsResponse).models)
+    ) {
+      return (data as ModelsResponse).models;
+    }
+    return [];
+  },
+  staleTime: 30_000,
+});

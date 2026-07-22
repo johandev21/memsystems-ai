@@ -25,8 +25,8 @@ export interface CreateNotebookInput {
 
 export interface UpdateNotebookInput {
   title?: string;
-  description?: string;
-  icon?: string;
+  description?: string | null;
+  icon?: string | null;
   bannerFocalPoint?: { x: number; y: number } | null;
 }
 
@@ -170,10 +170,12 @@ export class NotebooksService {
       updates.title = input.title;
     }
     if (input.description !== undefined) {
-      updates.description = input.description.trim().slice(0, 500);
+      updates.description = input.description
+        ? input.description.trim().slice(0, 500)
+        : '';
     }
     if (input.icon !== undefined) {
-      updates.icon = input.icon.trim().slice(0, 50);
+      updates.icon = input.icon ? input.icon.trim().slice(0, 50) : 'notebook';
     }
     if (input.bannerFocalPoint !== undefined) {
       updates.bannerFocalPoint = input.bannerFocalPoint;

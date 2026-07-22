@@ -26,19 +26,26 @@ export class UserSettingsService {
     );
   }
 
-  async setUserOpenaiApiKey(userId: string, apiKey: string): Promise<void> {
+  async setUserOpenaiApiKey(
+    userId: string,
+    apiKey: string | null | undefined,
+  ): Promise<void> {
+    if (!apiKey || !apiKey.trim()) {
+      await this.removeUserOpenaiApiKey(userId);
+      return;
+    }
     const trimmed = apiKey.trim();
 
     await this.db
       .insert(userSettings)
       .values({
         userId,
-        openaiApiKey: trimmed || null,
+        openaiApiKey: trimmed,
       })
       .onConflictDoUpdate({
         target: userSettings.userId,
         set: {
-          openaiApiKey: trimmed || null,
+          openaiApiKey: trimmed,
           updatedAt: new Date(),
         },
       });

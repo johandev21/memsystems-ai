@@ -16,7 +16,7 @@ import { ConnectionService } from './connection.service';
 import { UserSettingsService } from './user-settings.service';
 
 const updateSettingsSchema = z.object({
-  openaiApiKey: z.string().optional(),
+  openaiApiKey: z.string().nullable().optional(),
 });
 
 @Controller('ai')
@@ -39,6 +39,7 @@ export class AiController {
     return this.connectionService.snapshot(userId);
   }
 
+  @Post('connection')
   @Post('connection/settings')
   @UsePipes(new ZodValidationPipe(updateSettingsSchema))
   async updateSettings(
@@ -46,19 +47,24 @@ export class AiController {
     @Body() body: z.infer<typeof updateSettingsSchema>,
   ) {
     if (body.openaiApiKey !== undefined) {
-      await this.userSettingsService.setUserOpenaiApiKey(
-        userId,
-        body.openaiApiKey,
-      );
+      if (body.openaiApiKey === null || body.openaiApiKey.trim() === '') {
+        await this.userSettingsService.removeUserOpenaiApiKey(userId);
+      } else {
+        await this.userSettingsService.setUserOpenaiApiKey(
+          userId,
+          body.openaiApiKey,
+        );
+      }
       this.connectionService.invalidateUserOpenaiCache(userId);
     }
-    return { success: true };
+    return this.connectionService.snapshot(userId);
   }
 
+  @Delete('connection')
   @Delete('connection/settings')
   async deleteSettings(@CurrentUser('id') userId: string) {
     await this.userSettingsService.removeUserOpenaiApiKey(userId);
     this.connectionService.invalidateUserOpenaiCache(userId);
-    return { success: true };
+    return this.connectionService.snapshot(userId);
   }
 }

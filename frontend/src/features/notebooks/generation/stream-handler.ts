@@ -110,7 +110,7 @@ export class StreamHandler {
           );
 
           try {
-            const fallbackSystemPrompt = `${systemPrompt}\n\nIMPORTANT: You must respond ONLY with a valid JSON object. Do not include any explanations, introduction, markdown formatting, or backticks. The JSON must match the following JSON schema:\n${JSON.stringify(schema, null, 2)}`;
+            const fallbackSystemPrompt = `${systemPrompt}\n\nIMPORTANT: You must respond ONLY with a valid JSON object matching the requested structure. Do not include any explanations, introduction, markdown formatting, or backticks.`;
 
             logger.info("Starting fallback generation", {
               requestId,

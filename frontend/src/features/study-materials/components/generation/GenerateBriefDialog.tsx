@@ -98,7 +98,7 @@ export function GenerateBriefDialog({
             {t("generateTitle", { kind: kindLabel(t, kind) })}
           </DialogTitle>
         </DialogHeader>
-        {connection?.openai?.ok ? (
+        {connection?.openai?.ok !== false ? (
           <BriefForm
             notebookId={notebookId}
             kind={kind}

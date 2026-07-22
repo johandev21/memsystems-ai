@@ -22,7 +22,7 @@ export const QuizQuestion = z.object({
 });
 
 export const QuizContent = z.object({
-  title: z.string().max(200).optional(),
+  title: z.string().max(200),
   questions: z.array(QuizQuestion).min(1).max(50),
 });
 
@@ -36,7 +36,7 @@ export const SimpleFlashcardContent = z.preprocess(
     return val;
   },
   z.object({
-    title: z.string().max(200).optional(),
+    title: z.string().max(200),
     cards: z
       .array(
         z.object({
@@ -56,34 +56,31 @@ export const ReportSection = z.object({
 });
 
 export const ReportContent = z.object({
-  title: z.string().max(200).optional(),
-  summary: z.string().max(1000).optional(),
+  title: z.string().max(200),
+  summary: z.string().max(1000),
   sections: z.array(ReportSection).min(1).max(50),
 });
 
 export const RoadmapTopic = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
-  description: z.string().max(5000).optional(),
-  estimatedMinutes: z.number().int().min(0).optional(),
+  description: z.string().max(5000),
+  estimatedMinutes: z.number().int().min(0),
   order: z.number().int().min(0),
 });
 
 export const RoadmapPhase = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
-  description: z.string().max(5000).optional(),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/)
-    .optional(),
+  description: z.string().max(5000),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   order: z.number().int().min(0),
   topics: z.array(RoadmapTopic).max(100),
 });
 
 export const RoadmapContent = z.object({
-  title: z.string().max(200).optional(),
-  description: z.string().max(5000).optional(),
+  title: z.string().max(200),
+  description: z.string().max(5000),
   phases: z.array(RoadmapPhase).min(1).max(20),
 });
 
@@ -91,42 +88,35 @@ export const SlideDeckSlide = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
   body: z.string().min(1).max(10000),
-  notes: z.string().max(10000).optional(),
+  notes: z.string().max(10000),
 });
 
 export const SlideDeckContent = z.object({
-  title: z.string().max(200).optional(),
+  title: z.string().max(200),
   slides: z.array(SlideDeckSlide).min(1).max(100),
 });
 
 export const MindMapNode = z.object({
   id: z.string(),
   label: z.string().min(1).max(500),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/)
-    .nullable()
-    .default(null),
-  position: z
-    .object({
-      x: z.number(),
-      y: z.number(),
-    })
-    .nullable()
-    .default(null),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }),
 });
 
 export const MindMapEdge = z.object({
   id: z.string(),
   sourceId: z.string(),
   targetId: z.string(),
-  label: z.string().max(200).nullable().default(null),
-  directed: z.boolean().nullable().default(null),
+  label: z.string().max(200),
+  directed: z.boolean(),
 });
 
 export const MindMapContent = z.object({
-  title: z.string().max(200).optional(),
-  rootId: z.string().nullable().default(null),
+  title: z.string().max(200),
+  rootId: z.string(),
   nodes: z.array(MindMapNode).min(1).max(500),
   edges: z.array(MindMapEdge).max(2000),
 });

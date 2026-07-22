@@ -33,13 +33,20 @@ describe("NotebooksService Integration Tests", () => {
 
   it("should update notebook details", async () => {
     const user = await seedUser();
-    const notebook = await seedNotebook(user.id, { title: "Old Title" });
+    const notebook = await seedNotebook(user.id, {
+      title: "Old Title",
+      description: "Initial description",
+    });
 
     const updated = await notebooksService.update(user.id, notebook.id, {
       title: "New Updated Title",
+      description: null,
+      icon: null,
     });
 
     expect(updated.title).toBe("New Updated Title");
+    expect(updated.description).toBe("");
+    expect(updated.icon).toBe("notebook");
   });
 
   it("should delete a notebook", async () => {

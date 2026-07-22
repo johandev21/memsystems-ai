@@ -47,7 +47,10 @@ export function startGeneration(
   });
 
   const requestIdPromise = promise.then(
-    (res) => res.headers.get("X-Request-Id") ?? "",
+    (res) =>
+      res.headers.get("X-Request-Id") ??
+      res.headers.get("X-Generation-Request-Id") ??
+      "",
   );
 
   const stream: AsyncIterable<GenerationEvent> = {

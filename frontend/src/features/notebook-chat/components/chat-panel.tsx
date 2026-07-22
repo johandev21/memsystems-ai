@@ -93,7 +93,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
             onConfirm={() => clearHistoryMutation.mutate()}
             isClearing={clearHistoryMutation.isPending}
           />
-          {connection?.openai?.ok ? (
+          {connection?.openai?.ok !== false ? (
             <Composer
               input={input}
               onInputChange={setInput}

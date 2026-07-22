@@ -156,10 +156,17 @@ function useNotebookSettingsSave({
     try {
       const promises: Promise<Notebook>[] = [];
       const trimmedTitle = title.trim();
+      if (!trimmedTitle) {
+        toast.error("Title is required");
+        setIsSaving(false);
+        return;
+      }
+      const effectiveDesc = description ?? "";
+      const effectiveIcon = icon ?? "notebook";
       const fieldsChanged =
         trimmedTitle !== notebook.title ||
-        description !== notebook.description ||
-        icon !== notebook.icon;
+        effectiveDesc !== notebook.description ||
+        effectiveIcon !== notebook.icon;
       const shouldUpdateFocalPoint = focalPointChanged && !bannerFile;
 
       if (fieldsChanged || shouldUpdateFocalPoint) {
@@ -172,11 +179,11 @@ function useNotebookSettingsSave({
         if (trimmedTitle !== notebook.title) {
           body.title = trimmedTitle;
         }
-        if (description !== notebook.description) {
-          body.description = description ?? undefined;
+        if (effectiveDesc !== notebook.description) {
+          body.description = effectiveDesc;
         }
-        if (icon !== notebook.icon) {
-          body.icon = icon ?? undefined;
+        if (effectiveIcon !== notebook.icon) {
+          body.icon = effectiveIcon;
         }
         if (shouldUpdateFocalPoint) {
           body.bannerFocalPoint = focalPoint;
@@ -200,6 +207,7 @@ function useNotebookSettingsSave({
         formData.append("file", bannerFile);
         formData.append("focalPointX", focalPoint.x.toString());
         formData.append("focalPointY", focalPoint.y.toString());
+        formData.append("focalPoint", JSON.stringify(focalPoint));
         promises.push(
           fetch(`/api/notebooks/${notebook.id}/banner`, {
             method: "POST",
@@ -357,10 +365,14 @@ function NotebookSettingsForm({
   }, [focalPoint, notebook.bannerFocalPoint]);
 
   const hasChanges = useMemo(() => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) return false;
+    const effectiveDesc = description ?? "";
+    const effectiveIcon = icon ?? "notebook";
     return (
-      title.trim() !== notebook.title ||
-      description !== notebook.description ||
-      icon !== notebook.icon ||
+      trimmedTitle !== notebook.title ||
+      effectiveDesc !== notebook.description ||
+      effectiveIcon !== notebook.icon ||
       bannerFile !== null ||
       (bannerRemoved && notebook.bannerUrl !== null) ||
       focalPointChanged

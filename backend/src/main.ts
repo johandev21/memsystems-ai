@@ -13,6 +13,7 @@ async function bootstrap() {
       'http://127.0.0.1:3000',
     ],
     credentials: true,
+    exposedHeaders: ['X-Request-Id', 'X-Generation-Request-Id'],
   });
 
   app.useGlobalFilters(new DomainExceptionFilter());

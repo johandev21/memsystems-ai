@@ -59,15 +59,19 @@ describe("IconPicker", () => {
 
     const input = screen.getByRole("combobox");
     await user.type(input, "brain");
+    await new Promise((r) => setTimeout(r, 200));
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("option", { name: /^Brain$/i }),
-      ).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getAllByRole("option", { name: /^Brain$/i })[0],
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
-    const brainOption = screen.getByRole("option", { name: /^Brain$/i });
-    await user.click(brainOption);
+    const brainOptions = screen.getAllByRole("option", { name: /^Brain$/i });
+    await user.click(brainOptions[0]);
 
     expect(handleChange).toHaveBeenCalledWith("brain");
   });

@@ -78,15 +78,28 @@ export function Composer({
     }
   };
 
+  const safeModels = useMemo<ModelOption[]>(() => {
+    if (Array.isArray(models)) return models;
+    if (
+      models &&
+      typeof models === "object" &&
+      "models" in models &&
+      Array.isArray((models as { models: unknown }).models)
+    ) {
+      return (models as { models: ModelOption[] }).models;
+    }
+    return [];
+  }, [models]);
+
   const filteredModels = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return models;
-    return models.filter(
+    if (!query) return safeModels;
+    return safeModels.filter(
       (m) =>
         m.displayName.toLowerCase().includes(query) ||
         m.id.toLowerCase().includes(query),
     );
-  }, [models, search]);
+  }, [safeModels, search]);
 
   const groupedModels = useMemo(() => {
     const groups: Record<string, ModelOption[]> = {};
@@ -101,8 +114,8 @@ export function Composer({
   }, [filteredModels]);
 
   const activeModelDetails = useMemo(
-    () => models.find((m) => m.id === selectedModel),
-    [models, selectedModel],
+    () => safeModels.find((m) => m.id === selectedModel),
+    [safeModels, selectedModel],
   );
 
   const activeProvider = useMemo(() => {

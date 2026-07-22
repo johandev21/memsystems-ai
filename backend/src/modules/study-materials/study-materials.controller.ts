@@ -253,6 +253,7 @@ export class StudyMaterialsController {
     );
 
     res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('X-Request-Id', requestId);
     res.setHeader('X-Generation-Request-Id', requestId);
 
     const reader = stream.getReader();

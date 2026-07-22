@@ -34,5 +34,7 @@ Thumbs.db
 # Storage & Temp
 /dev-storage/
 /.storage/
+/backend/storage/
 .temp
 .tmp
+.turbo

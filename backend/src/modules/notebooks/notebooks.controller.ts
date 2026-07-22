@@ -33,8 +33,8 @@ const createNotebookSchema = z.object({
 
 const updateNotebookSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200).optional(),
-  description: z.string().max(500).optional(),
-  icon: z.string().max(50).optional(),
+  description: z.string().max(500).nullable().optional(),
+  icon: z.string().max(50).nullable().optional(),
   bannerFocalPoint: z
     .object({
       x: z.number().min(0).max(1),

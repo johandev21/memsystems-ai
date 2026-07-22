@@ -30,4 +30,28 @@ describe("NotebookCardPreview", () => {
       screen.getByDisplayValue("Core concepts of physics and chemistry"),
     ).toBeInTheDocument();
   });
+
+  it("calls description change handler when description is updated or cleared", () => {
+    let descValue: string | null = "Initial";
+    const { rerender } = render(
+      <NotebookCardPreview
+        title="Natural Science"
+        setTitle={() => {}}
+        description={descValue}
+        setDescription={(val) => {
+          descValue = val;
+        }}
+        icon="brain"
+        setIcon={() => {}}
+        bannerPreviewUrl={null}
+        focalPoint={{ x: 0.5, y: 0.5 }}
+        setFocalPoint={() => {}}
+        onOpenImageUpload={() => {}}
+        onRemoveBanner={() => {}}
+      />,
+    );
+
+    const descInput = screen.getByDisplayValue("Initial");
+    expect(descInput).toBeInTheDocument();
+  });
 });

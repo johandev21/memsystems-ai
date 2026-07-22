@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "description": "Compiles TypeScript and builds production assets for applications and packages",
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "description": "Starts development servers for all packages in parallel with hot reloading",
+      "persistent": true,
+      "cache": false
+    },
+    "lint": {
+      "description": "Checks code style and catches common errors across all workspace packages"
+    },
+    "typecheck": {
+      "description": "Runs TypeScript type checking without emitting output files"
+    },
+    "test": {
+      "description": "Runs the Vitest test suite across all workspace packages"
+    },
+    "format": {
+      "description": "Formats source code across all workspace packages"
+    }
+  }
+}
