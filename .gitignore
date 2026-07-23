@@ -33,6 +33,7 @@ Thumbs.db
 
 # Storage & Temp
 /dev-storage/
+/backend/dev-storage/
 /.storage/
 /backend/storage/
 .temp

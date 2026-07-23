@@ -1,0 +1,230 @@
+import type { QueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { create } from "zustand";
+import {
+  cancelGeneration,
+  type StudyMaterialKind,
+  startGeneration,
+} from "@/lib/api-client/generation";
+import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
+import { KIND_LABELS } from "../shapes";
+
+export interface ActiveGeneration {
+  id: string;
+  notebookId: string;
+  kind: StudyMaterialKind;
+  brief: string;
+  sourceIds?: string[];
+  status: "connecting" | "streaming" | "done" | "error";
+  progress?: unknown;
+  error?: string;
+  onComplete?: (materialId: string) => void;
+}
+
+interface GenerationState {
+  generations: Record<string, ActiveGeneration>;
+  isCollapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+  startBackgroundGeneration: (
+    notebookId: string,
+    input: {
+      kind: StudyMaterialKind;
+      brief: string;
+      sourceIds: string[];
+      folderId: string | null;
+      model?: string;
+    },
+    queryClient: QueryClient,
+    onComplete?: (materialId: string) => void,
+  ) => Promise<void>;
+  cancelBackgroundGeneration: (notebookId: string, id: string) => Promise<void>;
+}
+
+export const useGenerationStore = create<GenerationState>((set, get) => ({
+  generations: {},
+  isCollapsed: false,
+  setCollapsed: (collapsed) => set({ isCollapsed: collapsed }),
+
+  startBackgroundGeneration: async (
+    notebookId,
+    input,
+    queryClient,
+    onComplete,
+  ) => {
+    const tempId = `temp-${Math.random().toString(36).substring(7)}-${Date.now()}`;
+
+    set((state) => ({
+      generations: {
+        ...state.generations,
+        [tempId]: {
+          id: tempId,
+          notebookId,
+          kind: input.kind,
+          brief: input.brief,
+          sourceIds: input.sourceIds,
+          status: "connecting",
+          onComplete,
+        },
+      },
+    }));
+
+    const { stream, requestIdPromise } = startGeneration(notebookId, input);
+
+    let requestId: string;
+    try {
+      requestId = await requestIdPromise;
+      if (!requestId) {
+        throw new Error("No request ID returned from server");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+
+      set((state) => {
+        const next = { ...state.generations };
+        if (next[tempId]) {
+          next[tempId] = { ...next[tempId], status: "error", error: msg };
+        }
+        return { generations: next };
+      });
+      toast.error(`Generation failed: ${msg}`);
+      return;
+    }
+
+    if (!get().generations[tempId]) {
+      try {
+        await cancelGeneration(notebookId, requestId);
+      } catch {
+        // ignore cancellation failure
+      }
+      return;
+    }
+
+    set((state) => {
+      const next = { ...state.generations };
+      delete next[tempId];
+      next[requestId] = {
+        id: requestId,
+        notebookId,
+        kind: input.kind,
+        brief: input.brief,
+        sourceIds: input.sourceIds,
+        status: "streaming",
+        onComplete,
+      };
+      return { generations: next };
+    });
+
+    (async () => {
+      try {
+        for await (const event of stream) {
+          if (!get().generations[requestId]) {
+            try {
+              await cancelGeneration(notebookId, requestId);
+            } catch {
+              // ignore
+            }
+            break;
+          }
+
+          if (event.type === "partial") {
+            set((state) => {
+              if (!state.generations[requestId]) return state;
+              return {
+                generations: {
+                  ...state.generations,
+                  [requestId]: {
+                    ...state.generations[requestId],
+                    status: "streaming",
+                    progress: event.content,
+                  },
+                },
+              };
+            });
+          } else if (event.type === "done") {
+            await queryClient.invalidateQueries({
+              queryKey: ["study-materials", notebookId],
+            });
+
+            let viewMaterialId = event.materialId;
+
+            if (!viewMaterialId) {
+              const list =
+                queryClient.getQueryData<StudyMaterialDTO[]>([
+                  "study-materials",
+                  notebookId,
+                ]) || [];
+              const matching = list.filter((m) => m.kind === input.kind);
+              matching.sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              );
+              viewMaterialId = matching[0]?.id;
+            }
+
+            set((state) => {
+              const next = { ...state.generations };
+              delete next[requestId];
+              return { generations: next };
+            });
+
+            const label = kindLabel(input.kind);
+            toast.success(`${label} generated successfully!`, {
+              action:
+                viewMaterialId && onComplete
+                  ? {
+                      label: "View",
+                      onClick: () => onComplete(viewMaterialId),
+                    }
+                  : undefined,
+              duration: 8000,
+            });
+          } else if (event.type === "error") {
+            throw event.error;
+          }
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+
+        set((state) => {
+          if (!state.generations[requestId]) return state;
+          return {
+            generations: {
+              ...state.generations,
+              [requestId]: {
+                ...state.generations[requestId],
+                status: "error",
+                error: message,
+              },
+            },
+          };
+        });
+
+        toast.error(`Failed to generate ${kindLabel(input.kind)}: ${message}`);
+      }
+    })();
+  },
+
+  cancelBackgroundGeneration: async (notebookId, id) => {
+    const isTemp = id.startsWith("temp-");
+
+    set((state) => {
+      const next = { ...state.generations };
+      delete next[id];
+      return { generations: next };
+    });
+
+    if (!isTemp) {
+      try {
+        await cancelGeneration(notebookId, id);
+        toast.info("Generation cancelled");
+      } catch {
+        // ignore
+      }
+    }
+  },
+}));
+
+function kindLabel(kind: StudyMaterialKind): string {
+  return KIND_LABELS[kind];
+}
