@@ -1,26 +1,7 @@
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import type { StudyMaterialKind, StudyMaterialDTO, CreateStudyMaterialInput } from "@/entities/study-material";
 import { apiDelete, apiPost, createQueryOptions } from "./factory";
 
-export type { StudyMaterialKind };
-
-export interface StudyMaterialDTO {
-  id: string;
-  notebookId: string;
-  kind: StudyMaterialKind;
-  title: string;
-  folderId: string | null;
-  content: unknown;
-  deletedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateStudyMaterialInput {
-  kind: StudyMaterialKind;
-  title: string;
-  content: unknown;
-  folderId?: string | null;
-}
+export type { StudyMaterialKind, StudyMaterialDTO, CreateStudyMaterialInput };
 
 export const studyMaterialsQueryOptions = (notebookId: string) =>
   createQueryOptions<StudyMaterialDTO[]>(

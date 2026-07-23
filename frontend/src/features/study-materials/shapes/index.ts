@@ -5,6 +5,7 @@ import { ReportContent } from "./report";
 import { RoadmapContent } from "./roadmap";
 import { SimpleFlashcardContent } from "./simple-flashcard";
 import { SlideDeckContent } from "./slide-deck";
+import type { StudyMaterialKind } from "@/entities/study-material";
 
 export { KIND_LABELS } from "./kind-labels";
 export { MindMapContent, type MindMapContentType } from "./mind-map";
@@ -13,14 +14,7 @@ export { ReportContent, type ReportContentType } from "./report";
 export { RoadmapContent, type RoadmapContentType } from "./roadmap";
 export { SimpleFlashcardContent, type SimpleFlashcardContentType } from "./simple-flashcard";
 export { SlideDeckContent, type SlideDeckContentType } from "./slide-deck";
-
-export type StudyMaterialKind =
-  | "quiz"
-  | "simple_flashcard"
-  | "report"
-  | "roadmap"
-  | "slide_deck"
-  | "mind_map";
+export type { StudyMaterialKind };
 
 const contentSchemas: Record<StudyMaterialKind, z.ZodTypeAny> = {
   quiz: QuizContent,

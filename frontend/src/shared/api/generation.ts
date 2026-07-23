@@ -1,4 +1,4 @@
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import type { StudyMaterialKind } from "@/entities/study-material";
 import { getApiUrl } from "../lib/utils";
 
 export type { StudyMaterialKind };

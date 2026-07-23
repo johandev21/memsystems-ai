@@ -1,19 +1,8 @@
 import { fetchApi } from "../lib/utils";
 import { apiDelete, apiPost, createQueryOptions } from "./factory";
+import type { SourceKind, Source, SourceWithContent } from "@/entities/source";
 
-export type SourceKind = "text" | "url" | "file";
-
-export interface Source {
-  id: string;
-  notebookId: string;
-  kind: SourceKind;
-  title: string;
-  url: string | null;
-  contentType: string | null;
-  fileSize: number | null;
-  createdAt: string;
-}
-
+export type { SourceKind, Source, SourceWithContent };
 export const SOURCE_LIMIT = 50;
 
 export const sourcesQueryOptions = (notebookId: string) =>
@@ -21,12 +10,6 @@ export const sourcesQueryOptions = (notebookId: string) =>
     ["sources", notebookId],
     `/api/notebooks/${notebookId}/sources`,
   );
-
-export interface SourceWithContent extends Source {
-  rawText: string;
-  s3Key: string | null;
-  sha256: string | null;
-}
 
 export const sourceQueryOptions = (sourceId: string) =>
   createQueryOptions<SourceWithContent>(

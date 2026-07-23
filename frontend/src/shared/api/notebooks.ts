@@ -1,24 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchApi } from "../lib/utils";
 import { apiDelete, createQueryOptions } from "./factory";
+import type { Notebook, NotebooksResponse } from "@/entities/notebook";
 
-export interface Notebook {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  icon: string;
-  banner: string | null;
-  bannerUrl: string | null;
-  bannerFocalPoint: { x: number; y: number } | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface NotebooksResponse {
-  notebooks: Notebook[];
-  total: number;
-}
+export type { Notebook, NotebooksResponse };
 
 async function fetchNotebooks(
   limit?: number,

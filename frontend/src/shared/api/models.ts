@@ -1,14 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchApi } from "../lib/utils";
+import type { ModelOption, ModelsResponse } from "@/entities/model";
 
-export interface ModelOption {
-  id: string;
-  displayName: string;
-}
-
-export interface ModelsResponse {
-  models: ModelOption[];
-}
+export type { ModelOption, ModelsResponse };
 
 export const modelsQueryOptions = queryOptions({
   queryKey: ["models"],
