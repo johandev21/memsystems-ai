@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchApi } from "../lib/utils";
+import { fetchApi } from "@/shared/lib/utils";
 
 interface ApiError {
   error?: string;

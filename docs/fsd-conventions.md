@@ -21,9 +21,10 @@ src/
 ## Import Rules
 
 1. **Layers may only import from layers below them** (app → pages → widgets → features → entities → shared)
-2. **All cross-feature imports must go through the feature's barrel** (`index.ts`)
-3. **Avoid deep imports into a feature's internal structure**
-4. **The shared layer needs no barrel for its top-level modules** — imports from `@/shared/ui`, `@/shared/lib`, etc. are allowed
+2. **Exception — type-only upward imports from shared are allowed.** Shared segments (e.g. `shared/api/`) may `import type` from entities or features since type imports are erased at compile time and cannot create runtime cycles. Shared segments may also re-export those types as a convenience gateway (e.g. `shared/api/` re-exporting entity types so callers can import from one path).
+3. **All cross-feature imports must go through the feature's barrel** (`index.ts`)
+4. **Avoid deep imports into a feature's internal structure**
+5. **The shared layer needs no barrel for its top-level modules** — imports from `@/shared/ui`, `@/shared/lib`, etc. are allowed
 
 ## Barrel Files
 
