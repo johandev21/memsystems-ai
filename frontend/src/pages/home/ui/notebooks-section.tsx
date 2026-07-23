@@ -10,7 +10,7 @@ import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { notebooksQueryOptions } from "@/shared/api/notebooks";
 import { fetchApi } from "@/shared/lib/utils";
-import { NotebookCard } from "./notebook-card";
+import { NotebookCard } from "@/shared/ui/notebook-card";
 import { SectionHeader } from "./section-header";
 
 function formatUpdatedAt(date: string): string {
