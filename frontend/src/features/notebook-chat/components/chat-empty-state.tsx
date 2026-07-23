@@ -1,5 +1,5 @@
 import { MessageSquare } from "lucide-react";
-import { ConversationEmptyState } from "@/features/ai/ui/conversation";
+import { ConversationEmptyState } from "@/features/ai";
 
 export interface ChatEmptyStateProps {
   notebookTitle: string;

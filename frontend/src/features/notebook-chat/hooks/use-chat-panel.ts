@@ -8,7 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useConnectionStatus } from "@/features/ai";
-import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
+import { useModelPersistence } from "@/features/notebooks";
 import {
   type CitedSourceDTO,
   chatMessagesQueryOptions,

@@ -4,12 +4,10 @@ import {
   MessageContent,
   MessageResponse,
   type MessageResponseProps,
-} from "@/features/ai/ui/message";
-import {
   Reasoning,
   ReasoningContent,
   ReasoningTrigger,
-} from "@/features/ai/ui/reasoning";
+} from "@/features/ai";
 import type { CitedSourceDTO } from "@/shared/api/chat";
 
 interface AssistantMessageProps {

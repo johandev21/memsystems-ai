@@ -6,11 +6,9 @@ import {
   ResizablePanelGroup,
 } from "@/shared/ui/resizable";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
-import { ChatPanelHeader } from "@/features/notebook-chat/components/chat-panel-header";
-import { SourcesPanel } from "@/features/sources/components/sources-panel";
-import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
-import { StudyMaterialsPanel } from "@/features/study-materials/components/tree/study-materials-panel";
+import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
+import { SourcesPanel } from "@/features/sources";
+import { GenerateBriefDialog, StudyMaterialsPanel } from "@/features/study-materials";
 import type { UseStudioDialogsReturn } from "../../hooks/use-studio-dialogs";
 import { StudioResources } from "../shared/studio-resources";
 import { SourcesPanelHeader } from "./sources-panel-header";

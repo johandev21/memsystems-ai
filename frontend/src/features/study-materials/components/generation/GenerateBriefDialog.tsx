@@ -1,19 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { OpenAIKeyPrompt } from "@/features/ai/ui/openai-key-prompt";
+import { OpenAIKeyPrompt, useConnectionStatus } from "@/features/ai";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { useConnectionStatus } from "@/features/ai";
-import { useModelPersistence } from "@/features/notebooks/hooks/use-model-persistence";
-import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
-import {
-  KIND_LABELS,
-  type StudyMaterialKind,
-} from "@/features/study-materials/shapes";
+import { useModelPersistence } from "@/features/notebooks";
+import { useGenerationStore, KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
 import type { ModelOption } from "@/shared/api/models";
 import { BriefForm } from "./BriefForm";
 

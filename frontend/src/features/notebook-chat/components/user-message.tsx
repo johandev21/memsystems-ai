@@ -3,7 +3,7 @@ import {
   Message,
   MessageContent,
   MessageResponse,
-} from "@/features/ai/ui/message";
+} from "@/features/ai";
 
 const isTextPart = (
   part: UIMessage["parts"][number],

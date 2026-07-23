@@ -19,8 +19,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/ui/tooltip";
-import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
-import { KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials/shapes";
+import { useGenerationStore } from "@/features/study-materials";
+import { KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
 import { sourcesQueryOptions } from "@/shared/api/sources";
 import { cn } from "@/shared/lib/utils";
 

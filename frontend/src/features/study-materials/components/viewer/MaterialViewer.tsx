@@ -5,8 +5,7 @@ import type {
   QuizEditorContentType,
   RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
-import type { ReportContentType } from "@/features/study-materials/shapes/report";
-import type { SlideDeckContentType } from "@/features/study-materials/shapes/slide-deck";
+import type { ReportContentType, SlideDeckContentType } from "@/features/study-materials";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import { FlashcardView } from "./FlashcardView";
 import { MindMapView } from "./MindMapView";

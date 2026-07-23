@@ -1,4 +1,4 @@
-import { NotebookSettingsDialog } from "@/features/notebooks/components/dialogs/notebook-settings-dialog";
+import { NotebookSettingsDialog } from "@/features/notebooks";
 
 interface ChatPanelHeaderProps {
   notebookId: string;

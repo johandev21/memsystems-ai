@@ -2,13 +2,13 @@ import { useRef } from "react";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
-import { DialogModelSelector } from "@/features/notebooks/components/shared/model-selector";
-import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
-import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
+import { DialogModelSelector } from "@/features/notebooks";
+import { FolderPicker } from "@/features/notebooks";
+import { SourceMultiSelect } from "@/features/notebooks";
 import {
   KIND_LABELS,
   type StudyMaterialKind,
-} from "@/features/study-materials/shapes";
+} from "@/features/study-materials";
 import type { ModelOption } from "@/shared/api/models";
 
 export interface BriefFormData {

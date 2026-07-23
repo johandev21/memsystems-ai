@@ -7,12 +7,12 @@ import { SimpleFlashcardContent } from "./simple-flashcard";
 import { SlideDeckContent } from "./slide-deck";
 
 export { KIND_LABELS } from "./kind-labels";
-export { MindMapContent } from "./mind-map";
-export { QuizContent, shuffleQuizOptions } from "./quiz";
-export { ReportContent } from "./report";
-export { RoadmapContent } from "./roadmap";
-export { SimpleFlashcardContent } from "./simple-flashcard";
-export { SlideDeckContent } from "./slide-deck";
+export { MindMapContent, type MindMapContentType } from "./mind-map";
+export { QuizContent, shuffleQuizOptions, type QuizContentType } from "./quiz";
+export { ReportContent, type ReportContentType } from "./report";
+export { RoadmapContent, type RoadmapContentType } from "./roadmap";
+export { SimpleFlashcardContent, type SimpleFlashcardContentType } from "./simple-flashcard";
+export { SlideDeckContent, type SlideDeckContentType } from "./slide-deck";
 
 export type StudyMaterialKind =
   | "quiz"

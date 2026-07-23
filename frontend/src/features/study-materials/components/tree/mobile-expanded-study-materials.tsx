@@ -14,7 +14,7 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   RightPane,
   type RightPaneMode,
-} from "@/features/notebooks/components/studio/right-pane";
+} from "@/features/notebooks";
 import { studyMaterialsQueryOptions } from "@/shared/api/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import { StudyMaterialsTree } from "./study-materials-tree";

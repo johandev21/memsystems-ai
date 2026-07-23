@@ -11,8 +11,6 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/features/ai/ui/model-selector";
-import {
   PromptInput,
   PromptInputBody,
   PromptInputButton,
@@ -20,7 +18,7 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-} from "@/features/ai/ui/prompt-input";
+} from "@/features/ai";
 import { Button } from "@/shared/ui/button";
 import type { ModelOption } from "@/shared/api/models";
 

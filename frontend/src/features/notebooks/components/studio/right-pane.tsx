@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
+import { MaterialViewer } from "@/features/study-materials";
 import {
   type StudyMaterialDTO,
   studyMaterialQueryOptions,
