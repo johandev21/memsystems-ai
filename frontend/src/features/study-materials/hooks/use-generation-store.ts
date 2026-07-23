@@ -5,8 +5,8 @@ import {
   cancelGeneration,
   type StudyMaterialKind,
   startGeneration,
-} from "@/lib/api-client/generation";
-import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
+} from "@/shared/api/generation";
+import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import { KIND_LABELS } from "../shapes";
 
 export interface ActiveGeneration {

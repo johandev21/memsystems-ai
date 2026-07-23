@@ -1,7 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { NotebookIcon } from "@/components/branding/notebook-icon";
+import { NotebookIcon } from "@/shared/ui/notebook-icon";
 
 export interface NotebookBannerProps {
   title: string;

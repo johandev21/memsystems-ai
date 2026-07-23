@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { Separator } from "@/shared/ui/separator";
+import { cn } from "@/shared/lib/utils";
 import { useRoadmapProgress } from "./useRoadmapProgress";
 
 export interface RoadmapViewProps {

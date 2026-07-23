@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/shared/ui/button";
+import { Label } from "@/shared/ui/label";
+import { Textarea } from "@/shared/ui/textarea";
 import { DialogModelSelector } from "@/features/notebooks/components/shared/model-selector";
 import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
 import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
@@ -9,7 +9,7 @@ import {
   KIND_LABELS,
   type StudyMaterialKind,
 } from "@/features/study-materials/shapes";
-import type { ModelOption } from "@/lib/api-client/models";
+import type { ModelOption } from "@/shared/api/models";
 
 export interface BriefFormData {
   brief: string;

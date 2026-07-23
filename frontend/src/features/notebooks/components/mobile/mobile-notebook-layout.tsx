@@ -1,5 +1,5 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { ScrollArea } from "@/shared/ui/scroll-area";
+import { Tabs, TabsContent } from "@/shared/ui/tabs";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";
 import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";

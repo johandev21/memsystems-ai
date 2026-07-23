@@ -2,14 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
+import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
 import {
   deleteSource,
   type Source,
   type SourceKind,
   sourcesQueryOptions,
-} from "@/lib/api-client/sources";
-import { cn } from "@/lib/utils";
+} from "@/shared/api/sources";
+import { cn } from "@/shared/lib/utils";
 import { AddSourceDialog } from "./add-source-dialog";
 import { SourceViewerDialog } from "./source-viewer-dialog";
 

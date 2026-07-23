@@ -2,21 +2,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Folder, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "@/shared/ui/popover";
+import { Separator } from "@/shared/ui/separator";
 import {
   type CreateFolderInput,
   createFolder,
   type FolderDTO,
   foldersQueryOptions,
-} from "@/lib/api-client/folders";
-import { cn } from "@/lib/utils";
+} from "@/shared/api/folders";
+import { cn } from "@/shared/lib/utils";
 
 export interface FolderPickerProps {
   notebookId: string;

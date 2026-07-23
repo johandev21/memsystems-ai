@@ -12,8 +12,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@/shared/ui/alert-dialog";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/shared/ui/dialog";
 import {
   deleteNotebook,
   type Notebook,
   notebookQueryOptions,
-} from "@/lib/api-client/notebooks";
-import { fetchApi } from "@/lib/utils";
+} from "@/shared/api/notebooks";
+import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCardPreview } from "../shared/notebook-card-preview";
 import { ImageUploadDialog } from "./image-upload-dialog";
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Maximize2, X } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -9,18 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/shared/ui/dialog";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/shared/ui/resizable";
+import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   RightPane,
   type RightPaneMode,
 } from "@/features/notebooks/components/studio/right-pane";
-import { studyMaterialsQueryOptions } from "@/lib/api-client/study-materials";
+import { studyMaterialsQueryOptions } from "@/shared/api/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import { StudyMaterialsTree } from "./study-materials-tree";
 

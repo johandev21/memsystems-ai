@@ -11,7 +11,7 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
+} from "@/features/ai/ui/model-selector";
 import {
   PromptInput,
   PromptInputBody,
@@ -20,9 +20,9 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
-import { Button } from "@/components/ui/button";
-import type { ModelOption } from "@/lib/api-client/models";
+} from "@/features/ai/ui/prompt-input";
+import { Button } from "@/shared/ui/button";
+import type { ModelOption } from "@/shared/api/models";
 
 export interface ComposerProps {
   input: string;

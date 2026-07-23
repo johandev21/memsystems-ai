@@ -10,14 +10,14 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@/shared/ui/context-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@/shared/ui/dropdown-menu";
+import { cn } from "@/shared/lib/utils";
 import { RESOURCE_ICONS } from "./resource-icons";
 import type { FileTreeItem } from "./study-materials-tree";
 

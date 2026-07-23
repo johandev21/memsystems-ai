@@ -7,14 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/shared/ui/dialog";
 import {
   createFileSource,
   createTextSource,
   createUrlSource,
   SOURCE_LIMIT,
   sourcesQueryOptions,
-} from "@/lib/api-client/sources";
+} from "@/shared/api/sources";
 import { FileUploadMode } from "./file-upload-mode";
 import { TextInputMode } from "./text-input-mode";
 import { UrlInputMode } from "./url-input-mode";

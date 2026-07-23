@@ -1,5 +1,5 @@
-import type { FolderDTO } from "@/lib/api-client/folders";
-import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
+import type { FolderDTO } from "@/shared/api/folders";
+import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 
 export interface TreeNode {
   id: string;

@@ -1,11 +1,11 @@
 import { ImageIcon, Move, Trash2, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { IconPicker } from "@/components/ui/icon-picker";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { IconPicker } from "@/shared/ui/icon-picker";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Textarea } from "@/shared/ui/textarea";
+import { cn } from "@/shared/lib/utils";
 
 export interface NotebookCardPreviewProps {
   title: string;

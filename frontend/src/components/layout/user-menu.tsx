@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { authClient } from "@/lib/auth/client";
+} from "@/shared/ui/dropdown-menu";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { authClient } from "@/shared/auth/client";
 
 export function UserMenu({
   onOpenChange,

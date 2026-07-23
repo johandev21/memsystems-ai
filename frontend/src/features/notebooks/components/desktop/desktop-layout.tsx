@@ -4,8 +4,8 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/shared/ui/resizable";
+import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook-chat/components/chat-panel-header";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";

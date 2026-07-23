@@ -4,12 +4,12 @@ import { formatDistanceToNow } from "date-fns";
 import { NotebookText, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { NotebookIcon } from "@/components/branding/notebook-icon";
-import { Spinner } from "@/components/shared/spinner";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { notebooksQueryOptions } from "@/lib/api-client/notebooks";
-import { fetchApi } from "@/lib/utils";
+import { NotebookIcon } from "@/shared/ui/notebook-icon";
+import { Spinner } from "@/shared/ui/spinner";
+import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { notebooksQueryOptions } from "@/shared/api/notebooks";
+import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCard } from "./notebook-card";
 import { SectionHeader } from "./section-header";
 

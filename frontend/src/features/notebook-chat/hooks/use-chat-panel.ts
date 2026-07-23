@@ -13,9 +13,9 @@ import {
   type CitedSourceDTO,
   chatMessagesQueryOptions,
   clearChatHistory,
-} from "@/lib/api-client/chat";
-import { modelsQueryOptions } from "@/lib/api-client/models";
-import { notebookQueryOptions } from "@/lib/api-client/notebooks";
+} from "@/shared/api/chat";
+import { modelsQueryOptions } from "@/shared/api/models";
+import { notebookQueryOptions } from "@/shared/api/notebooks";
 
 const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 

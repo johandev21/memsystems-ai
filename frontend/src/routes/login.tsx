@@ -1,15 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Logo } from "@/components/branding/logo";
-import { Button } from "@/components/ui/button";
+import { Logo } from "@/shared/ui/logo";
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { authClient } from "@/lib/auth/client";
+} from "@/shared/ui/card";
+import { authClient } from "@/shared/auth/client";
 
 export const Route = createFileRoute("/login")({
   component: Login,

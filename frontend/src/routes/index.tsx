@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Logo } from "@/components/branding/logo";
-import { TypographyH1, TypographyLead } from "@/components/ui/typography";
-import { authClient } from "@/lib/auth/client";
+import { Logo } from "@/shared/ui/logo";
+import { TypographyH1, TypographyLead } from "@/shared/ui/typography";
+import { authClient } from "@/shared/auth/client";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,

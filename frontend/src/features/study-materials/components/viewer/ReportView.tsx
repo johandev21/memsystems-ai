@@ -6,9 +6,9 @@ import {
   List,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { Separator } from "@/shared/ui/separator";
+import { cn } from "@/shared/lib/utils";
 
 function scrollToSection(id: string) {
   const el = document.getElementById(`section-${id}`);

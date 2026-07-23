@@ -2,8 +2,8 @@ import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
+} from "@/features/ai/ui/conversation";
+import { OpenAIKeyPrompt } from "@/features/ai/ui/openai-key-prompt";
 import { NotebookBanner } from "@/features/notebooks/components/shared/notebook-banner";
 import { useChatPanel } from "../hooks/use-chat-panel";
 import { ChatEmptyState } from "./chat-empty-state";

@@ -3,7 +3,7 @@ import { MaterialViewer } from "@/features/study-materials/components/viewer/Mat
 import {
   type StudyMaterialDTO,
   studyMaterialQueryOptions,
-} from "@/lib/api-client/study-materials";
+} from "@/shared/api/study-materials";
 
 export type RightPaneMode =
   | { kind: "select" }

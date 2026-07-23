@@ -1,8 +1,8 @@
 import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button-variants";
+import { Button } from "@/shared/ui/button";
+import { buttonVariants } from "@/shared/ui/button-variants";
 import { AddSourceDialog } from "@/features/sources/components/add-source-dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export interface SourcesPanelHeaderProps {
   collapsed: boolean;

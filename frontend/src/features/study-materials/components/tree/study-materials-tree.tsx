@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
-import { deleteFolder, foldersQueryOptions } from "@/lib/api-client/folders";
+import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
+import { deleteFolder, foldersQueryOptions } from "@/shared/api/folders";
 import {
   deleteStudyMaterial,
   studyMaterialsQueryOptions,
-} from "@/lib/api-client/study-materials";
-import { cn } from "@/lib/utils";
+} from "@/shared/api/study-materials";
+import { cn } from "@/shared/lib/utils";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import {
   buildStudyMaterialTree,

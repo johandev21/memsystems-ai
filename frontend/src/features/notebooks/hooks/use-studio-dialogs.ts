@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
-import { modelsQueryOptions } from "@/lib/api-client/models";
+import { modelsQueryOptions } from "@/shared/api/models";
 
 export function useStudioDialogs() {
   const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(

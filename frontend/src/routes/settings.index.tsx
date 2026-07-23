@@ -17,17 +17,17 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/layout/app-header";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
 import { useConnectionStatus } from "@/features/ai";
-import { fetchApi } from "@/lib/utils";
+import { fetchApi } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/settings/")({
   component: SettingsPage,

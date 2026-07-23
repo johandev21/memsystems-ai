@@ -9,16 +9,16 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { NotebookIcon } from "@/components/branding/notebook-icon";
+import { NotebookIcon } from "@/shared/ui/notebook-icon";
 import { NotebookCard } from "@/components/home/notebook-card";
 import { AppHeader } from "@/components/layout/app-header";
-import { Spinner } from "@/components/shared/spinner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TypographyH1, TypographyMuted } from "@/components/ui/typography";
-import { allNotebooksQueryOptions } from "@/lib/api-client/notebooks";
-import { fetchApi } from "@/lib/utils";
+import { Spinner } from "@/shared/ui/spinner";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { TypographyH1, TypographyMuted } from "@/shared/ui/typography";
+import { allNotebooksQueryOptions } from "@/shared/api/notebooks";
+import { fetchApi } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/notebooks/")({
   validateSearch: (search: Record<string, unknown>) => ({

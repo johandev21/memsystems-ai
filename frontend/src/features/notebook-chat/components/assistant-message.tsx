@@ -4,13 +4,13 @@ import {
   MessageContent,
   MessageResponse,
   type MessageResponseProps,
-} from "@/components/ai-elements/message";
+} from "@/features/ai/ui/message";
 import {
   Reasoning,
   ReasoningContent,
   ReasoningTrigger,
-} from "@/components/ai-elements/reasoning";
-import type { CitedSourceDTO } from "@/lib/api-client/chat";
+} from "@/features/ai/ui/reasoning";
+import type { CitedSourceDTO } from "@/shared/api/chat";
 
 interface AssistantMessageProps {
   message: UIMessage;

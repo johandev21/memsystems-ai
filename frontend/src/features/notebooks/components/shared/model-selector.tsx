@@ -1,22 +1,22 @@
 import { Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/shared/ui/popover";
+import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import type { ModelOption } from "@/lib/api-client/models";
-import { cn } from "@/lib/utils";
+} from "@/shared/ui/select";
+import type { ModelOption } from "@/shared/api/models";
+import { cn } from "@/shared/lib/utils";
 
 export interface ModelSelectorProps {
   models: ModelOption[];

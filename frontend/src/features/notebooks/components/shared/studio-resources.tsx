@@ -12,17 +12,17 @@ import {
   RefreshCw,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/shared/ui/tooltip";
 import { useGenerationStore } from "@/features/study-materials/hooks/use-generation-store";
 import { KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials/shapes";
-import { sourcesQueryOptions } from "@/lib/api-client/sources";
-import { cn } from "@/lib/utils";
+import { sourcesQueryOptions } from "@/shared/api/sources";
+import { cn } from "@/shared/lib/utils";
 
 type ResourceConfig = {
   key: string;

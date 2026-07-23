@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { type Source, sourcesQueryOptions } from "@/lib/api-client/sources";
-import { cn } from "@/lib/utils";
+import { Checkbox } from "@/shared/ui/checkbox";
+import { Label } from "@/shared/ui/label";
+import { type Source, sourcesQueryOptions } from "@/shared/api/sources";
+import { cn } from "@/shared/lib/utils";
 
 export interface SourceMultiSelectProps {
   notebookId: string;

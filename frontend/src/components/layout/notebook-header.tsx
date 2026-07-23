@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Logo } from "@/components/branding/logo";
+import { Logo } from "@/shared/ui/logo";
 import { EditableNotebookTitle } from "./editable-notebook-title";
 import { UserMenu } from "./user-menu";
 

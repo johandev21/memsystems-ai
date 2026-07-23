@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Logo } from "@/components/branding/logo";
+import { Logo } from "@/shared/ui/logo";
 import { UserMenu } from "./user-menu";
 
 const TRIGGER_ZONE_HEIGHT = 20;

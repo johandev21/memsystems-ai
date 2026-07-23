@@ -23,10 +23,10 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import { cn } from "@/shared/lib/utils";
 import { getLayoutedElements } from "./layout-utils";
 import { MindMapCustomNode } from "./MindMapCustomNode";
 
