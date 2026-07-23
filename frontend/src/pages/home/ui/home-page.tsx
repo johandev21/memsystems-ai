@@ -1,5 +1,5 @@
 import { NotebooksSection } from "./notebooks-section";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/shared/ui/layout";
 
 export function HomePage() {
   return (

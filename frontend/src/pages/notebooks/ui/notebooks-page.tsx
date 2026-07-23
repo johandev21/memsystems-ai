@@ -11,13 +11,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { NotebookIcon } from "@/shared/ui/notebook-icon";
 import { NotebookCard } from "@/shared/ui/notebook-card";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/shared/ui/layout";
 import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { TypographyH1, TypographyMuted } from "@/shared/ui/typography";
-import { allNotebooksQueryOptions } from "@/shared/api/notebooks";
+import { allNotebooksQueryOptions } from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 
 export function NotebooksPage() {

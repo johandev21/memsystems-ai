@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/shared/ui/layout";
 import {
   Card,
   CardContent,

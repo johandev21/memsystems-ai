@@ -8,7 +8,7 @@ import { NotebookIcon } from "@/shared/ui/notebook-icon";
 import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { notebooksQueryOptions } from "@/shared/api/notebooks";
+import { notebooksQueryOptions } from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCard } from "@/shared/ui/notebook-card";
 import { SectionHeader } from "./section-header";

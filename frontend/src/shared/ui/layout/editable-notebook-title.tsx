@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { notebookQueryOptions } from "@/shared/api/notebooks";
+import { notebookQueryOptions } from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 
 export function EditableNotebookTitle({ id }: { id: string }) {

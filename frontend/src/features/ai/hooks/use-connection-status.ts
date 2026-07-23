@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { authClient } from "@/shared/auth/client";
+import { authClient } from "@/shared/auth";
 import { getApiUrl } from "@/shared/lib/utils";
 
 export interface ProviderStatus {

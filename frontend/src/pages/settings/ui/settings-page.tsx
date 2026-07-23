@@ -15,7 +15,7 @@ import {
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppHeader } from "@/shared/ui/layout";
 import { Button } from "@/shared/ui/button";
 import {
   Card,

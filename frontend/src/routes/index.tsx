@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Logo } from "@/shared/ui/logo";
 import { TypographyH1, TypographyLead } from "@/shared/ui/typography";
-import { authClient } from "@/shared/auth/client";
+import { authClient } from "@/shared/auth";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,

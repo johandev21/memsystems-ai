@@ -15,7 +15,7 @@ import {
   clearChatHistory,
 } from "@/shared/api/chat";
 import { modelsQueryOptions } from "@/shared/api/models";
-import { notebookQueryOptions } from "@/shared/api/notebooks";
+import { notebookQueryOptions } from "@/shared/api";
 
 const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 

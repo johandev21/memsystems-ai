@@ -27,7 +27,7 @@ import {
   deleteNotebook,
   type Notebook,
   notebookQueryOptions,
-} from "@/shared/api/notebooks";
+} from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCardPreview } from "../shared/notebook-card-preview";
 import { ImageUploadDialog } from "./image-upload-dialog";

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { authClient } from "@/shared/auth/client";
+import { authClient } from "@/shared/auth";
 
 export function UserMenu({
   onOpenChange,

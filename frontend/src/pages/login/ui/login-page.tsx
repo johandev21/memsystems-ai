@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { authClient } from "@/shared/auth/client";
+import { authClient } from "@/shared/auth";
 
 function GoogleIcon() {
   return (
