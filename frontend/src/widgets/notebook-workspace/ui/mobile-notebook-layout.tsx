@@ -3,8 +3,8 @@ import { Tabs, TabsContent } from "@/shared/ui/tabs";
 import { ChatPanel } from "@/features/notebook-chat";
 import { SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, MobileStudyMaterialsPanel } from "@/features/study-materials";
-import type { UseStudioDialogsReturn } from "../../hooks/use-studio-dialogs";
-import { StudioResources } from "../shared/studio-resources";
+import { StudioResources } from "@/features/notebooks";
+import type { UseStudioDialogsReturn } from "@/features/notebooks";
 import { MobileTabsHeader } from "./mobile-tabs-header";
 
 export interface MobileNotebookLayoutProps {

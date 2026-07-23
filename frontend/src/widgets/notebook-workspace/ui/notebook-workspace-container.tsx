@@ -1,7 +1,6 @@
-import { DesktopLayout } from "../components/desktop/desktop-layout";
-import { MobileNotebookLayout } from "../components/mobile/mobile-notebook-layout";
-import { useNotebookPanels } from "../hooks/use-notebook-panels";
-import { useStudioDialogs } from "../hooks/use-studio-dialogs";
+import { DesktopLayout } from "./desktop-layout";
+import { MobileNotebookLayout } from "./mobile-notebook-layout";
+import { useNotebookPanels, useStudioDialogs } from "@/features/notebooks";
 
 export interface NotebookWorkspaceContainerProps {
   notebookId: string;

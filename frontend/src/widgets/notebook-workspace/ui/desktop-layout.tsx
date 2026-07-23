@@ -9,8 +9,8 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
 import { SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, StudyMaterialsPanel } from "@/features/study-materials";
-import type { UseStudioDialogsReturn } from "../../hooks/use-studio-dialogs";
-import { StudioResources } from "../shared/studio-resources";
+import { StudioResources } from "@/features/notebooks";
+import type { UseStudioDialogsReturn } from "@/features/notebooks";
 import { SourcesPanelHeader } from "./sources-panel-header";
 import { StudioPanelHeader } from "./studio-panel-header";
 

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NotebookHeader } from "@/components/layout/notebook-header";
-import { NotebookWorkspaceContainer } from "@/features/notebooks/containers/notebook-workspace-container";
+import { NotebookWorkspaceContainer } from "@/widgets/notebook-workspace";
 
 export const Route = createFileRoute("/notebooks/$notebookId")({
   component: NotebookPageComponent,
