@@ -13,7 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
+import { Route as SettingsIndexRouteImport } from './routes/settings.index'
+import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,39 +38,77 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotebooksIndexRoute = NotebooksIndexRouteImport.update({
+  id: '/notebooks/',
+  path: '/notebooks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   id: '/notebooks/$notebookId',
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsConnectionRoute = SettingsConnectionRouteImport.update({
+  id: '/connection',
+  path: '/connection',
+  getParentRoute: () => SettingsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/settings/connection': typeof SettingsConnectionRoute
+  '/notebooks/': typeof NotebooksIndexRoute
+  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/settings/connection': typeof SettingsConnectionRoute
+  '/notebooks': typeof NotebooksIndexRoute
+  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/settings': typeof SettingsRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/settings/connection': typeof SettingsConnectionRoute
+  '/notebooks/': typeof NotebooksIndexRoute
+  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/home' | '/login' | '/settings' | '/notebooks/$notebookId'
+  fullPaths:
+    | '/'
+    | '/home'
+    | '/login'
+    | '/settings'
+    | '/notebooks/$notebookId'
+    | '/settings/connection'
+    | '/notebooks/'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/home' | '/login' | '/settings' | '/notebooks/$notebookId'
+  to:
+    | '/'
+    | '/home'
+    | '/login'
+    | '/notebooks/$notebookId'
+    | '/settings/connection'
+    | '/notebooks'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -75,14 +116,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
+    | '/settings/connection'
+    | '/notebooks/'
+    | '/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
-  SettingsRoute: typeof SettingsRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
+  NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -115,6 +160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notebooks/': {
+      id: '/notebooks/'
+      path: '/notebooks'
+      fullPath: '/notebooks/'
+      preLoaderRoute: typeof NotebooksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notebooks/$notebookId': {
       id: '/notebooks/$notebookId'
       path: '/notebooks/$notebookId'
@@ -122,15 +174,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/connection': {
+      id: '/settings/connection'
+      path: '/connection'
+      fullPath: '/settings/connection'
+      preLoaderRoute: typeof SettingsConnectionRouteImport
+      parentRoute: typeof SettingsRoute
+    }
   }
 }
+
+interface SettingsRouteChildren {
+  SettingsConnectionRoute: typeof SettingsConnectionRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsConnectionRoute: SettingsConnectionRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
-  SettingsRoute: SettingsRoute,
+  SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
+  NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,6 +7,12 @@
       "skillPath": "skills/engineering/ask-matt/SKILL.md",
       "computedHash": "5ec84a4c2d9021d99780e5222b2a9f532b53cca8237024eb6cb40ad370c667c5"
     },
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/best-practices/SKILL.md",
+      "computedHash": "e8b46af23c6b1bc7aefdae3cf816368058c05e46eadb9bdca4f744b17d05a866"
+    },
     "code-review": {
       "source": "mattpocock/skills",
       "sourceType": "github",
