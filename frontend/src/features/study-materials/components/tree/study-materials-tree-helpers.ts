@@ -15,15 +15,6 @@ export interface BuildTreeInput {
   materials: StudyMaterialDTO[];
 }
 
-/**
- * Assembles a nested tree from flat folder + material lists. Folders are placed
- * by parentId. Materials are placed by folderId (null = root). The result is
- * always deterministic: folders come before materials at each level, and both
- * are sorted by `createdAt` ascending so older items appear first.
- *
- * Active items only: deleted folders and materials are filtered out by the API
- * but the function is defensive against stray rows.
- */
 export function buildStudyMaterialTree({
   folders,
   materials,
@@ -75,13 +66,11 @@ export function buildStudyMaterialTree({
 
   for (const list of childrenByFolder.values()) {
     list.sort((a, b) => {
-      // Folders before materials.
       if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
       return sortByCreated(a, b);
     });
   }
 
-  // Wire children into folder nodes.
   for (const f of activeFolders) {
     const node = folderNodes.get(f.id);
     if (node) {
@@ -103,10 +92,6 @@ function sourceCreatedAt(
   return materials.find((m) => m.id === node.id)?.createdAt ?? "";
 }
 
-/**
- * Counts materials (recursively) under a folder id, given the flat material
- * list. Returns 0 for ids that don't match any material.
- */
 export function countMaterialsInFolder(
   folderId: string,
   materials: StudyMaterialDTO[],

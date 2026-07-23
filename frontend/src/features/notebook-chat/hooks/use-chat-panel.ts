@@ -1,14 +1,10 @@
-"use client";
-
 import { useChat } from "@ai-sdk/react";
 import {
   useMutation,
   useQuery,
   useQueryClient,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
-import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useConnectionStatus } from "@/features/ai";
@@ -18,20 +14,15 @@ import {
   chatMessagesQueryOptions,
   clearChatHistory,
 } from "@/lib/api-client/chat";
-import type { ModelOption } from "@/lib/api-client/models";
 import { modelsQueryOptions } from "@/lib/api-client/models";
 import { notebookQueryOptions } from "@/lib/api-client/notebooks";
-import { clientLogger as logger } from "@/lib/logging/client-logger";
 
 const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
-const log = logger.child({ feature: "chat-panel" });
 
 export function useChatPanel(notebookId: string) {
-  const t = useTranslations("Chat");
-  const logCtx = useMemo(() => log.child({ notebookId }), [notebookId]);
-  const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
+  const { data: notebook } = useQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
-  const { data: chatHistory } = useSuspenseQuery(
+  const { data: chatHistory } = useQuery(
     chatMessagesQueryOptions(notebookId),
   );
   const { data: connection } = useConnectionStatus();
@@ -69,15 +60,6 @@ export function useChatPanel(notebookId: string) {
         const lastUserMessage = [...messages]
           .reverse()
           .find((m) => m.role === "user");
-        const textPart = lastUserMessage?.parts.find((p) => p.type === "text");
-        const text = textPart && "text" in textPart ? textPart.text : "";
-        logCtx.info("sending chat request", {
-          totalMessages: messages.length,
-          roles: messages.map((m) => m.role),
-          lastUserContentLength: text.length,
-          lastUserContentPreview: text.slice(0, 200),
-          model: selectedModelRef.current,
-        });
         return {
           body: {
             model: selectedModelRef.current,
@@ -91,11 +73,11 @@ export function useChatPanel(notebookId: string) {
         };
       },
     });
-  }, [notebookId, logCtx]);
+  }, [notebookId]);
 
   const initialMessages = useMemo(
     () =>
-      chatHistory.map((msg) => ({
+      (chatHistory ?? []).map((msg) => ({
         id: msg.id,
         role: msg.role as "user" | "assistant",
         parts: [{ type: "text" as const, text: msg.content }],
@@ -105,17 +87,13 @@ export function useChatPanel(notebookId: string) {
 
   const citedSourcesMap = useMemo(() => {
     const map = new Map<string, CitedSourceDTO[]>();
-    for (const msg of chatHistory) {
+    for (const msg of chatHistory ?? []) {
       if (msg.citedSources?.length) {
         map.set(msg.id, msg.citedSources);
       }
     }
     return map;
   }, [chatHistory]);
-
-  useEffect(() => {
-    logCtx.info("chat history loaded", { count: chatHistory.length });
-  }, [chatHistory.length, logCtx]);
 
   const queryClient = useQueryClient();
 
@@ -133,7 +111,6 @@ export function useChatPanel(notebookId: string) {
       transport,
       messages: initialMessages,
       onFinish: async ({ isError }) => {
-        logCtx.info("useChat stream finished", { isError });
         if (!isError) {
           await queryClient.refetchQueries({
             queryKey: ["chat", notebookId, "messages"],
@@ -145,21 +122,10 @@ export function useChatPanel(notebookId: string) {
           queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
         }
       },
-      onError: (error) => {
-        logCtx.error("useChat stream error", {
-          error: error instanceof Error ? error.message : String(error),
-        });
+      onError: () => {
         invalidateNotebookCaches();
       },
     });
-
-  useEffect(() => {
-    logCtx.debug("useChat state update", {
-      status,
-      messageCount: messages.length,
-      roles: messages.map((m) => m.role),
-    });
-  }, [status, messages, logCtx]);
 
   const isLoading = status === "submitted" || status === "streaming";
   const messageCount = messages.length;
@@ -171,16 +137,14 @@ export function useChatPanel(notebookId: string) {
   const clearHistoryMutation = useMutation({
     mutationFn: () => clearChatHistory(notebookId),
     onSuccess: () => {
-      logCtx.info("chat history cleared");
       setMessages([]);
       queryClient.invalidateQueries({
         queryKey: ["chat", notebookId, "messages"],
       });
       setIsClearDialogOpen(false);
-      toast.success(t("cleared"));
+      toast.success("Chat history cleared");
     },
     onError: (err: Error) => {
-      logCtx.error("clear history failed", { error: err.message });
       toast.error(err.message);
     },
   });
@@ -188,28 +152,21 @@ export function useChatPanel(notebookId: string) {
   const handleSubmit = useCallback(
     (text: string) => {
       if (!text.trim() || isLoading) return;
-      logCtx.info("user submitted message", { length: text.length });
       setInput("");
       sendMessage({ text });
     },
-    [isLoading, sendMessage, logCtx],
+    [isLoading, sendMessage],
   );
 
-  const handleCopy = useCallback(
-    (text: string) => {
-      logCtx.debug("copy message", { length: text.length });
-      navigator.clipboard.writeText(text);
-    },
-    [logCtx],
-  );
+  const handleCopy = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+  }, []);
 
   const handleRegenerate = useCallback(() => {
-    logCtx.info("regenerate clicked");
     regenerate();
-  }, [regenerate, logCtx]);
+  }, [regenerate]);
 
   return {
-    t,
     notebook,
     connection,
     modelOptions,

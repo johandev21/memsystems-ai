@@ -1,5 +1,3 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -9,12 +7,11 @@ import {
   Key,
   Loader2,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getApiUrl } from "@/lib/utils";
+import { fetchApi } from "@/lib/utils";
 
 interface OpenAIKeyPromptProps {
   className?: string;
@@ -25,9 +22,8 @@ export function OpenAIKeyPrompt({
   className = "",
   description = "",
 }: OpenAIKeyPromptProps) {
-  const t = useTranslations("AI");
   const queryClient = useQueryClient();
-  const defaultDescription = t("connectAccount");
+  const defaultDescription = "Connect your OpenAI account to use AI features";
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,35 +38,31 @@ export function OpenAIKeyPrompt({
     setErrorMessage(null);
 
     try {
-      const res = await fetch(getApiUrl("/api/ai/connection"), {
+      const res = await fetchApi("/api/ai/connection", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ openaiApiKey: cleanKey }),
-        credentials: "include",
       });
 
       if (!res.ok) {
-        throw new Error(t("failSave"));
+        throw new Error("Failed to save API key");
       }
 
       const status = await res.json();
 
       if (!status.openai?.ok) {
-        throw new Error(status.openai?.detail ?? t("verificationFailedDesc"));
+        throw new Error(status.openai?.detail ?? "Verification failed");
       }
 
-      toast.success(t("verifiedAndSaved"));
+      toast.success("API key verified and saved");
       setApiKeyInput("");
 
-      // Invalidate queries so that the chat/dialog updates immediately
       queryClient.invalidateQueries({ queryKey: ["connection-status"] });
       queryClient.invalidateQueries({ queryKey: ["models"] });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t("errorVerifying");
+      const msg = err instanceof Error ? err.message : "Error verifying API key";
       setErrorMessage(msg);
-      toast.error(t("verifyFailed"));
+      toast.error("Verification failed");
     } finally {
       setIsSaving(false);
     }
@@ -86,7 +78,7 @@ export function OpenAIKeyPrompt({
         </div>
         <div className="space-y-1">
           <h4 className="text-sm font-semibold text-foreground">
-            {t("keyRequired")}
+            OpenAI API Key Required
           </h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
             {description || defaultDescription}
@@ -99,7 +91,7 @@ export function OpenAIKeyPrompt({
           <div className="relative flex-1">
             <Input
               type={showKey ? "text" : "password"}
-              placeholder={t("apiKeyPlaceholder")}
+              placeholder="sk-..."
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               disabled={isSaving}
@@ -131,10 +123,10 @@ export function OpenAIKeyPrompt({
             {isSaving ? (
               <>
                 <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                {t("verifying")}
+                Verifying...
               </>
             ) : (
-              t("connect")
+              "Connect"
             )}
           </Button>
         </div>
@@ -148,14 +140,14 @@ export function OpenAIKeyPrompt({
       )}
 
       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{t("keyStoredSecurely")}</span>
+        <span>Stored securely for your session</span>
         <a
           href="https://platform.openai.com/api-keys"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-0.5 text-primary hover:underline font-medium shrink-0 ml-2"
         >
-          {t("getApiKey")}
+          Get API Key
           <ExternalLink className="h-2.5 w-2.5" />
         </a>
       </div>

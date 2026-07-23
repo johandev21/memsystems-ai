@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Background,
   BackgroundVariant,
@@ -25,7 +23,6 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -61,7 +58,6 @@ const nodeTypes = {
   custom: MindMapCustomNode,
 };
 
-// Helper for keyboard directional navigation
 const getClosestNodeInDirection = (
   currentNode: { id: string; position: { x: number; y: number } },
   allNodes: { id: string; position: { x: number; y: number } }[],
@@ -105,7 +101,6 @@ interface MindMapDetailsCardProps {
   selectedNodeParent: MindMapNodeData | null;
   selectedNodeChildren: (MindMapNodeData | undefined)[];
   setSelectedNodeId: (id: string | null) => void;
-  t: (key: string, values?: any) => string;
 }
 
 function MindMapDetailsCard({
@@ -113,13 +108,12 @@ function MindMapDetailsCard({
   selectedNodeParent,
   selectedNodeChildren,
   setSelectedNodeId,
-  t,
 }: MindMapDetailsCardProps) {
   return (
     <Card className="p-4 border border-border bg-card shadow-sm space-y-3 animate-in slide-in-from-bottom-2 duration-200 shrink-0">
       <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
         <Network className="h-4 w-4 text-primary" />
-        <span>{t("conceptDetails")}</span>
+        <span>Concept Details</span>
       </div>
 
       <div className="space-y-1">
@@ -128,7 +122,7 @@ function MindMapDetailsCard({
         </h3>
         {selectedNodeParent && (
           <p className="text-[11px] text-muted-foreground">
-            {t("parentConcept")}{" "}
+            Parent:{" "}
             <button
               type="button"
               onClick={() => setSelectedNodeId(selectedNodeParent.id)}
@@ -143,7 +137,7 @@ function MindMapDetailsCard({
       {selectedNodeChildren.length > 0 && (
         <div className="space-y-1.5">
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-            {t("subConcepts", { count: selectedNodeChildren.length })}
+            Sub-concepts ({selectedNodeChildren.length})
           </span>
           <div className="flex flex-wrap gap-1.5">
             {selectedNodeChildren.map((child) => {
@@ -178,8 +172,6 @@ interface MindMapControlPanelsProps {
   isFullscreen: boolean;
   setIsFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
   fitView: (options?: any) => void;
-  t: (key: string) => string;
-  tCommon: (key: string) => string;
 }
 
 function MindMapControlPanels({
@@ -192,12 +184,9 @@ function MindMapControlPanels({
   isFullscreen,
   setIsFullscreen,
   fitView,
-  t,
-  tCommon,
 }: MindMapControlPanelsProps) {
   return (
     <>
-      {/* Floating UI controls */}
       <Panel
         position="top-left"
         className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
@@ -207,20 +196,20 @@ function MindMapControlPanels({
           variant={direction === "LR" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setDirection("LR")}
-          className="h-7 px-2.5 text-xs font-semibold"
-          title={t("horizontalTooltip")}
+          className="h-7 px-2.5 text-xs font-semibold cursor-pointer"
+          title="Horizontal layout"
         >
-          {t("horizontal")}
+          Horizontal
         </Button>
         <Button
           type="button"
           variant={direction === "TB" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setDirection("TB")}
-          className="h-7 px-2.5 text-xs font-semibold"
-          title={t("verticalTooltip")}
+          className="h-7 px-2.5 text-xs font-semibold cursor-pointer"
+          title="Vertical layout"
         >
-          {t("vertical")}
+          Vertical
         </Button>
         <div className="h-4 w-px bg-border/60 mx-1" />
         <Button
@@ -229,17 +218,16 @@ function MindMapControlPanels({
           size="sm"
           onClick={() => setFocusMode((f) => !f)}
           className={cn(
-            "h-7 px-2.5 text-xs font-semibold gap-1",
+            "h-7 px-2.5 text-xs font-semibold gap-1 cursor-pointer",
             focusMode && "bg-primary text-primary-foreground",
           )}
-          title={t("focusModeTooltip")}
+          title="Focus mode (dim unselected branches)"
         >
           <Focus className="h-3.5 w-3.5" />
-          {t("focusMode")}
+          Focus
         </Button>
       </Panel>
 
-      {/* Search bar inside canvas */}
       <Panel
         position="top-right"
         className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-2xl border border-border/80 shadow-sm w-60"
@@ -247,7 +235,7 @@ function MindMapControlPanels({
         <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         <Input
           type="text"
-          placeholder={t("searchPlaceholder")}
+          placeholder="Search concepts..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="h-6 text-xs bg-transparent border-none p-0 focus-visible:ring-0 shadow-none"
@@ -256,14 +244,13 @@ function MindMapControlPanels({
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="text-[10px] text-muted-foreground hover:text-foreground font-semibold"
+            className="text-[10px] text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
           >
-            {tCommon("clear")}
+            Clear
           </button>
         )}
       </Panel>
 
-      {/* Bottom Zoom & View Controls */}
       <Panel
         position="bottom-right"
         className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
@@ -272,9 +259,9 @@ function MindMapControlPanels({
           type="button"
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
+          className="h-7 w-7 cursor-pointer"
           onClick={() => fitView({ duration: 300 })}
-          title={t("recenterTooltip")}
+          title="Recenter view"
         >
           <RotateCcw className="h-3.5 w-3.5" />
         </Button>
@@ -282,13 +269,9 @@ function MindMapControlPanels({
           type="button"
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
+          className="h-7 w-7 cursor-pointer"
           onClick={() => setIsFullscreen((f) => !f)}
-          title={
-            isFullscreen
-              ? t("exitFullscreenTooltip")
-              : t("enterFullscreenTooltip")
-          }
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
           {isFullscreen ? (
             <Minimize2 className="h-3.5 w-3.5" />
@@ -303,7 +286,7 @@ function MindMapControlPanels({
         className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-xl border border-border/50 font-medium max-w-xs shadow-sm"
       >
         <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
-        <span>{t("navInstructions")}</span>
+        <span>Click nodes to select. Use arrow keys to navigate. Space to expand/collapse.</span>
       </Panel>
     </>
   );
@@ -356,18 +339,14 @@ function flowReducer(state: FlowState, action: FlowAction): FlowState {
 }
 
 function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
-  const t = useTranslations("MindMapView");
-  const tCommon = useTranslations("Common");
   const rawNodes = useMemo(() => content.nodes ?? [], [content.nodes]);
   const rawEdges = useMemo(() => content.edges ?? [], [content.edges]);
 
   const { fitView } = useReactFlow();
 
-  // Core Flow States
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // UX Interaction States using useReducer
   const [state, dispatch] = useReducer(flowReducer, {
     selectedNodeId:
       content.rootId || (content.nodes && content.nodes[0]?.id) || null,
@@ -379,7 +358,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
   const [direction, setDirection] = useState<"LR" | "TB">("LR");
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Sync state inline during render if content changes
   const [prevContent, setPrevContent] = useState(content);
   if (content !== prevContent) {
     setPrevContent(content);
@@ -409,7 +387,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     dispatch({ type: "SET_SEARCH_QUERY", query });
   }, []);
 
-  // Parent Map & Adjacency lists for Detail card and traversal
   const { adjacencyList, parentMap } = useMemo(() => {
     const adj: Record<string, string[]> = {};
     const parents: Record<string, string> = {};
@@ -426,7 +403,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     return { adjacencyList: adj, parentMap: parents };
   }, [rawNodes, rawEdges]);
 
-  // Toggle node collapse state callback
   const handleToggleCollapse = useCallback(
     (id: string, e?: React.MouseEvent) => {
       if (e) e.stopPropagation();
@@ -435,7 +411,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     [],
   );
 
-  // Update layout when layout drivers modify state
   const updateLayout = useCallback(() => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       rawNodes,
@@ -446,7 +421,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
       { direction, nodeWidth: 220, nodeHeight: 90 },
     );
 
-    // Map callbacks and search query overrides
     const query = searchQuery.trim().toLowerCase();
     const processedNodes = layoutedNodes.map((n) => {
       const matchesSearch = query
@@ -481,13 +455,10 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     setEdges,
   ]);
 
-  // Run layout update
   useEffect(() => {
     updateLayout();
   }, [updateLayout]);
 
-  // Fit View when node structure updates
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally run this effect when layout drivers change
   useEffect(() => {
     const timer = setTimeout(() => {
       fitView({ padding: 0.15, duration: 300 });
@@ -495,10 +466,9 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     return () => clearTimeout(timer);
   }, [collapsedNodeIds, direction, focusMode, fitView]);
 
-  // Keyboard navigation event handler
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return; // ignore typing in search
+      if (e.target instanceof HTMLInputElement) return;
 
       if (!selectedNodeId) return;
       const currentRfNode = nodes.find((n) => n.id === selectedNodeId);
@@ -521,10 +491,9 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
         handleToggleCollapse(selectedNodeId);
       }
     },
-    [nodes, selectedNodeId, handleToggleCollapse],
+    [nodes, selectedNodeId, handleToggleCollapse, setSelectedNodeId],
   );
 
-  // Selected Node Details Calculations
   const selectedNode = rawNodes.find((n) => n.id === selectedNodeId);
   const selectedNodeChildren = useMemo(() => {
     if (!selectedNodeId) return [];
@@ -539,10 +508,9 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
     return rawNodes.find((n) => n.id === parentMap[selectedNodeId]) || null;
   }, [selectedNodeId, parentMap, rawNodes]);
 
-  // React Flow handlers
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNodeId(node.id);
-  }, []);
+  }, [setSelectedNodeId]);
 
   return (
     <div
@@ -573,7 +541,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
           colorMode="system"
           className="flex-1 w-full h-full"
         >
-          {/* Background Grid */}
           <Background
             variant={BackgroundVariant.Dots}
             gap={16}
@@ -581,7 +548,6 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             className="opacity-75"
           />
 
-          {/* Floating UI controls, search bar, zoom, info panels */}
           <MindMapControlPanels
             direction={direction}
             setDirection={setDirection}
@@ -592,11 +558,8 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
             isFullscreen={isFullscreen}
             setIsFullscreen={setIsFullscreen}
             fitView={fitView}
-            t={t}
-            tCommon={tCommon}
           />
 
-          {/* Interactive Minimap */}
           <MiniMap
             nodeStrokeColor={(n) => (n.data?.color as string) || "#4f46e5"}
             nodeColor={(n) => (n.data?.color as string) || "#4f46e5"}
@@ -607,14 +570,12 @@ function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
         </ReactFlow>
       </Card>
 
-      {/* Selected Node Details Card */}
       {selectedNode && (
         <MindMapDetailsCard
           selectedNode={selectedNode}
           selectedNodeParent={selectedNodeParent}
           selectedNodeChildren={selectedNodeChildren}
           setSelectedNodeId={setSelectedNodeId}
-          t={t}
         />
       )}
     </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   AlertCircle,
   CheckCircle2,
@@ -8,7 +6,6 @@ import {
   RefreshCw,
   XCircle,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,8 +28,6 @@ interface QuizResultsReviewProps {
   correctCount: number;
   totalQuestions: number;
   handleRetry: () => void;
-  t: (key: string, values?: any) => string;
-  tCommon: (key: string, values?: any) => string;
 }
 
 function QuizResultsReview({
@@ -42,8 +37,6 @@ function QuizResultsReview({
   correctCount,
   totalQuestions,
   handleRetry,
-  t,
-  tCommon,
 }: QuizResultsReviewProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-md max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-300">
@@ -57,10 +50,10 @@ function QuizResultsReview({
         </div>
         <div className="space-y-1">
           <h2 className="text-xl font-bold tracking-tight text-foreground">
-            {t("result", { correct: correctCount, total: totalQuestions })}
+            Quiz Completed! ({correctCount} / {totalQuestions} correct)
           </h2>
           <div className="text-sm font-medium text-muted-foreground">
-            {t("score")}
+            Score:{" "}
             <span
               className={cn(
                 "font-bold text-base ml-1",
@@ -74,10 +67,10 @@ function QuizResultsReview({
           </div>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mt-1">
             {scorePercent === 100
-              ? t("perfectScoreText")
+              ? "Perfect score! Outstanding job!"
               : scorePercent >= 70
-                ? t("passedText")
-                : t("failedText")}
+                ? "Great job! You passed the quiz."
+                : "Keep practicing! Review the concepts below and try again."}
           </p>
         </div>
         <div className="pt-2">
@@ -86,10 +79,10 @@ function QuizResultsReview({
             variant="outline"
             size="sm"
             onClick={handleRetry}
-            className="inline-flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-            {tCommon("tryAgain")}
+            Try Again
           </Button>
         </div>
       </div>
@@ -169,9 +162,7 @@ function QuizResultsReview({
                     <div className="mt-2 animate-in slide-in-from-top-1 duration-200">
                       <div className="rounded-lg bg-muted/50 p-2.5 text-sm text-muted-foreground border border-border/40">
                         <span className="font-semibold block mb-0.5 text-[11px] text-foreground">
-                          {isCorrect
-                            ? t("explanationCorrect")
-                            : t("explanationIncorrect")}
+                          {isCorrect ? "Correct!" : "Explanation:"}
                         </span>
                         {q.options[selectedIdx].explanation}
                       </div>
@@ -196,8 +187,6 @@ interface QuizActiveStepperProps {
   handleSubmit: () => void;
   handlePrev: () => void;
   handleNext: () => void;
-  t: (key: string, values?: any) => string;
-  tCommon: (key: string, values?: any) => string;
 }
 
 function QuizActiveStepper({
@@ -210,8 +199,6 @@ function QuizActiveStepper({
   handleSubmit,
   handlePrev,
   handleNext,
-  t,
-  tCommon,
 }: QuizActiveStepperProps) {
   const q = questions[currentIdx];
   const selectedIdx = selectedOptions[q.id];
@@ -224,14 +211,10 @@ function QuizActiveStepper({
   return (
     <div className="w-full max-w-2xl mx-auto animate-in fade-in duration-300">
       <div className="rounded-xl border border-border bg-card p-6 shadow-md space-y-6">
-        {/* Header Section */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm text-muted-foreground font-medium">
             <span>
-              {t("answeredProgress", {
-                answered: Object.keys(selectedOptions).length,
-                total: questions.length,
-              })}
+              {Object.keys(selectedOptions).length} of {questions.length} answered
             </span>
             <span>
               {currentIdx + 1} / {questions.length}
@@ -245,7 +228,6 @@ function QuizActiveStepper({
           </div>
         </div>
 
-        {/* Question Area */}
         <fieldset
           key={currentIdx}
           className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300"
@@ -254,7 +236,6 @@ function QuizActiveStepper({
             {currentIdx + 1}. {q.prompt}
           </legend>
 
-          {/* Options Area */}
           <div className="grid gap-2.5" role="radiogroup" aria-label={q.prompt}>
             {q.options.map((opt, oi) => {
               const isCurrentSelected = selectedIdx === oi;
@@ -328,7 +309,6 @@ function QuizActiveStepper({
             })}
           </div>
 
-          {/* Explanation Box */}
           {isChecked &&
             selectedIdx !== undefined &&
             q.options[selectedIdx]?.explanation && (
@@ -346,9 +326,7 @@ function QuizActiveStepper({
                   )}
                   <div className="space-y-1">
                     <span className="font-semibold block text-[11px] text-foreground">
-                      {isCorrect
-                        ? t("explanationCorrect")
-                        : t("explanationIncorrect")}
+                      {isCorrect ? "Correct!" : "Explanation:"}
                     </span>
                     <p className="leading-relaxed">
                       {q.options[selectedIdx].explanation}
@@ -359,7 +337,6 @@ function QuizActiveStepper({
             )}
         </fieldset>
 
-        {/* Footer Navigation */}
         <div className="flex justify-between items-center pt-4 border-t border-border gap-3">
           <Button
             type="button"
@@ -367,31 +344,30 @@ function QuizActiveStepper({
             size="sm"
             onClick={handlePrev}
             disabled={currentIdx === 0}
-            className="flex items-center gap-1 hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1 hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
-            {tCommon("previous")}
+            Previous
           </Button>
 
-          {/* Action button */}
           {isLastQuestion ? (
             <Button
               type="button"
               size="sm"
               onClick={handleSubmit}
               disabled={selectedIdx === undefined}
-              className="min-w-[120px]"
+              className="min-w-[120px] cursor-pointer"
             >
-              {t("submit")}
+              Submit Quiz
             </Button>
           ) : isChecked ? (
             <Button
               type="button"
               size="sm"
               onClick={handleNext}
-              className="flex items-center gap-1 min-w-[120px]"
+              className="flex items-center gap-1 min-w-[120px] cursor-pointer"
             >
-              {tCommon("next")}
+              Next
               <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
@@ -400,9 +376,9 @@ function QuizActiveStepper({
               size="sm"
               onClick={handleCheckAnswer}
               disabled={selectedIdx === undefined}
-              className="min-w-[120px]"
+              className="min-w-[120px] cursor-pointer"
             >
-              {t("checkAnswer")}
+              Check Answer
             </Button>
           )}
         </div>
@@ -412,9 +388,6 @@ function QuizActiveStepper({
 }
 
 export function QuizView({ content }: QuizViewProps) {
-  const t = useTranslations("QuizView");
-  const tCommon = useTranslations("Common");
-
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
@@ -451,7 +424,6 @@ export function QuizView({ content }: QuizViewProps) {
     const q = questions[currentIdx];
     if (selectedOptions[q.id] === undefined) return;
 
-    // Ensure the current question is checked when submitting
     setCheckedQuestions((prev) => ({
       ...prev,
       [q.id]: true,
@@ -478,7 +450,6 @@ export function QuizView({ content }: QuizViewProps) {
     }
   };
 
-  // Grade calculation
   let correctCount = 0;
   for (const q of questions) {
     if (selectedOptions[q.id] === q.correctOptionIndex) {
@@ -506,8 +477,6 @@ export function QuizView({ content }: QuizViewProps) {
         correctCount={correctCount}
         totalQuestions={totalQuestions}
         handleRetry={handleRetry}
-        t={t}
-        tCommon={tCommon}
       />
     );
   }
@@ -523,8 +492,6 @@ export function QuizView({ content }: QuizViewProps) {
       handleSubmit={handleSubmit}
       handlePrev={handlePrev}
       handleNext={handleNext}
-      t={t}
-      tCommon={tCommon}
     />
   );
 }

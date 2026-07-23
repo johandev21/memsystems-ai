@@ -1,5 +1,3 @@
-"use client";
-
 import { Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -164,7 +162,7 @@ export function ImageUploadDialog({
             </p>
           </div>
 
-          <Button type="button" variant="secondary" size="sm" className="mt-1">
+          <Button type="button" variant="secondary" size="sm" className="mt-1 cursor-pointer">
             Browse files
           </Button>
         </div>

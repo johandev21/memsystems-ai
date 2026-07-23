@@ -1,5 +1,3 @@
-"use client";
-
 import type { UIMessage } from "@ai-sdk/react";
 import { Loader2 } from "lucide-react";
 import type { CitedSourceDTO } from "@/lib/api-client/chat";

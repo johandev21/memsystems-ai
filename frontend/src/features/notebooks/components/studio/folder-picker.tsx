@@ -1,8 +1,5 @@
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Folder, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,10 +16,7 @@ import {
   type FolderDTO,
   foldersQueryOptions,
 } from "@/lib/api-client/folders";
-import { clientLogger } from "@/lib/logging/client-logger";
 import { cn } from "@/lib/utils";
-
-const log = clientLogger.child({ feature: "folder-picker" });
 
 export interface FolderPickerProps {
   notebookId: string;
@@ -40,7 +34,6 @@ export function FolderPicker({
   disabled = false,
   className,
 }: FolderPickerProps) {
-  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const { data: folders = [] } = useQuery(foldersQueryOptions(notebookId));
 
@@ -49,9 +42,9 @@ export function FolderPicker({
 
   const tree = useMemo(() => buildTree(folders), [folders]);
   const selectedName = useMemo(() => {
-    if (value === null) return t("notebookRoot");
-    return folders.find((f) => f.id === value)?.name ?? t("notebookRoot");
-  }, [folders, value, t]);
+    if (value === null) return "Notebook Root";
+    return folders.find((f) => f.id === value)?.name ?? "Notebook Root";
+  }, [folders, value]);
 
   const createMutation = useMutation({
     mutationFn: (input: CreateFolderInput) => createFolder(notebookId, input),
@@ -61,13 +54,9 @@ export function FolderPicker({
       });
       onChange(created.id);
       setNewName("");
-      toast.success(t("folderCreated", { name: created.name }));
+      toast.success(`Folder "${created.name}" created`);
     },
     onError: (err: Error) => {
-      log.error("create folder failed", {
-        error: err,
-        input: { name: newName.trim() },
-      });
       toast.error(err.message);
     },
   });
@@ -89,7 +78,7 @@ export function FolderPicker({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full justify-between font-normal",
+              "w-full justify-between font-normal cursor-pointer",
               value === null && "text-muted-foreground",
               className,
             )}
@@ -105,7 +94,7 @@ export function FolderPicker({
       <PopoverContent className="w-[280px] p-0" align="start">
         <div className="max-h-[260px] overflow-y-auto p-1">
           <FolderRow
-            label={t("notebookRoot")}
+            label="Notebook Root"
             depth={0}
             selected={value === null}
             onClick={() => {
@@ -129,7 +118,7 @@ export function FolderPicker({
         <Separator />
         <div className="p-2 flex items-center gap-1.5">
           <Input
-            placeholder={t("newFolderNamePlaceholder")}
+            placeholder="New folder name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
@@ -146,10 +135,10 @@ export function FolderPicker({
             variant="secondary"
             onClick={handleCreate}
             disabled={newName.trim().length === 0 || createMutation.isPending}
-            className="h-8"
+            className="h-8 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            {t("create")}
+            Create
           </Button>
         </div>
       </PopoverContent>
@@ -230,7 +219,7 @@ function FolderRow({
       onClick={onClick}
       style={{ paddingLeft: 8 + depth * 16 }}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-xl py-1.5 pr-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group flex w-full items-center gap-2 rounded-xl py-1.5 pr-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
         selected ? "bg-muted" : "hover:bg-muted/60",
       )}
     >

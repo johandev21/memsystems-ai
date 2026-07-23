@@ -1,7 +1,4 @@
-"use client";
-
 import { CheckIcon, Eraser } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { type RefObject, useMemo, useState } from "react";
 import {
   ModelSelector,
@@ -25,7 +22,6 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
-import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 import type { ModelOption } from "@/lib/api-client/models";
 
 export interface ComposerProps {
@@ -64,9 +60,6 @@ export function Composer({
   canClearHistory,
   isClearingHistory,
 }: ComposerProps) {
-  const t = useTranslations("Notebook");
-  useTextareaAutosize({ ref: textareaRef, value: input });
-
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -132,7 +125,7 @@ export function Composer({
           ref={textareaRef}
           value={input}
           onChange={(e) => onInputChange(e.currentTarget.value)}
-          placeholder={t("typeMessage")}
+          placeholder="Type a message..."
           className="min-h-[44px] max-h-[200px] px-2 py-1 text-[14.5px] border-0 focus:ring-0 focus-visible:ring-0"
         />
       </PromptInputBody>
@@ -152,14 +145,14 @@ export function Composer({
                 </PromptInputButton>
               }
             />
-            <ModelSelectorContent title={t("searchModels")}>
+            <ModelSelectorContent title="Select Model">
               <ModelSelectorInput
-                placeholder={t("searchModels")}
+                placeholder="Search models..."
                 value={search}
                 onValueChange={setSearch}
               />
               <ModelSelectorList>
-                <ModelSelectorEmpty>{t("noModelsFound")}</ModelSelectorEmpty>
+                <ModelSelectorEmpty>No models found</ModelSelectorEmpty>
                 {Object.entries(groupedModels).map(
                   ([provider, providerModels]) => {
                     const providerName =
@@ -201,8 +194,8 @@ export function Composer({
             variant="ghost"
             onClick={onClearHistory}
             disabled={!canClearHistory || isClearingHistory}
-            aria-label={t("clearChatHistory")}
-            title={t("clearChatHistory")}
+            aria-label="Clear chat history"
+            title="Clear chat history"
             className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
           >
             <Eraser className="h-4 w-4" />

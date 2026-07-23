@@ -1,5 +1,3 @@
-"use client";
-
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -116,13 +114,11 @@ const MessageBranchContext = createContext<MessageBranchContextType | null>(
 
 const useMessageBranch = () => {
   const context = useContext(MessageBranchContext);
-
   if (!context) {
     throw new Error(
       "MessageBranch components must be used within MessageBranch",
     );
   }
-
   return context;
 };
 
@@ -194,7 +190,6 @@ export const MessageBranchContent = ({
     [children],
   );
 
-  // Use useEffect to update branches when they change
   useEffect(() => {
     if (branches.length !== childrenArray.length) {
       setBranches(childrenArray);
@@ -223,7 +218,6 @@ export const MessageBranchSelector = ({
 }: MessageBranchSelectorProps) => {
   const { totalBranches } = useMessageBranch();
 
-  // Don't render if there's only one branch
   if (totalBranches <= 1) {
     return null;
   }

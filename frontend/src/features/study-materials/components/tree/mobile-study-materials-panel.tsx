@@ -1,9 +1,5 @@
-"use client";
-
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,7 +22,6 @@ export function MobileStudyMaterialsPanel({
   selectedMaterialId,
   onSelectMaterial,
 }: MobileStudyMaterialsPanelProps) {
-  const t = useTranslations("Notebook");
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -35,12 +30,12 @@ export function MobileStudyMaterialsPanel({
       size="sm"
     >
       <div className="flex items-center justify-between px-3">
-        <span className="font-medium text-sm">{t("studyMaterials")}</span>
+        <span className="font-medium text-sm">Study Materials</span>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-6 w-6 cursor-pointer"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? (

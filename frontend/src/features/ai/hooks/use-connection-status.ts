@@ -1,16 +1,14 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth/client";
 import { getApiUrl } from "@/lib/utils";
 
-interface ProviderStatus {
+export interface ProviderStatus {
   ok: boolean;
   detail?: string;
   models: Array<{ id: string; displayName: string }>;
 }
 
-interface ConnectionStatus {
+export interface ConnectionStatus {
   ok: boolean;
   detail?: string;
   models: Array<{ id: string; displayName: string }>;

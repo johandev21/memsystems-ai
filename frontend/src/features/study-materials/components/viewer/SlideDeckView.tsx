@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,7 +8,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "motion/react";
-import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,20 +16,15 @@ function FullscreenHeader({
   currentIdx,
   totalSlides,
   toggleFullscreen,
-  t,
 }: {
   currentIdx: number;
   totalSlides: number;
   toggleFullscreen: () => void;
-  t: (key: string, values?: Record<string, number | string>) => string;
 }) {
   return (
     <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-10 select-none bg-background/60 backdrop-blur-md px-4 py-2 rounded-lg border border-border">
       <span className="text-sm font-semibold text-muted-foreground font-mono">
-        {t("slideProgress", {
-          current: currentIdx + 1,
-          total: totalSlides,
-        })}
+        Slide {currentIdx + 1} of {totalSlides}
       </span>
       <Button
         type="button"
@@ -42,7 +34,7 @@ function FullscreenHeader({
         className="h-8 text-sm cursor-pointer"
       >
         <Minimize2 className="h-4 w-4 mr-1.5" />
-        {t("exitFullscreen")}
+        Exit Fullscreen
       </Button>
     </div>
   );
@@ -59,7 +51,6 @@ function SlidePlayerControls({
   onReset,
   onToggleNotes,
   onToggleFullscreen,
-  t,
 }: {
   currentIdx: number;
   totalSlides: number;
@@ -71,7 +62,6 @@ function SlidePlayerControls({
   onReset: () => void;
   onToggleNotes: () => void;
   onToggleFullscreen: () => void;
-  t: (key: string, values?: Record<string, number | string>) => string;
 }) {
   return (
     <div className="px-4 py-3 bg-muted/15 border-t border-border flex items-center justify-between gap-4 select-none">
@@ -83,15 +73,12 @@ function SlidePlayerControls({
           className="h-8 w-8 cursor-pointer"
           onClick={onReset}
           disabled={currentIdx === 0}
-          title={t("restartPresentationTooltip")}
+          title="Restart presentation"
         >
           <RotateCcw className="h-3.5 w-3.5" />
         </Button>
         <span className="text-sm font-semibold text-muted-foreground font-mono">
-          {t("slideProgress", {
-            current: currentIdx + 1,
-            total: totalSlides,
-          })}
+          Slide {currentIdx + 1} of {totalSlides}
         </span>
       </div>
 
@@ -128,7 +115,7 @@ function SlidePlayerControls({
             onClick={onToggleNotes}
           >
             <FileText className="h-3.5 w-3.5 mr-1.5" />
-            {t("notes")}
+            Notes
           </Button>
         )}
         <Button
@@ -137,11 +124,7 @@ function SlidePlayerControls({
           size="icon"
           className="h-8 w-8 cursor-pointer"
           onClick={onToggleFullscreen}
-          title={
-            isFullscreen
-              ? t("exitFullscreenTooltip")
-              : t("enterFullscreenTooltip")
-          }
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
           {isFullscreen ? (
             <Minimize2 className="h-4 w-4" />
@@ -197,7 +180,6 @@ export function SlideDeckView({
   materialId: _materialId,
   content,
 }: SlideDeckViewProps) {
-  const t = useTranslations("SlideDeckView");
   const slides = content.slides || [];
   const totalSlides = slides.length;
 
@@ -208,7 +190,6 @@ export function SlideDeckView({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard navigation
   const handleNext = useCallback(() => {
     if (currentIdx < totalSlides - 1) {
       setDirection("next");
@@ -245,7 +226,6 @@ export function SlideDeckView({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isFullscreen]);
 
-  // Fullscreen state listener (for browser fullscreen exit via ESC)
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isCurrentlyFullscreen =
@@ -274,18 +254,13 @@ export function SlideDeckView({
         await document.exitFullscreen();
         setIsFullscreen(false);
       }
-    } catch (err) {
-      console.warn(
-        "Fullscreen request failed, falling back to full-viewport toggle",
-        err,
-      );
+    } catch {
       setIsFullscreen(!isFullscreen);
     }
   };
 
-  const currentSlide = slides[currentIdx] || { title: t("noSlides"), body: "" };
+  const currentSlide = slides[currentIdx] || { title: "No slides", body: "" };
 
-  // Slide transition animation definitions
   const slideVariants = {
     enter: (dir: "next" | "prev") => ({
       x: dir === "next" ? "100%" : "-100%",
@@ -303,7 +278,6 @@ export function SlideDeckView({
 
   return (
     <div className="flex flex-col items-center justify-center w-full gap-5">
-      {/* Slide Deck Player Container */}
       <div
         ref={containerRef}
         className={cn(
@@ -318,11 +292,9 @@ export function SlideDeckView({
             currentIdx={currentIdx}
             totalSlides={totalSlides}
             toggleFullscreen={toggleFullscreen}
-            t={t}
           />
         )}
 
-        {/* Slide Canvas */}
         <div className="flex-1 w-full overflow-hidden relative flex items-center justify-center px-8 md:px-16 py-12 select-none">
           <LazyMotion features={domAnimation}>
             <AnimatePresence
@@ -355,7 +327,6 @@ export function SlideDeckView({
           </LazyMotion>
         </div>
 
-        {/* Progress Bar */}
         <div className="h-1 w-full bg-muted overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary to-indigo-500 rounded-full transition-all duration-300 ease-out"
@@ -374,16 +345,14 @@ export function SlideDeckView({
           onReset={handleReset}
           onToggleNotes={() => setShowNotes(!showNotes)}
           onToggleFullscreen={toggleFullscreen}
-          t={t}
         />
       </div>
 
-      {/* Speaker Notes Drawer (Outside fullscreen) */}
       {!isFullscreen && currentSlide.notes && showNotes && (
         <div className="w-full max-w-3xl border border-border bg-card p-4 rounded-xl shadow-sm space-y-2 animate-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-wider">
             <FileText className="h-4 w-4 text-primary" />
-            <span>{t("speakerNotes")}</span>
+            <span>Speaker Notes</span>
           </div>
           <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">
             {currentSlide.notes}
@@ -391,10 +360,9 @@ export function SlideDeckView({
         </div>
       )}
 
-      {/* Presentation Mode Helper Tip */}
       {!isFullscreen && (
         <div className="text-[10px] text-muted-foreground/60 flex items-center gap-1 select-none">
-          <Play className="h-3 w-3" /> {t("keyboardTip")}
+          <Play className="h-3 w-3" /> Use Left/Right Arrow keys or Spacebar to navigate slides
         </div>
       )}
     </div>

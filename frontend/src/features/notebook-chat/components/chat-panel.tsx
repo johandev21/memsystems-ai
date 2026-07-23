@@ -1,12 +1,10 @@
-"use client";
-
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
-import { NotebookBanner } from "@/features/notebooks";
+import { NotebookBanner } from "@/features/notebooks/components/shared/notebook-banner";
 import { useChatPanel } from "../hooks/use-chat-panel";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
@@ -37,7 +35,8 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     stop,
   } = useChatPanel(notebookId);
 
-  const isUntitled = notebook.title.toLowerCase() === "untitled";
+  const notebookTitle = notebook?.title ?? "Notebook";
+  const isUntitled = notebookTitle.toLowerCase() === "untitled";
   const showBannerAsUntitled = isUntitled && messageCount === 0;
   const hasMessages = messageCount > 0;
 
@@ -46,16 +45,18 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
       <div className="mx-auto w-full max-w-4xl flex flex-col min-h-0 flex-1">
         <Conversation className="flex-1 min-h-0">
           <ConversationContent>
-            <NotebookBanner
-              title={notebook.title}
-              icon={notebook.icon}
-              bannerUrl={notebook.bannerUrl}
-              bannerFocalPoint={notebook.bannerFocalPoint}
-              updatedAt={notebook.updatedAt}
-              isUntitled={showBannerAsUntitled}
-            />
+            {notebook && (
+              <NotebookBanner
+                title={notebook.title}
+                icon={notebook.icon ?? undefined}
+                bannerUrl={notebook.bannerUrl}
+                bannerFocalPoint={notebook.bannerFocalPoint}
+                updatedAt={notebook.updatedAt}
+                isUntitled={showBannerAsUntitled}
+              />
+            )}
 
-            {notebook.description?.trim() ? (
+            {notebook?.description?.trim() ? (
               <div className="mb-6 px-1">
                 <p className="text-sm text-muted-foreground leading-relaxed font-normal whitespace-pre-wrap">
                   {notebook.description}
@@ -73,8 +74,8 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               />
             ) : (
               <ChatEmptyState
-                notebookTitle={notebook.title}
-                description={notebook.description}
+                notebookTitle={notebookTitle}
+                description={notebook?.description ?? null}
                 isUntitled={isUntitled}
               />
             )}

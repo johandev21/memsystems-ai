@@ -1,6 +1,3 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import type { RefObject } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import {
@@ -12,19 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { ChatPanelHeader } from "@/features/notebook-chat/components/chat-panel-header";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";
+import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { StudyMaterialsPanel } from "@/features/study-materials/components/tree/study-materials-panel";
 import type { UseStudioDialogsReturn } from "../../hooks/use-studio-dialogs";
 import { StudioResources } from "../shared/studio-resources";
 import { SourcesPanelHeader } from "./sources-panel-header";
 import { StudioPanelHeader } from "./studio-panel-header";
-
-const GenerateBriefDialog = dynamic(
-  () =>
-    import(
-      "@/features/study-materials/components/generation/GenerateBriefDialog"
-    ).then((mod) => mod.GenerateBriefDialog),
-  { ssr: false },
-);
 
 export interface DesktopLayoutProps {
   notebookId: string;
@@ -128,6 +118,7 @@ export function DesktopLayout({
             />
             <ScrollArea className="flex-1">
               <StudioResources
+                notebookId={notebookId}
                 collapsed={studioCollapsed}
                 onGenerate={dialogs.handleGenerate}
               />

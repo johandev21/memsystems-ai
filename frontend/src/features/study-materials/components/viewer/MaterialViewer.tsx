@@ -1,7 +1,4 @@
-"use client";
-
 import { X } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type {
   FlashcardEditorContentType,
@@ -24,14 +21,13 @@ export interface MaterialViewerProps {
 }
 
 export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
-  const t = useTranslations("Common");
   return (
     <div className="flex h-full flex-col">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold truncate">{material.title}</h3>
-        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="cursor-pointer">
           <X className="h-3.5 w-3.5 mr-1" />
-          {t("close")}
+          Close
         </Button>
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-4">

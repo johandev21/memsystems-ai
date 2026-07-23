@@ -1,9 +1,6 @@
-"use client";
-
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Settings, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useReducer, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -27,9 +24,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  deleteNotebook,
   type Notebook,
   notebookQueryOptions,
 } from "@/lib/api-client/notebooks";
+import { fetchApi } from "@/lib/utils";
 import { NotebookCardPreview } from "../shared/notebook-card-preview";
 import { ImageUploadDialog } from "./image-upload-dialog";
 
@@ -37,40 +36,32 @@ interface DangerZoneSectionProps {
   notebookId: string;
   notebookTitle: string;
   onDeleted: () => void;
-  t: (key: string, values?: Record<string, string | number | Date>) => string;
 }
 
 function DangerZoneSection({
   notebookId,
   notebookTitle,
   onDeleted,
-  t,
 }: DangerZoneSectionProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     setDeleteDialogOpen(false);
     setIsDeleting(true);
-    toast.loading(t("deleting"));
+    toast.loading("Deleting notebook...");
     try {
-      const res = await fetch(`/api/notebooks/${notebookId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        throw new Error(`Failed to delete notebook (${res.status})`);
-      }
+      await deleteNotebook(notebookId);
       await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
       toast.dismiss();
-      toast.success(t("deleteNotebookSuccess"));
-      router.push("/home");
+      toast.success("Notebook deleted");
+      navigate({ to: "/home" });
       onDeleted();
     } catch (err) {
-      console.error("Failed to delete notebook:", err);
       toast.dismiss();
-      toast.error(t("deleteNotebookFailed"));
+      toast.error("Failed to delete notebook");
       setIsDeleting(false);
     }
   };
@@ -82,7 +73,7 @@ function DangerZoneSection({
           Delete Notebook
         </h3>
         <p className="text-xs text-muted-foreground">
-          {t("deleteNotebookDesc")}
+          Permanently delete this notebook and all associated sources and notes.
         </p>
         <div>
           <Button
@@ -90,10 +81,10 @@ function DangerZoneSection({
             variant="destructive"
             size="sm"
             onClick={() => setDeleteDialogOpen(true)}
-            className="gap-2 text-xs"
+            className="gap-2 text-xs cursor-pointer"
           >
             <Trash2 className="size-3.5" />
-            {t("deleteNotebook")}
+            Delete Notebook
           </Button>
         </div>
       </div>
@@ -101,21 +92,21 @@ function DangerZoneSection({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="rounded-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteNotebook")}</AlertDialogTitle>
+            <AlertDialogTitle>Delete Notebook</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("deleteNotebookConfirm", { title: notebookTitle })}
+              Are you sure you want to delete "{notebookTitle}"?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              {t("cancel")}
+            <AlertDialogCancel disabled={isDeleting} className="cursor-pointer">
+              Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
               onClick={handleDelete}
             >
-              {isDeleting ? t("deleting") : t("delete")}
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -147,14 +138,13 @@ function useNotebookSettingsSave({
   onClose: () => void;
   resetState: () => void;
 }) {
-  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const promises: Promise<Notebook>[] = [];
+      const promises: Promise<unknown>[] = [];
       const trimmedTitle = title.trim();
       if (!trimmedTitle) {
         toast.error("Title is required");
@@ -189,14 +179,14 @@ function useNotebookSettingsSave({
           body.bannerFocalPoint = focalPoint;
         }
         promises.push(
-          fetch(`/api/notebooks/${notebook.id}`, {
+          fetchApi(`/api/notebooks/${notebook.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           }).then((res) => {
             if (!res.ok)
               throw new Error(`Failed to update notebook (${res.status})`);
-            return res.json() as Promise<Notebook>;
+            return res.json();
           }),
         );
       }
@@ -209,23 +199,23 @@ function useNotebookSettingsSave({
         formData.append("focalPointY", focalPoint.y.toString());
         formData.append("focalPoint", JSON.stringify(focalPoint));
         promises.push(
-          fetch(`/api/notebooks/${notebook.id}/banner`, {
+          fetchApi(`/api/notebooks/${notebook.id}/banner`, {
             method: "POST",
             body: formData,
           }).then((res) => {
             if (!res.ok)
               throw new Error(`Failed to upload banner (${res.status})`);
-            return res.json() as Promise<Notebook>;
+            return res.json();
           }),
         );
       } else if (bannerRemoved && notebook.bannerUrl) {
         promises.push(
-          fetch(`/api/notebooks/${notebook.id}/banner`, {
+          fetchApi(`/api/notebooks/${notebook.id}/banner`, {
             method: "DELETE",
           }).then((res) => {
             if (!res.ok)
               throw new Error(`Failed to remove banner (${res.status})`);
-            return res.json() as Promise<Notebook>;
+            return res.json();
           }),
         );
       }
@@ -235,12 +225,11 @@ function useNotebookSettingsSave({
         queryKey: ["notebooks", notebook.id],
       });
       await queryClient.invalidateQueries({ queryKey: ["notebooks"] });
-      toast.success(t("settingsSaved"));
+      toast.success("Settings saved");
       onClose();
       resetState();
     } catch (err) {
-      console.error("Failed to save notebook settings:", err);
-      toast.error(t("settingsSaveFailed"));
+      toast.error("Failed to save settings");
     } finally {
       setIsSaving(false);
     }
@@ -323,8 +312,6 @@ function NotebookSettingsForm({
   notebook,
   onClose,
 }: NotebookSettingsFormProps) {
-  const t = useTranslations("Notebook");
-
   const [state, dispatch] = useReducer(formReducer, {
     title: notebook.title,
     description: notebook.description,
@@ -436,7 +423,6 @@ function NotebookSettingsForm({
       </DialogHeader>
 
       <div className="flex flex-col gap-6 overflow-y-auto max-h-[70vh] pr-1 py-2">
-        {/* Section 1: Live Card Canvas & Inline Editing */}
         <NotebookCardPreview
           title={title}
           setTitle={setTitle}
@@ -454,16 +440,13 @@ function NotebookSettingsForm({
           onRemoveBanner={() => dispatch({ type: "REMOVE_BANNER" })}
         />
 
-        {/* Section 2: Delete Notebook Danger Zone */}
         <DangerZoneSection
           notebookId={notebook.id}
           notebookTitle={notebook.title}
           onDeleted={onClose}
-          t={t}
         />
       </div>
 
-      {/* Simplified Image Upload Modal */}
       <ImageUploadDialog
         open={imageUploadDialogOpen}
         onOpenChange={(open) =>
@@ -473,11 +456,11 @@ function NotebookSettingsForm({
       />
 
       <DialogFooter className="gap-2 pt-3">
-        <Button variant="outline" onClick={onClose} disabled={isSaving}>
-          {t("cancel")}
+        <Button variant="outline" onClick={onClose} disabled={isSaving} className="cursor-pointer">
+          Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
-          {isSaving ? t("saving") : t("saveChanges")}
+        <Button onClick={handleSave} disabled={!hasChanges || isSaving} className="cursor-pointer">
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </DialogFooter>
     </>
@@ -491,8 +474,7 @@ export interface NotebookSettingsDialogProps {
 export function NotebookSettingsDialog({
   notebookId,
 }: NotebookSettingsDialogProps) {
-  const t = useTranslations("Notebook");
-  const { data: notebook } = useSuspenseQuery(notebookQueryOptions(notebookId));
+  const { data: notebook } = useQuery(notebookQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
 
   return (
@@ -502,15 +484,15 @@ export function NotebookSettingsDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
-            aria-label={t("notebookSettings")}
+            className="h-7 w-7 cursor-pointer"
+            aria-label="Notebook Settings"
           />
         }
       >
         <Settings className="size-4" />
       </DialogTrigger>
       <DialogContent className="sm:w-1/2 sm:min-w-[680px] sm:max-w-[calc(100vw-2rem)] rounded-3xl p-6">
-        {open && (
+        {open && notebook && (
           <NotebookSettingsForm
             notebook={notebook}
             onClose={() => setOpen(false)}

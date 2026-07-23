@@ -1,5 +1,3 @@
-"use client";
-
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { create } from "zustand";
@@ -9,16 +7,14 @@ import {
   startGeneration,
 } from "@/lib/api-client/generation";
 import type { StudyMaterialDTO } from "@/lib/api-client/study-materials";
-import { clientLogger } from "@/lib/logging/client-logger";
 import { KIND_LABELS } from "../shapes";
 
-const log = clientLogger.child({ feature: "use-generation-store" });
-
 export interface ActiveGeneration {
-  id: string; // requestId or tempId
+  id: string;
   notebookId: string;
   kind: StudyMaterialKind;
   brief: string;
+  sourceIds?: string[];
   status: "connecting" | "streaming" | "done" | "error";
   progress?: unknown;
   error?: string;
@@ -57,7 +53,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   ) => {
     const tempId = `temp-${Math.random().toString(36).substring(7)}-${Date.now()}`;
 
-    // Add temporary entry to the store
     set((state) => ({
       generations: {
         ...state.generations,
@@ -66,16 +61,12 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
           notebookId,
           kind: input.kind,
           brief: input.brief,
+          sourceIds: input.sourceIds,
           status: "connecting",
           onComplete,
         },
       },
     }));
-
-    log.info("Starting background generation request", {
-      tempId,
-      kind: input.kind,
-    });
 
     const { stream, requestIdPromise } = startGeneration(notebookId, input);
 
@@ -87,7 +78,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      log.error("Failed to resolve request ID", { tempId, error: msg });
 
       set((state) => {
         const next = { ...state.generations };
@@ -100,24 +90,15 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       return;
     }
 
-    // Check if the user cancelled during requestId resolution
     if (!get().generations[tempId]) {
-      log.info("Request cancelled while resolving request ID. Aborting.", {
-        tempId,
-        requestId,
-      });
       try {
         await cancelGeneration(notebookId, requestId);
-      } catch (cancelErr) {
-        log.error("Failed to cancel on server after abort", {
-          requestId,
-          error: cancelErr,
-        });
+      } catch {
+        // ignore cancellation failure
       }
       return;
     }
 
-    // Swap tempId for the real requestId in the store
     set((state) => {
       const next = { ...state.generations };
       delete next[tempId];
@@ -126,33 +107,21 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
         notebookId,
         kind: input.kind,
         brief: input.brief,
+        sourceIds: input.sourceIds,
         status: "streaming",
         onComplete,
       };
       return { generations: next };
     });
 
-    log.info(
-      "Swapped tempId for requestId, starting background consumption loop",
-      { tempId, requestId },
-    );
-
-    // Consume stream asynchronously in the background
     (async () => {
       try {
         for await (const event of stream) {
-          // Check if user has cancelled the task (removed it from store)
           if (!get().generations[requestId]) {
-            log.info("Stream consumer loop detected cancellation. Breaking.", {
-              requestId,
-            });
             try {
               await cancelGeneration(notebookId, requestId);
-            } catch (cancelErr) {
-              log.error("Failed to cancel generation on server", {
-                requestId,
-                error: cancelErr,
-              });
+            } catch {
+              // ignore
             }
             break;
           }
@@ -172,12 +141,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
               };
             });
           } else if (event.type === "done") {
-            log.info("Background stream finished successfully", {
-              requestId,
-              materialId: event.materialId,
-            });
-
-            // Invalidate TanStack query cache so new study materials load
             await queryClient.invalidateQueries({
               queryKey: ["study-materials", notebookId],
             });
@@ -185,7 +148,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
             let viewMaterialId = event.materialId;
 
             if (!viewMaterialId) {
-              // Retrieve updated materials list from TanStack Query cache
               const list =
                 queryClient.getQueryData<StudyMaterialDTO[]>([
                   "study-materials",
@@ -200,14 +162,12 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
               viewMaterialId = matching[0]?.id;
             }
 
-            // Remove from active background tasks
             set((state) => {
               const next = { ...state.generations };
               delete next[requestId];
               return { generations: next };
             });
 
-            // Trigger success toast with an action to view if onComplete is registered
             const label = kindLabel(input.kind);
             toast.success(`${label} generated successfully!`, {
               action:
@@ -225,10 +185,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        log.error("Error in background generation stream", {
-          requestId,
-          error: message,
-        });
 
         set((state) => {
           if (!state.generations[requestId]) return state;
@@ -250,9 +206,6 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   },
 
   cancelBackgroundGeneration: async (notebookId, id) => {
-    log.info("Cancelling background generation", { id });
-
-    // If it's a temporary ID, we can remove it immediately from store
     const isTemp = id.startsWith("temp-");
 
     set((state) => {
@@ -265,8 +218,8 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       try {
         await cancelGeneration(notebookId, id);
         toast.info("Generation cancelled");
-      } catch (err) {
-        log.error("Failed to call cancel API on server", { id, error: err });
+      } catch {
+        // ignore
       }
     }
   },

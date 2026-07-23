@@ -1,5 +1,3 @@
-"use client";
-
 import { BookIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import {
@@ -29,7 +27,7 @@ export const SourcesTrigger = ({
   ...props
 }: SourcesTriggerProps) => (
   <CollapsibleTrigger
-    className={cn("flex items-center gap-2", className)}
+    className={cn("flex items-center gap-2 cursor-pointer", className)}
     {...props}
   >
     {children ?? (

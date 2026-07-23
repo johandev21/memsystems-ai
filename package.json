@@ -6,7 +6,6 @@
     "dev": "turbo run dev",
     "dev:backend": "turbo run dev --filter=backend",
     "dev:frontend": "turbo run dev --filter=frontend",
-    "dev:vite": "turbo run dev --filter=vite-frontend",
     "build": "turbo run build",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

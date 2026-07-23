@@ -1,8 +1,5 @@
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
@@ -23,7 +20,6 @@ export function SourcesPanel({
   notebookId: string;
   collapsed?: boolean;
 }) {
-  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const {
     data: sources,
@@ -40,7 +36,7 @@ export function SourcesPanel({
     mutationFn: (id: string) => deleteSource(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
-      toast.success(t("sourceRemoved"));
+      toast.success("Source removed");
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -57,12 +53,12 @@ export function SourcesPanel({
         )}
         {isError && (
           <p className="px-2 py-10 text-center text-xs text-muted-foreground">
-            {t("failedLoadSources")}
+            Failed to load sources
           </p>
         )}
         {!isPending && !isError && sources?.length === 0 && (
           <p className="px-2 py-10 text-center text-xs text-muted-foreground">
-            {t("noSourcesYet")}
+            No sources added yet
           </p>
         )}
         {!isPending &&
@@ -83,11 +79,10 @@ export function SourcesPanel({
           ))}
       </div>
 
-      {/* Add sources hint */}
       <div className="p-2">
         <AddSourceDialog notebookId={notebookId}>
           <div className="border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer rounded-2xl">
-            {t("addSourcesHint")}
+            Add sources (PDF, Web, Text) to inform your AI study assistant
           </div>
         </AddSourceDialog>
       </div>
@@ -105,10 +100,8 @@ export function SourcesPanel({
         onOpenChange={(open) => {
           if (!open) setSourceToDelete(null);
         }}
-        title={t("deleteSource")}
-        description={t("deleteSourceConfirm", {
-          title: sourceToDelete?.title ?? "",
-        })}
+        title="Delete Source"
+        description={`Are you sure you want to delete "${sourceToDelete?.title ?? ""}"?`}
         onConfirm={() => {
           if (sourceToDelete) {
             deleteMutation.mutate(sourceToDelete.id);
@@ -132,7 +125,6 @@ function SourceRow({
   onDelete: (id: string) => void;
   deleting: boolean;
 }) {
-  const t = useTranslations("Notebook");
   const Icon = getIcon(source.kind);
 
   return (
@@ -141,7 +133,7 @@ function SourceRow({
         type="button"
         onClick={onClick}
         className={cn(
-          "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl",
+          "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl cursor-pointer",
           "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
@@ -151,13 +143,13 @@ function SourceRow({
       </button>
       <button
         type="button"
-        aria-label={t("deleteSource")}
+        aria-label="Delete source"
         onClick={(e) => {
           e.stopPropagation();
           onDelete(source.id);
         }}
         className={cn(
-          "absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto",
+          "absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer",
         )}
       >
         {deleting ? (

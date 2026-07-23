@@ -1,7 +1,4 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import { MaterialViewer } from "@/features/study-materials/components/viewer/MaterialViewer";
 import {
   type StudyMaterialDTO,
@@ -18,7 +15,7 @@ export interface RightPaneProps {
   onModeChange: (mode: RightPaneMode) => void;
 }
 
-export function RightPane({ notebookId, mode, onModeChange }: RightPaneProps) {
+export function RightPane({ notebookId: _notebookId, mode, onModeChange }: RightPaneProps) {
   switch (mode.kind) {
     case "select":
       return (
@@ -29,10 +26,6 @@ export function RightPane({ notebookId, mode, onModeChange }: RightPaneProps) {
         </div>
       );
     case "viewer":
-      console.log(
-        "[RightPane] Rendering MaterialViewer with materialId:",
-        mode.materialId,
-      );
       return (
         <RightPaneViewerWrapper
           materialId={mode.materialId}
@@ -52,8 +45,6 @@ function RightPaneViewerWrapper({
   initialMaterial?: StudyMaterialDTO;
   onClose: () => void;
 }) {
-  const tStudy = useTranslations("StudyMaterials");
-  const tCommon = useTranslations("Common");
   const {
     data: material,
     isLoading,
@@ -75,14 +66,14 @@ function RightPaneViewerWrapper({
     return (
       <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-4">
         <p className="text-sm text-destructive">
-          {error?.message || tStudy("failedToLoad")}
+          {error?.message || "Failed to load study material"}
         </p>
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-primary hover:underline"
+          className="text-xs text-primary hover:underline cursor-pointer"
         >
-          {tCommon("goBack")}
+          Go back
         </button>
       </div>
     );

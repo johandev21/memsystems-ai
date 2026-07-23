@@ -1,7 +1,4 @@
-"use client";
-
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,8 +24,6 @@ export function UrlInputMode({
   isPending,
   busy,
 }: UrlInputModeProps) {
-  const t = useTranslations("Sources");
-
   return (
     <form
       className="flex flex-col gap-4"
@@ -41,13 +36,13 @@ export function UrlInputMode({
         type="button"
         onClick={onBack}
         disabled={busy}
-        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
-        {t("back")}
+        Back
       </button>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="source-url">{t("websiteUrl")}</Label>
+        <Label htmlFor="source-url">Website URL</Label>
         <Input
           id="source-url"
           type="url"
@@ -60,23 +55,27 @@ export function UrlInputMode({
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="source-url-title">{t("titleOptional")}</Label>
+        <Label htmlFor="source-url-title">Title (Optional)</Label>
         <Input
           id="source-url-title"
-          placeholder={t("defaultsToPageTitle")}
+          placeholder="Defaults to webpage title"
           value={urlTitle}
           onChange={(e) => onUrlTitleChange(e.target.value)}
           disabled={busy}
         />
       </div>
-      <Button type="submit" disabled={busy || !urlValue.trim()}>
+      <Button
+        type="submit"
+        disabled={busy || !urlValue.trim()}
+        className="cursor-pointer"
+      >
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {t("scraping")}
+            Extracting website...
           </>
         ) : (
-          t("addWebsite")
+          "Add Website Source"
         )}
       </Button>
     </form>

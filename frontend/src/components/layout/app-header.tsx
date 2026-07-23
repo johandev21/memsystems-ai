@@ -1,7 +1,5 @@
-"use client";
-
+import { Link } from "@tanstack/react-router";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "motion/react";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/branding/logo";
 import { UserMenu } from "./user-menu";
@@ -48,7 +46,7 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
     >
       <div className="flex w-full max-w-360 px-6 items-center justify-between">
         <Link
-          href="/home"
+          to="/home"
           className="flex items-center gap-1.5 select-none cursor-pointer"
         >
           <Logo className="size-6 text-foreground" />

@@ -1,5 +1,3 @@
-"use client";
-
 import { DesktopLayout } from "../components/desktop/desktop-layout";
 import { MobileNotebookLayout } from "../components/mobile/mobile-notebook-layout";
 import { useNotebookPanels } from "../hooks/use-notebook-panels";

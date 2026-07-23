@@ -1,5 +1,3 @@
-"use client";
-
 import { Search, X } from "lucide-react";
 import { dynamicIconImports } from "lucide-react/dynamic";
 import {
@@ -243,7 +241,6 @@ export function IconPicker({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
-  // Debounce search query updates for heavy filtering while keeping input instantly reactive
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -251,7 +248,6 @@ export function IconPicker({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Focus search input when popover opens and reset state
   useEffect(() => {
     if (open) {
       setSearchQuery("");
@@ -262,7 +258,6 @@ export function IconPicker({
     }
   }, [open]);
 
-  // Filter matching icons when debounced query is present
   const matchingIcons = useMemo(() => {
     const query = debouncedQuery.trim().toLowerCase();
     if (!query) return [];
@@ -277,12 +272,10 @@ export function IconPicker({
 
   const isSearching = debouncedQuery.trim().length > 0;
 
-  // Flattened icons for keyboard navigation index calculation
   const currentIcons = useMemo(() => {
     if (isSearching) {
       return matchingIcons;
     }
-    // Flatten curated icons deduplicated
     const set = new Set<string>();
     for (const cat of CURATED_CATEGORIES) {
       for (const icon of cat.icons) {
@@ -311,7 +304,6 @@ export function IconPicker({
     [onChange],
   );
 
-  // Keyboard navigation handler
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!open) return;
 
@@ -374,7 +366,6 @@ export function IconPicker({
         className="w-[340px] p-3 gap-3 shadow-xl rounded-2xl border border-border bg-popover text-popover-foreground outline-none"
         onKeyDown={handleKeyDown}
       >
-        {/* Search Bar */}
         <div className="relative flex items-center">
           <Input
             ref={inputRef}
@@ -405,7 +396,6 @@ export function IconPicker({
           )}
         </div>
 
-        {/* Icon Grid List */}
         <div
           id={listId}
           ref={scrollContainerRef}

@@ -1,27 +1,25 @@
-"use client";
-
 import {
   useMutation,
+  useQuery,
   useQueryClient,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { notebookQueryOptions } from "@/lib/api-client/notebooks";
+import { fetchApi } from "@/lib/utils";
 
 export function EditableNotebookTitle({ id }: { id: string }) {
-  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
-  const { data: notebook } = useSuspenseQuery(notebookQueryOptions(id));
+  const { data: notebook } = useQuery(notebookQueryOptions(id));
   const [isEditing, setIsEditing] = useState(false);
-  const [prevDbTitle, setPrevDbTitle] = useState(notebook.title);
-  const [title, setTitle] = useState(notebook.title);
+  const currentTitle = notebook?.title ?? "Untitled";
+  const [prevDbTitle, setPrevDbTitle] = useState(currentTitle);
+  const [title, setTitle] = useState(currentTitle);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (notebook.title !== prevDbTitle) {
-    setPrevDbTitle(notebook.title);
-    setTitle(notebook.title);
+  if (currentTitle !== prevDbTitle) {
+    setPrevDbTitle(currentTitle);
+    setTitle(currentTitle);
   }
 
   useEffect(() => {
@@ -33,7 +31,7 @@ export function EditableNotebookTitle({ id }: { id: string }) {
 
   const mutation = useMutation({
     mutationFn: async (newTitle: string) => {
-      const res = await fetch(`/api/notebooks/${id}`, {
+      const res = await fetchApi(`/api/notebooks/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle }),
@@ -44,13 +42,12 @@ export function EditableNotebookTitle({ id }: { id: string }) {
     onSuccess: (updated) => {
       queryClient.setQueryData(["notebooks", id], updated);
       queryClient.invalidateQueries({ queryKey: ["notebooks"] });
-      toast.success(t("renamed"));
+      toast.success("Notebook renamed");
       setIsEditing(false);
     },
-    onError: (error) => {
-      console.error("Failed to rename notebook:", error);
-      toast.error(t("renameFailed"));
-      setTitle(notebook.title);
+    onError: () => {
+      toast.error("Failed to rename notebook");
+      setTitle(currentTitle);
       setIsEditing(false);
     },
   });
@@ -58,11 +55,11 @@ export function EditableNotebookTitle({ id }: { id: string }) {
   const handleSave = () => {
     const trimmed = title.trim();
     if (!trimmed) {
-      setTitle(notebook.title);
+      setTitle(currentTitle);
       setIsEditing(false);
       return;
     }
-    if (trimmed === notebook.title) {
+    if (trimmed === currentTitle) {
       setIsEditing(false);
       return;
     }
@@ -81,7 +78,7 @@ export function EditableNotebookTitle({ id }: { id: string }) {
         onKeyDown={(e) => {
           if (e.key === "Enter") handleSave();
           if (e.key === "Escape") {
-            setTitle(notebook.title);
+            setTitle(currentTitle);
             setIsEditing(false);
           }
         }}
@@ -98,7 +95,7 @@ export function EditableNotebookTitle({ id }: { id: string }) {
       onClick={() => setIsEditing(true)}
       className="font-mono text-sm font-semibold px-2 py-0.5 border border-transparent hover:border-foreground/20 cursor-text select-none text-foreground transition-all duration-150 rounded-xl"
     >
-      {notebook.title}
+      {currentTitle}
     </button>
   );
 }

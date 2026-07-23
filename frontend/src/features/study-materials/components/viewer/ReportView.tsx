@@ -1,5 +1,3 @@
-"use client";
-
 import {
   CheckCircle2,
   ChevronLeft,
@@ -7,7 +5,6 @@ import {
   FileText,
   List,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +32,6 @@ export interface ReportViewProps {
 }
 
 export function ReportView({ materialId, content }: ReportViewProps) {
-  const t = useTranslations("ReportView");
   const sections = useMemo(() => content.sections ?? [], [content.sections]);
   const totalSections = sections.length;
 
@@ -55,7 +51,6 @@ export function ReportView({ materialId, content }: ReportViewProps) {
 
   const [isTocOpen, setIsTocOpen] = useState(true);
 
-  // Sync to localStorage
   const toggleSectionCompletion = (sectionId: string) => {
     setCompletedSections((prev) => {
       const next = { ...prev, [sectionId]: !prev[sectionId] };
@@ -80,7 +75,6 @@ export function ReportView({ materialId, content }: ReportViewProps) {
     }
   };
 
-  // Calculations
   const completedCount = useMemo(() => {
     return sections.filter((s) => completedSections[s.id]).length;
   }, [sections, completedSections]);
@@ -93,7 +87,6 @@ export function ReportView({ materialId, content }: ReportViewProps) {
 
   return (
     <div className="flex h-full flex-col lg:flex-row gap-4 animate-in fade-in duration-200">
-      {/* Table of Contents / Sidebar (Sticky / Collapsible) */}
       <div
         className={cn(
           "shrink-0 transition-all duration-300 ease-in-out border border-border bg-card rounded-xl shadow-sm flex flex-col overflow-hidden",
@@ -108,14 +101,14 @@ export function ReportView({ materialId, content }: ReportViewProps) {
               <div className="flex items-center gap-1.5 min-w-0">
                 <List className="h-4 w-4 text-primary shrink-0" />
                 <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground truncate">
-                  {t("outline")}
+                  Outline
                 </span>
               </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 hidden lg:flex"
+                className="h-6 w-6 hidden lg:flex cursor-pointer"
                 onClick={() => setIsTocOpen(false)}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -127,7 +120,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-6 w-6 cursor-pointer"
                 onClick={() => setIsTocOpen(true)}
               >
                 <List className="h-4 w-4 text-primary" />
@@ -148,7 +141,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                   key={section.id}
                   type="button"
                   onClick={() => scrollToSection(section.id)}
-                  className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-muted text-sm font-medium transition-colors group"
+                  className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-muted text-sm font-medium transition-colors group cursor-pointer"
                 >
                   <span className="shrink-0 mt-0.5 text-xs text-muted-foreground/60 font-mono">
                     {String(idx + 1).padStart(2, "0")}
@@ -166,17 +159,12 @@ export function ReportView({ materialId, content }: ReportViewProps) {
         )}
       </div>
 
-      {/* Main Content Area */}
       <div className="flex-1 space-y-6">
-        {/* Progress Header Card */}
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground tracking-wider uppercase">
-            <span>{t("readingProgress")}</span>
+            <span>Reading Progress</span>
             <span>
-              {t("sectionsRead", {
-                completed: completedCount,
-                total: totalSections,
-              })}
+              {completedCount} of {totalSections} sections read
             </span>
           </div>
           <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
@@ -187,7 +175,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
           </div>
           <div className="flex items-center justify-between text-sm pt-0.5">
             <span className="font-bold text-foreground">
-              {t("percentCompleted", { percent: progressPercent })}
+              {progressPercent}% Completed
             </span>
             {completedCount > 0 && (
               <button
@@ -195,20 +183,19 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                 onClick={handleResetProgress}
                 className="text-muted-foreground hover:text-foreground underline cursor-pointer text-xs"
               >
-                {t("resetProgress")}
+                Reset Progress
               </button>
             )}
           </div>
         </div>
 
-        {/* Report Summary Card */}
         {content.summary && (
           <div className="relative overflow-hidden rounded-xl border border-indigo-500/10 bg-indigo-500/5 dark:bg-indigo-500/10 p-5 space-y-2">
             <div className="absolute top-0 right-0 p-3 opacity-15 pointer-events-none">
               <FileText className="h-16 w-16 text-indigo-500" />
             </div>
             <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-              {t("executiveSummary")}
+              Executive Summary
             </h4>
             <p className="text-base font-medium leading-relaxed text-foreground/90">
               {content.summary}
@@ -216,7 +203,6 @@ export function ReportView({ materialId, content }: ReportViewProps) {
           </div>
         )}
 
-        {/* Sections Listing */}
         <div className="space-y-6">
           {sections.map((section, idx) => {
             const isCompleted = !!completedSections[section.id];
@@ -234,7 +220,7 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="space-y-1">
                     <span className="text-xs font-bold text-primary font-mono tracking-wider uppercase">
-                      {t("sectionNumber", { number: idx + 1 })}
+                      Section {idx + 1}
                     </span>
                     <h3 className="text-base font-bold text-foreground leading-snug">
                       {section.heading}
@@ -256,12 +242,12 @@ export function ReportView({ materialId, content }: ReportViewProps) {
                     {isCompleted ? (
                       <>
                         <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-emerald-500" />
-                        {t("completed")}
+                        Completed
                       </>
                     ) : (
                       <>
                         <Circle className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
-                        {t("markRead")}
+                        Mark as Read
                       </>
                     )}
                   </Button>

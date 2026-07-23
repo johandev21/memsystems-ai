@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchApi } from "../utils";
-import { createQueryOptions } from "./factory";
+import { apiDelete, createQueryOptions } from "./factory";
 
 export interface Notebook {
   id: string;
@@ -58,4 +58,8 @@ export function allNotebooksQueryOptions(page: number, search?: string) {
     staleTime: 30_000,
     refetchOnMount: "always",
   });
+}
+
+export function deleteNotebook(id: string): Promise<void> {
+  return apiDelete(`/api/notebooks/${id}`);
 }

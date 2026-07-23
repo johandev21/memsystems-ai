@@ -1,9 +1,5 @@
-"use client";
-
+import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useSyncExternalStore } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,20 +19,13 @@ export function UserMenu({
 }: {
   onOpenChange?: (open: boolean) => void;
 }) {
-  const t = useTranslations("Common");
-  const router = useRouter();
+  const navigate = useNavigate();
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
-  const isClient = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-
   async function handleLogout() {
     await authClient.signOut();
-    router.push("/");
+    navigate({ to: "/login" });
   }
 
   return (
@@ -47,7 +36,7 @@ export function UserMenu({
         }
       >
         <div className="size-6 flex items-center justify-center">
-          {!isClient || isPending ? (
+          {isPending ? (
             <Skeleton className="size-6 rounded-full" />
           ) : (
             <Avatar size="sm">
@@ -73,16 +62,16 @@ export function UserMenu({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => router.push("/settings")}
+          onClick={() => navigate({ to: "/settings" })}
           className="cursor-pointer"
         >
           <Settings className="mr-2 size-4" />
-          <span>{t("configurations")}</span>
+          <span>Configurations</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 size-4" />
-          <span>{t("logout")}</span>
+          <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

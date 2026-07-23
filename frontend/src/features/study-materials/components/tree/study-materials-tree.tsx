@@ -1,29 +1,7 @@
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronRight,
-  Folder,
-  FolderOpen,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { deleteFolder, foldersQueryOptions } from "@/lib/api-client/folders";
 import {
   deleteStudyMaterial,
@@ -65,30 +43,6 @@ export interface FileTreeItem {
   materialCount?: number;
 }
 
-function treeNodeToFileTreeItem(
-  node: TreeNode,
-  materialCount: number,
-  isOpen: boolean,
-): FileTreeItem {
-  if (node.type === "folder") {
-    return {
-      id: node.id,
-      name: node.name,
-      type: "folder",
-      isOpen,
-      materialCount,
-      items: node.children.map((child) =>
-        treeNodeToFileTreeItem(child, child.type === "folder" ? 0 : 0, false),
-      ),
-    };
-  }
-  return {
-    id: node.id,
-    name: node.name,
-    type: KIND_TO_RESOURCE_TYPE[node.materialKind ?? "report"] ?? "report",
-  };
-}
-
 interface RealDataProps {
   notebookId: string;
   onSelectMaterial?: (materialId: string) => void;
@@ -97,7 +51,6 @@ interface RealDataProps {
 
 export function StudyMaterialsTree(props: RealDataProps) {
   const { notebookId, onSelectMaterial, className } = props;
-  const t = useTranslations("StudyMaterials");
   const queryClient = useQueryClient();
   const foldersQuery = useQuery(foldersQueryOptions(notebookId));
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
@@ -121,11 +74,11 @@ export function StudyMaterialsTree(props: RealDataProps) {
       queryClient.invalidateQueries({
         queryKey: ["study-materials", notebookId],
       });
-      toast.success(t("deleted"));
+      toast.success("Material deleted");
       setMaterialToDelete(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message ?? t("deleteFailed"));
+      toast.error(err.message ?? "Failed to delete material");
     },
   });
 
@@ -138,11 +91,11 @@ export function StudyMaterialsTree(props: RealDataProps) {
       queryClient.invalidateQueries({
         queryKey: ["study-materials", notebookId],
       });
-      toast.success(t("folderDeleted"));
+      toast.success("Folder deleted");
       setFolderToDelete(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message ?? t("folderDeleteFailed"));
+      toast.error(err.message ?? "Failed to delete folder");
     },
   });
 
@@ -154,7 +107,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
 
   const handleDeleteFolderRequest = (id: string, name: string) => {
     if (hasActiveMaterials(id, folders, materials)) {
-      toast.error(t("folderNotEmpty", { name }));
+      toast.error(`Folder "${name}" is not empty`);
       return;
     }
     setFolderToDelete({ id, name });
@@ -170,7 +123,6 @@ export function StudyMaterialsTree(props: RealDataProps) {
   );
 
   const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(() => {
-    // Default-open every root folder for friendliness; the user can collapse.
     const ids = new Set<string>();
     for (const n of baseTree) {
       if (n.type === "folder") ids.add(n.id);
@@ -232,10 +184,8 @@ export function StudyMaterialsTree(props: RealDataProps) {
         onOpenChange={(open) => {
           if (!open) setMaterialToDelete(null);
         }}
-        title={t("deleteMaterialTitle")}
-        description={t("deleteMaterialDesc", {
-          name: materialToDelete?.name ?? "",
-        })}
+        title="Delete Material"
+        description={`Are you sure you want to delete "${materialToDelete?.name ?? ""}"?`}
         onConfirm={handleConfirmDelete}
         isLoading={deleteMutation.isPending}
       />
@@ -245,10 +195,8 @@ export function StudyMaterialsTree(props: RealDataProps) {
         onOpenChange={(open) => {
           if (!open) setFolderToDelete(null);
         }}
-        title={t("deleteFolderTitle")}
-        description={t("deleteFolderDesc", {
-          name: folderToDelete?.name ?? "",
-        })}
+        title="Delete Folder"
+        description={`Are you sure you want to delete folder "${folderToDelete?.name ?? ""}"?`}
         onConfirm={() => {
           if (folderToDelete) {
             deleteFolderMutation.mutate(folderToDelete.id);
@@ -260,8 +208,6 @@ export function StudyMaterialsTree(props: RealDataProps) {
   );
 }
 
-// Indexes folder children by id so a folder node can render its real children
-// (which carry the per-row click semantics for materials).
 function folderChildrenIndex(
   baseTree: TreeNode[],
   openFolderIds: Set<string>,
@@ -294,10 +240,7 @@ function folderChildrenIndex(
   return out;
 }
 
-// Re-export so consumers can import the tree shape directly if needed.
 export type { TreeNode };
-// treeNodeToFileTreeItem is internal; keep it module-private.
-const __test__ = { treeNodeToFileTreeItem };
 
 function hasActiveMaterials(
   folderId: string,

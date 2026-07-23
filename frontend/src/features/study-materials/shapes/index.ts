@@ -1,5 +1,4 @@
 import type { z } from "zod";
-import { BadRequestError } from "@/lib/errors";
 import { MindMapContent } from "./mind-map";
 import { QuizContent } from "./quiz";
 import { ReportContent } from "./report";
@@ -34,19 +33,12 @@ const contentSchemas: Record<StudyMaterialKind, z.ZodTypeAny> = {
 
 export function validateContent(kind: string, content: unknown) {
   if (!(kind in contentSchemas)) {
-    throw new BadRequestError(`Invalid study material kind: ${kind}`);
+    throw new Error(`Invalid study material kind: ${kind}`);
   }
   const schema = contentSchemas[kind as StudyMaterialKind];
   const result = schema.safeParse(content);
   if (!result.success) {
-    throw new BadRequestError(`Content does not match kind "${kind}"`);
+    throw new Error(`Content does not match kind "${kind}"`);
   }
   return result.data;
-}
-
-function getContentSchema(kind: string) {
-  if (!(kind in contentSchemas)) {
-    throw new BadRequestError(`Invalid study material kind: ${kind}`);
-  }
-  return contentSchemas[kind as StudyMaterialKind];
 }

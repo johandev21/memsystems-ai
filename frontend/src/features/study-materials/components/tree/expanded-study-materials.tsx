@@ -1,9 +1,6 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Maximize2, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +37,6 @@ export function ExpandedStudyMaterials({
   onOpenChange: controlledOnOpenChange,
   initialMaterialId,
 }: ExpandedStudyMaterialsProps) {
-  const t = useTranslations("Notebook");
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
@@ -84,7 +80,7 @@ export function ExpandedStudyMaterials({
       }}
     >
       <DialogTrigger
-        render={<Button variant="ghost" size="icon" className="h-6 w-6" />}
+        render={<Button variant="ghost" size="icon" className="h-6 w-6 cursor-pointer" />}
       >
         <Maximize2 className="h-4 w-4" />
         <span className="sr-only">Maximize study materials</span>
@@ -96,14 +92,14 @@ export function ExpandedStudyMaterials({
         <DialogHeader className="px-4 py-1.5 bg-panel-header-bg min-h-[44px] flex flex-col justify-center border-none shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-sm font-semibold text-foreground">
-              {t("studyMaterials")}
+              Study Materials
             </DialogTitle>
             <DialogClose
               render={
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
                 />
               }
             >

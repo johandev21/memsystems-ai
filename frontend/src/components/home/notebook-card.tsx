@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 interface NotebookCardProps {
@@ -23,7 +22,8 @@ export function NotebookCard({
 }: NotebookCardProps) {
   return (
     <Link
-      href={`/notebooks/${id}`}
+      to="/notebooks/$notebookId"
+      params={{ notebookId: id }}
       className={cn(
         "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
         className,
@@ -31,13 +31,10 @@ export function NotebookCard({
     >
       <div className="relative h-36 overflow-hidden">
         {imageUrl ? (
-          <Image
+          <img
             src={imageUrl}
             alt={title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            unoptimized
-            className="object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted" />

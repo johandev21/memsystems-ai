@@ -1,8 +1,5 @@
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import React, { type ReactElement, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -31,7 +28,6 @@ export function AddSourceDialog({
   notebookId: string;
   children: ReactElement;
 }) {
-  const t = useTranslations("Sources");
   const queryClient = useQueryClient();
   const { data: sources } = useQuery(sourcesQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
@@ -61,7 +57,7 @@ export function AddSourceDialog({
 
   const fileMutation = useMutation({
     mutationFn: (file: File) => createFileSource(notebookId, file),
-    onSuccess: () => onSuccess(t("fileAdded")),
+    onSuccess: () => onSuccess("File added successfully"),
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -71,14 +67,14 @@ export function AddSourceDialog({
         url: urlValue,
         title: urlTitle || undefined,
       }),
-    onSuccess: () => onSuccess(t("websiteAdded")),
+    onSuccess: () => onSuccess("Website source added successfully"),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const textMutation = useMutation({
     mutationFn: () =>
       createTextSource(notebookId, { title: textTitle, rawText: textBody }),
-    onSuccess: () => onSuccess(t("textAdded")),
+    onSuccess: () => onSuccess("Text source added successfully"),
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -99,7 +95,7 @@ export function AddSourceDialog({
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/60 bg-card shadow-2xl rounded-[min(var(--radius-4xl),24px)]">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="text-xl font-semibold text-center text-foreground">
-            {t("addKnowledgeSources")}
+            Add Knowledge Sources
           </DialogTitle>
         </DialogHeader>
 
@@ -140,10 +136,9 @@ export function AddSourceDialog({
             />
           )}
 
-          {/* Progress / Quota */}
           <div className="flex flex-col gap-2 px-2">
             <div className="flex items-center justify-between text-[13px] font-medium text-muted-foreground">
-              <span>{t("sourcesLimit")}</span>
+              <span>Sources Limit</span>
               <span className="text-foreground">
                 {count} / {SOURCE_LIMIT}
               </span>

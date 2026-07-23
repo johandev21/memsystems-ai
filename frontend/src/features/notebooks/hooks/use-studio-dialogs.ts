@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
 import { modelsQueryOptions } from "@/lib/api-client/models";
@@ -14,7 +14,7 @@ export function useStudioDialogs() {
     string | null
   >(null);
 
-  const models = useSuspenseQuery(modelsQueryOptions);
+  const models = useQuery(modelsQueryOptions);
 
   const handleGenerate = (kind: StudyMaterialKind) => {
     setGenerateKind(kind);
@@ -33,7 +33,7 @@ export function useStudioDialogs() {
     dialogOpen,
     studyMaterialsDialogOpen,
     selectedStudyMaterialId,
-    models: models.data,
+    models: models.data ?? [],
     handleGenerate,
     setDialogOpen,
     setStudyMaterialsDialogOpen,

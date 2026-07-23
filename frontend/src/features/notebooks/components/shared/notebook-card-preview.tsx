@@ -1,5 +1,3 @@
-"use client";
-
 import { ImageIcon, Move, Trash2, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useTextareaAutosize } from "../../hooks/use-textarea-autosize";
 
 export interface NotebookCardPreviewProps {
   title: string;
@@ -52,12 +49,6 @@ export function NotebookCardPreview({
     initialY: number;
   } | null>(null);
 
-  useTextareaAutosize({
-    ref: descriptionRef,
-    value: description ?? "",
-    maxHeight: 220,
-  });
-
   const formattedDate = useMemo(() => {
     const date = createdAt ? new Date(createdAt) : new Date();
     return date.toLocaleDateString("en-US", {
@@ -67,7 +58,6 @@ export function NotebookCardPreview({
     });
   }, [createdAt]);
 
-  // Handle direct canvas dragging to reposition banner (always at 100% scale)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!bannerPreviewUrl) return;
     setIsDragging(true);
@@ -111,7 +101,6 @@ export function NotebookCardPreview({
         className,
       )}
     >
-      {/* Banner Canvas Container with Drag Repositioning (100% Scale) */}
       <div
         ref={bannerContainerRef}
         onMouseDown={handleMouseDown}
@@ -138,15 +127,12 @@ export function NotebookCardPreview({
               }}
             />
 
-            {/* Banner Drag Cue Badge */}
             <div className="pointer-events-none absolute top-3 left-3 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-foreground bg-card/70 backdrop-blur-md">
               <Move className="size-3" />
               <span>Drag to reposition</span>
             </div>
 
-            {/* Top-Right Action Controls */}
             <div className="absolute top-3 right-3 flex items-center gap-2">
-              {/* Upload New Image Button */}
               <Button
                 type="button"
                 variant="secondary"
@@ -155,13 +141,12 @@ export function NotebookCardPreview({
                   e.stopPropagation();
                   onOpenImageUpload();
                 }}
-                className="gap-1.5"
+                className="gap-1.5 cursor-pointer"
               >
                 <Upload className="size-3.5" />
                 <span>Upload</span>
               </Button>
 
-              {/* Remove Banner Button */}
               <Button
                 type="button"
                 variant="destructive"
@@ -170,7 +155,7 @@ export function NotebookCardPreview({
                   e.stopPropagation();
                   onRemoveBanner();
                 }}
-                className="rounded-full"
+                className="rounded-full cursor-pointer"
                 title="Remove Banner"
               >
                 <Trash2 className="size-3.5" />
@@ -191,7 +176,7 @@ export function NotebookCardPreview({
               variant="outline"
               size="sm"
               onClick={onOpenImageUpload}
-              className="gap-1.5 rounded-full border-border bg-background shadow-xs hover:bg-muted"
+              className="gap-1.5 rounded-full border-border bg-background shadow-xs hover:bg-muted cursor-pointer"
             >
               <Upload className="size-3.5" />
               <span>Upload Banner Image</span>
@@ -199,19 +184,16 @@ export function NotebookCardPreview({
           </div>
         )}
 
-        {/* Inset Glassmorphic Metadata Card */}
         <div
           onMouseDown={(e) => e.stopPropagation()}
           className="absolute bottom-3 left-3 right-3 sm:right-auto flex items-center gap-3 rounded-2xl border border-white/30 bg-background/85 p-3 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-background/80"
         >
-          {/* IconPicker */}
           <IconPicker
             value={icon}
             onChange={setIcon}
             className="size-10 shrink-0 border-border bg-background shadow-xs hover:border-primary/50"
           />
 
-          {/* Title & Date Column */}
           <div className="flex flex-1 flex-col gap-0.5 min-w-0 pr-2">
             <Input
               value={title}
@@ -227,7 +209,6 @@ export function NotebookCardPreview({
         </div>
       </div>
 
-      {/* Inline Description Editor */}
       <div className="flex flex-col gap-1.5 px-1">
         <Label
           htmlFor="notebook-description"
@@ -243,7 +224,7 @@ export function NotebookCardPreview({
           placeholder="Add a detailed description for your notebook..."
           rows={3}
           maxLength={500}
-          className="field-sizing-none border-border bg-muted/20 text-xs sm:text-sm text-foreground focus-visible:ring-1 focus-visible:ring-ring"
+          className="border-border bg-muted/20 text-xs sm:text-sm text-foreground focus-visible:ring-1 focus-visible:ring-ring"
         />
       </div>
     </div>

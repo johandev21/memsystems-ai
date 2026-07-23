@@ -1,7 +1,4 @@
-"use client";
-
 import { MessageSquare } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { ConversationEmptyState } from "@/components/ai-elements/conversation";
 
 export interface ChatEmptyStateProps {
@@ -15,12 +12,10 @@ export function ChatEmptyState({
   description,
   isUntitled,
 }: ChatEmptyStateProps) {
-  const t = useTranslations("Chat");
-
   if (isUntitled) {
     return (
       <ConversationEmptyState
-        title={t("blankCanvas")}
+        title="Start with a blank canvas"
         icon={<MessageSquare className="size-8" />}
       />
     );
@@ -32,8 +27,8 @@ export function ChatEmptyState({
 
   return (
     <ConversationEmptyState
-      title={t("welcomeTo", { title: notebookTitle })}
-      description={`${t("fallbackDescription", { title: notebookTitle })}\n\n${t("useChatPanel")}`}
+      title={`Welcome to ${notebookTitle}`}
+      description={`Ask questions or generate study materials based on your added sources.\n\nUse the chat composer below to get started.`}
     />
   );
 }

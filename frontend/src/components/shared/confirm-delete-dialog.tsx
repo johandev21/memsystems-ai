@@ -1,7 +1,4 @@
-"use client";
-
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,8 +27,6 @@ export function ConfirmDeleteDialog({
   onConfirm,
   isLoading = false,
 }: ConfirmDeleteDialogProps) {
-  const t = useTranslations("Common");
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,9 +35,7 @@ export function ConfirmDeleteDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
-            {t("cancel")}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -52,7 +45,7 @@ export function ConfirmDeleteDialog({
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t("delete")}
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

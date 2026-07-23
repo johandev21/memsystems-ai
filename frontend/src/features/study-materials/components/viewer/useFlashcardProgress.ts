@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 export interface FlashcardCardProgress {
@@ -94,14 +92,12 @@ export function useFlashcardProgress(materialId: string, totalCards: number) {
     setCurrentCardIndex((prev) => (prev - 1 + totalCards) % totalCards);
   };
 
-  // Global deck progress calculation
   const masteredCount = Object.values(progress).filter(
     (s) => s.status === "know",
   ).length;
   const progressPercent =
     totalCards > 0 ? Math.round((masteredCount / totalCards) * 100) : 0;
 
-  // Total reviews count across all cards
   const totalReviewsCount = Object.values(progress).reduce(
     (acc, s) => acc + (s.reviewCount || 0),
     0,

@@ -1,8 +1,5 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OpenAIKeyPrompt } from "@/components/openai-key-prompt";
 import {
   Dialog,
@@ -37,7 +34,6 @@ export function GenerateBriefDialog({
   onOpenChange,
   onComplete,
 }: GenerateBriefDialogProps) {
-  const t = useTranslations("Notebook");
   const queryClient = useQueryClient();
   const startBackgroundGeneration = useGenerationStore(
     (s) => s.startBackgroundGeneration,
@@ -70,7 +66,6 @@ export function GenerateBriefDialog({
   const handleSubmit = () => {
     if (!kind) return;
 
-    // Trigger background generation
     startBackgroundGeneration(
       notebookId,
       { kind, brief, sourceIds, folderId, model },
@@ -78,25 +73,20 @@ export function GenerateBriefDialog({
       onComplete,
     );
 
-    // Expand the background widget so progress is visible
     setCollapsed(false);
-
-    // Close dialog immediately
     onOpenChange(false);
-
-    // Reset brief state for next use
     setBrief("");
   };
 
   if (kind === null) return null;
 
+  const label = KIND_LABELS[kind] || kind;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {t("generateTitle", { kind: kindLabel(t, kind) })}
-          </DialogTitle>
+          <DialogTitle>Generate {label}</DialogTitle>
         </DialogHeader>
         {connection?.openai?.ok !== false ? (
           <BriefForm
@@ -114,20 +104,13 @@ export function GenerateBriefDialog({
               }
             }}
             onSubmit={handleSubmit}
-            submitLabel={t("generate")}
+            submitLabel="Generate"
             disabled={false}
           />
         ) : (
-          <OpenAIKeyPrompt description={t("aiKeyRequired")} />
+          <OpenAIKeyPrompt description="An OpenAI API Key is required to generate study materials." />
         )}
       </DialogContent>
     </Dialog>
   );
-}
-
-function kindLabel(
-  _t: (key: string) => string,
-  kind: StudyMaterialKind,
-): string {
-  return KIND_LABELS[kind];
 }

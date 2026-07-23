@@ -1,5 +1,5 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 
 interface SectionHeaderProps {
   title: string;
@@ -17,7 +17,7 @@ export function SectionHeader({
       <h2 className="text-lg font-semibold text-foreground">{title}</h2>
       {viewAllHref && (
         <Link
-          href={viewAllHref}
+          to={viewAllHref}
           className="inline-flex items-center gap-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           {viewAllLabel}

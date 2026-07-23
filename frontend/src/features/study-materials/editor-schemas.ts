@@ -3,16 +3,6 @@ import type { StudyMaterialKind } from "./shapes";
 
 export type { StudyMaterialKind };
 
-// Mirror the API-side enum so the client doesn't import from route handlers.
-const STUDY_MATERIAL_KINDS: readonly StudyMaterialKind[] = [
-  "quiz",
-  "simple_flashcard",
-  "report",
-  "roadmap",
-  "slide_deck",
-  "mind_map",
-] as const;
-
 const cuid = z.string().min(1).max(64);
 
 const QuizOptionInput = z.object({
@@ -81,19 +71,6 @@ const RoadmapEditorContent = z.object({
 });
 export type RoadmapEditorContentType = z.infer<typeof RoadmapEditorContent>;
 
-/**
- * Create an "empty" content object for a new study material. The result
- * round-trips through `validateContent(kind, ...)` so it can be saved via
- * the existing POST /api/notebooks/[id]/study-materials route without
- * additional server-side changes.
- *
- * The server-side Zod schemas require non-empty strings for fields like
- * `prompt` and `title`. We seed those with placeholder copy so the user can
- * save a draft before filling in the meaningful content.
- *
- * Ids are generated fresh on each call so multiple empty editors do not
- * share state.
- */
 export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
   switch (kind) {
     case "quiz":
@@ -131,7 +108,6 @@ export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
           },
         ],
       };
-    // The remaining kinds are not editable in v1.
     case "report":
     case "slide_deck":
     case "mind_map":
@@ -141,9 +117,6 @@ export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
   }
 }
 
-// Lightweight id generator for editor-side state. Cuid2 is overkill and
-// would add a client-side import; a sufficiently-unique opaque id is
-// fine for a draft document. The server doesn't depend on the format.
 let counter = 0;
 function makeId(): string {
   counter += 1;

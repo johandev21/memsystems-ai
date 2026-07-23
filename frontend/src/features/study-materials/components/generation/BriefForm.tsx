@@ -1,15 +1,14 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { DialogModelSelector } from "@/features/notebooks";
+import { DialogModelSelector } from "@/features/notebooks/components/shared/model-selector";
 import { FolderPicker } from "@/features/notebooks/components/studio/folder-picker";
 import { SourceMultiSelect } from "@/features/notebooks/components/studio/source-multi-select";
-import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
-import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import {
+  KIND_LABELS,
+  type StudyMaterialKind,
+} from "@/features/study-materials/shapes";
 import type { ModelOption } from "@/lib/api-client/models";
 
 export interface BriefFormData {
@@ -35,7 +34,7 @@ export function BriefForm({
   notebookId,
   kind,
   models,
-  defaultModel,
+  defaultModel: _defaultModel,
   value,
   onChange,
   onSubmit,
@@ -44,39 +43,32 @@ export function BriefForm({
 }: BriefFormProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const t = useTranslations("Notebook");
-
-  useTextareaAutosize({
-    ref: textareaRef,
-    value: value.brief,
-    minHeight: 80,
-    maxHeight: 250,
-  });
-
   const update = (patch: Partial<BriefFormData>) => {
     onChange({ ...value, ...patch });
   };
+
+  const label = KIND_LABELS[kind] || kind;
 
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="brief">
-          {t("briefLabel", { kind: t(kindKey(kind)) })}
+          Brief instructions for {label} (optional)
         </Label>
         <Textarea
           id="brief"
           ref={textareaRef}
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
-          placeholder={t(placeholderKey(kind))}
-          className="resize-none field-sizing-none"
+          placeholder={`Describe what topics or focus areas to include in this ${label}...`}
+          className="resize-none"
           rows={3}
           disabled={disabled}
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label>{t("sources")}</Label>
+        <Label>Knowledge Sources</Label>
         <SourceMultiSelect
           notebookId={notebookId}
           value={value.sourceIds}
@@ -86,7 +78,7 @@ export function BriefForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>{t("destinationFolder")}</Label>
+        <Label>Destination Folder</Label>
         <FolderPicker
           notebookId={notebookId}
           value={value.folderId}
@@ -96,7 +88,7 @@ export function BriefForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>{t("model")}</Label>
+        <Label>AI Model</Label>
         <DialogModelSelector
           models={models}
           selectedModel={value.model}
@@ -109,7 +101,7 @@ export function BriefForm({
 
       <Button
         type="button"
-        className="w-full"
+        className="w-full cursor-pointer"
         disabled={
           disabled || (value.sourceIds.length === 0 && !value.brief.trim())
         }
@@ -119,36 +111,4 @@ export function BriefForm({
       </Button>
     </div>
   );
-}
-
-function kindKey(kind: StudyMaterialKind): string {
-  switch (kind) {
-    case "simple_flashcard":
-      return "flashcards";
-    case "slide_deck":
-      return "slideDeck";
-    case "mind_map":
-      return "mindMap";
-    default:
-      return kind;
-  }
-}
-
-function placeholderKey(kind: StudyMaterialKind): string {
-  switch (kind) {
-    case "quiz":
-      return "briefPlaceholderQuiz";
-    case "simple_flashcard":
-      return "briefPlaceholderFlashcard";
-    case "roadmap":
-      return "briefPlaceholderRoadmap";
-    case "slide_deck":
-      return "briefPlaceholderSlideDeck";
-    case "mind_map":
-      return "briefPlaceholderMindMap";
-    case "report":
-      return "briefPlaceholderReport";
-    default:
-      return "briefPlaceholderDefault";
-  }
 }

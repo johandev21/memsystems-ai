@@ -1,22 +1,12 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { ChatPanel } from "@/features/notebook-chat/components/chat-panel";
 import { SourcesPanel } from "@/features/sources/components/sources-panel";
+import { GenerateBriefDialog } from "@/features/study-materials/components/generation/GenerateBriefDialog";
 import { MobileStudyMaterialsPanel } from "@/features/study-materials/components/tree/mobile-study-materials-panel";
 import type { UseStudioDialogsReturn } from "../../hooks/use-studio-dialogs";
 import { StudioResources } from "../shared/studio-resources";
 import { MobileTabsHeader } from "./mobile-tabs-header";
-
-const GenerateBriefDialog = dynamic(
-  () =>
-    import(
-      "@/features/study-materials/components/generation/GenerateBriefDialog"
-    ).then((mod) => mod.GenerateBriefDialog),
-  { ssr: false },
-);
 
 export interface MobileNotebookLayoutProps {
   notebookId: string;
@@ -46,6 +36,7 @@ export function MobileNotebookLayout({
           <ScrollArea className="h-full">
             <div className="p-3 space-y-3">
               <StudioResources
+                notebookId={notebookId}
                 collapsed={false}
                 onGenerate={dialogs.handleGenerate}
               />

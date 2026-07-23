@@ -1,5 +1,3 @@
-"use client";
-
 import {
   FileUp,
   HardDrive,
@@ -8,7 +6,6 @@ import {
   Type,
   Upload,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -44,7 +41,6 @@ export function FileUploadMode({
   isUploading,
   busy,
 }: FileUploadModeProps) {
-  const t = useTranslations("Sources");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -77,7 +73,7 @@ export function FileUploadMode({
     const file = e.target.files?.[0];
     if (file) {
       if (!isClientSupportedFile(file)) {
-        toast.error(t("unsupportedFileType"));
+        toast.error("Unsupported file type");
         e.target.value = "";
         return;
       }
@@ -120,59 +116,58 @@ export function FileUploadMode({
         )}
       </div>
       <h3 className="text-[17px] font-medium text-foreground mb-1.5 transition-colors group-hover:text-primary">
-        {isUploading ? t("uploading") : t("dropFiles")}
+        {isUploading ? "Uploading file..." : "Drop your files here"}
       </h3>
       <p className="text-sm text-muted-foreground mb-8 text-center max-w-[280px]">
-        {t("supportFormats")}
+        Supports PDF, DOCX, TXT, and Markdown files
       </p>
 
       <div className="flex flex-wrap justify-center gap-2.5 w-full relative z-10">
         <Button
           type="button"
           variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border"
+          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
           disabled={busy}
         >
           <Upload className="h-4 w-4 mr-2 text-muted-foreground" />
-          {t("uploadFiles")}
+          Upload Files
         </Button>
         <Button
           type="button"
           variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border"
+          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
           onClick={onSelectUrlMode}
           disabled={busy}
         >
           <LinkIcon className="h-4 w-4 mr-2 text-blue-500/80" />
-          {t("websites")}
+          Websites
         </Button>
         <Button
           type="button"
           variant="outline"
           disabled
           className="h-10 px-5 bg-background shadow-sm transition-all opacity-50 cursor-not-allowed"
-          title={t("comingSoon")}
+          title="Coming soon"
         >
           <HardDrive className="h-4 w-4 mr-2 text-emerald-500/80" />
-          {t("drive")}
+          Drive
         </Button>
         <Button
           type="button"
           variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border"
+          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
           onClick={onSelectTextMode}
           disabled={busy}
         >
           <Type className="h-4 w-4 mr-2 text-amber-500/80" />
-          {t("copiedText")}
+          Copied Text
         </Button>
       </div>
 
-      {/* Full-area click target for file upload (sits behind the buttons) */}
       <button
         type="button"
-        aria-label={t("uploadAFile")}
+        aria-label="Upload a file"
         onClick={() => fileInputRef.current?.click()}
         disabled={busy}
         className="absolute inset-0 z-0 cursor-pointer disabled:cursor-progress"

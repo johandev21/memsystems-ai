@@ -1,8 +1,7 @@
 import type { StudyMaterialKind } from "@/features/study-materials/shapes";
+import { getApiUrl } from "../utils";
 
 export type { StudyMaterialKind };
-
-import { getApiUrl } from "../utils";
 
 export interface StartGenerationInput {
   kind: StudyMaterialKind;
@@ -19,23 +18,9 @@ export type GenerationEvent =
 
 export interface StartGenerationResult {
   stream: AsyncIterable<GenerationEvent>;
-  /**
-   * Promise that resolves to the `X-Request-Id` from the response headers.
-   * Useful for wiring a Cancel button before the first partial arrives.
-   * Rejects on network failure (in which case the stream will yield an
-   * error event with the same cause).
-   */
   requestIdPromise: Promise<string>;
 }
 
-/**
- * Start an LLM generation request against `/api/notebooks/[id]/generate`.
- *
- * The endpoint streams NDJSON: one JSON object per line. Each non-final line
- * is a partial content object (as the LLM accumulates output), and the
- * final line is `{ done: true, requestId }`. We surface both as a typed
- * `AsyncIterable<GenerationEvent>` so callers can `for await` it.
- */
 export function startGeneration(
   notebookId: string,
   input: StartGenerationInput,
@@ -115,7 +100,6 @@ async function* iteratorFrom(
         newlineIndex = buffer.indexOf("\n");
       }
     }
-    // Flush any trailing line.
     const trailing = buffer.trim();
     if (trailing.length > 0) {
       yield parseLine(trailing);
@@ -159,9 +143,6 @@ function parseLine(line: string): GenerationEvent {
   return { type: "partial", content: parsed };
 }
 
-/**
- * Cancel a running LLM generation request against `/api/notebooks/[id]/generation-requests/[requestId]/cancel`.
- */
 export async function cancelGeneration(
   notebookId: string,
   requestId: string,

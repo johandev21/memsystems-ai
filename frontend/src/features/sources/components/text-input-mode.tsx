@@ -1,13 +1,8 @@
-"use client";
-
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useTextareaAutosize } from "@/features/notebooks/hooks/use-textarea-autosize";
 
 interface TextInputModeProps {
   textTitle: string;
@@ -30,11 +25,6 @@ export function TextInputMode({
   isPending,
   busy,
 }: TextInputModeProps) {
-  const t = useTranslations("Sources");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useTextareaAutosize({ ref: textareaRef, value: textBody, maxHeight: 200 });
-
   return (
     <form
       className="flex flex-col gap-4"
@@ -47,16 +37,16 @@ export function TextInputMode({
         type="button"
         onClick={onBack}
         disabled={busy}
-        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
-        {t("back")}
+        Back
       </button>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="source-text-title">{t("title")}</Label>
+        <Label htmlFor="source-text-title">Title</Label>
         <Input
           id="source-text-title"
-          placeholder={t("myStudyNotes")}
+          placeholder="My Study Notes"
           value={textTitle}
           onChange={(e) => onTextTitleChange(e.target.value)}
           autoFocus
@@ -65,30 +55,30 @@ export function TextInputMode({
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="source-text-body">{t("content")}</Label>
+        <Label htmlFor="source-text-body">Content</Label>
         <Textarea
           id="source-text-body"
-          ref={textareaRef}
-          placeholder={t("pasteTextHere")}
+          placeholder="Paste your copied text here..."
           value={textBody}
           onChange={(e) => onTextBodyChange(e.target.value)}
-          rows={3}
+          rows={5}
           required
           disabled={busy}
-          className="field-sizing-none break-words"
+          className="break-words"
         />
       </div>
       <Button
         type="submit"
         disabled={busy || !textTitle.trim() || !textBody.trim()}
+        className="cursor-pointer"
       >
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {t("adding")}
+            Adding text...
           </>
         ) : (
-          t("addText")
+          "Add Text Source"
         )}
       </Button>
     </form>

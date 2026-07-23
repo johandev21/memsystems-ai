@@ -1,7 +1,4 @@
-"use client";
-
 import { Search } from "lucide-react";
-import { useTranslations } from "next-intl";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +29,6 @@ export function ModelSelector({
   selectedModel,
   onModelChange,
 }: ModelSelectorProps) {
-  const t = useTranslations("Notebook");
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -79,7 +75,7 @@ export function ModelSelector({
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground/70" />
           <input
             type="text"
-            placeholder={t("searchModels")}
+            placeholder="Search models..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="w-full h-8 pl-8 pr-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 outline-hidden placeholder:text-muted-foreground/60 transition-colors rounded-xl"
@@ -90,7 +86,7 @@ export function ModelSelector({
           <div className="space-y-0.5 pr-2">
             {filteredModels.length === 0 ? (
               <div className="text-[11px] text-muted-foreground text-center py-8">
-                {t("noModelsFound")}
+                No models found
               </div>
             ) : (
               filteredModels.map((model) => (
@@ -163,7 +159,6 @@ export function DialogModelSelector({
   onModelChange,
   disabled = false,
 }: DialogModelSelectorProps) {
-  const t = useTranslations("Notebook");
   const activeModelDetails = models.find((m) => m.id === selectedModel);
 
   return (
@@ -175,7 +170,7 @@ export function DialogModelSelector({
       disabled={disabled}
     >
       <SelectTrigger className="w-full h-9 px-3 text-xs bg-muted/50 hover:bg-muted/80 focus:bg-muted border border-border/80 focus:border-primary/50 transition-colors rounded-2xl">
-        <SelectValue placeholder={t("selectModelPlaceholder")}>
+        <SelectValue placeholder="Select model...">
           {activeModelDetails?.displayName || selectedModel}
         </SelectValue>
       </SelectTrigger>
@@ -185,7 +180,7 @@ export function DialogModelSelector({
             key={model.id}
             value={model.id}
             label={model.displayName}
-            className="text-xs py-2"
+            className="text-xs py-2 cursor-pointer"
           >
             <div className="flex flex-col min-w-0">
               <span className="font-semibold text-foreground leading-tight truncate">

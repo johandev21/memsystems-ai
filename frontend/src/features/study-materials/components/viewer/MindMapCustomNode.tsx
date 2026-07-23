@@ -1,8 +1,5 @@
-"use client";
-
 import { Handle, Position } from "@xyflow/react";
 import { ChevronDown, ChevronRight, CircleDot } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export interface MindMapCustomNodeProps {
@@ -21,11 +18,9 @@ export interface MindMapCustomNodeProps {
 }
 
 export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
-  const t = useTranslations("MindMapView");
   const isHorizontal = data.direction !== "TB";
 
-  // Custom node accent border/bg color
-  const accentColor = data.color || "#4f46e5"; // default Indigo/Primary
+  const accentColor = data.color || "#4f46e5";
 
   return (
     <div
@@ -40,20 +35,17 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
         !data.isFocused && "opacity-30 pointer-events-none",
       )}
     >
-      {/* Target handle: Incoming connections */}
       <Handle
         type="target"
         position={isHorizontal ? Position.Left : Position.Top}
         className="!bg-muted-foreground/30 !w-2 !h-2 !border-0 hover:!bg-primary transition-colors"
       />
 
-      {/* Left accent color strip */}
       <div
         className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-md"
         style={{ backgroundColor: accentColor }}
       />
 
-      {/* Node label content */}
       <div className="flex-1 pl-1.5 pr-2 flex items-center gap-1.5">
         <CircleDot
           className="h-3 w-3 shrink-0 opacity-40 group-hover:opacity-75 transition-opacity"
@@ -64,27 +56,18 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
         </span>
       </div>
 
-      {/* Subtree Toggle handle button (if node has children) */}
       {data.hasChildren && data.onToggleCollapse && (
         <button
           type="button"
           onClick={(e) => data.onToggleCollapse?.(id, e)}
-          aria-label={
-            data.isCollapsed
-              ? t("expandBranchTooltip")
-              : t("collapseBranchTooltip")
-          }
+          aria-label={data.isCollapsed ? "Expand branch" : "Collapse branch"}
           className={cn(
             "absolute flex items-center justify-center h-5 w-5 rounded-full border border-border bg-background text-foreground shadow-sm cursor-pointer hover:bg-muted hover:text-primary transition-all duration-150 active:scale-95 z-20",
             isHorizontal
               ? "right-0 translate-x-[50%] top-1/2 -translate-y-1/2"
               : "bottom-0 translate-y-[50%] left-1/2 -translate-x-1/2",
           )}
-          title={
-            data.isCollapsed
-              ? t("expandBranchTooltip")
-              : t("collapseBranchTooltip")
-          }
+          title={data.isCollapsed ? "Expand branch" : "Collapse branch"}
         >
           {data.isCollapsed ? (
             <ChevronRight className="h-3 w-3" />
@@ -94,7 +77,6 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
         </button>
       )}
 
-      {/* Source handle: Outgoing connections */}
       <Handle
         type="source"
         position={isHorizontal ? Position.Right : Position.Bottom}
