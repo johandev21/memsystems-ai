@@ -1,7 +1,14 @@
-function App() {
-  return (
-    <div className="font-bold text-2xl bg-blue-200">Hello, new frontend!</div>
-  )
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
 }
 
-export default App
+export default function App() {
+  return <RouterProvider router={router} />;
+}
