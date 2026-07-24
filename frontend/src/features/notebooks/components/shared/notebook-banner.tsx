@@ -54,8 +54,9 @@ export function NotebookBanner({
         <img
           src={bannerUrl ?? ""}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover overflow-hidden"
+          className="absolute inset-0 w-full h-full object-cover overflow-hidden select-none pointer-events-none"
           style={{ objectPosition: `${focalX}% ${focalY}%` }}
+          draggable={false}
           onError={handleImageError}
           onLoad={handleImageLoad}
         />
