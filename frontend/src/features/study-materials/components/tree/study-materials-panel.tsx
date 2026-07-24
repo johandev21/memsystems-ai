@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Separator } from "@/shared/ui/separator";
 import { ExpandedStudyMaterials } from "./expanded-study-materials";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
