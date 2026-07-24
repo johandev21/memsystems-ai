@@ -55,9 +55,9 @@ export function NotebooksSection() {
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="gradient-text max-w-md font-heading text-2xl leading-snug font-bold italic">
-            Make progress with AI notes
+            Make progress on what matters.
           </h1>
-          <p className="text-sm text-muted-foreground">Pick up where you left off</p>
+          <p className="text-sm text-muted-foreground">Pick up where you left off, or start something fresh.</p>
         </div>
         <Button
           onClick={handleCreateNotebook}

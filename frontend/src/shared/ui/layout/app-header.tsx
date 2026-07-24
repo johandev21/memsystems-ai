@@ -51,7 +51,7 @@ export function AppHeader({ autoHide = false }: { autoHide?: boolean }) {
         >
           <Logo className="size-6 text-foreground" />
           <span className="font-heading font-bold text-sm tracking-tight text-foreground">
-            memsystems
+            Memsystems
           </span>
         </Link>
         <UserMenu onOpenChange={setDropdownOpen} />

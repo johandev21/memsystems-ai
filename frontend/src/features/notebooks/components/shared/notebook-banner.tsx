@@ -67,7 +67,7 @@ export function NotebookBanner({
         </div>
       )}
 
-      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 max-w-[calc(100%-1rem)] flex items-center gap-3 rounded-2xl border border-white/30 bg-background/85 p-3 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-background/80">
+      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 flex items-center gap-3 rounded-2xl border border-white/30 bg-background/85 p-3 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-background/80">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background shadow-xs">
           <NotebookIcon name={icon} className="size-4 text-foreground" />
         </div>

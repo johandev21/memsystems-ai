@@ -80,7 +80,13 @@ export function ExpandedStudyMaterials({
       }}
     >
       <DialogTrigger
-        render={<Button variant="ghost" size="icon" className="h-6 w-6 cursor-pointer" />}
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 cursor-pointer text-muted-foreground hover:text-foreground"
+          />
+        }
       >
         <Maximize2 className="h-4 w-4" />
         <span className="sr-only">Maximize study materials</span>

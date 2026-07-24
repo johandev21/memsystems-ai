@@ -90,7 +90,7 @@
   --sidebar-ring: oklch(0.708 0 0);
   --panel-bg: #ffffff;
   --panel-header-bg: #f4f4f5;
-  --composer-bg: #eaeaea;
+  --composer-bg: var(--panel-header-bg);
   --gradient-text-start: oklch(56.584% 0.00006 271.152);
   --gradient-text-end: oklch(0% 0 0);
   --heatmap-empty: oklch(0% 0 0 / 0.05);
@@ -136,7 +136,7 @@
   --sidebar-ring: oklch(0.556 0 0);
   --panel-bg: #111111;
   --panel-header-bg: #27272a;
-  --composer-bg: #171717;
+  --composer-bg: var(--panel-header-bg);
   --gradient-text-start: oklch(68.295% 0.00008 271.152);
   --gradient-text-end: oklch(100% 0.00011 271.152);
   --heatmap-empty: oklch(100% 0.00011 271.152 / 0.05);

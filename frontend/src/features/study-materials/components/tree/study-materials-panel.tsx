@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent } from "@/shared/ui/card";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Separator } from "@/shared/ui/separator";
 import { ExpandedStudyMaterials } from "./expanded-study-materials";
@@ -26,17 +26,18 @@ export function StudyMaterialsPanel({
 
   return (
     <Card
-      className="mx-auto w-full gap-2 flex flex-col ring-0 bg-muted/60 shadow-sm dark:shadow-none dark:bg-muted/30"
+      className="mx-auto w-full flex flex-col ring-0 bg-card shadow-sm dark:shadow-none p-0 py-0 gap-0 overflow-hidden"
       size="sm"
     >
-      <div className="flex items-center justify-between px-2">
-        <span className="font-medium text-sm">Study Materials</span>
-        <div className="flex items-center gap-1">
+      <CardHeader className="flex items-center justify-between p-1.5 pl-3 bg-panel-header-bg min-h-[44px]">
+        <span className="font-semibold text-sm text-foreground">Study Materials</span>
+        <div className="flex items-center gap-0.5">
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 cursor-pointer"
+            className="h-7 w-7 cursor-pointer text-muted-foreground hover:text-foreground"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-label={isExpanded ? "Collapse study materials" : "Expand study materials"}
           >
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
@@ -56,12 +57,11 @@ export function StudyMaterialsPanel({
             initialMaterialId={selectedMaterialId}
           />
         </div>
-      </div>
+      </CardHeader>
       {isExpanded && (
         <>
-          <Separator />
           <ScrollArea className="h-[250px] w-full pr-2">
-            <CardContent className="pb-2">
+            <CardContent className="p-3 pb-2">
               <StudyMaterialsTree
                 notebookId={notebookId}
                 onSelectMaterial={(materialId) => {

@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
@@ -20,13 +20,15 @@ export function UserMenu({
   onOpenChange?: (open: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
   async function handleLogout() {
     await authClient.signOut();
-    navigate({ to: "/login" });
+    await router.invalidate();
   }
+
 
   return (
     <DropdownMenu onOpenChange={onOpenChange}>
