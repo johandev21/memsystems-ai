@@ -68,7 +68,7 @@ export function UserMenu({
           className="cursor-pointer"
         >
           <Settings className="mr-2 size-4" />
-          <span>Configurations</span>
+          <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">

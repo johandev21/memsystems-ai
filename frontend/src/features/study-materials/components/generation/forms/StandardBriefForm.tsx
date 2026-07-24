@@ -1,0 +1,86 @@
+import { useRef } from "react";
+import { Button } from "@/shared/ui/button";
+import { Label } from "@/shared/ui/label";
+import { Textarea } from "@/shared/ui/textarea";
+import { FolderPicker, SourceMultiSelect } from "@/features/notebooks";
+import { KIND_LABELS } from "@/features/study-materials";
+import type { BaseMaterialFormProps, BriefFormData } from "./types";
+import { QuizModelPopover } from "./QuizBriefForm";
+
+export function StandardBriefForm({
+  notebookId,
+  kind,
+  models,
+  value,
+  onChange,
+  onSubmit,
+  submitLabel = "Generate",
+  disabled = false,
+}: BaseMaterialFormProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const update = (patch: Partial<BriefFormData>) => {
+    onChange({ ...value, ...patch });
+  };
+
+  const label = KIND_LABELS[kind] || kind;
+  const canSubmit = !disabled && (value.sourceIds.length > 0 || value.brief.trim().length > 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="brief" className="text-sm font-medium">
+          Brief instructions for {label} (optional)
+        </Label>
+        <Textarea
+          id="brief"
+          ref={textareaRef}
+          value={value.brief}
+          onChange={(e) => update({ brief: e.target.value })}
+          placeholder={`Describe what topics or focus areas to include in this ${label}...`}
+          className="resize-none text-xs min-h-[90px]"
+          disabled={disabled}
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">Knowledge Sources</Label>
+        <SourceMultiSelect
+          notebookId={notebookId}
+          value={value.sourceIds}
+          onChange={(sourceIds) => update({ sourceIds })}
+          className={disabled ? "opacity-60" : ""}
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">Destination Folder</Label>
+        <FolderPicker
+          notebookId={notebookId}
+          value={value.folderId}
+          onChange={(folderId) => update({ folderId })}
+          disabled={disabled}
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">AI Model</Label>
+        <QuizModelPopover
+          models={models}
+          selectedModel={value.model}
+          onModelChange={(model) => update({ model })}
+          disabled={disabled}
+        />
+      </div>
+
+      <Button
+        type="button"
+        className="w-full cursor-pointer"
+        disabled={!canSubmit}
+        onClick={onSubmit}
+      >
+        {submitLabel}
+      </Button>
+    </div>
+  );
+}

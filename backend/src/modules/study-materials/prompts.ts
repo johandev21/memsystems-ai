@@ -2,7 +2,11 @@ import { StudyMaterialKind } from './shapes';
 
 interface PromptTemplate {
   system: string;
-  user: (brief: string, sourceTexts: string) => string;
+  user: (
+    brief: string,
+    sourceTexts: string,
+    options?: { questionCount?: number; difficulty?: string },
+  ) => string;
 }
 
 const quizTemplate: PromptTemplate = {
@@ -11,14 +15,26 @@ Each question must have 2-6 options with exactly one correct answer.
 Every option must have an explanation of why it is correct or incorrect.
 Questions should test understanding, not just recall.
 Randomize which option is correct across questions.`,
-  user: (brief, sourceTexts) => {
+  user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
-      : '';
+      : 'Source material: None provided. Generate quiz using general knowledge.\n\n';
     const instructionsBlock = brief
       ? `Generate a quiz based on these instructions: ${brief}`
       : 'Generate a general quiz.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a quiz with questions, each having 2-6 options and exactly one correct answer.`;
+    const countText = options?.questionCount
+      ? `Generate EXACTLY ${options.questionCount} questions.`
+      : 'Generate a comprehensive quiz.';
+    const diffText = options?.difficulty
+      ? `Target difficulty level: ${options.difficulty} (${
+          options.difficulty === 'easy'
+            ? 'Warmup: basic recall and definitions'
+            : options.difficulty === 'hard'
+              ? 'Challenge: deep reasoning, complex logic, and edge cases'
+              : 'Standard: balanced conceptual and practical application'
+        }).`
+      : '';
+    return `${sourceBlock}${instructionsBlock}\n\n${countText} ${diffText}\nGenerate a quiz with questions, each having 2-6 options and exactly one correct answer.`;
   },
 };
 

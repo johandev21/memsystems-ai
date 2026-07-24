@@ -11,6 +11,7 @@ import { useModelPersistence } from "@/features/notebooks";
 import { useGenerationStore, KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
 import type { ModelOption } from "@/shared/api/models";
 import { BriefForm } from "./BriefForm";
+import { cn } from "@/shared/lib/utils";
 
 export interface GenerateBriefDialogProps {
   notebookId: string;
@@ -39,6 +40,8 @@ export function GenerateBriefDialog({
   const [brief, setBrief] = useState("");
   const [sourceIds, setSourceIds] = useState<string[]>([]);
   const [folderId, setFolderId] = useState<string | null>(null);
+  const [questionCount, setQuestionCount] = useState<number | undefined>(10);
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | undefined>("medium");
   const { model: persistedModel, setModel: setPersistedModel } =
     useModelPersistence(notebookId);
   const model = persistedModel ?? "";
@@ -63,7 +66,7 @@ export function GenerateBriefDialog({
 
     startBackgroundGeneration(
       notebookId,
-      { kind, brief, sourceIds, folderId, model },
+      { kind, brief, sourceIds, folderId, model, questionCount, difficulty },
       queryClient,
       onComplete,
     );
@@ -79,9 +82,9 @@ export function GenerateBriefDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={cn("sm:max-w-md", kind === "quiz" && "sm:max-w-2xl")}>
         <DialogHeader>
-          <DialogTitle>Generate {label}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-foreground">Generate {label}</DialogTitle>
         </DialogHeader>
         {connection?.openai?.ok !== false ? (
           <BriefForm
@@ -89,11 +92,13 @@ export function GenerateBriefDialog({
             kind={kind}
             models={models}
             defaultModel={models[0]?.id}
-            value={{ brief, sourceIds, folderId, model }}
+            value={{ brief, sourceIds, folderId, model, questionCount, difficulty }}
             onChange={(next) => {
               setBrief(next.brief);
               setSourceIds(next.sourceIds);
               setFolderId(next.folderId);
+              setQuestionCount(next.questionCount);
+              setDifficulty(next.difficulty);
               if (next.model !== model) {
                 setPersistedModel(next.model);
               }

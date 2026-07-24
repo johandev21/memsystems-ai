@@ -169,36 +169,6 @@
   }
 }
 
-:root {
-  --sb-track-color: var(--border);
-  --sb-thumb-color: var(--muted-foreground);
-  --sb-size: 10px;
-}
-
-*::-webkit-scrollbar {
-  width: var(--sb-size);
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--sb-track-color);
-  border-radius: 24px;
-  margin: 6px 0px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--sb-thumb-color);
-  border-radius: 24px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
-}
-
-@supports not selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-  }
-}
 
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {

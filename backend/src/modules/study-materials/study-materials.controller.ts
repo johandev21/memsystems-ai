@@ -68,6 +68,8 @@ const generateRequestSchema = z.object({
   sourceIds: z.array(z.string()).default([]),
   folderId: z.string().nullable().optional(),
   model: z.string().optional(),
+  questionCount: z.number().min(1).max(50).optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
 });
 
 @Controller()

@@ -14,6 +14,8 @@ export interface StartGenerationInput {
   sourceIds: string[];
   folderId?: string | null;
   model?: string;
+  questionCount?: number;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 @Injectable()

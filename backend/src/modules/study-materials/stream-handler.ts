@@ -45,6 +45,8 @@ export class StreamHandler {
       brief: string;
       folderId?: string | null;
       model?: string;
+      questionCount?: number;
+      difficulty?: 'easy' | 'medium' | 'hard';
     },
     sourceTexts: { title: string; rawText: string }[],
     requestId: string,
@@ -59,6 +61,10 @@ export class StreamHandler {
     const userPrompt = promptTemplate.user(
       input.brief,
       concatenatedSources.slice(0, 100000),
+      {
+        questionCount: input.questionCount,
+        difficulty: input.difficulty,
+      },
     );
     const schema = this.getContentSchema(input.kind);
 

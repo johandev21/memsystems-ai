@@ -33,6 +33,8 @@ interface GenerationState {
       sourceIds: string[];
       folderId: string | null;
       model?: string;
+      questionCount?: number;
+      difficulty?: "easy" | "medium" | "hard";
     },
     queryClient: QueryClient,
     onComplete?: (materialId: string) => void,
