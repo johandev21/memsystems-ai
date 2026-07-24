@@ -17,18 +17,21 @@ import { SlideDeckView } from "./SlideDeckView";
 export interface MaterialViewerProps {
   material: StudyMaterialDTO;
   onClose: () => void;
+  showHeader?: boolean;
 }
 
-export function MaterialViewer({ material, onClose }: MaterialViewerProps) {
+export function MaterialViewer({ material, onClose, showHeader = false }: MaterialViewerProps) {
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold truncate">{material.title}</h3>
-        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="cursor-pointer">
-          <X className="h-3.5 w-3.5 mr-1" />
-          Close
-        </Button>
-      </div>
+      {showHeader && (
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold truncate">{material.title}</h3>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} className="cursor-pointer">
+            <X className="h-3.5 w-3.5 mr-1" />
+            Close
+          </Button>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {material.kind === "quiz" && (
           <QuizView content={material.content as QuizEditorContentType} />

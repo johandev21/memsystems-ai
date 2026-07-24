@@ -116,7 +116,7 @@ export function Composer({
   return (
     <PromptInput
       onSubmit={handleSubmit}
-      className="w-full [&_[data-slot=input-group]]:flex-col [&_[data-slot=input-group]]:items-stretch [&_[data-slot=input-group]]:p-2 [&_[data-slot=input-group]]:pb-1.5"
+      className="w-full select-none [&_[data-slot=input-group]]:flex-col [&_[data-slot=input-group]]:items-stretch [&_[data-slot=input-group]]:p-2 [&_[data-slot=input-group]]:pb-1.5"
     >
       <PromptInputBody>
         <PromptInputTextarea
@@ -124,7 +124,7 @@ export function Composer({
           value={input}
           onChange={(e) => onInputChange(e.currentTarget.value)}
           placeholder="Type a message..."
-          className="min-h-[44px] max-h-[200px] px-2 py-1 text-[14.5px] border-0 focus:ring-0 focus-visible:ring-0"
+          className="min-h-[44px] max-h-[200px] px-2 py-1 text-[14.5px] border-0 focus:ring-0 focus-visible:ring-0 select-none placeholder:select-none"
         />
       </PromptInputBody>
       <PromptInputFooter className="px-1 pt-1 pb-0.5">

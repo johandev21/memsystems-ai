@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { Logo } from "@/shared/ui/logo";
 import { Button } from "@/shared/ui/button";
 import {
@@ -35,15 +34,8 @@ function GoogleIcon() {
 }
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const { data: session } = authClient.useSession();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (session) {
-      navigate({ to: "/home" });
-    }
-  }, [session, navigate]);
 
   async function handleGoogleSignIn() {
     setLoading(true);
@@ -59,7 +51,7 @@ export function LoginPage() {
         <CardHeader className="text-center flex flex-col items-center">
           <Logo className="mb-2 size-10 text-foreground" />
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to continue to memsystems</CardDescription>
+          <CardDescription>Sign in to continue to Memsystems</CardDescription>
         </CardHeader>
         <CardContent>
           <Button

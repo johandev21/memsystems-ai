@@ -243,7 +243,7 @@ export function SettingsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="gradient-text font-heading text-2xl font-bold">
-              Settings & Configurations
+              Settings
             </h1>
             <p className="text-sm text-muted-foreground">
               Manage your AI provider keys, preferences, and theme settings

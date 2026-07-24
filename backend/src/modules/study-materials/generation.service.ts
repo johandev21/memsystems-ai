@@ -100,14 +100,14 @@ export class GenerationService {
       .from(sources)
       .where(eq(sources.notebookId, notebookId));
 
+    if (sourceIds.length === 0) {
+      return [];
+    }
+
     const sourceIdsSet = new Set(sourceIds);
     const owned = rows.filter(
       (r) => sourceIdsSet.has(r.id) && r.notebookId === notebookId,
     );
-
-    if (owned.length === 0) {
-      throw new BadRequestError('No valid sources found');
-    }
 
     return owned;
   }

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Maximize2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import {
@@ -8,21 +8,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shared/ui/dialog";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/shared/ui/resizable";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   RightPane,
   type RightPaneMode,
 } from "@/features/notebooks";
 import { studyMaterialsQueryOptions } from "@/shared/api/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
-import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface ExpandedStudyMaterialsProps {
   notebookId: string;
@@ -61,6 +53,10 @@ export function ExpandedStudyMaterials({
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
   const hasMaterials =
     (materialsQuery.data?.length ?? 0) > 0 || !!initialMaterialId;
+  const activeMaterial = materialsQuery.data?.find(
+    (m) => m.id === (mode.kind === "viewer" ? mode.materialId : null),
+  );
+  const title = activeMaterial?.title ?? "Study Materials";
 
   return (
     <Dialog
@@ -79,20 +75,14 @@ export function ExpandedStudyMaterials({
         }
       }}
     >
-      <DialogTrigger
-        render={<Button variant="ghost" size="icon" className="h-6 w-6 cursor-pointer" />}
-      >
-        <Maximize2 className="h-4 w-4" />
-        <span className="sr-only">Maximize study materials</span>
-      </DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        className="max-w-[96vw] w-[96vw] h-[96vh] p-0 gap-0 flex flex-col sm:max-w-[96vw] overflow-hidden"
+        className="max-w-[80vw] w-[80vw] h-[85vh] max-h-[85vh] p-0 gap-0 flex flex-col sm:max-w-[80vw] overflow-hidden"
       >
         <DialogHeader className="px-4 py-1.5 bg-panel-header-bg min-h-[44px] flex flex-col justify-center border-none shrink-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-sm font-semibold text-foreground">
-              Study Materials
+            <DialogTitle className="text-sm font-semibold text-foreground truncate max-w-[80%]">
+              {title}
             </DialogTitle>
             <DialogClose
               render={
@@ -117,42 +107,16 @@ export function ExpandedStudyMaterials({
             <StudyMaterialsEmptyState />
           </div>
         ) : (
-          <div className="flex-1 min-h-0">
-            <ResizablePanelGroup
-              orientation="horizontal"
-              className="h-full w-full"
-            >
-              <ResizablePanel
-                defaultSize="25"
-                minSize="20"
-                maxSize="40"
-                className="bg-card"
-              >
-                <ScrollArea className="h-full w-full">
-                  <div className="p-4">
-                    <StudyMaterialsTree
-                      notebookId={notebookId}
-                      onSelectMaterial={(materialId) => {
-                        setMode({ kind: "viewer", materialId });
-                      }}
-                    />
-                  </div>
-                </ScrollArea>
-              </ResizablePanel>
-
-              <ResizableHandle withHandle />
-
-              <ResizablePanel defaultSize="75" className="bg-background">
-                <RightPane
-                  notebookId={notebookId}
-                  mode={mode}
-                  onModeChange={setMode}
-                />
-              </ResizablePanel>
-            </ResizablePanelGroup>
+          <div className="flex-1 min-h-0 bg-background">
+            <RightPane
+              notebookId={notebookId}
+              mode={mode}
+              onModeChange={setMode}
+            />
           </div>
         )}
       </DialogContent>
     </Dialog>
   );
 }
+
