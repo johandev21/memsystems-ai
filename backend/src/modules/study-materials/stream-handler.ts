@@ -326,15 +326,15 @@ function buildOptions(input: {
     }
     case 'roadmap': {
       if (input.roadmapOptions == null) return null;
-      return input.roadmapOptions as unknown as Record<string, unknown>;
+      return input.roadmapOptions;
     }
     case 'slide_deck': {
       if (input.slideDeckOptions == null) return null;
-      return input.slideDeckOptions as unknown as Record<string, unknown>;
+      return input.slideDeckOptions;
     }
     case 'mind_map': {
       if (input.mindMapOptions == null) return null;
-      return input.mindMapOptions as unknown as Record<string, unknown>;
+      return input.mindMapOptions;
     }
     default:
       return null;

@@ -38,7 +38,7 @@ export function StandardBriefForm({
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
           placeholder={`Describe what topics or focus areas to include in this ${label}...`}
-          className="resize-none text-xs min-h-[90px]"
+          className="min-h-[90px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
           disabled={disabled}
         />
       </div>

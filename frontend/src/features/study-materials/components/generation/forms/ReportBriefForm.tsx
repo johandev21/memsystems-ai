@@ -744,7 +744,7 @@ export function ReportBriefForm({
             value={value.brief}
             onChange={(e) => update({ brief: e.target.value })}
             placeholder="What should the report focus on? Topics, questions, scope, audience..."
-            className="min-h-[120px] text-xs resize-none"
+            className="min-h-[120px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
             disabled={disabled}
           />
         </div>

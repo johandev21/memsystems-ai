@@ -8,6 +8,7 @@ import { NotebookIcon } from "@/shared/ui/notebook-icon";
 import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { notebooksQueryOptions } from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCard } from "@/shared/ui/notebook-card";
@@ -100,12 +101,11 @@ export function NotebooksSection() {
             ))}
           </div>
         ) : notebooks && notebooks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-xl">
-            <NotebookText className="mb-3 size-8 text-muted-foreground/40" />
-            <p className="mb-1 text-sm font-medium">No notebooks yet</p>
-            <p className="mb-5 text-xs text-muted-foreground">
-              Create your first notebook to get started
-            </p>
+          <EmptyState
+            icon={<NotebookText className="size-7 text-muted-foreground" />}
+            title="No notebooks yet"
+            description="Your notebooks will live here. Create one to start learning."
+          >
             <Button
               onClick={handleCreateNotebook}
               disabled={isCreating}
@@ -119,7 +119,7 @@ export function NotebooksSection() {
               )}
               New Notebook
             </Button>
-          </div>
+          </EmptyState>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {notebooks?.map((notebook) => (

@@ -164,7 +164,7 @@ export function QuizBriefForm({
               value={value.brief}
               onChange={(e) => update({ brief: e.target.value })}
               placeholder="Provide specific focus areas, topics, or instructions for this quiz..."
-              className="min-h-[120px] text-xs resize-none break-words [overflow-wrap:anywhere] max-w-full overflow-x-hidden w-full"
+              className="min-h-[120px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
               disabled={disabled}
             />
           </div>

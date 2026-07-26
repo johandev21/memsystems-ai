@@ -222,7 +222,7 @@ export function MindMapBriefForm({
             value={value.brief}
             onChange={(e) => update({ brief: e.target.value })}
             placeholder="Describe the topic or concepts you want to map..."
-            className="min-h-[60px] text-xs resize-none break-words [overflow-wrap:anywhere] max-w-full overflow-x-hidden w-full"
+            className="min-h-[60px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
             disabled={disabled}
           />
         </div>

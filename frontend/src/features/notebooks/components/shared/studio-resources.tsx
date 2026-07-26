@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Brain,
-  ChevronRight,
   FileText,
   HelpCircle,
   Loader2,
@@ -174,7 +173,7 @@ export function StudioResources({
               disabled={disabled}
               onClick={() => !disabled && onGenerate(resource.kind)}
               className={cn(
-                "group relative flex items-center h-[54px] w-full justify-between px-3.5 gap-2 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-2xl cursor-pointer select-none overflow-hidden",
+                "group relative flex items-center h-11 w-full justify-between px-3.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-2xl cursor-pointer select-none overflow-hidden",
                 resource.colorClasses,
                 isGenerating &&
                   "border-primary/60 bg-primary/10 dark:bg-primary/15 text-primary shadow-xs",
@@ -188,25 +187,22 @@ export function StudioResources({
                 </span>
               )}
 
-              <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm font-medium text-foreground min-w-0 truncate">
+                {resource.label}
+              </span>
+
+              {isGenerating ? (
+                <Loader2 className="h-4.5 w-4.5 shrink-0 animate-spin text-primary" />
+              ) : (
                 <resource.icon
                   className={cn(
                     "h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-105",
                     isGenerating
                       ? "text-primary opacity-100"
-                      : "text-muted-foreground opacity-80",
+                      : "text-muted-foreground opacity-80 group-hover:opacity-100",
                   )}
-                  strokeWidth={2}
+                  strokeWidth={1.75}
                 />
-                <span className="text-sm font-medium text-foreground min-w-0 truncate">
-                  {resource.label}
-                </span>
-              </div>
-
-              {isGenerating ? (
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
-              ) : (
-                <ChevronRight className="h-4 w-4 shrink-0 opacity-40 group-hover:opacity-80 transition-opacity" />
               )}
             </button>
           );

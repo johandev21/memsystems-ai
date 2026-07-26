@@ -192,7 +192,7 @@ export function FlashcardBriefForm({
           value={value.brief}
           onChange={(e) => update({ brief: e.target.value })}
           placeholder="What topics should these flashcards cover?"
-          className="min-h-[80px] text-xs resize-none"
+          className="min-h-[80px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
           disabled={disabled}
         />
       </div>

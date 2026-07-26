@@ -244,7 +244,7 @@ export function RoadmapBriefForm({
             value={value.brief}
             onChange={(e) => update({ brief: e.target.value })}
             placeholder="What do you want to learn? Describe the topic or skill..."
-            className="min-h-[56px] text-xs resize-none break-words [overflow-wrap:anywhere] max-w-full overflow-x-hidden w-full"
+            className="min-h-[56px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
             disabled={disabled}
           />
         </div>
