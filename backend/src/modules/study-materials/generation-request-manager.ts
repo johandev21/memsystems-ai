@@ -28,6 +28,24 @@ export interface StartGenerationInput {
   difficulty?: 'easy' | 'medium' | 'hard';
   cardStyle?: 'qa' | 'definition' | 'cloze';
   reportOptions?: ReportOptions;
+  roadmapOptions?: {
+    phaseCount: number;
+    detailLevel: 'basic' | 'detailed';
+    includeTimeEstimates: boolean;
+    includeResources: boolean;
+  };
+  slideDeckOptions?: {
+    slideCount: number;
+    style: 'concise' | 'detailed' | 'storytelling';
+    audience: 'beginner' | 'intermediate' | 'expert';
+    includeSpeakerNotes: boolean;
+  };
+  mindMapOptions?: {
+    nodeCount: number;
+    structure: 'radial' | 'hierarchical' | 'organic';
+    colorGroups: boolean;
+    crossLinks: boolean;
+  };
 }
 
 @Injectable()

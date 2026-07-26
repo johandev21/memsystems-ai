@@ -7,7 +7,7 @@ import {
   startGeneration,
 } from "@/shared/api/generation";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
-import type { ReportGenerationOptions } from "@/shared/api/generation";
+import type { ReportGenerationOptions, RoadmapGenerationOptions, SlideDeckGenerationOptions, MindMapGenerationOptions } from "@/shared/api/generation";
 import { KIND_LABELS } from "../shapes";
 
 export interface ActiveGeneration {
@@ -38,6 +38,9 @@ interface GenerationState {
       difficulty?: "easy" | "medium" | "hard";
       cardStyle?: "qa" | "definition" | "cloze";
       reportOptions?: ReportGenerationOptions;
+      roadmapOptions?: RoadmapGenerationOptions;
+      slideDeckOptions?: SlideDeckGenerationOptions;
+      mindMapOptions?: MindMapGenerationOptions;
     },
     queryClient: QueryClient,
     onComplete?: (materialId: string) => void,

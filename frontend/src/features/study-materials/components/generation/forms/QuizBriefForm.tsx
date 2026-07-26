@@ -4,7 +4,6 @@ import {
   Check,
   ChevronDown,
   Search,
-  Sparkles,
   Cpu,
   BookOpen,
   Globe,

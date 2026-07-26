@@ -13,6 +13,27 @@ export interface ReportGenerationOptions {
   sections?: string[];
 }
 
+export interface RoadmapGenerationOptions {
+  phaseCount: number;
+  detailLevel: "basic" | "detailed";
+  includeTimeEstimates: boolean;
+  includeResources: boolean;
+}
+
+export interface SlideDeckGenerationOptions {
+  slideCount: number;
+  style: "concise" | "detailed" | "storytelling";
+  audience: "beginner" | "intermediate" | "expert";
+  includeSpeakerNotes: boolean;
+}
+
+export interface MindMapGenerationOptions {
+  nodeCount: number;
+  structure: "radial" | "hierarchical" | "organic";
+  colorGroups: boolean;
+  crossLinks: boolean;
+}
+
 export interface StartGenerationInput {
   kind: StudyMaterialKind;
   brief: string;
@@ -23,6 +44,9 @@ export interface StartGenerationInput {
   difficulty?: "easy" | "medium" | "hard";
   cardStyle?: "qa" | "definition" | "cloze";
   reportOptions?: ReportGenerationOptions;
+  roadmapOptions?: RoadmapGenerationOptions;
+  slideDeckOptions?: SlideDeckGenerationOptions;
+  mindMapOptions?: MindMapGenerationOptions;
 }
 
 export type GenerationEvent =

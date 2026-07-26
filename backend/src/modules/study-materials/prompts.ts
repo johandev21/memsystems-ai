@@ -38,6 +38,24 @@ interface PromptTemplate {
       difficulty?: string;
       cardStyle?: 'qa' | 'definition' | 'cloze';
       reportOptions?: ReportOptions;
+      roadmapOptions?: {
+        phaseCount: number;
+        detailLevel: 'basic' | 'detailed';
+        includeTimeEstimates: boolean;
+        includeResources: boolean;
+      };
+      slideDeckOptions?: {
+        slideCount: number;
+        style: 'concise' | 'detailed' | 'storytelling';
+        audience: 'beginner' | 'intermediate' | 'expert';
+        includeSpeakerNotes: boolean;
+      };
+      mindMapOptions?: {
+        nodeCount: number;
+        structure: 'radial' | 'hierarchical' | 'organic';
+        colorGroups: boolean;
+        crossLinks: boolean;
+      };
     },
   ) => string;
 }
@@ -148,14 +166,31 @@ Organize content into phases, each containing ordered topics.
 Each phase should have a clear title and optional description.
 Topics should build upon each other logically.
 Include estimated minutes for each topic when possible.`,
-  user: (brief, sourceTexts) => {
+  user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
       : '';
     const instructionsBlock = brief
       ? `Generate a learning roadmap based on these instructions: ${brief}`
       : 'Generate a general learning roadmap.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a learning roadmap with phases and ordered topics.`;
+    const opts = options?.roadmapOptions;
+    const phaseText = opts?.phaseCount
+      ? `Create EXACTLY ${opts.phaseCount} phases.`
+      : '';
+    const detailText = opts?.detailLevel
+      ? `Detail level: ${
+          opts.detailLevel === 'detailed'
+            ? 'Include detailed topic descriptions and explanations'
+            : 'Keep topics concise with brief descriptions'
+        }.`
+      : '';
+    const estimatesText = opts?.includeTimeEstimates
+      ? 'Include estimated minutes for each topic.'
+      : '';
+    const resourcesText = opts?.includeResources
+      ? 'Include suggested resources or references for each phase where applicable.'
+      : '';
+    return `${sourceBlock}${instructionsBlock}\n\n${phaseText} ${detailText}\n${estimatesText} ${resourcesText}\n\nGenerate a learning roadmap with phases and ordered topics.`;
   },
 };
 
@@ -165,14 +200,33 @@ Each slide should have a clear title and concise body content.
 Use markdown formatting for slide bodies.
 Keep slides focused - one idea per slide.
 Optional speaker notes should provide additional context.`,
-  user: (brief, sourceTexts) => {
+  user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
       : '';
     const instructionsBlock = brief
       ? `Generate a slide deck based on these instructions: ${brief}`
       : 'Generate a general slide deck.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a slide deck with titled slides and markdown content.`;
+    const opts = options?.slideDeckOptions;
+    const countText = opts?.slideCount
+      ? `Create EXACTLY ${opts.slideCount} slides.`
+      : '';
+    const styleText = opts?.style
+      ? `Style: ${
+          opts.style === 'concise'
+            ? 'Brief bullet points, minimal text per slide'
+            : opts.style === 'storytelling'
+              ? 'Narrative flow with engaging transitions between slides'
+              : 'Detailed content with thorough explanations per slide'
+        }.`
+      : '';
+    const audienceText = opts?.audience
+      ? `Target audience: ${opts.audience} level.`
+      : '';
+    const notesText = opts?.includeSpeakerNotes
+      ? 'Include speaker notes for each slide.'
+      : 'Do not include speaker notes.';
+    return `${sourceBlock}${instructionsBlock}\n\n${countText} ${styleText}\n${audienceText} ${notesText}\n\nGenerate a slide deck with titled slides and markdown content.`;
   },
 };
 
@@ -182,14 +236,27 @@ Generate nodes with clear labels and edges showing relationships.
 Most edges should be directed (from parent to child concept).
 Use optional colors to group related nodes.
 Identify the root node that represents the main topic.`,
-  user: (brief, sourceTexts) => {
+  user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
       : '';
     const instructionsBlock = brief
       ? `Generate a mind map based on these instructions: ${brief}`
       : 'Generate a general mind map.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a mind map with nodes and labeled edges showing relationships.`;
+    const opts = options?.mindMapOptions;
+    const countText = opts?.nodeCount
+      ? `Generate approximately ${opts.nodeCount} nodes.`
+      : '';
+    const structureText = opts?.structure
+      ? `Use a ${opts.structure} layout structure.`
+      : '';
+    const colorText = opts?.colorGroups
+      ? 'Use distinct colors to group related nodes by theme or category.'
+      : '';
+    const crossText = opts?.crossLinks
+      ? 'Include cross-links between related nodes across different branches.'
+      : '';
+    return `${sourceBlock}${instructionsBlock}\n\n${countText} ${structureText}\n${colorText} ${crossText}\n\nGenerate a mind map with nodes and labeled edges showing relationships.`;
   },
 };
 

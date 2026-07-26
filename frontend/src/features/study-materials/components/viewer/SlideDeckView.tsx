@@ -329,7 +329,7 @@ export function SlideDeckView({
 
         <div className="h-1 w-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-indigo-500 rounded-full transition-all duration-300 ease-out"
+            className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
             style={{ width: `${((currentIdx + 1) / totalSlides) * 100}%` }}
           />
         </div>

@@ -11,6 +11,27 @@ export interface ReportOptions {
   sections?: string[];
 }
 
+export interface RoadmapOptions {
+  phaseCount: number;
+  detailLevel: "basic" | "detailed";
+  includeTimeEstimates: boolean;
+  includeResources: boolean;
+}
+
+export interface SlideDeckOptions {
+  slideCount: number;
+  style: "concise" | "detailed" | "storytelling";
+  audience: "beginner" | "intermediate" | "expert";
+  includeSpeakerNotes: boolean;
+}
+
+export interface MindMapOptions {
+  nodeCount: number;
+  structure: "radial" | "hierarchical" | "organic";
+  colorGroups: boolean;
+  crossLinks: boolean;
+}
+
 export interface BriefFormData {
   brief: string;
   sourceIds: string[];
@@ -20,6 +41,9 @@ export interface BriefFormData {
   difficulty?: "easy" | "medium" | "hard";
   cardStyle?: "qa" | "definition" | "cloze";
   reportOptions?: ReportOptions;
+  roadmapOptions?: RoadmapOptions;
+  slideDeckOptions?: SlideDeckOptions;
+  mindMapOptions?: MindMapOptions;
 }
 
 export interface BaseMaterialFormProps {

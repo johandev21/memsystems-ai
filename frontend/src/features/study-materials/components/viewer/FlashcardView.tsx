@@ -49,7 +49,7 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
         </div>
         <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-indigo-500 rounded-full transition-all duration-300 ease-out"
+            className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

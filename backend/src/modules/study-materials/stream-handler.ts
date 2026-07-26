@@ -54,6 +54,24 @@ export class StreamHandler {
       difficulty?: 'easy' | 'medium' | 'hard';
       cardStyle?: 'qa' | 'definition' | 'cloze';
       reportOptions?: ReportGenerationOptions;
+      roadmapOptions?: {
+        phaseCount: number;
+        detailLevel: 'basic' | 'detailed';
+        includeTimeEstimates: boolean;
+        includeResources: boolean;
+      };
+      slideDeckOptions?: {
+        slideCount: number;
+        style: 'concise' | 'detailed' | 'storytelling';
+        audience: 'beginner' | 'intermediate' | 'expert';
+        includeSpeakerNotes: boolean;
+      };
+      mindMapOptions?: {
+        nodeCount: number;
+        structure: 'radial' | 'hierarchical' | 'organic';
+        colorGroups: boolean;
+        crossLinks: boolean;
+      };
     },
     sourceTexts: { title: string; rawText: string }[],
     requestId: string,
@@ -73,6 +91,9 @@ export class StreamHandler {
         difficulty: input.difficulty,
         cardStyle: input.cardStyle,
         reportOptions: input.reportOptions,
+        roadmapOptions: input.roadmapOptions,
+        slideDeckOptions: input.slideDeckOptions,
+        mindMapOptions: input.mindMapOptions,
       },
     );
     const schema = this.getContentSchema(input.kind);
@@ -257,6 +278,24 @@ function buildOptions(input: {
   difficulty?: 'easy' | 'medium' | 'hard';
   cardStyle?: 'qa' | 'definition' | 'cloze';
   reportOptions?: ReportGenerationOptions;
+  roadmapOptions?: {
+    phaseCount: number;
+    detailLevel: 'basic' | 'detailed';
+    includeTimeEstimates: boolean;
+    includeResources: boolean;
+  };
+  slideDeckOptions?: {
+    slideCount: number;
+    style: 'concise' | 'detailed' | 'storytelling';
+    audience: 'beginner' | 'intermediate' | 'expert';
+    includeSpeakerNotes: boolean;
+  };
+  mindMapOptions?: {
+    nodeCount: number;
+    structure: 'radial' | 'hierarchical' | 'organic';
+    colorGroups: boolean;
+    crossLinks: boolean;
+  };
 }): Record<string, unknown> | null {
   switch (input.kind) {
     case 'quiz': {
@@ -284,6 +323,18 @@ function buildOptions(input: {
     case 'report': {
       if (input.reportOptions == null) return null;
       return input.reportOptions as unknown as Record<string, unknown>;
+    }
+    case 'roadmap': {
+      if (input.roadmapOptions == null) return null;
+      return input.roadmapOptions as unknown as Record<string, unknown>;
+    }
+    case 'slide_deck': {
+      if (input.slideDeckOptions == null) return null;
+      return input.slideDeckOptions as unknown as Record<string, unknown>;
+    }
+    case 'mind_map': {
+      if (input.mindMapOptions == null) return null;
+      return input.mindMapOptions as unknown as Record<string, unknown>;
     }
     default:
       return null;
