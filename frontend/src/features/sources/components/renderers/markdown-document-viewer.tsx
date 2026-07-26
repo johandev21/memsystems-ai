@@ -2,7 +2,8 @@ import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
-import type { ReactNode } from "react";
+import type { Virtualizer } from "@tanstack/react-virtual";
+import { type ReactNode, useMemo } from "react";
 import type { BundledLanguage } from "shiki";
 import { Streamdown } from "streamdown";
 import { cn } from "@/shared/lib/utils";
@@ -14,11 +15,17 @@ import {
   CodeBlockHeader,
   CodeBlockTitle,
 } from "@/features/ai/ui/code-block";
+import { splitTextIntoChunks } from "./document-type-detector";
+import { VirtualizedDocumentContainer } from "./virtualized-document-container";
 
 const streamdownPlugins = { cjk, code, math, mermaid };
 
 interface MarkdownDocumentViewerProps {
   content: string;
+  scrollElement?: HTMLDivElement | null;
+  onVirtualizerReady?: (
+    virtualizer: Virtualizer<HTMLDivElement, Element>,
+  ) => void;
 }
 
 function getRawText(node: ReactNode): string {
@@ -96,11 +103,101 @@ const MarkdownCodeBlock = ({
   );
 };
 
-export function MarkdownDocumentViewer({ content }: MarkdownDocumentViewerProps) {
+const streamdownComponents = {
+  h1: ({ children }: { children?: ReactNode }) => <HeadingWithId level={1}>{children}</HeadingWithId>,
+  h2: ({ children }: { children?: ReactNode }) => <HeadingWithId level={2}>{children}</HeadingWithId>,
+  h3: ({ children }: { children?: ReactNode }) => <HeadingWithId level={3}>{children}</HeadingWithId>,
+  h4: ({ children }: { children?: ReactNode }) => <HeadingWithId level={4}>{children}</HeadingWithId>,
+  h5: ({ children }: { children?: ReactNode }) => <HeadingWithId level={5}>{children}</HeadingWithId>,
+  h6: ({ children }: { children?: ReactNode }) => <HeadingWithId level={6}>{children}</HeadingWithId>,
+  p: ({ children }: { children?: ReactNode }) => (
+    <p className="text-foreground/90 leading-relaxed font-sans my-2.5">
+      {children}
+    </p>
+  ),
+  ul: ({ children }: { children?: ReactNode }) => (
+    <ul className="list-disc pl-6 my-3 space-y-1.5 text-foreground/90">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children?: ReactNode }) => (
+    <ol className="list-decimal pl-6 my-3 space-y-1.5 text-foreground/90">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children?: ReactNode }) => (
+    <li className="leading-relaxed font-sans pl-1">{children}</li>
+  ),
+  table: ({ children }: { children?: ReactNode }) => (
+    <div className="my-4 overflow-x-auto">
+      <table className="w-full text-left text-sm border-collapse">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }: { children?: ReactNode }) => (
+    <thead className="border-b border-border/40 bg-muted/20 font-semibold text-foreground">
+      {children}
+    </thead>
+  ),
+  th: ({ children }: { children?: ReactNode }) => (
+    <th className="px-4 py-2 text-xs font-semibold text-foreground/90 border-b border-border/30">
+      {children}
+    </th>
+  ),
+  td: ({ children }: { children?: ReactNode }) => (
+    <td className="px-4 py-2 text-xs text-foreground/80 border-b border-border/20">
+      {children}
+    </td>
+  ),
+  code: ({ className, children }: { className?: string; children?: ReactNode }) => {
+    const isInline = !className && typeof children === "string" && !children.includes("\n");
+    if (isInline) {
+      return (
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
+          {children}
+        </code>
+      );
+    }
+    return <MarkdownCodeBlock className={className}>{children}</MarkdownCodeBlock>;
+  },
+};
+
+export function MarkdownDocumentViewer({
+  content,
+  scrollElement,
+  onVirtualizerReady,
+}: MarkdownDocumentViewerProps) {
+  const chunks = useMemo(() => splitTextIntoChunks(content || ""), [content]);
+
   if (!content?.trim()) {
     return (
       <div className="py-12 text-center text-xs text-muted-foreground">
         Empty markdown document.
+      </div>
+    );
+  }
+
+  if (chunks.length > 20 && scrollElement !== undefined) {
+    return (
+      <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
+        <VirtualizedDocumentContainer
+          items={chunks}
+          scrollElement={scrollElement}
+          estimateSize={() => 80}
+          overscan={5}
+          getItemKey={(_, idx) => idx}
+          onVirtualizerReady={onVirtualizerReady}
+          renderItem={(chunk) => (
+            <Streamdown
+              controls={false}
+              plugins={streamdownPlugins}
+              components={streamdownComponents}
+            >
+              {chunk}
+            </Streamdown>
+          )}
+        />
       </div>
     );
   }
@@ -110,60 +207,7 @@ export function MarkdownDocumentViewer({ content }: MarkdownDocumentViewerProps)
       <Streamdown
         controls={false}
         plugins={streamdownPlugins}
-        components={{
-          h1: ({ children }) => <HeadingWithId level={1}>{children}</HeadingWithId>,
-          h2: ({ children }) => <HeadingWithId level={2}>{children}</HeadingWithId>,
-          h3: ({ children }) => <HeadingWithId level={3}>{children}</HeadingWithId>,
-          h4: ({ children }) => <HeadingWithId level={4}>{children}</HeadingWithId>,
-          h5: ({ children }) => <HeadingWithId level={5}>{children}</HeadingWithId>,
-          h6: ({ children }) => <HeadingWithId level={6}>{children}</HeadingWithId>,
-          ul: ({ children }) => (
-            <ul className="list-disc pl-6 my-3 space-y-1.5 text-foreground/90">
-              {children}
-            </ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="list-decimal pl-6 my-3 space-y-1.5 text-foreground/90">
-              {children}
-            </ol>
-          ),
-          li: ({ children }) => (
-            <li className="leading-relaxed font-sans pl-1">{children}</li>
-          ),
-          table: ({ children }) => (
-            <div className="my-4 overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
-                {children}
-              </table>
-            </div>
-          ),
-          thead: ({ children }) => (
-            <thead className="border-b border-border/40 bg-muted/20 font-semibold text-foreground">
-              {children}
-            </thead>
-          ),
-          th: ({ children }) => (
-            <th className="px-4 py-2 text-xs font-semibold text-foreground/90 border-b border-border/30">
-              {children}
-            </th>
-          ),
-          td: ({ children }) => (
-            <td className="px-4 py-2 text-xs text-foreground/80 border-b border-border/20">
-              {children}
-            </td>
-          ),
-          code: ({ className, children }) => {
-            const isInline = !className && typeof children === "string" && !children.includes("\n");
-            if (isInline) {
-              return (
-                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
-                  {children}
-                </code>
-              );
-            }
-            return <MarkdownCodeBlock className={className}>{children}</MarkdownCodeBlock>;
-          },
-        }}
+        components={streamdownComponents}
       >
         {content}
       </Streamdown>

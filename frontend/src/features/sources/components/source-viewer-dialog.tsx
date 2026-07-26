@@ -2,6 +2,7 @@
 // Imports
 // -----------------------------------------------------------------------------
 import { useQuery } from "@tanstack/react-query";
+import type { Virtualizer } from "@tanstack/react-virtual";
 import {
   Calendar,
   Download,
@@ -9,7 +10,6 @@ import {
   File,
   FileText,
   Globe,
-  ListTree,
   Loader2,
   PanelLeft,
   X,
@@ -24,10 +24,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import { sourceQueryOptions, type SourceWithContent } from "@/shared/api/sources";
 import type { SourceKind } from "@/entities/source";
 import { cn, fetchApi } from "@/shared/lib/utils";
+import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   ArticleDocumentViewer,
   CodeDocumentViewer,
@@ -61,7 +61,7 @@ interface ReaderHeaderProps {
 
 interface OutlineSidebarProps {
   headings: SectionHeading[];
-  onSelectHeading: (id: string) => void;
+  onSelectHeading: (id: string, index?: number) => void;
   onClose: () => void;
 }
 
@@ -244,7 +244,7 @@ function OutlineSidebar({
               <button
                 key={h.id}
                 type="button"
-                onClick={() => onSelectHeading(h.id)}
+                onClick={() => onSelectHeading(h.id, h.index)}
                 className={cn(
                   "text-left text-xs py-1.5 px-2.5 rounded-lg transition-colors truncate cursor-pointer hover:bg-muted text-foreground font-medium",
                   h.level === 2 && "pl-3 text-foreground/90 font-normal",
@@ -317,8 +317,9 @@ export function SourceViewerDialog({
   // State
   const [showOutline, setShowOutline] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtualizerRef = useRef<Virtualizer<HTMLDivElement, Element> | null>(null);
 
   // Derived strategy data
   const docType = useMemo(
@@ -358,8 +359,13 @@ export function SourceViewerDialog({
     }
   };
 
-  // Callbacks: Navigation
-  const scrollToHeading = (id: string) => {
+  // Callbacks: Universal Navigation
+  const scrollToHeading = (id: string, index?: number) => {
+    if (index !== undefined && virtualizerRef.current) {
+      virtualizerRef.current.scrollToIndex(index, { align: "start" });
+      return;
+    }
+
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -393,7 +399,10 @@ export function SourceViewerDialog({
               )}
 
               <div className="flex-1 h-full overflow-hidden relative">
-                <ScrollArea className="h-full w-full" ref={scrollRef}>
+                <div
+                  ref={setScrollElement}
+                  className="h-full w-full overflow-y-auto"
+                >
                   <div className="px-8 py-6 w-full max-w-4xl mx-auto flex flex-col gap-4">
                     {headings.length > 0 && (
                       <div className="flex items-center pb-1">
@@ -415,7 +424,13 @@ export function SourceViewerDialog({
                     )}
 
                     {docType === "markdown" && (
-                      <MarkdownDocumentViewer content={source.rawText} />
+                      <MarkdownDocumentViewer
+                        content={source.rawText}
+                        scrollElement={scrollElement}
+                        onVirtualizerReady={(v) => {
+                          virtualizerRef.current = v;
+                        }}
+                      />
                     )}
 
                     {docType === "code" && (
@@ -426,14 +441,20 @@ export function SourceViewerDialog({
                     )}
 
                     {docType === "article" && (
-                      <ArticleDocumentViewer content={source.rawText} />
+                      <ArticleDocumentViewer
+                        content={source.rawText}
+                        scrollElement={scrollElement}
+                        onVirtualizerReady={(v) => {
+                          virtualizerRef.current = v;
+                        }}
+                      />
                     )}
 
                     {docType === "plaintext" && (
                       <PlainTextDocumentViewer content={source.rawText} />
                     )}
                   </div>
-                </ScrollArea>
+                </div>
               </div>
             </div>
 

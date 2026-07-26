@@ -1,7 +1,14 @@
+import type { Virtualizer } from "@tanstack/react-virtual";
+import { useMemo } from "react";
 import { cn } from "@/shared/lib/utils";
+import { VirtualizedDocumentContainer } from "./virtualized-document-container";
 
 interface ArticleDocumentViewerProps {
   content: string;
+  scrollElement?: HTMLDivElement | null;
+  onVirtualizerReady?: (
+    virtualizer: Virtualizer<HTMLDivElement, Element>,
+  ) => void;
 }
 
 interface ArticleBlock {
@@ -35,6 +42,11 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
       return;
     }
 
+    if (/^[-*_]{3,}$/.test(trimmed)) {
+      flushParagraph();
+      return;
+    }
+
     let level = 0;
     let text = "";
 
@@ -52,6 +64,8 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
       !trimmed.endsWith(".") &&
       !trimmed.endsWith(",") &&
       !trimmed.includes("http") &&
+      !trimmed.startsWith("-") &&
+      !trimmed.startsWith("*") &&
       (lines[index - 1]?.trim() === "" || index === 0) &&
       (lines[index + 1]?.trim() === "" || index === lines.length - 1)
     ) {
@@ -75,8 +89,12 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
   return blocks;
 }
 
-export function ArticleDocumentViewer({ content }: ArticleDocumentViewerProps) {
-  const blocks = parseArticleBlocks(content);
+export function ArticleDocumentViewer({
+  content,
+  scrollElement,
+  onVirtualizerReady,
+}: ArticleDocumentViewerProps) {
+  const blocks = useMemo(() => parseArticleBlocks(content || ""), [content]);
 
   if (blocks.length === 0) {
     return (
@@ -86,11 +104,52 @@ export function ArticleDocumentViewer({ content }: ArticleDocumentViewerProps) {
     );
   }
 
+  if (blocks.length > 20 && scrollElement !== undefined) {
+    return (
+      <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
+        <VirtualizedDocumentContainer
+          items={blocks}
+          scrollElement={scrollElement}
+          estimateSize={() => 60}
+          overscan={5}
+          getItemKey={(block, idx) => block.id || `block-${idx}`}
+          onVirtualizerReady={onVirtualizerReady}
+          renderItem={(block) => {
+            if (block.type === "heading") {
+              const HeadingTag =
+                block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
+              return (
+                <HeadingTag
+                  id={block.id}
+                  className={cn(
+                    "font-bold text-foreground tracking-tight scroll-mt-6 pt-4 my-3",
+                    block.level === 1 && "text-xl",
+                    block.level === 2 && "text-lg",
+                    block.level === 3 && "text-base",
+                  )}
+                >
+                  {block.text}
+                </HeadingTag>
+              );
+            }
+
+            return (
+              <p className="text-foreground/90 leading-relaxed font-sans my-2.5">
+                {block.text}
+              </p>
+            );
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <article className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
       {blocks.map((block, idx) => {
         if (block.type === "heading") {
-          const HeadingTag = block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
+          const HeadingTag =
+            block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
           return (
             <HeadingTag
               key={block.id || idx}

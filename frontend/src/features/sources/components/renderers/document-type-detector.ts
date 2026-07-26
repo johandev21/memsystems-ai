@@ -6,6 +6,7 @@ export interface SectionHeading {
   id: string;
   title: string;
   level: number;
+  index: number;
 }
 
 const CODE_EXTENSIONS = new Set([
@@ -114,52 +115,61 @@ export function extractHeadingsForDocument(source: SourceWithContent): SectionHe
   }
 }
 
+export function splitTextIntoChunks(rawText: string): string[] {
+  if (!rawText) return [];
+  return rawText.split(/\n\n+/).filter((chunk) => chunk.trim().length > 0);
+}
+
 function extractMarkdownHeadings(rawText: string): SectionHeading[] {
   if (!rawText) return [];
-  const lines = rawText.split("\n");
+  const chunks = splitTextIntoChunks(rawText);
   const headings: SectionHeading[] = [];
   let headingCount = 0;
 
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
+  chunks.forEach((chunk, blockIndex) => {
+    const lines = chunk.split("\n");
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
 
-    if (
-      /^[-*_]{3,}$/.test(trimmed) ||
-      /^[-*+]\s/.test(trimmed) ||
-      /^\d+\.\s/.test(trimmed) ||
-      trimmed.startsWith(">") ||
-      trimmed.endsWith(":")
-    ) {
-      return;
-    }
+      if (
+        /^[-*_]{3,}$/.test(trimmed) ||
+        /^[-*+]\s/.test(trimmed) ||
+        /^\d+\.\s/.test(trimmed) ||
+        trimmed.startsWith(">") ||
+        trimmed.endsWith(":")
+      ) {
+        return;
+      }
 
-    let level = 0;
-    let title = "";
+      let level = 0;
+      let title = "";
 
-    if (trimmed.startsWith("# ")) {
-      level = 1;
-      title = trimmed.slice(2).trim();
-    } else if (trimmed.startsWith("## ")) {
-      level = 2;
-      title = trimmed.slice(3).trim();
-    }
+      if (trimmed.startsWith("# ")) {
+        level = 1;
+        title = trimmed.slice(2).trim();
+      } else if (trimmed.startsWith("## ")) {
+        level = 2;
+        title = trimmed.slice(3).trim();
+      }
 
-    if (level > 0 && title) {
-      const cleanTitle = title.replace(/[*_`]/g, "").trim();
-      if (!cleanTitle || /^[-*_]{2,}$/.test(cleanTitle)) return;
+      if (level > 0 && title) {
+        const cleanTitle = title.replace(/[*_`]/g, "").trim();
+        if (!cleanTitle || /^[-*_]{2,}$/.test(cleanTitle)) return;
 
-      const id = `heading-${cleanTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "")}`;
-      headingCount++;
-      headings.push({
-        id: id || `heading-${headingCount}`,
-        title: cleanTitle,
-        level,
-      });
-    }
+        const id = `heading-${cleanTitle
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "")}`;
+        headingCount++;
+        headings.push({
+          id: id || `heading-${headingCount}`,
+          title: cleanTitle,
+          level,
+          index: blockIndex,
+        });
+      }
+    });
   });
 
   return headings;
@@ -167,53 +177,56 @@ function extractMarkdownHeadings(rawText: string): SectionHeading[] {
 
 function extractArticleHeadings(rawText: string): SectionHeading[] {
   if (!rawText) return [];
-  const lines = rawText.split("\n");
+  const chunks = splitTextIntoChunks(rawText);
   const headings: SectionHeading[] = [];
   let headingCount = 0;
 
-  lines.forEach((line, index) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
+  chunks.forEach((chunk, blockIndex) => {
+    const lines = chunk.split("\n");
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
 
-    if (/^[-*_]{3,}$/.test(trimmed)) return;
+      if (/^[-*_]{3,}$/.test(trimmed)) return;
 
-    let level = 0;
-    let title = "";
+      let level = 0;
+      let title = "";
 
-    if (trimmed.startsWith("# ")) {
-      level = 1;
-      title = trimmed.slice(2).trim();
-    } else if (trimmed.startsWith("## ")) {
-      level = 2;
-      title = trimmed.slice(3).trim();
-    } else if (trimmed.startsWith("### ")) {
-      level = 3;
-      title = trimmed.slice(4).trim();
-    } else if (
-      trimmed.length < 60 &&
-      !trimmed.endsWith(".") &&
-      !trimmed.endsWith(",") &&
-      !trimmed.includes("http") &&
-      !trimmed.startsWith("-") &&
-      !trimmed.startsWith("*") &&
-      (lines[index - 1]?.trim() === "" || index === 0) &&
-      (lines[index + 1]?.trim() === "" || index === lines.length - 1)
-    ) {
-      level = 2;
-      title = trimmed;
-    }
+      if (trimmed.startsWith("# ")) {
+        level = 1;
+        title = trimmed.slice(2).trim();
+      } else if (trimmed.startsWith("## ")) {
+        level = 2;
+        title = trimmed.slice(3).trim();
+      } else if (trimmed.startsWith("### ")) {
+        level = 3;
+        title = trimmed.slice(4).trim();
+      } else if (
+        trimmed.length < 60 &&
+        !trimmed.endsWith(".") &&
+        !trimmed.endsWith(",") &&
+        !trimmed.includes("http") &&
+        !trimmed.startsWith("-") &&
+        !trimmed.startsWith("*") &&
+        (lines[index - 1]?.trim() === "" || index === 0) &&
+        (lines[index + 1]?.trim() === "" || index === lines.length - 1)
+      ) {
+        level = 2;
+        title = trimmed;
+      }
 
-    if (level > 0 && title) {
-      const cleanTitle = title.replace(/[*_`]/g, "").trim();
-      if (!cleanTitle || /^[-*_]{2,}$/.test(cleanTitle)) return;
+      if (level > 0 && title) {
+        const cleanTitle = title.replace(/[*_`]/g, "").trim();
+        if (!cleanTitle || /^[-*_]{2,}$/.test(cleanTitle)) return;
 
-      const id = `heading-${headingCount}-${cleanTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "")}`;
-      headingCount++;
-      headings.push({ id, title: cleanTitle, level });
-    }
+        const id = `heading-${headingCount}-${cleanTitle
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "")}`;
+        headingCount++;
+        headings.push({ id, title: cleanTitle, level, index: blockIndex });
+      }
+    });
   });
 
   return headings;
@@ -225,7 +238,7 @@ function extractCodeHeadings(rawText: string): SectionHeading[] {
   const headings: SectionHeading[] = [];
   let count = 0;
 
-  lines.forEach((line) => {
+  lines.forEach((line, lineIndex) => {
     const trimmed = line.trim();
     const match = trimmed.match(
       /^(export\s+)?(function|class|interface|type|const|let)\s+([a-zA-Z0-9_$]+)/,
@@ -234,7 +247,12 @@ function extractCodeHeadings(rawText: string): SectionHeading[] {
       const name = match[3];
       const id = `heading-${count}-${name.toLowerCase()}`;
       count++;
-      headings.push({ id, title: `${match[2]} ${name}`, level: 2 });
+      headings.push({
+        id,
+        title: `${match[2]} ${name}`,
+        level: 2,
+        index: lineIndex,
+      });
     }
   });
 
