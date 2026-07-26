@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactElement, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -15,11 +15,21 @@ import {
   SOURCE_LIMIT,
   sourcesQueryOptions,
 } from "@/shared/api/sources";
+import { useUploadStore } from "../model/upload-store";
 import { FileUploadMode } from "./file-upload-mode";
 import { TextInputMode } from "./text-input-mode";
 import { UrlInputMode } from "./url-input-mode";
 
 type Mode = "menu" | "url" | "text";
+
+function deriveTitleFromUrl(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.hostname + (parsed.pathname.length > 1 ? parsed.pathname : "");
+  } catch {
+    return rawUrl;
+  }
+}
 
 export function AddSourceDialog({
   notebookId,
@@ -30,6 +40,14 @@ export function AddSourceDialog({
 }) {
   const queryClient = useQueryClient();
   const { data: sources } = useQuery(sourcesQueryOptions(notebookId));
+  const addPendingUpload = useUploadStore((state) => state.addPendingUpload);
+  const updatePendingUpload = useUploadStore(
+    (state) => state.updatePendingUpload,
+  );
+  const removePendingUpload = useUploadStore(
+    (state) => state.removePendingUpload,
+  );
+
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("menu");
   const [urlValue, setUrlValue] = useState("");
@@ -48,38 +66,202 @@ export function AddSourceDialog({
     setTextBody("");
   };
 
-  const onSuccess = (message: string) => {
-    queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
-    toast.success(message);
+  const handleCloseAndReset = () => {
     setOpen(false);
     reset();
   };
 
-  const fileMutation = useMutation({
-    mutationFn: (file: File) => createFileSource(notebookId, file),
-    onSuccess: () => onSuccess("File added successfully"),
-    onError: (err: Error) => toast.error(err.message),
-  });
+  // --- Background Upload Handlers (Non-Blocking) ---
 
-  const urlMutation = useMutation({
-    mutationFn: () =>
-      createUrlSource(notebookId, {
-        url: urlValue,
-        title: urlTitle || undefined,
-      }),
-    onSuccess: () => onSuccess("Website source added successfully"),
-    onError: (err: Error) => toast.error(err.message),
-  });
+  const handleStartUrlUpload = () => {
+    if (!urlValue.trim()) return;
 
-  const textMutation = useMutation({
-    mutationFn: () =>
-      createTextSource(notebookId, { title: textTitle, rawText: textBody }),
-    onSuccess: () => onSuccess("Text source added successfully"),
-    onError: (err: Error) => toast.error(err.message),
-  });
+    const targetUrl = urlValue.trim();
+    const title = urlTitle.trim() || deriveTitleFromUrl(targetUrl);
+    const abortController = new AbortController();
 
-  const busy =
-    fileMutation.isPending || urlMutation.isPending || textMutation.isPending;
+    // 1. Close dialog immediately so UI is not blocked
+    handleCloseAndReset();
+
+    // 2. Add optimistic pending item to upload store
+    const uploadId = addPendingUpload({
+      notebookId,
+      kind: "url",
+      title,
+      url: targetUrl,
+      abortController,
+      initialProgress: 15,
+      initialStatusText: "Connecting & fetching webpage...",
+    });
+
+    // 3. Smooth progress simulation interval while network call completes
+    const timerId = setInterval(() => {
+      useUploadStore.getState().updatePendingUpload(uploadId, (prev) => {
+        if (!prev || prev.status === "completed" || prev.status === "error") {
+          return {};
+        }
+        let nextProgress = prev.progress + Math.floor(Math.random() * 15) + 10;
+        let statusText = prev.statusText;
+        let status = prev.status;
+
+        if (nextProgress >= 90) {
+          nextProgress = 90;
+          statusText = "Processing & indexing source...";
+          status = "processing";
+        } else if (nextProgress >= 55) {
+          statusText = "Extracting article content & cleaning text...";
+          status = "extracting";
+        }
+
+        return { progress: nextProgress, statusText, status };
+      });
+    }, 600);
+
+    updatePendingUpload(uploadId, { timerId });
+
+    // 4. Trigger backend mutation
+    createUrlSource(notebookId, {
+      url: targetUrl,
+      title: urlTitle.trim() || undefined,
+    })
+      .then(() => {
+        clearInterval(timerId);
+        updatePendingUpload(uploadId, {
+          progress: 100,
+          status: "completed",
+          statusText: "Ready",
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+        toast.success("Website source added successfully");
+
+        setTimeout(() => {
+          removePendingUpload(uploadId);
+        }, 400);
+      })
+      .catch((err: Error) => {
+        clearInterval(timerId);
+        if (err.name === "AbortError") {
+          removePendingUpload(uploadId);
+          return;
+        }
+        updatePendingUpload(uploadId, {
+          status: "error",
+          errorMessage: err.message || "Failed to extract website",
+        });
+        toast.error(err.message || "Failed to add website source");
+      });
+  };
+
+  const handleStartFileUpload = (file: File) => {
+    const abortController = new AbortController();
+
+    handleCloseAndReset();
+
+    const uploadId = addPendingUpload({
+      notebookId,
+      kind: "file",
+      title: file.name,
+      abortController,
+      initialProgress: 20,
+      initialStatusText: "Uploading file...",
+    });
+
+    const timerId = setInterval(() => {
+      useUploadStore.getState().updatePendingUpload(uploadId, (prev) => {
+        if (!prev || prev.status === "completed" || prev.status === "error") {
+          return {};
+        }
+        let nextProgress = prev.progress + Math.floor(Math.random() * 20) + 15;
+        let statusText = prev.statusText;
+
+        if (nextProgress >= 90) {
+          nextProgress = 90;
+          statusText = "Parsing document content...";
+        } else if (nextProgress >= 50) {
+          statusText = "Extracting text from file...";
+        }
+
+        return { progress: nextProgress, statusText };
+      });
+    }, 500);
+
+    updatePendingUpload(uploadId, { timerId });
+
+    createFileSource(notebookId, file)
+      .then(() => {
+        clearInterval(timerId);
+        updatePendingUpload(uploadId, {
+          progress: 100,
+          status: "completed",
+          statusText: "Ready",
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+        toast.success("File added successfully");
+
+        setTimeout(() => {
+          removePendingUpload(uploadId);
+        }, 400);
+      })
+      .catch((err: Error) => {
+        clearInterval(timerId);
+        if (err.name === "AbortError") {
+          removePendingUpload(uploadId);
+          return;
+        }
+        updatePendingUpload(uploadId, {
+          status: "error",
+          errorMessage: err.message || "Failed to upload file",
+        });
+        toast.error(err.message || "Failed to upload file");
+      });
+  };
+
+  const handleStartTextUpload = () => {
+    if (!textBody.trim()) return;
+
+    const title = textTitle.trim() || "Pasted text";
+    const abortController = new AbortController();
+
+    handleCloseAndReset();
+
+    const uploadId = addPendingUpload({
+      notebookId,
+      kind: "text",
+      title,
+      abortController,
+      initialProgress: 30,
+      initialStatusText: "Saving text source...",
+    });
+
+    createTextSource(notebookId, { title, rawText: textBody })
+      .then(() => {
+        updatePendingUpload(uploadId, {
+          progress: 100,
+          status: "completed",
+          statusText: "Ready",
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+        toast.success("Text source added successfully");
+
+        setTimeout(() => {
+          removePendingUpload(uploadId);
+        }, 400);
+      })
+      .catch((err: Error) => {
+        if (err.name === "AbortError") {
+          removePendingUpload(uploadId);
+          return;
+        }
+        updatePendingUpload(uploadId, {
+          status: "error",
+          errorMessage: err.message || "Failed to add text source",
+        });
+        toast.error(err.message || "Failed to add text source");
+      });
+  };
 
   const isNativeButton = children.type === "button";
 
@@ -104,9 +286,9 @@ export function AddSourceDialog({
             <FileUploadMode
               onSelectUrlMode={() => setMode("url")}
               onSelectTextMode={() => setMode("text")}
-              onUploadFile={(file) => fileMutation.mutate(file)}
-              isUploading={fileMutation.isPending}
-              busy={busy}
+              onUploadFile={handleStartFileUpload}
+              isUploading={false}
+              busy={false}
             />
           )}
 
@@ -116,10 +298,10 @@ export function AddSourceDialog({
               onUrlValueChange={setUrlValue}
               urlTitle={urlTitle}
               onUrlTitleChange={setUrlTitle}
-              onSubmit={() => urlMutation.mutate()}
+              onSubmit={handleStartUrlUpload}
               onBack={() => setMode("menu")}
-              isPending={urlMutation.isPending}
-              busy={busy}
+              isPending={false}
+              busy={false}
             />
           )}
 
@@ -129,10 +311,10 @@ export function AddSourceDialog({
               onTextTitleChange={setTextTitle}
               textBody={textBody}
               onTextBodyChange={setTextBody}
-              onSubmit={() => textMutation.mutate()}
+              onSubmit={handleStartTextUpload}
               onBack={() => setMode("menu")}
-              isPending={textMutation.isPending}
-              busy={busy}
+              isPending={false}
+              busy={false}
             />
           )}
 

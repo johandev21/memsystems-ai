@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { File, FileText, Link2, Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
 import {
@@ -10,7 +10,9 @@ import {
   sourcesQueryOptions,
 } from "@/shared/api/sources";
 import { cn } from "@/shared/lib/utils";
+import { useUploadStore } from "../model/upload-store";
 import { AddSourceDialog } from "./add-source-dialog";
+import { PendingUploadRow } from "./pending-upload-row";
 import { SourceViewerDialog } from "./source-viewer-dialog";
 
 export function SourcesPanel({
@@ -26,6 +28,17 @@ export function SourcesPanel({
     isPending,
     isError,
   } = useQuery(sourcesQueryOptions(notebookId));
+
+  const allPendingUploads = useUploadStore((state) => state.pendingUploads);
+  const pendingUploads = useMemo(
+    () => allPendingUploads.filter((u) => u.notebookId === notebookId),
+    [allPendingUploads, notebookId],
+  );
+
+  const cancelPendingUpload = useUploadStore(
+    (state) => state.cancelPendingUpload,
+  );
+
   const [viewedSourceId, setViewedSourceId] = useState<string | null>(null);
   const [sourceToDelete, setSourceToDelete] = useState<{
     id: string;
@@ -43,12 +56,27 @@ export function SourcesPanel({
 
   if (collapsed) return null;
 
+  const hasNoSources =
+    !isPending &&
+    !isError &&
+    (sources?.length ?? 0) === 0 &&
+    pendingUploads.length === 0;
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-col p-2 gap-0.5">
+      <div className="flex flex-col p-2 gap-1.5 overflow-y-auto flex-1">
+        {/* Active Non-Blocking Pending Uploads */}
+        {pendingUploads.map((upload) => (
+          <PendingUploadRow
+            key={upload.id}
+            upload={upload}
+            onCancel={cancelPendingUpload}
+          />
+        ))}
+
         {isPending && (
           <div className="flex items-center justify-center py-10 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           </div>
         )}
         {isError && (
@@ -56,7 +84,7 @@ export function SourcesPanel({
             Failed to load sources
           </p>
         )}
-        {!isPending && !isError && sources?.length === 0 && (
+        {hasNoSources && (
           <p className="px-2 py-10 text-center text-xs text-muted-foreground">
             No sources added yet
           </p>
@@ -138,7 +166,7 @@ function SourceRow({
         )}
       >
         <span className="w-3.5 shrink-0" />
-        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <Icon className="size-4 shrink-0 text-muted-foreground" />
         <span className="truncate">{source.title}</span>
       </button>
       <button
@@ -149,13 +177,13 @@ function SourceRow({
           onDelete(source.id);
         }}
         className={cn(
-          "absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer",
+          "absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer",
         )}
       >
         {deleting ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <Loader2 className="size-3.5 animate-spin" />
         ) : (
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="size-3.5" />
         )}
       </button>
     </div>

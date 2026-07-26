@@ -28,8 +28,33 @@ export class WebScrapeError extends BadRequestError {
 
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_BYTES = 10 * 1024 * 1024;
+const MIN_CLEAN_TEXT_LENGTH = 200;
 const USER_AGENT =
   'Mozilla/5.0 (compatible; memsystems/1.0; +https://memsystems.ai/bot)';
+
+const NOISE_SELECTORS = [
+  // Wikipedia Citation & Reference containers
+  'sup.reference',
+  '.reflist',
+  '.references',
+  '.mw-cite-backlink',
+  '#References',
+  '#External_links',
+  '.navbox',
+  '.catlinks',
+  '.authority-control',
+  '.portal',
+  '.vertical-navbox',
+  '.mw-editsection',
+  '.citation',
+  // Generic Noise
+  'nav',
+  'footer',
+  '.advertisement',
+  '.social-share',
+  '.comments-section',
+  '.sidebar',
+];
 
 function isValidHttpUrl(input: string): boolean {
   try {
@@ -40,8 +65,17 @@ function isValidHttpUrl(input: string): boolean {
   }
 }
 
+function cleanDomNoise(document: Document): void {
+  for (const selector of NOISE_SELECTORS) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((el) => el.remove());
+  }
+}
+
 function normalizeText(text: string): string {
   return text
+    .replace(/\[\d+\]/g, '') // Strip remaining inline bracket citation numbers like [1], [12]
+    .replace(/\[[a-zA-Z]\]/g, '') // Strip inline letter citations like [a], [b]
     .replace(/\r\n/g, '\n')
     .replace(/\u0000/g, '')
     .replace(/[ \t]+\n/g, '\n')
@@ -146,9 +180,24 @@ export class WebScraperService {
       );
     }
 
-    const article = new Readability(document.cloneNode(true) as Document, {
+    // 1. Try DOM pre-cleaned extraction first
+    const cleanedDoc = document.cloneNode(true) as Document;
+    cleanDomNoise(cleanedDoc);
+
+    let article = new Readability(cleanedDoc, {
       charThreshold: 200,
     }).parse();
+
+    // 2. Safety Fallback: if pre-cleaning stripped too much text (< 200 chars), use uncleaned DOM
+    if (
+      !article ||
+      !article.textContent ||
+      article.textContent.trim().length < MIN_CLEAN_TEXT_LENGTH
+    ) {
+      article = new Readability(document.cloneNode(true) as Document, {
+        charThreshold: 200,
+      }).parse();
+    }
 
     if (!article || !article.textContent) {
       throw new WebScrapeError(

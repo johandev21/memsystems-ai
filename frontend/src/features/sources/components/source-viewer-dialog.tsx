@@ -1,3 +1,6 @@
+// -----------------------------------------------------------------------------
+// Imports
+// -----------------------------------------------------------------------------
 import { useQuery } from "@tanstack/react-query";
 import {
   Calendar,
@@ -6,12 +9,12 @@ import {
   File,
   FileText,
   Globe,
-  HardDrive,
-  Hash,
+  ListTree,
   Loader2,
-  Scale,
+  PanelLeft,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -22,25 +25,26 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { sourceQueryOptions } from "@/shared/api/sources";
-import { fetchApi } from "@/shared/lib/utils";
+import { sourceQueryOptions, type SourceWithContent } from "@/shared/api/sources";
+import type { SourceKind } from "@/entities/source";
+import { cn, fetchApi } from "@/shared/lib/utils";
+import {
+  ArticleDocumentViewer,
+  CodeDocumentViewer,
+  detectDocumentType,
+  extractHeadingsForDocument,
+  MarkdownDocumentViewer,
+  PlainTextDocumentViewer,
+  type SectionHeading,
+} from "./renderers";
 
-function getWordCount(text: string) {
-  if (!text) return 0;
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function getCharCount(text: string) {
-  return text?.length || 0;
-}
-
-function formatBytes(bytes: number | null) {
-  if (bytes === null || bytes === undefined) return "Unknown size";
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
+// -----------------------------------------------------------------------------
+// Types & Interfaces
+// -----------------------------------------------------------------------------
+interface DocumentStats {
+  charCount: number;
+  wordCount: number;
+  readingTime: number;
 }
 
 interface SourceViewerDialogProps {
@@ -49,11 +53,258 @@ interface SourceViewerDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface ReaderHeaderProps {
+  source: SourceWithContent;
+  downloading: boolean;
+  onDownload: () => void;
+}
+
+interface OutlineSidebarProps {
+  headings: SectionHeading[];
+  onSelectHeading: (id: string) => void;
+  onClose: () => void;
+}
+
+interface ReaderFooterProps {
+  stats: DocumentStats;
+  source: SourceWithContent;
+}
+
+// -----------------------------------------------------------------------------
+// Constants & Lookups
+// -----------------------------------------------------------------------------
+const WORDS_PER_MINUTE = 225;
+
+const SOURCE_CONFIG: Record<
+  SourceKind,
+  { icon: typeof FileText; label: string; color: string }
+> = {
+  text: {
+    icon: FileText,
+    label: "Text Note",
+    color: "text-amber-500",
+  },
+  url: {
+    icon: Globe,
+    label: "Web Article",
+    color: "text-blue-500",
+  },
+  file: {
+    icon: File,
+    label: "Document File",
+    color: "text-emerald-500",
+  },
+};
+
+// -----------------------------------------------------------------------------
+// Utility Functions
+// -----------------------------------------------------------------------------
+function getWordCount(text: string): number {
+  if (!text) return 0;
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function getCharCount(text: string): number {
+  return text?.length || 0;
+}
+
+function getReadingTimeMinutes(wordCount: number): number {
+  return Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+}
+
+function formatBytes(bytes: number | null): string {
+  if (bytes === null || bytes === undefined) return "Unknown size";
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
+}
+
+// -----------------------------------------------------------------------------
+// Presentational Components
+// -----------------------------------------------------------------------------
+function ReaderLoadingState() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-muted-foreground animate-pulse">
+      <Loader2 className="size-8 animate-spin text-primary" />
+      <p className="text-sm font-medium">Loading document reader...</p>
+      <DialogTitle className="sr-only">Loading document</DialogTitle>
+    </div>
+  );
+}
+
+function ReaderErrorState({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
+      <div className="size-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
+        <File className="size-6" />
+      </div>
+      <DialogTitle className="text-lg font-bold">
+        Failed to load document
+      </DialogTitle>
+      <DialogDescription className="max-w-xs text-xs text-muted-foreground">
+        Unable to load source details. Please try again.
+      </DialogDescription>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onClose}
+        className="mt-2 cursor-pointer text-xs"
+      >
+        Close
+      </Button>
+    </div>
+  );
+}
+
+function ReaderHeader({ source, downloading, onDownload }: ReaderHeaderProps) {
+  const config = SOURCE_CONFIG[source.kind];
+  const Icon = config.icon;
+
+  return (
+    <div className="pl-6 pr-14 py-3.5 flex items-center justify-between gap-4 border-b border-border/40 bg-card/80">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <Badge
+          variant="secondary"
+          className="gap-1.5 px-2.5 py-1 rounded-xl text-xs shrink-0 font-medium"
+        >
+          <Icon className={cn("size-3.5", config.color)} />
+          {config.label}
+        </Badge>
+
+        <DialogTitle className="text-base font-semibold tracking-tight text-foreground truncate">
+          {source.title}
+        </DialogTitle>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        {source.kind === "url" && source.url && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs gap-1.5 cursor-pointer rounded-xl"
+            render={
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="size-3.5" />
+                Open Webpage
+              </a>
+            }
+          />
+        )}
+
+        {source.kind === "file" && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDownload}
+            disabled={downloading}
+            className="h-8 text-xs gap-1.5 cursor-pointer rounded-xl"
+          >
+            {downloading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Download className="size-3.5" />
+            )}
+            Download File
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function OutlineSidebar({
+  headings,
+  onSelectHeading,
+  onClose,
+}: OutlineSidebarProps) {
+  return (
+    <aside className="w-56 border-r border-border/40 bg-card/20 flex flex-col h-full min-h-0 shrink-0 animate-in fade-in slide-in-from-left-2 duration-200">
+      <div className="p-3 border-b border-border/40 flex items-center justify-between text-xs font-medium text-muted-foreground shrink-0">
+        <span className="flex items-center gap-1.5">
+          Table of Contents
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-1 hover:text-foreground rounded cursor-pointer"
+        >
+          <X className="size-3.5" />
+        </button>
+      </div>
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full w-full p-2">
+          <div className="flex flex-col gap-0.5 pr-2">
+            {headings.map((h) => (
+              <button
+                key={h.id}
+                type="button"
+                onClick={() => onSelectHeading(h.id)}
+                className={cn(
+                  "text-left text-xs py-1.5 px-2.5 rounded-lg transition-colors truncate cursor-pointer hover:bg-muted text-foreground font-medium",
+                  h.level === 2 && "pl-3 text-foreground/90 font-normal",
+                  h.level === 3 && "pl-5 text-foreground/75 text-[11px] font-normal",
+                )}
+              >
+                {h.title}
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    </aside>
+  );
+}
+
+function ReaderFooter({ stats, source }: ReaderFooterProps) {
+  return (
+    <div className="px-6 py-2.5 border-t border-border/40 bg-card/60 flex items-center justify-between text-xs text-muted-foreground shrink-0">
+      <div className="flex items-center gap-5">
+        <span className="flex items-center gap-1.5">
+          {stats.charCount.toLocaleString()} characters
+        </span>
+        <span className="flex items-center gap-1.5">
+          {stats.wordCount.toLocaleString()} words
+        </span>
+        <span className="flex items-center gap-1.5">
+          ~{stats.readingTime} min read
+        </span>
+        {source.kind === "file" && source.fileSize && (
+          <span className="flex items-center gap-1.5">
+            {formatBytes(source.fileSize)}
+          </span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 text-[11px]">
+          <Calendar className="size-3 text-muted-foreground" />
+          Added{" "}
+          {new Date(source.createdAt).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Main Component
+// -----------------------------------------------------------------------------
 export function SourceViewerDialog({
   sourceId,
   open,
   onOpenChange,
 }: SourceViewerDialogProps) {
+  // Query
   const {
     data: source,
     isPending,
@@ -63,8 +314,34 @@ export function SourceViewerDialog({
     enabled: !!sourceId && open,
   });
 
+  // State
+  const [showOutline, setShowOutline] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Derived strategy data
+  const docType = useMemo(
+    () => (source ? detectDocumentType(source) : "plaintext"),
+    [source],
+  );
+
+  const headings = useMemo(
+    () => (source ? extractHeadingsForDocument(source) : []),
+    [source],
+  );
+
+  const documentStats: DocumentStats = useMemo(() => {
+    const rawText = source?.rawText || "";
+    const words = getWordCount(rawText);
+    return {
+      charCount: getCharCount(rawText),
+      wordCount: words,
+      readingTime: getReadingTimeMinutes(words),
+    };
+  }, [source?.rawText]);
+
+  // Callbacks: Downloads
   const handleDownload = async () => {
     if (!source || source.kind !== "file") return;
     setDownloading(true);
@@ -81,178 +358,86 @@ export function SourceViewerDialog({
     }
   };
 
+  // Callbacks: Navigation
+  const scrollToHeading = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 overflow-hidden rounded-[min(var(--radius-4xl),24px)] border bg-background shadow-lg">
-        {isPending && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground animate-pulse">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm font-medium">Loading document...</p>
-            <DialogTitle className="sr-only">Loading document</DialogTitle>
-          </div>
-        )}
+      <DialogContent className="sm:max-w-5xl h-[90vh] flex flex-col p-0 overflow-hidden rounded-[min(var(--radius-4xl),24px)] border border-border/80 bg-background shadow-2xl gap-0">
+        {isPending && <ReaderLoadingState />}
 
         {isError && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
-            <div className="h-12 w-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
-              <File className="h-6 w-6" />
-            </div>
-            <DialogTitle className="text-lg font-bold">
-              Failed to load source
-            </DialogTitle>
-            <DialogDescription className="max-w-xs text-xs text-muted-foreground">
-              Unable to load source details. Please try again.
-            </DialogDescription>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="mt-2"
-            >
-              Close
-            </Button>
-          </div>
+          <ReaderErrorState onClose={() => onOpenChange(false)} />
         )}
 
         {!isPending && !isError && source && (
           <>
-            <div className="p-6 border-b bg-muted/30 relative">
-              <div className="flex flex-col gap-3 pr-8">
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="secondary"
-                    className="gap-1 px-2 py-0.5 rounded-xl"
-                  >
-                    {source.kind === "text" && (
-                      <>
-                        <FileText className="h-3 w-3" />
-                        Text Note
-                      </>
-                    )}
-                    {source.kind === "url" && (
-                      <>
-                        <Globe className="h-3 w-3" />
-                        Web Article
-                      </>
-                    )}
-                    {source.kind === "file" && (
-                      <>
-                        <File className="h-3 w-3" />
-                        Document File
-                      </>
-                    )}
-                  </Badge>
+            <ReaderHeader
+              source={source}
+              downloading={downloading}
+              onDownload={handleDownload}
+            />
 
-                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(source.createdAt).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
+            <div className="flex-1 flex min-h-0 overflow-hidden bg-background">
+              {showOutline && headings.length > 0 && (
+                <OutlineSidebar
+                  headings={headings}
+                  onSelectHeading={scrollToHeading}
+                  onClose={() => setShowOutline(false)}
+                />
+              )}
 
-                <DialogTitle className="text-xl font-bold tracking-tight text-foreground line-clamp-2">
-                  {source.title}
-                </DialogTitle>
-
-                {source.kind === "url" && source.url && (
-                  <div className="flex items-center justify-between gap-3 bg-muted/40 border rounded-2xl p-3 mt-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
-                        Source Link
-                      </p>
-                      <p className="text-xs text-foreground/80 truncate font-mono mt-0.5">
-                        {source.url}
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="shrink-0 text-xs gap-1.5 cursor-pointer"
-                      render={
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+              <div className="flex-1 h-full overflow-hidden relative">
+                <ScrollArea className="h-full w-full" ref={scrollRef}>
+                  <div className="px-8 py-6 w-full max-w-4xl mx-auto flex flex-col gap-4">
+                    {headings.length > 0 && (
+                      <div className="flex items-center pb-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowOutline((v) => !v)}
+                          className="h-8 gap-1.5 text-xs rounded-xl cursor-pointer bg-card/80 border-border/60 hover:bg-muted"
+                          title={
+                            showOutline
+                              ? "Hide Table of Contents"
+                              : "Show Table of Contents"
+                          }
                         >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          Open Webpage
-                        </a>
-                      }
-                    />
-                  </div>
-                )}
+                          <PanelLeft className="size-3.5 text-muted-foreground" />
+                          <span>{showOutline ? "Hide Outline" : "Show Outline"}</span>
+                        </Button>
+                      </div>
+                    )}
 
-                {source.kind === "file" && (
-                  <div className="flex items-center justify-between gap-4 bg-muted/40 border rounded-2xl p-3 mt-2">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-9 w-9 rounded-xl bg-secondary text-secondary-foreground flex items-center justify-center shrink-0">
-                        <HardDrive className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium truncate text-foreground">
-                          {source.contentType || "Unknown document type"}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {formatBytes(source.fileSize)}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownload}
-                      disabled={downloading}
-                      className="shrink-0 text-xs gap-1.5 cursor-pointer"
-                    >
-                      {downloading ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Download className="h-3.5 w-3.5" />
-                      )}
-                      Download File
-                    </Button>
+                    {docType === "markdown" && (
+                      <MarkdownDocumentViewer content={source.rawText} />
+                    )}
+
+                    {docType === "code" && (
+                      <CodeDocumentViewer
+                        title={source.title}
+                        content={source.rawText}
+                      />
+                    )}
+
+                    {docType === "article" && (
+                      <ArticleDocumentViewer content={source.rawText} />
+                    )}
+
+                    {docType === "plaintext" && (
+                      <PlainTextDocumentViewer content={source.rawText} />
+                    )}
                   </div>
-                )}
+                </ScrollArea>
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 bg-background relative">
-              <ScrollArea className="h-full w-full">
-                <div className="p-8 max-w-2xl mx-auto">
-                  {source.rawText?.trim() ? (
-                    <article className="prose prose-sm dark:prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-foreground/90 break-words">
-                        {source.rawText}
-                      </div>
-                    </article>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground/80">
-                      <FileText className="h-10 w-10 mb-2 stroke-[1.5]" />
-                      <p className="text-sm font-semibold">No extracted text</p>
-                      <p className="text-xs max-w-xs mt-1">
-                        Text content is empty or extraction is pending.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            <div className="px-6 py-3 border-t bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1">
-                  <Hash className="h-3.5 w-3.5 text-muted-foreground/75" />
-                  {getCharCount(source.rawText)} characters
-                </span>
-                <span className="flex items-center gap-1">
-                  <Scale className="h-3.5 w-3.5 text-muted-foreground/75" />
-                  {getWordCount(source.rawText)} words
-                </span>
-              </div>
-            </div>
+            <ReaderFooter stats={documentStats} source={source} />
           </>
         )}
       </DialogContent>
