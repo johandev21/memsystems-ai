@@ -11,6 +11,7 @@ trustPolicyExclude:
   - undici-types@6.21.0
 
 allowBuilds:
+  esbuild: true
   msw: true
 ignoredBuiltDependencies:
   - sharp

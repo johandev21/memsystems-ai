@@ -4,7 +4,7 @@
 
 | Package | Dir | Stack | Port |
 |---------|-----|-------|------|
-| `frontend` (pkg name: `vite-frontend`) | `frontend/` | Vite + React 19 + TanStack Router + Tailwind CSS v4 + shadcn/ui | 3000 |
+| `frontend` | `frontend/` | Vite + React 19 + TanStack Router + Tailwind CSS v4 + shadcn/ui | 3000 |
 | `backend` | `backend/` | NestJS 11 + Express + Drizzle ORM | 4000 |
 
 pnpm workspace monorepo defined in `pnpm-workspace.yaml`. Turborepo orchestrates tasks via `turbo.json`.

@@ -1,7 +1,7 @@
 {
   "name": "memsystems-monorepo",
   "private": true,
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.17.0",
   "scripts": {
     "dev": "turbo run dev",
     "dev:backend": "turbo run dev --filter=backend",
@@ -13,6 +13,7 @@
     "format": "turbo run format"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "turbo": "^2.4.0"
   }
 }
