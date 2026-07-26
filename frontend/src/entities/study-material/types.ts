@@ -13,6 +13,7 @@ export interface StudyMaterialDTO {
   title: string;
   folderId: string | null;
   content: unknown;
+  options: unknown;
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;

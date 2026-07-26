@@ -1,5 +1,16 @@
 import { StudyMaterialKind } from './shapes';
 
+export interface QuizGenerationOptions {
+  questionCount: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+export interface FlashcardGenerationOptions {
+  questionCount: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  cardStyle: 'qa' | 'definition' | 'cloze';
+}
+
 interface ReportOptions {
   type: 'summary' | 'detailed' | 'academic' | 'executive';
   tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
@@ -9,6 +20,13 @@ interface ReportOptions {
   includeCitations: boolean;
   sections?: string[];
 }
+
+export type ReportGenerationOptions = ReportOptions;
+
+export type StudyMaterialOptions =
+  | ({ kind: 'quiz' } & QuizGenerationOptions)
+  | ({ kind: 'simple_flashcard' } & FlashcardGenerationOptions)
+  | ({ kind: 'report' } & ReportOptions);
 
 interface PromptTemplate {
   system: string;

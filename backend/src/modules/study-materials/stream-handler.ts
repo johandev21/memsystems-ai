@@ -7,6 +7,11 @@ import { studyMaterials } from '../../database/schema';
 import { AiService } from '../ai/ai.service';
 import { DRIZZLE } from '../database/database.module';
 import { getPromptTemplate } from './prompts';
+import type {
+  QuizGenerationOptions,
+  FlashcardGenerationOptions,
+  ReportGenerationOptions,
+} from './prompts';
 import {
   MindMapContent,
   QuizContent,
@@ -48,15 +53,7 @@ export class StreamHandler {
       questionCount?: number;
       difficulty?: 'easy' | 'medium' | 'hard';
       cardStyle?: 'qa' | 'definition' | 'cloze';
-      reportOptions?: {
-        type: 'summary' | 'detailed' | 'academic' | 'executive';
-        tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
-        length: 'short' | 'medium' | 'long' | 'comprehensive' | 'custom';
-        sectionCount: number;
-        includeSummary: boolean;
-        includeCitations: boolean;
-        sections?: string[];
-      };
+      reportOptions?: ReportGenerationOptions;
     },
     sourceTexts: { title: string; rawText: string }[],
     requestId: string,
@@ -79,6 +76,7 @@ export class StreamHandler {
       },
     );
     const schema = this.getContentSchema(input.kind);
+    const options = buildOptions(input);
 
     const stream = new ReadableStream({
       start: async (controller) => {
@@ -115,6 +113,7 @@ export class StreamHandler {
               kind: input.kind,
               title: generateTitle(input.kind, normalized),
               content: validated,
+              options,
               folderId: input.folderId ?? null,
             })
             .returning();
@@ -203,6 +202,7 @@ export class StreamHandler {
                 kind: input.kind,
                 title: generateTitle(input.kind, normalizedContent),
                 content: validated,
+                options,
                 folderId: input.folderId ?? null,
               })
               .returning();
@@ -248,5 +248,44 @@ export class StreamHandler {
       mind_map: MindMapContent,
     };
     return schemas[kind];
+  }
+}
+
+function buildOptions(input: {
+  kind: StudyMaterialKind;
+  questionCount?: number;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  cardStyle?: 'qa' | 'definition' | 'cloze';
+  reportOptions?: ReportGenerationOptions;
+}): Record<string, unknown> | null {
+  switch (input.kind) {
+    case 'quiz': {
+      if (input.questionCount == null && input.difficulty == null) return null;
+      const opts: QuizGenerationOptions = {
+        questionCount: input.questionCount ?? 10,
+        difficulty: input.difficulty ?? 'medium',
+      };
+      return opts as unknown as Record<string, unknown>;
+    }
+    case 'simple_flashcard': {
+      if (
+        input.questionCount == null &&
+        input.difficulty == null &&
+        input.cardStyle == null
+      )
+        return null;
+      const opts: FlashcardGenerationOptions = {
+        questionCount: input.questionCount ?? 10,
+        difficulty: input.difficulty ?? 'medium',
+        cardStyle: input.cardStyle ?? 'qa',
+      };
+      return opts as unknown as Record<string, unknown>;
+    }
+    case 'report': {
+      if (input.reportOptions == null) return null;
+      return input.reportOptions as unknown as Record<string, unknown>;
+    }
+    default:
+      return null;
   }
 }

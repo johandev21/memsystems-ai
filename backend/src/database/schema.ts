@@ -132,6 +132,7 @@ export const studyMaterials = pgTable(
       onDelete: 'set null',
     }),
     content: jsonb('content').notNull(),
+    options: jsonb('options').$type<Record<string, unknown> | null>(),
     deletedAt: timestamp('deleted_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
