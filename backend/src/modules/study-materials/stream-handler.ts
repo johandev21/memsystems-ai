@@ -47,6 +47,16 @@ export class StreamHandler {
       model?: string;
       questionCount?: number;
       difficulty?: 'easy' | 'medium' | 'hard';
+      cardStyle?: 'qa' | 'definition' | 'cloze';
+      reportOptions?: {
+        type: 'summary' | 'detailed' | 'academic' | 'executive';
+        tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
+        length: 'short' | 'medium' | 'long' | 'comprehensive' | 'custom';
+        sectionCount: number;
+        includeSummary: boolean;
+        includeCitations: boolean;
+        sections?: string[];
+      };
     },
     sourceTexts: { title: string; rawText: string }[],
     requestId: string,
@@ -64,6 +74,8 @@ export class StreamHandler {
       {
         questionCount: input.questionCount,
         difficulty: input.difficulty,
+        cardStyle: input.cardStyle,
+        reportOptions: input.reportOptions,
       },
     );
     const schema = this.getContentSchema(input.kind);

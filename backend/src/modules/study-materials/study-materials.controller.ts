@@ -55,6 +55,16 @@ const updateFolderSchema = z.object({
   parentId: z.string().nullable().optional(),
 });
 
+const reportOptionsSchema = z.object({
+  type: z.enum(['summary', 'detailed', 'academic', 'executive']),
+  tone: z.enum(['formal', 'conversational', 'technical', 'journalistic']),
+  length: z.enum(['short', 'medium', 'long', 'comprehensive', 'custom']),
+  sectionCount: z.number().min(1).max(50),
+  includeSummary: z.boolean(),
+  includeCitations: z.boolean(),
+  sections: z.array(z.string()).optional(),
+});
+
 const generateRequestSchema = z.object({
   kind: z.enum([
     'quiz',
@@ -70,6 +80,8 @@ const generateRequestSchema = z.object({
   model: z.string().optional(),
   questionCount: z.number().min(1).max(50).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  cardStyle: z.enum(['qa', 'definition', 'cloze']).optional(),
+  reportOptions: reportOptionsSchema.optional(),
 });
 
 @Controller()

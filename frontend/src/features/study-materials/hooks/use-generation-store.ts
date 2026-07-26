@@ -7,6 +7,7 @@ import {
   startGeneration,
 } from "@/shared/api/generation";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
+import type { ReportGenerationOptions } from "@/shared/api/generation";
 import { KIND_LABELS } from "../shapes";
 
 export interface ActiveGeneration {
@@ -35,6 +36,8 @@ interface GenerationState {
       model?: string;
       questionCount?: number;
       difficulty?: "easy" | "medium" | "hard";
+      cardStyle?: "qa" | "definition" | "cloze";
+      reportOptions?: ReportGenerationOptions;
     },
     queryClient: QueryClient,
     onComplete?: (materialId: string) => void,

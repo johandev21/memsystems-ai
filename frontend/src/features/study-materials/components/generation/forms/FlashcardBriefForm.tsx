@@ -4,20 +4,19 @@ import {
   Check,
   ChevronDown,
   Search,
-  Sparkles,
   Cpu,
   BookOpen,
   Globe,
   FileText,
-  ArrowRight,
-  ArrowLeft,
+  Lightbulb,
+  Brain,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
-import { Badge } from "@/shared/ui/badge";
 import { FolderPicker } from "@/features/notebooks";
 import type { ModelOption } from "@/shared/api/models";
 import { sourcesQueryOptions } from "@/shared/api/sources";
@@ -28,38 +27,46 @@ import type { BaseMaterialFormProps, BriefFormData } from "./types";
 // Module Constants
 // ============================================================================
 
-const QUESTION_PRESETS = [5, 10, 15, 20] as const;
+const CARD_COUNT_PRESETS = [10, 15, 20] as const;
 
 const DIFFICULTIES = [
-  { id: "easy", title: "Warmup", description: "Basic recall & definitions" },
-  { id: "medium", title: "Standard", description: "Balanced application" },
-  { id: "hard", title: "Challenge", description: "Deep reasoning & edge cases" },
+  { id: "easy", title: "Basic", description: "Simple definitions & recall", icon: Lightbulb },
+  { id: "medium", title: "Standard", description: "Conceptual understanding", icon: Brain },
+  { id: "hard", title: "Advanced", description: "Deep analysis & application", icon: Sparkles },
 ] as const;
 
 type DifficultyId = (typeof DIFFICULTIES)[number]["id"];
 
+const CARD_STYLES = [
+  { id: "qa", title: "Q & A", description: "Classic question → answer format" },
+  { id: "definition", title: "Definition", description: "Term → definition pairs" },
+  { id: "cloze", title: "Fill-in-the-Blank", description: "Sentence with missing word" },
+] as const;
+
+type CardStyleId = (typeof CARD_STYLES)[number]["id"];
+
 // ============================================================================
-// Quiz Brief Form Component
+// Flashcard Brief Form Component
 // ============================================================================
 
-export function QuizBriefForm({
+export function FlashcardBriefForm({
   notebookId,
   models,
   value,
   onChange,
   onSubmit,
-  submitLabel = "Generate Quiz Now",
+  submitLabel = "Generate Flashcards",
   disabled = false,
 }: BaseMaterialFormProps) {
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // State
-  const [step, setStep] = useState<1 | 2>(1);
-  const [questionCount, setQuestionCount] = useState<number>(value.questionCount ?? 10);
+  const [cardCount, setCardCount] = useState<number>(value.questionCount ?? 10);
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [customVal, setCustomVal] = useState("25");
   const [difficulty, setDifficulty] = useState<DifficultyId>(value.difficulty ?? "medium");
+  const [cardStyle, setCardStyle] = useState<CardStyleId>(value.cardStyle ?? "qa");
 
   // Queries
   const { data: sources = [] } = useQuery(sourcesQueryOptions(notebookId));
@@ -69,9 +76,9 @@ export function QuizBriefForm({
   const hasInstructions = value.brief.trim().length > 0;
   const canSubmit = !disabled && (hasSources || hasInstructions);
 
-  const questionLabel = `${questionCount} ${
-    questionCount === 1 ? "Question" : "Questions"
-  }${questionCount >= 50 ? " (Max 50)" : ""}`;
+  const cardLabel = `${cardCount} ${
+    cardCount === 1 ? "Card" : "Cards"
+  }${cardCount >= 50 ? " (Max 50)" : ""}`;
 
   // Handlers
   const update = (patch: Partial<BriefFormData>) => {
@@ -80,16 +87,15 @@ export function QuizBriefForm({
 
   // Sync internal state to parent brief form values
   useEffect(() => {
-    update({ questionCount, difficulty });
-
-  }, [questionCount, difficulty]);
+    update({ questionCount: cardCount, difficulty, cardStyle });
+  }, [cardCount, difficulty, cardStyle]);
 
   const handleCustomChange = (raw: string) => {
     setCustomVal(raw);
     const parsed = parseInt(raw, 10);
     if (!isNaN(parsed) && parsed > 0) {
       const clamped = Math.min(50, Math.max(1, parsed));
-      setQuestionCount(clamped);
+      setCardCount(clamped);
     }
   };
 
@@ -98,138 +104,151 @@ export function QuizBriefForm({
     if (isNaN(parsed) || parsed < 1) parsed = 10;
     if (parsed > 50) parsed = 50;
     setCustomVal(String(parsed));
-    setQuestionCount(parsed);
+    setCardCount(parsed);
   };
 
-  // Section Render Helpers
-  function renderStepOne() {
-    return (
-      <div className="flex flex-col gap-5 min-h-[380px] justify-between animate-in fade-in slide-in-from-right-2 duration-150">
-        <div className="flex flex-col gap-5">
-          <DifficultySelector value={difficulty} onChange={setDifficulty} />
-
-          <QuestionSelector
-            questionLabel={questionLabel}
-            questionCount={questionCount}
-            isCustomMode={isCustomMode}
-            customVal={customVal}
-            onSelectPreset={(cnt) => {
-              setIsCustomMode(false);
-              setQuestionCount(cnt);
-            }}
-            onEnableCustom={() => {
-              setIsCustomMode(true);
-              const parsed = parseInt(customVal, 10) || 25;
-              setQuestionCount(Math.min(50, Math.max(1, parsed)));
-            }}
-            onCustomChange={handleCustomChange}
-            onCustomBlur={handleCustomBlur}
-          />
-
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">3. Knowledge Sources{!hasInstructions && <span className="text-destructive ml-0.5">*</span>}</Label>
-            <QuizSourcePopover
-              sources={sources}
-              selectedIds={value.sourceIds}
-              onChange={(sourceIds) => update({ sourceIds })}
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center pt-2 border-t border-transparent">
-          <span className="text-xs text-muted-foreground">Configure custom instructions next</span>
-          <Button
-            type="button"
-            onClick={() => setStep(2)}
-            className="h-9 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium gap-1.5 cursor-pointer hover:opacity-95"
-          >
-            Next Step
-            <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  function renderStepTwo() {
-    return (
-      <div className="flex flex-col gap-5 min-h-[380px] justify-between animate-in fade-in slide-in-from-right-2 duration-150">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="brief-quiz" className="text-sm font-medium text-foreground">
-              Custom Instructions{!hasSources && <span className="text-destructive ml-0.5">*</span>}
-            </Label>
-            <Textarea
-              id="brief-quiz"
-              ref={textareaRef}
-              value={value.brief}
-              onChange={(e) => update({ brief: e.target.value })}
-              placeholder="Provide specific focus areas, topics, or instructions for this quiz..."
-              className="min-h-[120px] text-xs resize-none break-words [overflow-wrap:anywhere] max-w-full overflow-x-hidden w-full"
-              disabled={disabled}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 items-center">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Destination Folder</Label>
-              <FolderPicker
-                notebookId={notebookId}
-                value={value.folderId}
-                onChange={(folderId) => update({ folderId })}
-                disabled={disabled}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">AI Intelligence Model</Label>
-              <QuizModelPopover
-                models={models}
-                selectedModel={value.model}
-                onModelChange={(model) => update({ model })}
-                disabled={disabled}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center pt-2 border-t border-transparent">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setStep(1)}
-            className="h-9 px-4 text-sm text-muted-foreground hover:text-foreground gap-1.5 cursor-pointer"
-          >
-            <ArrowLeft className="size-4" />
-            Back
-          </Button>
-
-          <Button
-            type="button"
-            className="h-10 px-6 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all"
-            disabled={!canSubmit}
-            onClick={onSubmit}
-          >
-            {submitLabel}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-5 font-sans text-foreground">
-      <WizardHeader step={step} onStepChange={setStep} />
-      {step === 1 ? renderStepOne() : renderStepTwo()}
+    <div className="flex flex-col gap-4 font-sans text-foreground animate-in fade-in duration-150">
+
+      {/* Card Style Toggle */}
+      <div className="flex flex-col gap-2">
+        <Label className="text-sm font-medium text-foreground">Card Format</Label>
+        <div className="grid grid-cols-3 gap-2">
+          {CARD_STYLES.map((style) => {
+            const selected = cardStyle === style.id;
+            return (
+              <button
+                key={style.id}
+                type="button"
+                onClick={() => setCardStyle(style.id)}
+                className={cn(
+                  "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5",
+                  selected
+                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                    : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                {selected && <Check className="size-3.5 text-primary-foreground shrink-0" />}
+                {style.title}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Difficulty + Card Count in one row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <Label className="text-sm font-medium text-foreground">Difficulty</Label>
+          <div className="flex gap-2">
+            {DIFFICULTIES.map((d) => {
+              const selected = difficulty === d.id;
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => setDifficulty(d.id)}
+                  className={cn(
+                    "flex-1 h-9 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center justify-center gap-1",
+                    selected
+                      ? "bg-primary text-primary-foreground border-primary font-semibold"
+                      : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {d.title}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <CardCountSelector
+          cardLabel={cardLabel}
+          cardCount={cardCount}
+          isCustomMode={isCustomMode}
+          customVal={customVal}
+          onSelectPreset={(cnt) => {
+            setIsCustomMode(false);
+            setCardCount(cnt);
+          }}
+          onEnableCustom={() => {
+            setIsCustomMode(true);
+            const parsed = parseInt(customVal, 10) || 25;
+            setCardCount(Math.min(50, Math.max(1, parsed)));
+          }}
+          onCustomChange={handleCustomChange}
+          onCustomBlur={handleCustomBlur}
+        />
+      </div>
+
+      {/* Instructions */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="brief-flashcards" className="text-sm font-medium text-foreground">
+          Instructions{!hasSources && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        <Textarea
+          id="brief-flashcards"
+          ref={textareaRef}
+          value={value.brief}
+          onChange={(e) => update({ brief: e.target.value })}
+          placeholder="What topics should these flashcards cover?"
+          className="min-h-[80px] text-xs resize-none"
+          disabled={disabled}
+        />
+      </div>
+
+      {/* Sources */}
+      <div className="flex flex-col gap-2">
+        <Label className="text-sm font-medium text-foreground">
+          Sources{!hasInstructions && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        <FlashcardSourcePopover
+          sources={sources}
+          selectedIds={value.sourceIds}
+          onChange={(sourceIds) => update({ sourceIds })}
+        />
+      </div>
+
+      {/* Folder + Model */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium text-muted-foreground">Folder</Label>
+          <FolderPicker
+            notebookId={notebookId}
+            value={value.folderId}
+            onChange={(folderId) => update({ folderId })}
+            disabled={disabled}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium text-muted-foreground">Model</Label>
+          <FlashcardModelPopover
+            models={models}
+            selectedModel={value.model}
+            onModelChange={(model) => update({ model })}
+            disabled={disabled}
+          />
+        </div>
+      </div>
+
+      {/* Submit */}
+      <Button
+        type="button"
+        className="w-full h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all"
+        disabled={!canSubmit}
+        onClick={onSubmit}
+      >
+        {submitLabel}
+      </Button>
     </div>
   );
 }
 
 // ============================================================================
-// Quiz Source Popover Component
+// Flashcard Source Popover Component
 // ============================================================================
 
-function QuizSourcePopover({
+function FlashcardSourcePopover({
   sources,
   selectedIds,
   onChange,
@@ -295,7 +314,7 @@ function QuizSourcePopover({
     if (sources.length === 0) {
       return (
         <div className="p-4 text-center text-xs text-muted-foreground">
-          No sources in notebook. Quiz will generate using general knowledge.
+          No sources in notebook. Flashcards will generate using general knowledge.
         </div>
       );
     }
@@ -366,10 +385,10 @@ function QuizSourcePopover({
 }
 
 // ============================================================================
-// Quiz Model Popover Component
+// Flashcard Model Popover Component
 // ============================================================================
 
-export function QuizModelPopover({
+export function FlashcardModelPopover({
   models,
   selectedModel,
   onModelChange,
@@ -436,80 +455,9 @@ export function QuizModelPopover({
 // Small Local Helper Components
 // ============================================================================
 
-function WizardHeader({
-  step,
-  onStepChange,
-}: {
-  step: 1 | 2;
-  onStepChange: (step: 1 | 2) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2.5">
-      <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2 font-medium text-foreground">
-          <span className="text-sm font-semibold">Quiz Setup</span>
-        </div>
-        <Badge variant="outline" className="text-xs font-normal">
-          Step {step} of 2
-        </Badge>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div
-          onClick={() => onStepChange(1)}
-          className={cn(
-            "h-1.5 rounded-full transition-all cursor-pointer",
-            step >= 1 ? "bg-primary" : "bg-muted"
-          )}
-        />
-        <div
-          onClick={() => onStepChange(2)}
-          className={cn(
-            "h-1.5 rounded-full transition-all cursor-pointer",
-            step === 2 ? "bg-primary" : "bg-muted"
-          )}
-        />
-      </div>
-    </div>
-  );
-}
-
-function DifficultySelector({
-  value,
-  onChange,
-}: {
-  value: DifficultyId;
-  onChange: (val: DifficultyId) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Label className="text-sm font-medium text-foreground">1. Target Difficulty</Label>
-      <div className="grid grid-cols-3 gap-3">
-        {DIFFICULTIES.map((d) => (
-          <div
-            key={d.id}
-            onClick={() => onChange(d.id)}
-            className={cn(
-              "p-3 rounded-2xl border bg-card cursor-pointer transition-all flex flex-col justify-between gap-1.5",
-              value === d.id
-                ? "border-primary bg-muted/40 ring-1 ring-primary/30"
-                : "border-border hover:bg-muted/30"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">{d.title}</span>
-              {value === d.id && <Check className="size-3.5 text-primary" />}
-            </div>
-            <span className="text-xs text-muted-foreground leading-tight">{d.description}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function QuestionSelector({
-  questionLabel,
-  questionCount,
+function CardCountSelector({
+  cardLabel,
+  cardCount,
   isCustomMode,
   customVal,
   onSelectPreset,
@@ -517,8 +465,8 @@ function QuestionSelector({
   onCustomChange,
   onCustomBlur,
 }: {
-  questionLabel: string;
-  questionCount: number;
+  cardLabel: string;
+  cardCount: number;
   isCustomMode: boolean;
   customVal: string;
   onSelectPreset: (count: number) => void;
@@ -529,13 +477,13 @@ function QuestionSelector({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
-        <Label className="text-sm font-medium text-foreground">2. Number of Questions</Label>
-        <span className="text-xs font-mono font-medium text-primary">{questionLabel}</span>
+        <Label className="text-sm font-medium text-foreground">Cards</Label>
+        <span className="text-xs font-mono font-medium text-primary">{cardLabel}</span>
       </div>
 
-      <div className="grid grid-cols-5 gap-2">
-        {QUESTION_PRESETS.map((cnt) => {
-          const selected = questionCount === cnt && !isCustomMode;
+      <div className="grid grid-cols-4 gap-2">
+        {CARD_COUNT_PRESETS.map((cnt) => {
+          const selected = cardCount === cnt && !isCustomMode;
           return (
             <button
               key={cnt}
@@ -549,7 +497,7 @@ function QuestionSelector({
               )}
             >
               {selected && <Check className="size-3.5 text-primary-foreground shrink-0" />}
-              {cnt} Qs
+              {cnt}
             </button>
           );
         })}

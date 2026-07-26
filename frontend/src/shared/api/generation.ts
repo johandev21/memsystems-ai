@@ -3,6 +3,16 @@ import { getApiUrl } from "../lib/utils";
 
 export type { StudyMaterialKind };
 
+export interface ReportGenerationOptions {
+  type: "summary" | "detailed" | "academic" | "executive";
+  tone: "formal" | "conversational" | "technical" | "journalistic";
+  length: "short" | "medium" | "long" | "comprehensive" | "custom";
+  sectionCount: number;
+  includeSummary: boolean;
+  includeCitations: boolean;
+  sections?: string[];
+}
+
 export interface StartGenerationInput {
   kind: StudyMaterialKind;
   brief: string;
@@ -11,6 +21,8 @@ export interface StartGenerationInput {
   model?: string;
   questionCount?: number;
   difficulty?: "easy" | "medium" | "hard";
+  cardStyle?: "qa" | "definition" | "cloze";
+  reportOptions?: ReportGenerationOptions;
 }
 
 export type GenerationEvent =

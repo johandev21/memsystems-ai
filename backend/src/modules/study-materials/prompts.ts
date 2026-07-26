@@ -1,11 +1,26 @@
 import { StudyMaterialKind } from './shapes';
 
+interface ReportOptions {
+  type: 'summary' | 'detailed' | 'academic' | 'executive';
+  tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
+  length: 'short' | 'medium' | 'long' | 'comprehensive' | 'custom';
+  sectionCount: number;
+  includeSummary: boolean;
+  includeCitations: boolean;
+  sections?: string[];
+}
+
 interface PromptTemplate {
   system: string;
   user: (
     brief: string,
     sourceTexts: string,
-    options?: { questionCount?: number; difficulty?: string },
+    options?: {
+      questionCount?: number;
+      difficulty?: string;
+      cardStyle?: 'qa' | 'definition' | 'cloze';
+      reportOptions?: ReportOptions;
+    },
   ) => string;
 }
 
@@ -40,18 +55,38 @@ Randomize which option is correct across questions.`,
 
 const simpleFlashcardTemplate: PromptTemplate = {
   system: `You are an expert at creating study flashcards.
-Generate a set of clear, concise question/answer flashcards based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-flashcards'). It must end with the English suffix '-flashcards'.
+Generate a set of clear, concise flashcards based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-flashcards'). It must end with the English suffix '-flashcards'.
 Each flashcard must have a 'front' (a clear question or prompt) and a 'back' (a complete but concise answer).
-Use markdown formatting where appropriate.
-Generate between 5 to 15 flashcards depending on the depth of the source material or instructions.`,
-  user: (brief, sourceTexts) => {
+Use markdown formatting where appropriate.`,
+  user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
       : '';
     const instructionsBlock = brief
       ? `Generate flashcards based on these instructions: ${brief}`
       : 'Generate a set of flashcards.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a set of flashcards, each containing a front (question) and back (answer).`;
+    const countText = options?.questionCount
+      ? `Generate EXACTLY ${options.questionCount} flashcards.`
+      : '';
+    const diffText = options?.difficulty
+      ? `Target difficulty level: ${options.difficulty} (${
+          options.difficulty === 'easy'
+            ? 'Basic recall and definitions'
+            : options.difficulty === 'hard'
+              ? 'Deep analysis, complex reasoning, and edge cases'
+              : 'Conceptual understanding and application'
+        }).`
+      : '';
+    const styleText = options?.cardStyle
+      ? `Card format: ${
+          options.cardStyle === 'qa'
+            ? 'Question → Answer pairs'
+            : options.cardStyle === 'definition'
+              ? 'Term → Definition pairs'
+              : 'Fill-in-the-blank sentences with a missing word or phrase indicated by "___"'
+        }.`
+      : '';
+    return `${sourceBlock}${instructionsBlock}\n\n${countText} ${diffText} ${styleText}\n\nGenerate a set of flashcards, each containing a front (question) and back (answer).`;
   },
 };
 
@@ -60,14 +95,32 @@ const reportTemplate: PromptTemplate = {
 Start with a brief summary (1-2 sentences).
 Then create sections with clear headings and detailed markdown bodies.
 Sections should flow logically and cover the key topics.`,
-  user: (brief, sourceTexts) => {
+  user: (brief, sourceTexts, options) => {
+    const opts = options?.reportOptions;
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
       : '';
     const instructionsBlock = brief
       ? `Generate a report based on these instructions: ${brief}`
       : 'Generate a general report.';
-    return `${sourceBlock}${instructionsBlock}\n\nGenerate a report with a summary and structured sections.`;
+
+    const typeText = opts?.type ? `Report type: ${opts.type}.` : '';
+    const toneText = opts?.tone ? `Use a ${opts.tone} tone.` : '';
+    const sectionText = opts?.sectionCount
+      ? `Generate EXACTLY ${opts.sectionCount} sections.`
+      : '';
+    const structureText =
+      opts?.sections && opts.sections.length > 0
+        ? `Use the following section structure in this exact order:\n${opts.sections.map((s, i) => `${i + 1}. ${s}`).join('\n')}`
+        : '';
+    const summaryText = opts?.includeSummary
+      ? 'Include an executive summary at the beginning.'
+      : 'Do not include an executive summary.';
+    const citationsText = opts?.includeCitations
+      ? 'Include citations or references where applicable.'
+      : 'Do not include citations.';
+
+    return `${sourceBlock}${instructionsBlock}\n\n${typeText} ${toneText} ${sectionText}\n${summaryText} ${citationsText}\n${structureText}\n\nGenerate a report with a summary and structured sections.`;
   },
 };
 

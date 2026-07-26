@@ -10,6 +10,7 @@ import {
 import { useModelPersistence } from "@/features/notebooks";
 import { useGenerationStore, KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
 import type { ModelOption } from "@/shared/api/models";
+import type { ReportOptions } from "./forms/types";
 import { BriefForm } from "./BriefForm";
 import { cn } from "@/shared/lib/utils";
 
@@ -42,6 +43,8 @@ export function GenerateBriefDialog({
   const [folderId, setFolderId] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState<number | undefined>(10);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | undefined>("medium");
+  const [cardStyle, setCardStyle] = useState<"qa" | "definition" | "cloze" | undefined>(undefined);
+  const [reportOptions, setReportOptions] = useState<ReportOptions | undefined>(undefined);
   const { model: persistedModel, setModel: setPersistedModel } =
     useModelPersistence(notebookId);
   const model = persistedModel ?? "";
@@ -66,7 +69,17 @@ export function GenerateBriefDialog({
 
     startBackgroundGeneration(
       notebookId,
-      { kind, brief, sourceIds, folderId, model, questionCount, difficulty },
+      {
+        kind,
+        brief,
+        sourceIds,
+        folderId,
+        model,
+        questionCount,
+        difficulty,
+        cardStyle,
+        reportOptions,
+      },
       queryClient,
       onComplete,
     );
@@ -74,6 +87,7 @@ export function GenerateBriefDialog({
     setCollapsed(false);
     onOpenChange(false);
     setBrief("");
+    setReportOptions(undefined);
   };
 
   if (kind === null) return null;
@@ -82,7 +96,7 @@ export function GenerateBriefDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className={cn("sm:max-w-md", kind === "quiz" && "sm:max-w-2xl")}>
+        <DialogContent className={cn("sm:max-w-md", (kind === "quiz" || kind === "simple_flashcard" || kind === "report") && "sm:max-w-2xl")}>
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">Generate {label}</DialogTitle>
         </DialogHeader>
@@ -92,13 +106,15 @@ export function GenerateBriefDialog({
             kind={kind}
             models={models}
             defaultModel={models[0]?.id}
-            value={{ brief, sourceIds, folderId, model, questionCount, difficulty }}
+            value={{ brief, sourceIds, folderId, model, questionCount, difficulty, cardStyle, reportOptions }}
             onChange={(next) => {
               setBrief(next.brief);
               setSourceIds(next.sourceIds);
               setFolderId(next.folderId);
               setQuestionCount(next.questionCount);
               setDifficulty(next.difficulty);
+              setCardStyle(next.cardStyle);
+              setReportOptions(next.reportOptions);
               if (next.model !== model) {
                 setPersistedModel(next.model);
               }

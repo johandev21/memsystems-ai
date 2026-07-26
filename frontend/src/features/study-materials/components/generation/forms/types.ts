@@ -1,6 +1,16 @@
 import type { ModelOption } from "@/shared/api/models";
 import type { StudyMaterialKind } from "@/features/study-materials";
 
+export interface ReportOptions {
+  type: "summary" | "detailed" | "academic" | "executive";
+  tone: "formal" | "conversational" | "technical" | "journalistic";
+  length: "short" | "medium" | "long" | "comprehensive" | "custom";
+  sectionCount: number;
+  includeSummary: boolean;
+  includeCitations: boolean;
+  sections?: string[];
+}
+
 export interface BriefFormData {
   brief: string;
   sourceIds: string[];
@@ -8,6 +18,8 @@ export interface BriefFormData {
   model: string;
   questionCount?: number;
   difficulty?: "easy" | "medium" | "hard";
+  cardStyle?: "qa" | "definition" | "cloze";
+  reportOptions?: ReportOptions;
 }
 
 export interface BaseMaterialFormProps {
