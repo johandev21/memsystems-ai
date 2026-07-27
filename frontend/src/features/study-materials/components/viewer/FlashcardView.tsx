@@ -1,22 +1,72 @@
-import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
+// -----------------------------------------------------------------------------
+// 1. Imports
+// -----------------------------------------------------------------------------
+import { useState, useEffect, useCallback } from "react";
+import {
+  RotateCw,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  X,
+} from "lucide-react";
+import { motion } from "motion/react";
 import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { useFlashcardProgress } from "./useFlashcardProgress";
+import { detectCardFormat, type CardFormat } from "./card-type-detector";
+import { ClozeInteractive } from "./ClozeInteractive";
+
+// -----------------------------------------------------------------------------
+// 2. Constants
+// -----------------------------------------------------------------------------
+const SWIPE_ANIMATION_DURATION_MS = 280;
+const CLOZE_AUTO_ADVANCE_DELAY_MS = 500;
+const SWIPE_THRESHOLD = 80;
+
+// -----------------------------------------------------------------------------
+// 3. Types / Interfaces
+// -----------------------------------------------------------------------------
+export interface FlashcardItem {
+  front: string;
+  back: string;
+}
 
 export interface FlashcardViewProps {
   materialId: string;
+  materialTitle?: string;
   content: {
-    cards?: Array<{ front: string; back: string }>;
+    cards?: FlashcardItem[];
     front?: string;
     back?: string;
   };
+  sourceCount?: number;
 }
 
-export function FlashcardView({ materialId, content }: FlashcardViewProps) {
-  const cards = content.cards || [
+type RatingSwipeState = "idle" | "correct" | "incorrect";
+
+// -----------------------------------------------------------------------------
+// 4. Main Component
+// -----------------------------------------------------------------------------
+export function FlashcardView({
+  materialId,
+  materialTitle: _materialTitle = "Flashcards Study Deck",
+  content,
+  sourceCount: _sourceCount = 6,
+}: FlashcardViewProps) {
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+  const [ratingSwipeState, setRatingSwipeState] = useState<RatingSwipeState>("idle");
+  const [dragXOffset, setDragXOffset] = useState(0);
+
+  // ---------------------------------------------------------------------------
+  // Derived values
+  // ---------------------------------------------------------------------------
+  const flashcardsList: FlashcardItem[] = content.cards || [
     { front: content.front || "", back: content.back || "" },
   ];
-  const totalCards = cards.length;
+  const totalCardsCount = flashcardsList.length;
 
   const {
     currentCardIndex,
@@ -24,197 +74,315 @@ export function FlashcardView({ materialId, content }: FlashcardViewProps) {
     setIsFlipped,
     progress,
     handleRate,
-    handleReset,
     handleNext,
     handlePrev,
-    masteredCount,
-    progressPercent,
-    totalReviewsCount,
-  } = useFlashcardProgress(materialId, totalCards);
+  } = useFlashcardProgress(materialId, totalCardsCount);
 
-  const currentCard = cards[currentCardIndex] || { front: "", back: "" };
-  const currentCardStats = progress[currentCardIndex] || {
-    reviewCount: 0,
-    status: "unrated" as const,
+  const activeCard = flashcardsList[currentCardIndex] || { front: "", back: "" };
+  const activeCardFormat: CardFormat = detectCardFormat(activeCard);
+
+  const canDrag = activeCardFormat !== "cloze" && isFlipped;
+  const showRatingButtons = activeCardFormat !== "cloze" && isFlipped;
+
+  const incorrectRatingCount = Object.values(progress).filter(
+    (s) => s.status === "dont-know"
+  ).length;
+
+  const correctRatingCount = Object.values(progress).filter(
+    (s) => s.status === "know"
+  ).length;
+
+  // ---------------------------------------------------------------------------
+  // Event handlers & Keyboard Shortcuts
+  // ---------------------------------------------------------------------------
+  const handleToggleFlipCard = () => {
+    if (activeCardFormat === "cloze") return;
+    setIsFlipped(!isFlipped);
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center w-full gap-5">
-      <div className="w-full max-w-2xl bg-card border border-border p-3.5 rounded-xl shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground tracking-wider uppercase">
-          <span>Deck Mastery</span>
-          <span>
-            {masteredCount} of {totalCards} cards mastered
-          </span>
-        </div>
-        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between text-xs pt-0.5">
-          <span className="font-bold text-foreground">
-            {progressPercent}% Mastered
-          </span>
-          <span className="text-muted-foreground">
-            Total Reviews: {totalReviewsCount}
-          </span>
-        </div>
+  const handleRateCard = (ratingType: "correct" | "incorrect") => {
+    if (ratingSwipeState !== "idle") return;
+
+    setRatingSwipeState(ratingType);
+    handleRate(ratingType === "correct" ? "know" : "dont-know");
+
+    setTimeout(() => {
+      if (isFlipped) {
+        setIsFlipped(false);
+      }
+      handleNext();
+      setRatingSwipeState("idle");
+      setDragXOffset(0);
+    }, SWIPE_ANIMATION_DURATION_MS);
+  };
+
+  const handleClozeAnswerChecked = (isCorrect: boolean) => {
+    if (isCorrect) {
+      setTimeout(() => {
+        handleRateCard("correct");
+      }, CLOZE_AUTO_ADVANCE_DELAY_MS);
+    } else {
+      handleRate("dont-know");
+    }
+  };
+
+  const handleExplainInChat = () => {
+    const promptText = `I'm reviewing flashcards based on the source material and I'd like to expand my understanding of one of them.\n\nOn the front it reads: "${activeCard.front}"\n\nThe answer on the back reads: "${activeCard.back}"\n\nExplain this topic in more detail.`;
+
+    window.dispatchEvent(
+      new CustomEvent("send-chat-prompt", {
+        detail: { prompt: promptText, autoSend: true },
+      })
+    );
+  };
+
+  const handleNextCard = useCallback(() => {
+    if (ratingSwipeState !== "idle") return;
+    setIsFlipped(false);
+    handleNext();
+  }, [ratingSwipeState, setIsFlipped, handleNext]);
+
+  const handlePrevCard = useCallback(() => {
+    if (ratingSwipeState !== "idle") return;
+    setIsFlipped(false);
+    handlePrev();
+  }, [ratingSwipeState, setIsFlipped, handlePrev]);
+
+  // Keyboard Shortcuts: Space (Flip), Left Arrow (Prev), Right Arrow (Next)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInputActive =
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+          activeEl.tagName === "TEXTAREA" ||
+          (activeEl as HTMLElement).isContentEditable);
+
+      if (isInputActive) return;
+
+      if (e.key === " " || e.code === "Space") {
+        if (activeCardFormat !== "cloze") {
+          e.preventDefault();
+          setIsFlipped(!isFlipped);
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        handlePrevCard();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        handleNextCard();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeCardFormat, isFlipped, setIsFlipped, handlePrevCard, handleNextCard]);
+
+  // ---------------------------------------------------------------------------
+  // Render helpers
+  // ---------------------------------------------------------------------------
+
+
+  const renderCardFront = () => (
+    <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
+      <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+        <span className="font-semibold text-muted-foreground/80">
+          {currentCardIndex + 1} / {totalCardsCount}
+        </span>
+        <span className="text-[10px] uppercase font-semibold text-primary/70 tracking-wider">
+          {activeCardFormat === "cloze"
+            ? "Fill in the blank"
+            : activeCardFormat === "definition"
+              ? "Definition"
+              : "Question"}
+        </span>
       </div>
 
-      <div className="flex items-center justify-between w-full max-w-2xl text-sm px-1">
-        <div className="flex items-center gap-2">
-          <span className="bg-muted px-2 py-0.5 rounded-full text-muted-foreground font-medium font-mono">
-            {currentCardStats.reviewCount} Reviews
-          </span>
-          {currentCardStats.status === "know" && (
-            <span className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-medium">
-              Mastered
-            </span>
-          )}
-          {currentCardStats.status === "dont-know" && (
-            <span className="bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">
-              Needs Practice
-            </span>
-          )}
-          {currentCardStats.status === "unrated" && (
-            <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium">
-              Unrated
-            </span>
-          )}
-        </div>
-        {totalReviewsCount > 0 && (
-          <button
-            type="button"
-            onClick={handleReset}
-            className="text-muted-foreground hover:text-foreground underline cursor-pointer text-xs"
-          >
-            Reset Progress
-          </button>
+      <div className="py-2 flex flex-col justify-center my-auto text-center">
+        {activeCardFormat === "cloze" ? (
+          <ClozeInteractive
+            key={`${currentCardIndex}-${activeCard.front}`}
+            front={activeCard.front}
+            back={activeCard.back}
+            onAnswerChecked={handleClozeAnswerChecked}
+          />
+        ) : (
+          <p className="text-xl md:text-2xl font-semibold leading-relaxed tracking-tight text-foreground max-w-lg mx-auto">
+            {activeCard.front}
+          </p>
         )}
       </div>
 
-      <div className="[perspective:1000px] w-full max-w-2xl h-[340px]">
-        <div
-          role="button"
-          tabIndex={0}
-          className={cn(
-            "relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl",
-            isFlipped && "[transform:rotateY(180deg)]",
-          )}
-          onClick={() => setIsFlipped(!isFlipped)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setIsFlipped(!isFlipped);
-            }
-          }}
-        >
-          <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-between text-center shadow-md select-none">
-            <span className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
-              Question
-            </span>
-            <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
-              <div className="m-auto w-full py-2">
-                <p className="text-base md:text-lg font-medium whitespace-pre-wrap leading-relaxed">
-                  {currentCard.front}
-                </p>
-              </div>
-            </div>
-            <span className="text-xs text-muted-foreground/60 flex items-center gap-1">
-              <RotateCw className="h-3 w-3" /> Click to flip
-            </span>
-          </div>
-
-          <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-2xl border border-border bg-card p-6 flex flex-col items-center justify-between text-center shadow-md select-none">
-            <span className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
-              Answer
-            </span>
-            <div className="flex-1 w-full overflow-y-auto my-3 px-2 flex flex-col min-h-0">
-              <div className="m-auto w-full py-2">
-                <p className="text-base md:text-lg font-medium whitespace-pre-wrap leading-relaxed">
-                  {currentCard.back}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 w-full justify-center pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRate("dont-know");
-                }}
-                className="border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 text-sm px-3 h-8 cursor-pointer"
-              >
-                Needs Practice
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRate("know");
-                }}
-                className="border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm px-3 h-8 cursor-pointer"
-              >
-                I Know This
-              </Button>
-            </div>
-          </div>
+      {activeCardFormat !== "cloze" && (
+        <div className="flex items-center justify-center pt-2">
+          <span className="text-[11px] text-muted-foreground/60 font-medium">
+            Click card to flip
+          </span>
         </div>
+      )}
+    </div>
+  );
+
+  const renderCardBack = () => (
+    <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
+      <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+        <span className="font-semibold text-muted-foreground/80">
+          {currentCardIndex + 1} / {totalCardsCount}
+        </span>
+        <span className="text-[10px] uppercase font-semibold text-emerald-500/80 tracking-wider">
+          Answer
+        </span>
       </div>
 
-      <div className="flex items-center justify-between w-full max-w-2xl px-1">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handlePrev}
-          disabled={totalCards <= 1}
-          className="h-8 text-sm gap-1 cursor-pointer"
-        >
-          <ChevronLeft className="h-3.5 w-3.5" />
-          Previous
-        </Button>
-        <span className="text-sm font-semibold text-muted-foreground font-mono">
-          Card {currentCardIndex + 1} of {totalCards}
-        </span>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleNext}
-          disabled={totalCards <= 1}
-          className="h-8 text-sm gap-1 cursor-pointer"
-        >
-          Next
-          <ChevronRight className="h-3.5 w-3.5" />
-        </Button>
+      <div className="py-2 flex flex-col justify-center my-auto space-y-4 text-center max-w-lg mx-auto">
+        <p className="text-xl md:text-2xl font-semibold leading-relaxed tracking-tight text-foreground">
+          {activeCard.back}
+        </p>
+        {activeCardFormat === "cloze" && (
+          <p className="text-xs text-muted-foreground italic leading-relaxed pt-2 border-t border-border/30">
+            Full sentence:{" "}
+            <span className="text-foreground font-medium not-italic">
+              {activeCard.front.replace(/_{2,}|\[\s*blank\s*\]|\[\s*\.\.\.\s*\]|___+/i, activeCard.back)}
+            </span>
+          </p>
+        )}
       </div>
+
+      <div className="flex items-center justify-between pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleExplainInChat}
+          className="rounded-full h-8 px-3.5 text-xs font-medium gap-1.5 border-border/80 bg-background/50 hover:bg-muted transition-all cursor-pointer"
+        >
+          <Sparkles className="size-3.5 text-muted-foreground" />
+          Explain
+        </Button>
+
+        <button
+          type="button"
+          onClick={handleToggleFlipCard}
+          className="text-xs text-muted-foreground hover:text-foreground font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+        >
+          <RotateCw className="size-3.5" /> Show question
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderCardContainer = () => (
+    <div className="relative w-full touch-none select-none">
+      <motion.div
+        drag={canDrag && ratingSwipeState === "idle" ? "x" : false}
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.65}
+        animate={
+          ratingSwipeState === "correct"
+            ? { x: 280, rotate: 14, opacity: 0, scale: 0.95 }
+            : ratingSwipeState === "incorrect"
+              ? { x: -280, rotate: -14, opacity: 0, scale: 0.95 }
+              : { x: 0, rotate: 0, opacity: 1, scale: 1 }
+        }
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        onDrag={(_e, info) => {
+          if (canDrag) {
+            setDragXOffset(info.offset.x);
+          }
+        }}
+        onDragEnd={(_e, info) => {
+          if (!canDrag || ratingSwipeState !== "idle") return;
+          if (info.offset.x > SWIPE_THRESHOLD || info.velocity.x > 300) {
+            handleRateCard("correct");
+          } else if (info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -300) {
+            handleRateCard("incorrect");
+          } else {
+            setDragXOffset(0);
+          }
+        }}
+        onClick={() => {
+          if (!isFlipped && activeCardFormat !== "cloze") {
+            handleToggleFlipCard();
+          }
+        }}
+        className={cn(
+          "relative w-full rounded-[28px] border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm min-h-[300px]",
+          canDrag && ratingSwipeState === "idle" && "cursor-grab active:cursor-grabbing",
+          !isFlipped && activeCardFormat !== "cloze" && "cursor-pointer hover:border-primary/40",
+          !isFlipped ? "bg-card border-border/80" : "bg-muted/40 dark:bg-muted/20 border-border"
+        )}
+      >
+        {/* Tinder Swipe Badge Indicator Overlay (only on back when dragging) */}
+        {canDrag && dragXOffset > 25 && ratingSwipeState === "idle" && (
+          <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold font-mono text-sm tracking-wider uppercase rotate-[-12deg] pointer-events-none animate-in fade-in duration-100">
+            KNOW
+          </div>
+        )}
+        {canDrag && dragXOffset < -25 && ratingSwipeState === "idle" && (
+          <div className="absolute top-4 right-4 z-20 px-4 py-1.5 rounded-xl border-2 border-rose-500 bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold font-mono text-sm tracking-wider uppercase rotate-[12deg] pointer-events-none animate-in fade-in duration-100">
+            NEED PRACTICE
+          </div>
+        )}
+
+        {!isFlipped ? renderCardFront() : renderCardBack()}
+      </motion.div>
+    </div>
+  );
+
+  const renderNavigationToolbar = () => (
+    <div className="flex items-center justify-center gap-3 w-full py-1 select-none">
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={handlePrevCard}
+        disabled={totalCardsCount <= 1}
+        aria-label="Previous Card"
+        className="size-10 p-0 rounded-full cursor-pointer hover:bg-muted transition-all"
+      >
+        <ChevronLeft className="size-5" />
+      </Button>
+
+      {showRatingButtons && (
+        <>
+          <button
+            type="button"
+            onClick={() => handleRateCard("incorrect")}
+            className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+            title="Swipe Left: Need Practice (Left Arrow)"
+          >
+            <X className="size-3.5" />
+            <span>{incorrectRatingCount}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleRateCard("correct")}
+            className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+            title="Swipe Right: Know (Right Arrow)"
+          >
+            <span>{correctRatingCount}</span>
+            <Check className="size-3.5" />
+          </button>
+        </>
+      )}
 
       <Button
         type="button"
-        variant="ghost"
-        size="sm"
-        className="text-muted-foreground text-sm cursor-pointer"
-        onClick={() => setIsFlipped(!isFlipped)}
+        variant="secondary"
+        onClick={handleNextCard}
+        disabled={totalCardsCount <= 1}
+        aria-label="Next Card"
+        className="size-10 p-0 rounded-full cursor-pointer hover:bg-muted transition-all"
       >
-        {isFlipped ? (
-          <>
-            <RotateCw className="h-3.5 w-3.5 mr-1.5" />
-            Show Question
-          </>
-        ) : (
-          <>
-            <RotateCw className="h-3.5 w-3.5 mr-1.5" />
-            Show Answer
-          </>
-        )}
+        <ChevronRight className="size-5" />
       </Button>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col items-center w-full max-w-2xl mx-auto gap-6 animate-in fade-in duration-200">
+      {renderCardContainer()}
+      {renderNavigationToolbar()}
     </div>
   );
 }

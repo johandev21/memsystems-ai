@@ -3,22 +3,18 @@ import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { ExpandedStudyMaterials } from "./expanded-study-materials";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface StudyMaterialsPanelProps {
   notebookId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedMaterialId: string | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  selectedMaterialId?: string | null;
   onSelectMaterial: (materialId: string | null) => void;
 }
 
 export function StudyMaterialsPanel({
   notebookId,
-  open,
-  onOpenChange,
-  selectedMaterialId,
   onSelectMaterial,
 }: StudyMaterialsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -44,33 +40,19 @@ export function StudyMaterialsPanel({
               <ChevronUp className="h-4 w-4" />
             )}
           </Button>
-          <ExpandedStudyMaterials
-            notebookId={notebookId}
-            open={open}
-            onOpenChange={(isOpen) => {
-              onOpenChange(isOpen);
-              if (!isOpen) {
-                onSelectMaterial(null);
-              }
-            }}
-            initialMaterialId={selectedMaterialId}
-          />
         </div>
       </CardHeader>
       {isExpanded && (
-        <>
-          <ScrollArea className="h-[250px] w-full pr-2">
-            <CardContent className="p-3 pb-2">
-              <StudyMaterialsTree
-                notebookId={notebookId}
-                onSelectMaterial={(materialId) => {
-                  onSelectMaterial(materialId);
-                  onOpenChange(true);
-                }}
-              />
-            </CardContent>
-          </ScrollArea>
-        </>
+        <ScrollArea className="h-[250px] w-full pr-2">
+          <CardContent className="p-3 pb-2">
+            <StudyMaterialsTree
+              notebookId={notebookId}
+              onSelectMaterial={(materialId) => {
+                onSelectMaterial(materialId);
+              }}
+            />
+          </CardContent>
+        </ScrollArea>
       )}
     </Card>
   );

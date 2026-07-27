@@ -41,6 +41,7 @@ const CARD_STYLES = [
   { id: "qa", title: "Q & A", description: "Classic question → answer format" },
   { id: "definition", title: "Definition", description: "Term → definition pairs" },
   { id: "cloze", title: "Fill-in-the-Blank", description: "Sentence with missing word" },
+  { id: "mixed", title: "Mixed", description: "Combination of Q&A, Definitions, and Fill-in-the-Blank" },
 ] as const;
 
 type CardStyleId = (typeof CARD_STYLES)[number]["id"];
@@ -113,7 +114,7 @@ export function FlashcardBriefForm({
       {/* Card Style Toggle */}
       <div className="flex flex-col gap-2">
         <Label className="text-sm font-medium text-foreground">Card Format</Label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {CARD_STYLES.map((style) => {
             const selected = cardStyle === style.id;
             return (

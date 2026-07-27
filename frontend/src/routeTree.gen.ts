@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
+import { Route as PrototypeFlashcardsRouteImport } from './routes/prototype.flashcards'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
@@ -48,6 +49,11 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrototypeFlashcardsRoute = PrototypeFlashcardsRouteImport.update({
+  id: '/prototype/flashcards',
+  path: '/prototype/flashcards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks': typeof NotebooksIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
+  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
+    | '/prototype/flashcards'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/notebooks/$notebookId'
+    | '/prototype/flashcards'
     | '/settings/connection'
     | '/notebooks'
     | '/settings'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
+    | '/prototype/flashcards'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
+  PrototypeFlashcardsRoute: typeof PrototypeFlashcardsRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prototype/flashcards': {
+      id: '/prototype/flashcards'
+      path: '/prototype/flashcards'
+      fullPath: '/prototype/flashcards'
+      preLoaderRoute: typeof PrototypeFlashcardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/': {
       id: '/settings/'
       path: '/'
@@ -211,6 +231,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
+  PrototypeFlashcardsRoute: PrototypeFlashcardsRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport

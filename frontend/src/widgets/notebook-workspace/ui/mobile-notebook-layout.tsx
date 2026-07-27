@@ -3,7 +3,7 @@ import { Tabs, TabsContent } from "@/shared/ui/tabs";
 import { ChatPanel } from "@/features/notebook-chat";
 import { SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, MobileStudyMaterialsPanel } from "@/features/study-materials";
-import { StudioResources } from "@/features/notebooks";
+import { StudioResources, RightPane } from "@/features/notebooks";
 import type { UseStudioDialogsReturn } from "@/features/notebooks";
 import { MobileTabsHeader } from "./mobile-tabs-header";
 
@@ -32,22 +32,37 @@ export function MobileNotebookLayout({
         </TabsContent>
 
         <TabsContent value="studio" className="flex-1 mt-0 min-h-0">
-          <ScrollArea className="h-full">
-            <div className="p-3 space-y-3">
-              <StudioResources
-                notebookId={notebookId}
-                collapsed={false}
-                onGenerate={dialogs.handleGenerate}
-              />
-              <MobileStudyMaterialsPanel
-                notebookId={notebookId}
-                open={dialogs.studyMaterialsDialogOpen}
-                onOpenChange={dialogs.setStudyMaterialsDialogOpen}
-                selectedMaterialId={dialogs.selectedStudyMaterialId}
-                onSelectMaterial={dialogs.setSelectedStudyMaterialId}
-              />
-            </div>
-          </ScrollArea>
+          {dialogs.selectedStudyMaterialId ? (
+            <RightPane
+              notebookId={notebookId}
+              mode={{
+                kind: "viewer",
+                materialId: dialogs.selectedStudyMaterialId,
+              }}
+              onModeChange={(mode) => {
+                if (mode.kind === "select") {
+                  dialogs.setSelectedStudyMaterialId(null);
+                }
+              }}
+            />
+          ) : (
+            <ScrollArea className="h-full">
+              <div className="p-3 space-y-3">
+                <StudioResources
+                  notebookId={notebookId}
+                  collapsed={false}
+                  onGenerate={dialogs.handleGenerate}
+                />
+                <MobileStudyMaterialsPanel
+                  notebookId={notebookId}
+                  open={dialogs.studyMaterialsDialogOpen}
+                  onOpenChange={dialogs.setStudyMaterialsDialogOpen}
+                  selectedMaterialId={dialogs.selectedStudyMaterialId}
+                  onSelectMaterial={dialogs.setSelectedStudyMaterialId}
+                />
+              </div>
+            </ScrollArea>
+          )}
         </TabsContent>
       </Tabs>
       {dialogs.dialogOpen && (

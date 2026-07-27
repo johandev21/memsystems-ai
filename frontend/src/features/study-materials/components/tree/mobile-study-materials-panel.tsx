@@ -4,22 +4,18 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Separator } from "@/shared/ui/separator";
-import { MobileExpandedStudyMaterials } from "./mobile-expanded-study-materials";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface MobileStudyMaterialsPanelProps {
   notebookId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedMaterialId: string | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  selectedMaterialId?: string | null;
   onSelectMaterial: (materialId: string | null) => void;
 }
 
 export function MobileStudyMaterialsPanel({
   notebookId,
-  open,
-  onOpenChange,
-  selectedMaterialId,
   onSelectMaterial,
 }: MobileStudyMaterialsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -44,17 +40,6 @@ export function MobileStudyMaterialsPanel({
               <ChevronUp className="h-4 w-4" />
             )}
           </Button>
-          <MobileExpandedStudyMaterials
-            notebookId={notebookId}
-            open={open}
-            onOpenChange={(isOpen) => {
-              onOpenChange(isOpen);
-              if (!isOpen) {
-                onSelectMaterial(null);
-              }
-            }}
-            initialMaterialId={selectedMaterialId}
-          />
         </div>
       </div>
       {isExpanded && (
@@ -66,7 +51,6 @@ export function MobileStudyMaterialsPanel({
                 notebookId={notebookId}
                 onSelectMaterial={(materialId) => {
                   onSelectMaterial(materialId);
-                  onOpenChange(true);
                 }}
               />
             </CardContent>

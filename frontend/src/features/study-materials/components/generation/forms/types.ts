@@ -39,7 +39,7 @@ export interface BriefFormData {
   model: string;
   questionCount?: number;
   difficulty?: "easy" | "medium" | "hard";
-  cardStyle?: "qa" | "definition" | "cloze";
+  cardStyle?: "qa" | "definition" | "cloze" | "mixed";
   reportOptions?: ReportOptions;
   roadmapOptions?: RoadmapOptions;
   slideDeckOptions?: SlideDeckOptions;

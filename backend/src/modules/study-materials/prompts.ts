@@ -8,7 +8,7 @@ export interface QuizGenerationOptions {
 export interface FlashcardGenerationOptions {
   questionCount: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  cardStyle: 'qa' | 'definition' | 'cloze';
+  cardStyle: 'qa' | 'definition' | 'cloze' | 'mixed';
 }
 
 interface ReportOptions {
@@ -36,7 +36,7 @@ interface PromptTemplate {
     options?: {
       questionCount?: number;
       difficulty?: string;
-      cardStyle?: 'qa' | 'definition' | 'cloze';
+      cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
       reportOptions?: ReportOptions;
       roadmapOptions?: {
         phaseCount: number;
@@ -119,7 +119,9 @@ Use markdown formatting where appropriate.`,
             ? 'Question → Answer pairs'
             : options.cardStyle === 'definition'
               ? 'Term → Definition pairs'
-              : 'Fill-in-the-blank sentences with a missing word or phrase indicated by "___"'
+              : options.cardStyle === 'cloze'
+                ? 'Fill-in-the-blank sentences with a missing word or phrase indicated by "___"'
+                : 'Mixed format: generate a diverse combination of Question → Answer pairs, Term → Definition pairs, and Fill-in-the-blank sentences (with missing word indicated by "___").'
         }.`
       : '';
     return `${sourceBlock}${instructionsBlock}\n\n${countText} ${diffText} ${styleText}\n\nGenerate a set of flashcards, each containing a front (question) and back (answer).`;

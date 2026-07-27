@@ -166,6 +166,25 @@ export function useChatPanel(notebookId: string) {
     regenerate();
   }, [regenerate]);
 
+  useEffect(() => {
+    const handleSendPromptEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt: string; autoSend?: boolean }>;
+      const promptText = customEvent.detail?.prompt;
+      if (promptText?.trim()) {
+        if (customEvent.detail?.autoSend !== false) {
+          handleSubmit(promptText);
+        } else {
+          setInput(promptText);
+        }
+      }
+    };
+
+    window.addEventListener("send-chat-prompt", handleSendPromptEvent);
+    return () => {
+      window.removeEventListener("send-chat-prompt", handleSendPromptEvent);
+    };
+  }, [handleSubmit, setInput]);
+
   return {
     notebook,
     connection,

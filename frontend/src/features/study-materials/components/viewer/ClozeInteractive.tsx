@@ -1,0 +1,104 @@
+import { useState, useId, useEffect } from "react";
+import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { cn } from "@/shared/lib/utils";
+import { parseClozeCard } from "./card-type-detector";
+
+export interface ClozeInteractiveProps {
+  front: string;
+  back: string;
+  onAnswerChecked?: (isCorrect: boolean) => void;
+}
+
+export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteractiveProps) {
+  const [inputVal, setInputVal] = useState("");
+  const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
+  const inputId = useId();
+
+  // Reset state whenever front or back prompt changes
+  useEffect(() => {
+    setInputVal("");
+    setStatus("idle");
+  }, [front, back]);
+
+  const parsed = parseClozeCard(front, back);
+
+  const handleCheck = () => {
+    const userClean = inputVal.trim().toLowerCase();
+    const expectedClean = parsed.expected.trim().toLowerCase();
+
+    if (!userClean) return;
+
+    const isMatch = userClean === expectedClean || expectedClean.includes(userClean);
+    setStatus(isMatch ? "correct" : "incorrect");
+    onAnswerChecked?.(isMatch);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto text-center py-1">
+      {/* Sentence display with inline blank slot */}
+      <p className="text-lg md:text-xl font-medium leading-relaxed tracking-tight text-foreground">
+        <span>{parsed.prefix}</span>
+        <span className="inline-flex items-center px-3 py-1 mx-1.5 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 font-bold text-primary font-mono text-base transition-colors">
+          {inputVal || "____"}
+        </span>
+        <span>{parsed.suffix}</span>
+      </p>
+
+      {/* Input controls row */}
+      <div className="flex items-center justify-center gap-2.5 w-full max-w-sm">
+        <Input
+          id={inputId}
+          type="text"
+          value={inputVal}
+          onChange={(e) => {
+            setInputVal(e.target.value);
+            if (status !== "idle") setStatus("idle");
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleCheck();
+            }
+          }}
+          placeholder="Type missing word..."
+          className={cn(
+            "h-10 text-sm rounded-2xl text-center font-medium transition-all shadow-2xs focus-visible:ring-2",
+            status === "correct" && "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 focus-visible:ring-emerald-500/30",
+            status === "incorrect" && "border-destructive bg-destructive/10 text-destructive focus-visible:ring-destructive/30"
+          )}
+        />
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleCheck}
+          disabled={!inputVal.trim()}
+          className="h-10 px-4 text-xs font-semibold rounded-2xl gap-1.5 cursor-pointer shrink-0 transition-all shadow-xs"
+        >
+          Check <ArrowRight className="size-3.5" />
+        </Button>
+      </div>
+
+      {/* Visual Feedback Banner */}
+      {status === "correct" && (
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 animate-in fade-in zoom-in-95 duration-150">
+          <CheckCircle2 className="size-4 shrink-0" /> Correct answer!
+        </div>
+      )}
+      {status === "incorrect" && (
+        <div className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl text-xs bg-destructive/10 border border-destructive/20 animate-in fade-in zoom-in-95 duration-150 w-full max-w-sm mx-auto">
+          <div className="flex items-center gap-1.5 font-semibold text-destructive">
+            <XCircle className="size-4 shrink-0" /> Incorrect
+          </div>
+          <p className="text-foreground text-xs font-medium">
+            Correct Answer:{" "}
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              {parsed.expected}
+            </span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

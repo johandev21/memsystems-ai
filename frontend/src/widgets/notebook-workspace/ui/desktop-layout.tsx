@@ -9,7 +9,7 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
 import { SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, StudyMaterialsPanel } from "@/features/study-materials";
-import { StudioResources } from "@/features/notebooks";
+import { StudioResources, RightPane } from "@/features/notebooks";
 import type { UseStudioDialogsReturn } from "@/features/notebooks";
 import { SourcesPanelHeader } from "./sources-panel-header";
 import { StudioPanelHeader } from "./studio-panel-header";
@@ -110,27 +110,44 @@ export function DesktopLayout({
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
-            <StudioPanelHeader
-              collapsed={studioCollapsed}
-              onToggleCollapse={toggleStudioCollapse}
-            />
-            <ScrollArea className="flex-1">
-              <StudioResources
+            {dialogs.selectedStudyMaterialId ? (
+              <RightPane
                 notebookId={notebookId}
-                collapsed={studioCollapsed}
-                onGenerate={dialogs.handleGenerate}
+                mode={{
+                  kind: "viewer",
+                  materialId: dialogs.selectedStudyMaterialId,
+                }}
+                onModeChange={(mode) => {
+                  if (mode.kind === "select") {
+                    dialogs.setSelectedStudyMaterialId(null);
+                  }
+                }}
               />
-            </ScrollArea>
-            {!studioCollapsed && (
-              <div className="p-1.5 pt-0">
-                <StudyMaterialsPanel
-                  notebookId={notebookId}
-                  open={dialogs.studyMaterialsDialogOpen}
-                  onOpenChange={dialogs.setStudyMaterialsDialogOpen}
-                  selectedMaterialId={dialogs.selectedStudyMaterialId}
-                  onSelectMaterial={dialogs.setSelectedStudyMaterialId}
+            ) : (
+              <>
+                <StudioPanelHeader
+                  collapsed={studioCollapsed}
+                  onToggleCollapse={toggleStudioCollapse}
                 />
-              </div>
+                <ScrollArea className="flex-1">
+                  <StudioResources
+                    notebookId={notebookId}
+                    collapsed={studioCollapsed}
+                    onGenerate={dialogs.handleGenerate}
+                  />
+                </ScrollArea>
+                {!studioCollapsed && (
+                  <div className="p-1.5 pt-0">
+                    <StudyMaterialsPanel
+                      notebookId={notebookId}
+                      open={dialogs.studyMaterialsDialogOpen}
+                      onOpenChange={dialogs.setStudyMaterialsDialogOpen}
+                      selectedMaterialId={dialogs.selectedStudyMaterialId}
+                      onSelectMaterial={dialogs.setSelectedStudyMaterialId}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
           {dialogs.dialogOpen && (

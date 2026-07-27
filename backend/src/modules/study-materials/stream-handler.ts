@@ -52,7 +52,7 @@ export class StreamHandler {
       model?: string;
       questionCount?: number;
       difficulty?: 'easy' | 'medium' | 'hard';
-      cardStyle?: 'qa' | 'definition' | 'cloze';
+      cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
       reportOptions?: ReportGenerationOptions;
       roadmapOptions?: {
         phaseCount: number;
@@ -276,7 +276,7 @@ function buildOptions(input: {
   kind: StudyMaterialKind;
   questionCount?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
-  cardStyle?: 'qa' | 'definition' | 'cloze';
+  cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
   reportOptions?: ReportGenerationOptions;
   roadmapOptions?: {
     phaseCount: number;

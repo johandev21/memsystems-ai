@@ -25,7 +25,7 @@ export function useStudioDialogs() {
     setDialogOpen(false);
     setGenerateKind(null);
     setSelectedStudyMaterialId(materialId);
-    setStudyMaterialsDialogOpen(true);
+    setStudyMaterialsDialogOpen(false);
   };
 
   return {
