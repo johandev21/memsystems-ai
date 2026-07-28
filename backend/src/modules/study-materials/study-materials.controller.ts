@@ -84,7 +84,7 @@ const generateRequestSchema = z.object({
   reportOptions: reportOptionsSchema.optional(),
   roadmapOptions: z
     .object({
-      phaseCount: z.number().min(1).max(20),
+      phaseCount: z.number().min(0).max(50),
       detailLevel: z.enum(['basic', 'detailed']),
       includeTimeEstimates: z.boolean(),
       includeResources: z.boolean(),
@@ -92,7 +92,7 @@ const generateRequestSchema = z.object({
     .optional(),
   slideDeckOptions: z
     .object({
-      slideCount: z.number().min(1).max(50),
+      slideCount: z.number().min(0).max(50),
       style: z.enum(['concise', 'detailed', 'storytelling']),
       audience: z.enum(['beginner', 'intermediate', 'expert']),
       includeSpeakerNotes: z.boolean(),

@@ -16,6 +16,10 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
 import { Route as PrototypeFlashcardsRouteImport } from './routes/prototype.flashcards'
+import { Route as PrototypeQuizRouteImport } from './routes/prototype.quiz'
+import { Route as PrototypeReportRouteImport } from './routes/prototype.report'
+import { Route as PrototypeRoadmapRouteImport } from './routes/prototype.roadmap'
+import { Route as PrototypeSlidesRouteImport } from './routes/prototype.slides'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
@@ -54,6 +58,26 @@ const PrototypeFlashcardsRoute = PrototypeFlashcardsRouteImport.update({
   path: '/prototype/flashcards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrototypeQuizRoute = PrototypeQuizRouteImport.update({
+  id: '/prototype/quiz',
+  path: '/prototype/quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeReportRoute = PrototypeReportRouteImport.update({
+  id: '/prototype/report',
+  path: '/prototype/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeRoadmapRoute = PrototypeRoadmapRouteImport.update({
+  id: '/prototype/roadmap',
+  path: '/prototype/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeSlidesRoute = PrototypeSlidesRouteImport.update({
+  id: '/prototype/slides',
+  path: '/prototype/slides',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,6 +96,10 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/quiz': typeof PrototypeQuizRoute
+  '/prototype/report': typeof PrototypeReportRoute
+  '/prototype/roadmap': typeof PrototypeRoadmapRoute
+  '/prototype/slides': typeof PrototypeSlidesRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -82,6 +110,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/quiz': typeof PrototypeQuizRoute
+  '/prototype/report': typeof PrototypeReportRoute
+  '/prototype/roadmap': typeof PrototypeRoadmapRoute
+  '/prototype/slides': typeof PrototypeSlidesRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks': typeof NotebooksIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -94,6 +126,10 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/quiz': typeof PrototypeQuizRoute
+  '/prototype/report': typeof PrototypeReportRoute
+  '/prototype/roadmap': typeof PrototypeRoadmapRoute
+  '/prototype/slides': typeof PrototypeSlidesRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -107,6 +143,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/quiz'
+    | '/prototype/report'
+    | '/prototype/roadmap'
+    | '/prototype/slides'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -117,6 +157,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/quiz'
+    | '/prototype/report'
+    | '/prototype/roadmap'
+    | '/prototype/slides'
     | '/settings/connection'
     | '/notebooks'
     | '/settings'
@@ -128,6 +172,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/quiz'
+    | '/prototype/report'
+    | '/prototype/roadmap'
+    | '/prototype/slides'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -140,6 +188,10 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
   PrototypeFlashcardsRoute: typeof PrototypeFlashcardsRoute
+  PrototypeQuizRoute: typeof PrototypeQuizRoute
+  PrototypeReportRoute: typeof PrototypeReportRoute
+  PrototypeRoadmapRoute: typeof PrototypeRoadmapRoute
+  PrototypeSlidesRoute: typeof PrototypeSlidesRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -194,6 +246,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrototypeFlashcardsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prototype/quiz': {
+      id: '/prototype/quiz'
+      path: '/prototype/quiz'
+      fullPath: '/prototype/quiz'
+      preLoaderRoute: typeof PrototypeQuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype/report': {
+      id: '/prototype/report'
+      path: '/prototype/report'
+      fullPath: '/prototype/report'
+      preLoaderRoute: typeof PrototypeReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype/roadmap': {
+      id: '/prototype/roadmap'
+      path: '/prototype/roadmap'
+      fullPath: '/prototype/roadmap'
+      preLoaderRoute: typeof PrototypeRoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype/slides': {
+      id: '/prototype/slides'
+      path: '/prototype/slides'
+      fullPath: '/prototype/slides'
+      preLoaderRoute: typeof PrototypeSlidesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/': {
       id: '/settings/'
       path: '/'
@@ -232,6 +312,10 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
   PrototypeFlashcardsRoute: PrototypeFlashcardsRoute,
+  PrototypeQuizRoute: PrototypeQuizRoute,
+  PrototypeReportRoute: PrototypeReportRoute,
+  PrototypeRoadmapRoute: PrototypeRoadmapRoute,
+  PrototypeSlidesRoute: PrototypeSlidesRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport

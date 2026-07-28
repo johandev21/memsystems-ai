@@ -10,17 +10,13 @@ import {
   Globe,
   FileText,
   MessageSquare,
-  Users,
-  PenTool,
-  LayoutGrid,
-  PanelRight,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
-import { Badge } from "@/shared/ui/badge";
 import { FolderPicker } from "@/features/notebooks";
 import type { ModelOption } from "@/shared/api/models";
 import { sourcesQueryOptions } from "@/shared/api/sources";
@@ -28,14 +24,13 @@ import { cn } from "@/shared/lib/utils";
 import type { BaseMaterialFormProps, BriefFormData } from "./types";
 
 // ============================================================================
-// Module Constants
+// Module Types & Constants
 // ============================================================================
 
-type SlideCount = 5 | 10 | 15 | 20;
 type SlideStyle = "concise" | "detailed" | "storytelling";
 type AudienceLevel = "beginner" | "intermediate" | "expert";
 
-const SLIDE_COUNT_OPTIONS: SlideCount[] = [5, 10, 15, 20];
+const SLIDE_PRESETS = [5, 10, 15, 20];
 
 const STYLE_OPTIONS: { id: SlideStyle; label: string }[] = [
   { id: "concise", label: "Concise" },
@@ -63,16 +58,26 @@ export function SlideDeckBriefForm({
   disabled = false,
 }: BaseMaterialFormProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [slideCount, setSlideCount] = useState<SlideCount>(
-    (value.slideDeckOptions?.slideCount as SlideCount) ?? 10
+
+  const initialSlideCount = value.slideDeckOptions?.slideCount ?? 10;
+  const [slideCount, setSlideCount] = useState<number>(initialSlideCount);
+  const [isAutoMode, setIsAutoMode] = useState<boolean>(initialSlideCount === 0);
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(
+    initialSlideCount > 0 && !SLIDE_PRESETS.includes(initialSlideCount)
   );
+  const [customVal, setCustomVal] = useState<string>(
+    initialSlideCount > 0 && !SLIDE_PRESETS.includes(initialSlideCount)
+      ? String(initialSlideCount)
+      : "25"
+  );
+
   const [style, setStyle] = useState<SlideStyle>(
     value.slideDeckOptions?.style ?? "concise"
   );
   const [audience, setAudience] = useState<AudienceLevel>(
     value.slideDeckOptions?.audience ?? "intermediate"
   );
-  const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(
+  const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState<boolean>(
     value.slideDeckOptions?.includeSpeakerNotes ?? false
   );
 
@@ -87,82 +92,128 @@ export function SlideDeckBriefForm({
   };
 
   useEffect(() => {
-    update({ slideDeckOptions: { slideCount, style, audience, includeSpeakerNotes } });
-  }, [slideCount, style, audience, includeSpeakerNotes]);
+    update({
+      slideDeckOptions: {
+        slideCount: isAutoMode ? 0 : slideCount,
+        style,
+        audience,
+        includeSpeakerNotes,
+      },
+    });
+  }, [slideCount, isAutoMode, style, audience, includeSpeakerNotes]);
+
+  const handleCustomChange = (raw: string) => {
+    setCustomVal(raw);
+    const parsed = parseInt(raw, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      const clamped = Math.min(50, Math.max(1, parsed));
+      setSlideCount(clamped);
+    }
+  };
+
+  const handleCustomBlur = () => {
+    let parsed = parseInt(customVal, 10);
+    if (isNaN(parsed) || parsed < 1) parsed = 10;
+    if (parsed > 50) parsed = 50;
+    setCustomVal(String(parsed));
+    setSlideCount(parsed);
+  };
+
+  const slideLabel = isAutoMode
+    ? "Auto (AI Decides optimal slides)"
+    : `${slideCount} ${slideCount === 1 ? "Slide" : "Slides"}${slideCount >= 50 ? " (Max 50)" : ""}`;
 
   return (
-    <div className="flex gap-4 font-sans text-foreground animate-in fade-in duration-150">
-      {/* LEFT — Slide Preview Panel */}
-      <div className="w-[45%] shrink-0 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <PanelRight className="size-4 text-primary" />
-          <span className="text-xs font-semibold text-foreground">Preview</span>
+    <div className="flex flex-col gap-4 w-full font-sans text-foreground animate-in fade-in duration-150">
+      {/* Slide Count Selector */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <Label className="text-sm font-medium text-foreground">Number of Slides</Label>
+          <span className="text-xs font-mono font-medium text-primary">{slideLabel}</span>
         </div>
-        <div className="flex-1 border border-border rounded-2xl bg-card p-4 flex flex-col items-center justify-center gap-2 min-h-[360px]">
-          <SlidePreview
-            slideCount={slideCount}
-            style={style}
-            includeSpeakerNotes={includeSpeakerNotes}
-            audience={audience}
-          />
-        </div>
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          <Badge variant="outline" className="text-[10px] gap-1">
-            <LayoutGrid className="size-3" />
-            {slideCount} slides
-          </Badge>
-          <Badge variant="outline" className="text-[10px] gap-1">
-            <PenTool className="size-3" />
-            {style === "concise" ? "Concise" : style === "detailed" ? "Detailed" : "Story"}
-          </Badge>
-          <Badge variant="outline" className="text-[10px] gap-1">
-            <Users className="size-3" />
-            {audience === "beginner" ? "Beginner" : audience === "intermediate" ? "Intermed." : "Expert"}
-          </Badge>
-          {includeSpeakerNotes && (
-            <Badge variant="outline" className="text-[10px] gap-1">
-              <MessageSquare className="size-3" />
-              Notes
-            </Badge>
+
+        <div className="grid grid-cols-6 gap-2">
+          {/* Auto Mode button */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsAutoMode(true);
+              setIsCustomMode(false);
+              setSlideCount(0);
+            }}
+            className={cn(
+              "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1",
+              isAutoMode
+                ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+          >
+            <Wand2 className="size-3.5 shrink-0" />
+            Auto
+          </button>
+
+          {/* Preset Buttons */}
+          {SLIDE_PRESETS.map((cnt) => {
+            const selected = !isAutoMode && !isCustomMode && slideCount === cnt;
+            return (
+              <button
+                key={cnt}
+                type="button"
+                onClick={() => {
+                  setIsAutoMode(false);
+                  setIsCustomMode(false);
+                  setSlideCount(cnt);
+                }}
+                className={cn(
+                  "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1",
+                  selected
+                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                    : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                {selected && <Check className="size-3 shrink-0" />}
+                {cnt}
+              </button>
+            );
+          })}
+
+          {/* Custom Field Input / Button */}
+          {isCustomMode && !isAutoMode ? (
+            <div className="relative flex items-center h-9">
+              <input
+                type="number"
+                min={1}
+                max={50}
+                value={customVal}
+                onChange={(e) => handleCustomChange(e.target.value)}
+                onBlur={handleCustomBlur}
+                placeholder="1-50"
+                className="w-full h-9 px-2 text-center text-xs font-semibold bg-card border border-primary text-foreground rounded-xl outline-none focus:ring-1 focus:ring-primary/40 shadow-2xs"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsAutoMode(false);
+                setIsCustomMode(true);
+                const parsed = parseInt(customVal, 10) || 25;
+                setSlideCount(Math.min(50, Math.max(1, parsed)));
+              }}
+              className="h-9 rounded-xl text-xs font-medium border border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-center cursor-pointer flex items-center justify-center"
+            >
+              Custom
+            </button>
           )}
         </div>
       </div>
 
-      {/* RIGHT — Compact Form */}
-      <div className="flex-1 flex flex-col gap-3 min-w-0">
-        {/* Slide count */}
+      {/* Style & Audience row */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Presentation Style */}
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <Label className="text-xs font-medium text-muted-foreground">Slides</Label>
-            <span className="text-[10px] font-mono font-medium text-primary">
-              {slideCount} slides
-            </span>
-          </div>
-          <div className="flex gap-1.5">
-            {SLIDE_COUNT_OPTIONS.map((cnt) => {
-              const selected = slideCount === cnt;
-              return (
-                <button
-                  key={cnt}
-                  type="button"
-                  onClick={() => setSlideCount(cnt)}
-                  className={cn(
-                    "flex-1 h-9 rounded-xl text-sm font-medium border transition-all cursor-pointer",
-                    selected
-                      ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                      : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  {cnt}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Style */}
-        <div className="flex flex-col gap-2">
-          <Label className="text-xs font-medium text-muted-foreground">Style</Label>
+          <Label className="text-sm font-medium text-foreground">Style</Label>
           <div className="flex gap-1.5">
             {STYLE_OPTIONS.map((opt) => {
               const selected = style === opt.id;
@@ -172,7 +223,7 @@ export function SlideDeckBriefForm({
                   type="button"
                   onClick={() => setStyle(opt.id)}
                   className={cn(
-                    "flex-1 h-9 rounded-xl text-sm font-medium border transition-all cursor-pointer",
+                    "flex-1 h-9 rounded-xl text-xs font-medium border transition-all cursor-pointer",
                     selected
                       ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
                       : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -185,9 +236,9 @@ export function SlideDeckBriefForm({
           </div>
         </div>
 
-        {/* Audience */}
+        {/* Target Audience */}
         <div className="flex flex-col gap-2">
-          <Label className="text-xs font-medium text-muted-foreground">Audience</Label>
+          <Label className="text-sm font-medium text-foreground">Audience</Label>
           <div className="flex gap-1.5">
             {AUDIENCE_OPTIONS.map((opt) => {
               const selected = audience === opt.id;
@@ -197,7 +248,7 @@ export function SlideDeckBriefForm({
                   type="button"
                   onClick={() => setAudience(opt.id)}
                   className={cn(
-                    "flex-1 h-9 rounded-xl text-sm font-medium border transition-all cursor-pointer",
+                    "flex-1 h-9 rounded-xl text-xs font-medium border transition-all cursor-pointer",
                     selected
                       ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
                       : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -209,78 +260,79 @@ export function SlideDeckBriefForm({
             })}
           </div>
         </div>
+      </div>
 
-        {/* Speaker notes */}
-        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
-          <Checkbox
-            checked={includeSpeakerNotes}
-            onCheckedChange={(v) => setIncludeSpeakerNotes(v === true)}
-          />
-          <MessageSquare className="size-3.5 text-primary" />
-          Speaker notes
-        </label>
+      {/* Speaker Notes Checkbox */}
+      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none py-0.5">
+        <Checkbox
+          checked={includeSpeakerNotes}
+          onCheckedChange={(v) => setIncludeSpeakerNotes(v === true)}
+        />
+        <MessageSquare className="size-3.5 text-primary" />
+        Include detailed speaker notes for each slide
+      </label>
 
-        {/* Instructions */}
+      {/* Knowledge Sources */}
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-sm font-medium text-foreground">
+          Knowledge Sources{!hasInstructions && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        <SlideDeckSourcePopover
+          sources={sources}
+          selectedIds={value.sourceIds}
+          onChange={(sourceIds) => update({ sourceIds })}
+        />
+      </div>
+
+      {/* Custom Instructions */}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="brief-slide-deck" className="text-sm font-medium text-foreground">
+          Custom Instructions{!hasSources && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        <Textarea
+          id="brief-slide-deck"
+          ref={textareaRef}
+          value={value.brief}
+          onChange={(e) => update({ brief: e.target.value })}
+          placeholder="Describe topic details, key talking points, or desired structure..."
+          className="min-h-[70px] max-h-[180px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
+          disabled={disabled}
+        />
+      </div>
+
+      {/* Folder + Model */}
+      <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="brief-slide-deck" className="text-xs font-medium text-muted-foreground">
-            Instructions{!hasSources && <span className="text-destructive ml-0.5">*</span>}
-          </Label>
-          <Textarea
-            id="brief-slide-deck"
-            ref={textareaRef}
-            value={value.brief}
-            onChange={(e) => update({ brief: e.target.value })}
-            placeholder="Describe the topic and key points for the slide deck..."
-            className="min-h-[60px] max-h-[200px] text-xs resize-none break-all max-w-full overflow-x-hidden w-full"
+          <Label className="text-xs font-medium text-muted-foreground">Destination Folder</Label>
+          <FolderPicker
+            notebookId={notebookId}
+            value={value.folderId}
+            onChange={(folderId) => update({ folderId })}
             disabled={disabled}
           />
         </div>
 
-        {/* Sources */}
         <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium text-muted-foreground">
-            Knowledge Sources{!hasInstructions && <span className="text-destructive ml-0.5">*</span>}
-          </Label>
-          <SlideDeckSourcePopover
-            sources={sources}
-            selectedIds={value.sourceIds}
-            onChange={(sourceIds) => update({ sourceIds })}
+          <Label className="text-xs font-medium text-muted-foreground">AI Intelligence Model</Label>
+          <SlideDeckModelPopover
+            models={models}
+            selectedModel={value.model}
+            onModelChange={(model) => update({ model })}
+            disabled={disabled}
           />
         </div>
-
-        {/* Folder + Model */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium text-muted-foreground">Destination Folder</Label>
-            <FolderPicker
-              notebookId={notebookId}
-              value={value.folderId}
-              onChange={(folderId) => update({ folderId })}
-              disabled={disabled}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium text-muted-foreground">AI Intelligence Model</Label>
-            <SlideDeckModelPopover
-              models={models}
-              selectedModel={value.model}
-              onModelChange={(model) => update({ model })}
-              disabled={disabled}
-            />
-          </div>
-        </div>
-
-        {/* Submit */}
-        <Button
-          type="button"
-          className="w-full h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all mt-1"
-          disabled={!canSubmit}
-          onClick={onSubmit}
-        >
-          <Sparkles className="size-4" />
-          {submitLabel}
-        </Button>
       </div>
+
+      {/* Submit Button */}
+      <Button
+        type="button"
+        className="w-full h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all mt-1"
+        disabled={!canSubmit}
+        onClick={onSubmit}
+      >
+        <Sparkles className="size-4" />
+        {submitLabel}
+      </Button>
     </div>
   );
 }
@@ -332,7 +384,7 @@ function SlideDeckSourcePopover({
           <Button
             variant="outline"
             size="sm"
-            className="h-8 rounded-2xl border-border bg-card hover:bg-muted text-xs font-medium gap-2 px-3.5 justify-between w-full"
+            className="h-9 rounded-2xl border-border bg-card hover:bg-muted text-xs font-medium gap-2 px-3.5 justify-between w-full"
           >
             <div className="flex items-center gap-2 truncate">
               <BookOpen className="size-4 text-primary shrink-0" />
@@ -488,82 +540,5 @@ function SlideDeckModelPopover({
         </div>
       </PopoverContent>
     </Popover>
-  );
-}
-
-// ============================================================================
-// Decorative Slide Preview
-// ============================================================================
-
-function SlidePreview({
-  slideCount,
-  style,
-  includeSpeakerNotes,
-  audience,
-}: {
-  slideCount: SlideCount;
-  style: SlideStyle;
-  includeSpeakerNotes: boolean;
-  audience: AudienceLevel;
-}) {
-  const visibleSlides = Math.min(slideCount, 3);
-  const sampleTitles: Record<AudienceLevel, string[]> = {
-    beginner: ["Introduction", "Key Concepts", "Summary"],
-    intermediate: ["Context & Setup", "Deep Dive", "Practical Takeaways"],
-    expert: ["Problem Statement", "Analysis Framework", "Conclusions & Next Steps"],
-  };
-
-  const titles = sampleTitles[audience];
-
-  const bodyLinesByStyle: Record<SlideStyle, number> = {
-    concise: 2,
-    detailed: 4,
-    storytelling: 3,
-  };
-
-  const bodyLines = bodyLinesByStyle[style];
-
-  return (
-    <div className="flex flex-col items-center gap-3 w-full max-w-[280px]">
-      {Array.from({ length: visibleSlides }).map((_, i) => (
-        <div
-          key={i}
-          className={cn(
-            "w-full rounded-lg border bg-background p-3 flex flex-col gap-2 shadow-sm",
-            i === 0 ? "border-primary/40" : "border-border"
-          )}
-        >
-          <div className="w-full h-1.5 rounded-full bg-primary/40" />
-          <span className="text-[10px] font-semibold text-foreground text-left">
-            {titles[i] || `Slide ${i + 1}`}
-          </span>
-          <div className="flex flex-col gap-1">
-            {Array.from({ length: bodyLines }).map((_, j) => (
-              <div
-                key={j}
-                className="h-1 rounded-full bg-muted-foreground/20"
-                style={{ width: `${85 - j * 15}%` }}
-              />
-            ))}
-          </div>
-          {includeSpeakerNotes && (
-            <div className="flex items-center gap-1.5 pt-1 mt-1 border-t border-border">
-              <MessageSquare className="size-3 text-muted-foreground/50" />
-              <div className="h-1 flex-1 rounded-full bg-muted-foreground/15" />
-            </div>
-          )}
-        </div>
-      ))}
-
-      {slideCount > 3 && (
-        <div className="flex items-center gap-2 w-full">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-[10px] text-muted-foreground font-medium">
-            +{slideCount - 3} more slides
-          </span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-      )}
-    </div>
   );
 }

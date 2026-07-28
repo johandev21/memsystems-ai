@@ -189,6 +189,9 @@ importers:
       '@tanstack/router-plugin':
         specifier: ^1.168.23
         version: 1.168.23(@tanstack/react-router@1.170.18(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(esbuild@0.28.1)(rolldown@1.1.5)(supports-color@8.1.1)(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1))(webpack@5.106.2(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.23))
+      '@types/reveal.js':
+        specifier: ^5.2.2
+        version: 5.2.2
       '@xyflow/react':
         specifier: ^12.11.1
         version: 12.11.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(immer@10.2.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -243,6 +246,9 @@ importers:
       react-resizable-panels:
         specifier: ^4.12.2
         version: 4.12.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      reveal.js:
+        specifier: ^6.0.1
+        version: 6.0.1
       shadcn:
         specifier: ^4.14.0
         version: 4.14.1(supports-color@8.1.1)(typescript@6.0.3)
@@ -2578,6 +2584,9 @@ packages:
 
   '@types/react@19.2.17':
     resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+
+  '@types/reveal.js@5.2.2':
+    resolution: {integrity: sha512-U6wdIeFZPR77zjaZCrFNPzKjjfdFr4Dj0WUAZ+UYgXGjwqYCnjpCngeS0hb+28FLL0QzE9jXBikvB7xxAQi5sg==}
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -5599,6 +5608,9 @@ packages:
   reusify@1.1.0:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
+
+  reveal.js@6.0.1:
+    resolution: {integrity: sha512-9eacArNIgqO2HGWOK+93gJNn+gvdGDVbSq+i2u3Ja9kjiHps0XNLpgYTZTYjKRH91uXy3clGimeGiw4umHG/tg==}
 
   robust-predicates@3.0.3:
     resolution: {integrity: sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==}
@@ -8732,6 +8744,8 @@ snapshots:
   '@types/react@19.2.17':
     dependencies:
       csstype: 3.2.3
+
+  '@types/reveal.js@5.2.2': {}
 
   '@types/send@1.2.1':
     dependencies:
@@ -12000,6 +12014,8 @@ snapshots:
       signal-exit: 4.1.0
 
   reusify@1.1.0: {}
+
+  reveal.js@6.0.1: {}
 
   robust-predicates@3.0.3: {}
 
