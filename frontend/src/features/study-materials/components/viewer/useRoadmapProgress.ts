@@ -4,50 +4,29 @@ export interface RoadmapTopic {
   id: string;
   title: string;
   description?: string;
+  order?: number;
+  keyTakeaways?: string[];
 }
 
 export interface RoadmapPhase {
   id: string;
   title: string;
   description?: string;
+  color?: string;
+  order?: number;
   topics: RoadmapTopic[];
 }
 
-export function useRoadmapProgress(materialId: string, phases: RoadmapPhase[]) {
-  const [completedTopics, setCompletedTopics] = useState<
-    Record<string, boolean>
-  >(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(`roadmap-progress-${materialId}`);
-        return stored ? JSON.parse(stored) : {};
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
-
+export function useRoadmapProgress(_materialId: string, phases: RoadmapPhase[]) {
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>(
     () => {
       const initial: Record<string, boolean> = {};
-      if (phases.length > 0 && phases[0]) {
-        initial[phases[0].id] = true;
-      }
+      phases.forEach((p) => {
+        initial[p.id] = true;
+      });
       return initial;
     },
   );
-
-  const toggleTopic = (topicId: string) => {
-    const next = { ...completedTopics, [topicId]: !completedTopics[topicId] };
-    setCompletedTopics(next);
-    try {
-      localStorage.setItem(
-        `roadmap-progress-${materialId}`,
-        JSON.stringify(next),
-      );
-    } catch {}
-  };
 
   const togglePhase = (phaseId: string) => {
     setExpandedPhases((prev) => ({
@@ -56,29 +35,28 @@ export function useRoadmapProgress(materialId: string, phases: RoadmapPhase[]) {
     }));
   };
 
-  const resetProgress = () => {
-    setCompletedTopics({});
-    try {
-      localStorage.removeItem(`roadmap-progress-${materialId}`);
-    } catch {}
+  const expandAllPhases = () => {
+    const next: Record<string, boolean> = {};
+    phases.forEach((p) => {
+      next[p.id] = true;
+    });
+    setExpandedPhases(next);
+  };
+
+  const collapseAllPhases = () => {
+    setExpandedPhases({});
   };
 
   const allTopics = phases.flatMap((p) => p.topics);
   const totalTopicsCount = allTopics.length;
-  const completedCount = allTopics.filter((t) => completedTopics[t.id]).length;
-  const progressPercent =
-    totalTopicsCount > 0
-      ? Math.round((completedCount / totalTopicsCount) * 100)
-      : 0;
+  const totalPhasesCount = phases.length;
 
   return {
-    completedTopics,
     expandedPhases,
-    toggleTopic,
     togglePhase,
-    resetProgress,
+    expandAllPhases,
+    collapseAllPhases,
     totalTopicsCount,
-    completedCount,
-    progressPercent,
+    totalPhasesCount,
   };
 }

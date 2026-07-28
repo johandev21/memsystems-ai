@@ -14,8 +14,6 @@ export interface ReportOptions {
 export interface RoadmapOptions {
   phaseCount: number;
   detailLevel: "basic" | "detailed";
-  includeTimeEstimates: boolean;
-  includeResources: boolean;
 }
 
 export interface SlideDeckOptions {

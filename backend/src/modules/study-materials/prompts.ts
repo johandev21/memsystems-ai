@@ -41,8 +41,6 @@ interface PromptTemplate {
       roadmapOptions?: {
         phaseCount: number;
         detailLevel: 'basic' | 'detailed';
-        includeTimeEstimates: boolean;
-        includeResources: boolean;
       };
       slideDeckOptions?: {
         slideCount: number;
@@ -61,7 +59,8 @@ interface PromptTemplate {
 }
 
 const quizTemplate: PromptTemplate = {
-  system: `You are an expert quiz maker. Generate a quiz based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-quiz'). It must end with the English suffix '-quiz'.
+  system: `You are an expert quiz maker. Generate a quiz based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-quiz') ending with '-quiz'.
+All question prompts and option texts MUST use natural language with proper capitalization and spaces.
 Each question must have 2-6 options with exactly one correct answer.
 Every option must have an explanation of why it is correct or incorrect.
 Questions should test understanding, not just recall.
@@ -91,7 +90,8 @@ Randomize which option is correct across questions.`,
 
 const simpleFlashcardTemplate: PromptTemplate = {
   system: `You are an expert at creating study flashcards.
-Generate a set of clear, concise flashcards based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-flashcards'). It must end with the English suffix '-flashcards'.
+Generate a set of clear, concise flashcards based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-flashcards') ending with '-flashcards'.
+All flashcard fronts and backs MUST use natural language with proper capitalization and spaces.
 Each flashcard must have a 'front' (a clear question or prompt) and a 'back' (a complete but concise answer).
 Use markdown formatting where appropriate.`,
   user: (brief, sourceTexts, options) => {
@@ -129,7 +129,8 @@ Use markdown formatting where appropriate.`,
 };
 
 const reportTemplate: PromptTemplate = {
-  system: `You are an expert report writer. Generate a structured report based on the instructions or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-report'). It must end with the English suffix '-report'.
+  system: `You are an expert report writer. Generate a structured report based on the instructions or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-report') ending with '-report'.
+All section headings and summary text MUST use natural Title Case and proper sentence capitalization with spaces. NEVER format section headings in kebab-case.
 Start with a brief summary (1-2 sentences).
 Then create sections with clear headings and detailed markdown bodies.
 Sections should flow logically and cover the key topics.`,
@@ -163,11 +164,11 @@ Sections should flow logically and cover the key topics.`,
 };
 
 const roadmapTemplate: PromptTemplate = {
-  system: `You are an expert learning designer. Create a structured learning roadmap. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-roadmap'). It must end with the English suffix '-roadmap'.
+  system: `You are an expert learning designer. Create a structured learning roadmap. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. ONLY the top-level 'title' field must be formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-roadmap') ending with '-roadmap'.
+All phase titles and topic titles MUST use natural Title Case capitalization with spaces (e.g. 'Life and Key Milestones', 'Influences and Context', 'Major Works Overview', 'Hello Brazil and Chile'). NEVER use kebab-case for phase titles or topic titles.
 Organize content into phases, each containing ordered topics.
 Each phase should have a clear title and optional description.
-Topics should build upon each other logically.
-Include estimated minutes for each topic when possible.`,
+Topics should build upon each other logically.`,
   user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`
@@ -186,18 +187,13 @@ Include estimated minutes for each topic when possible.`,
             : 'Keep topics concise with brief descriptions'
         }.`
       : '';
-    const estimatesText = opts?.includeTimeEstimates
-      ? 'Include estimated minutes for each topic.'
-      : '';
-    const resourcesText = opts?.includeResources
-      ? 'Include suggested resources or references for each phase where applicable.'
-      : '';
-    return `${sourceBlock}${instructionsBlock}\n\n${phaseText} ${detailText}\n${estimatesText} ${resourcesText}\n\nGenerate a learning roadmap with phases and ordered topics.`;
+    return `${sourceBlock}${instructionsBlock}\n\n${phaseText} ${detailText}\n\nGenerate a learning roadmap with phases and ordered topics.`;
   },
 };
 
 const slideDeckTemplate: PromptTemplate = {
-  system: `You are an expert presentation designer. Create a slide deck. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-slide-deck'). It must end with the English suffix '-slide-deck'.
+  system: `You are an expert presentation designer. Create a slide deck. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-slide-deck') ending with '-slide-deck'.
+All slide titles MUST use natural Title Case capitalization with spaces.
 Each slide should have a clear title and concise body content.
 Use markdown formatting for slide bodies.
 Keep slides focused - one idea per slide.
@@ -233,7 +229,8 @@ Optional speaker notes should provide additional context.`,
 };
 
 const mindMapTemplate: PromptTemplate = {
-  system: `You are an expert at visualizing knowledge structures. Create a mind map. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the 'title' field. The title must be concise (a bit short) and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, with all spaces replaced by hyphens and accented characters normalized to English letters, e.g. 'concepcion-de-socrates-platon-y-aristoteles-mind-map'). It must end with the English suffix '-mind-map'.
+  system: `You are an expert at visualizing knowledge structures. Create a mind map. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-mind-map') ending with '-mind-map'.
+All node labels MUST use natural Title Case capitalization with spaces.
 Generate nodes with clear labels and edges showing relationships.
 Most edges should be directed (from parent to child concept).
 Use optional colors to group related nodes.

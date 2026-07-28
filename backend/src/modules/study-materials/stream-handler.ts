@@ -57,8 +57,6 @@ export class StreamHandler {
       roadmapOptions?: {
         phaseCount: number;
         detailLevel: 'basic' | 'detailed';
-        includeTimeEstimates: boolean;
-        includeResources: boolean;
       };
       slideDeckOptions?: {
         slideCount: number;
@@ -281,8 +279,6 @@ function buildOptions(input: {
   roadmapOptions?: {
     phaseCount: number;
     detailLevel: 'basic' | 'detailed';
-    includeTimeEstimates: boolean;
-    includeResources: boolean;
   };
   slideDeckOptions?: {
     slideCount: number;

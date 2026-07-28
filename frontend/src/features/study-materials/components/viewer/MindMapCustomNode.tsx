@@ -51,7 +51,7 @@ export function MindMapCustomNode({ id, data }: MindMapCustomNodeProps) {
           className="h-3 w-3 shrink-0 opacity-40 group-hover:opacity-75 transition-opacity"
           style={{ color: accentColor }}
         />
-        <span className="text-xs font-semibold leading-snug line-clamp-2 select-none font-sans break-words">
+        <span className="text-xs font-semibold leading-snug line-clamp-2 select-none font-sans wrap-break-words">
           {data.label}
         </span>
       </div>

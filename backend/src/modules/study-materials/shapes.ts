@@ -65,7 +65,7 @@ export const RoadmapTopic = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
   description: z.string().max(5000),
-  estimatedMinutes: z.number().int().min(0),
+  estimatedMinutes: z.number().int().min(0).optional(),
   order: z.number().int().min(0),
 });
 

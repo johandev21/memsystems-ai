@@ -9,8 +9,6 @@ import {
   BookOpen,
   Globe,
   FileText,
-  Clock,
-  Link2,
   Layers,
   Compass,
   Wand2,
@@ -69,12 +67,6 @@ export function RoadmapBriefForm({
   const [detailLevel, setDetailLevel] = useState<DetailLevel>(
     value.roadmapOptions?.detailLevel ?? "detailed",
   );
-  const [includeTimeEstimates, setIncludeTimeEstimates] = useState<boolean>(
-    value.roadmapOptions?.includeTimeEstimates ?? true,
-  );
-  const [includeResources, setIncludeResources] = useState<boolean>(
-    value.roadmapOptions?.includeResources ?? false,
-  );
 
   const { data: sources = [] } = useQuery(sourcesQueryOptions(notebookId));
 
@@ -91,11 +83,9 @@ export function RoadmapBriefForm({
       roadmapOptions: {
         phaseCount: isAutoMode ? 0 : phaseCount,
         detailLevel,
-        includeTimeEstimates,
-        includeResources,
       },
     });
-  }, [phaseCount, isAutoMode, detailLevel, includeTimeEstimates, includeResources]);
+  }, [phaseCount, isAutoMode, detailLevel]);
 
   const handleCustomChange = (raw: string) => {
     setCustomVal(raw);
@@ -241,33 +231,6 @@ export function RoadmapBriefForm({
             );
           })}
         </div>
-      </div>
-
-      {/* Toggles: Time estimates & Resources */}
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex items-center gap-2.5 px-3 py-2 rounded-2xl border border-border bg-card cursor-pointer hover:bg-muted/30 transition-colors">
-          <Clock className="size-4 text-primary shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-xs font-medium text-foreground block">Time estimates</span>
-            <p className="text-[10px] text-muted-foreground truncate">Estimated minutes per topic</p>
-          </div>
-          <Checkbox
-            checked={includeTimeEstimates}
-            onCheckedChange={(v) => setIncludeTimeEstimates(v === true)}
-          />
-        </label>
-
-        <label className="flex items-center gap-2.5 px-3 py-2 rounded-2xl border border-border bg-card cursor-pointer hover:bg-muted/30 transition-colors">
-          <Link2 className="size-4 text-primary shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-xs font-medium text-foreground block">Resources</span>
-            <p className="text-[10px] text-muted-foreground truncate">Readings & exercises</p>
-          </div>
-          <Checkbox
-            checked={includeResources}
-            onCheckedChange={(v) => setIncludeResources(v === true)}
-          />
-        </label>
       </div>
 
       {/* Knowledge Sources */}

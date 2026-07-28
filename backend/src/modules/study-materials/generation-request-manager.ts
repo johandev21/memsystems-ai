@@ -31,8 +31,6 @@ export interface StartGenerationInput {
   roadmapOptions?: {
     phaseCount: number;
     detailLevel: 'basic' | 'detailed';
-    includeTimeEstimates: boolean;
-    includeResources: boolean;
   };
   slideDeckOptions?: {
     slideCount: number;

@@ -86,8 +86,6 @@ const generateRequestSchema = z.object({
     .object({
       phaseCount: z.number().min(0).max(50),
       detailLevel: z.enum(['basic', 'detailed']),
-      includeTimeEstimates: z.boolean(),
-      includeResources: z.boolean(),
     })
     .optional(),
   slideDeckOptions: z

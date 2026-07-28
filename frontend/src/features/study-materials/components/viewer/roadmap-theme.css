@@ -1,0 +1,46 @@
+/* Roadmap View Theme Variables - Integrated with Design System globals.css */
+
+:root {
+  --roadmap-milestone-bg: var(--card);
+  --roadmap-milestone-text: var(--foreground);
+  --roadmap-milestone-border: var(--border);
+  --roadmap-milestone-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  --roadmap-stem-color: var(--primary);
+  --roadmap-node-bg: var(--card);
+  --roadmap-node-text: var(--card-foreground);
+  --roadmap-node-border: var(--border);
+  --roadmap-node-hover-border: var(--primary);
+  --roadmap-node-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
+  --roadmap-check-bg: color-mix(in srgb, var(--primary) 12%, transparent);
+  --roadmap-check-text: var(--primary);
+  --roadmap-popover-bg: var(--card);
+  --roadmap-popover-text: var(--card-foreground);
+  --roadmap-popover-border: var(--border);
+  --roadmap-popover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --roadmap-badge-bg: color-mix(in srgb, var(--primary) 10%, transparent);
+  --roadmap-badge-text: var(--primary);
+  --roadmap-badge-border: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.dark,
+[data-theme="dark"] {
+  --roadmap-milestone-bg: var(--card);
+  --roadmap-milestone-text: var(--foreground);
+  --roadmap-milestone-border: var(--border);
+  --roadmap-milestone-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.3);
+  --roadmap-stem-color: var(--primary);
+  --roadmap-node-bg: var(--card);
+  --roadmap-node-text: var(--card-foreground);
+  --roadmap-node-border: var(--border);
+  --roadmap-node-hover-border: var(--primary);
+  --roadmap-node-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+  --roadmap-check-bg: color-mix(in srgb, var(--primary) 15%, transparent);
+  --roadmap-check-text: var(--primary);
+  --roadmap-popover-bg: var(--card);
+  --roadmap-popover-text: var(--card-foreground);
+  --roadmap-popover-border: var(--border);
+  --roadmap-popover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --roadmap-badge-bg: color-mix(in srgb, var(--primary) 15%, transparent);
+  --roadmap-badge-text: var(--primary);
+  --roadmap-badge-border: color-mix(in srgb, var(--primary) 30%, transparent);
+}
