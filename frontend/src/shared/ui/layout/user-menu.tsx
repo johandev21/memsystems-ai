@@ -14,11 +14,7 @@ import {
 import { Skeleton } from "@/shared/ui/skeleton";
 import { authClient } from "@/shared/auth";
 
-export function UserMenu({
-  onOpenChange,
-}: {
-  onOpenChange?: (open: boolean) => void;
-}) {
+export function UserMenu() {
   const navigate = useNavigate();
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
@@ -31,7 +27,7 @@ export function UserMenu({
 
 
   return (
-    <DropdownMenu onOpenChange={onOpenChange}>
+    <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <Button variant="ghost" size="icon" className="cursor-pointer" />
