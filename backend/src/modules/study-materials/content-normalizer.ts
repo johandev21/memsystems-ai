@@ -102,15 +102,58 @@ export function normalizeQuizContent(content: any): any {
       normalizedOptions.length = 6;
     }
 
-    let correctOptionIndex = 0;
-    if (typeof q.correctOptionIndex === 'number') {
-      correctOptionIndex = q.correctOptionIndex;
-    } else if (typeof q.correctOptionIndex === 'string') {
-      const idx = normalizedOptions.findIndex(
-        (opt: any) => opt.text === q.correctOptionIndex,
+    let correctOptionIndex = -1;
+    const rawCorrect =
+      q.correctOptionIndex ??
+      q.correct_option_index ??
+      q.correctIndex ??
+      q.correctAnswer ??
+      q.correct_answer ??
+      q.answer;
+
+    if (typeof rawCorrect === 'number') {
+      correctOptionIndex = rawCorrect;
+    } else if (typeof rawCorrect === 'string') {
+      const trimmed = rawCorrect.trim();
+      if (/^[a-fA-F]$/.test(trimmed)) {
+        correctOptionIndex = trimmed.toUpperCase().charCodeAt(0) - 65;
+      } else if (/^option\s*([a-fA-F])$/i.test(trimmed)) {
+        const letter = trimmed.match(/^option\s*([a-fA-F])$/i)![1];
+        correctOptionIndex = letter.toUpperCase().charCodeAt(0) - 65;
+      } else if (/^\d+$/.test(trimmed)) {
+        correctOptionIndex = parseInt(trimmed, 10);
+      } else {
+        const idx = normalizedOptions.findIndex(
+          (opt: any) => opt.text.trim().toLowerCase() === trimmed.toLowerCase(),
+        );
+        if (idx >= 0) {
+          correctOptionIndex = idx;
+        }
+      }
+    }
+
+    // Check option explanations for explicit "Correct" or "Right answer" vs "Incorrect"
+    if (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length) {
+      const explicitCorrectIdx = normalizedOptions.findIndex((opt: any) =>
+        /^correct/i.test(opt.explanation.trim()) || /^right/i.test(opt.explanation.trim()),
       );
-      if (idx >= 0) {
-        correctOptionIndex = idx;
+      if (explicitCorrectIdx >= 0) {
+        correctOptionIndex = explicitCorrectIdx;
+      }
+    }
+
+    if (correctOptionIndex >= 0 && correctOptionIndex < normalizedOptions.length) {
+      const currentOpt = normalizedOptions[correctOptionIndex];
+      if (
+        /^incorrect/i.test(currentOpt.explanation.trim()) ||
+        /^not quite/i.test(currentOpt.explanation.trim())
+      ) {
+        const realCorrectIdx = normalizedOptions.findIndex((opt: any) =>
+          /^correct/i.test(opt.explanation.trim()) || /^right/i.test(opt.explanation.trim()),
+        );
+        if (realCorrectIdx >= 0) {
+          correctOptionIndex = realCorrectIdx;
+        }
       }
     }
 

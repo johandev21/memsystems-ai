@@ -15,6 +15,8 @@ const QuizQuestionInput = z.object({
   prompt: z.string().min(0).max(2000),
   options: z.array(QuizOptionInput).min(2).max(6),
   correctOptionIndex: z.number().int().min(0).max(5),
+  hint: z.string().optional(),
+  topic: z.string().optional(),
 });
 
 const QuizEditorContent = z.object({

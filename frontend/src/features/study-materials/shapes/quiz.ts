@@ -10,6 +10,8 @@ export const QuizQuestion = z.object({
   prompt: z.string().min(1).max(2000),
   options: z.array(QuizQuestionOption).min(2).max(6),
   correctOptionIndex: z.number().int().min(0),
+  hint: z.string().optional(),
+  topic: z.string().optional(),
 });
 
 export const QuizContent = z.object({

@@ -62,8 +62,8 @@ const quizTemplate: PromptTemplate = {
   system: `You are an expert quiz maker. Generate a quiz based on the topic, instructions, or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-quiz') ending with '-quiz'.
 All question prompts and option texts MUST use natural language with proper capitalization and spaces.
 Each question must have 2-6 options with exactly one correct answer.
-Every option must have an explanation of why it is correct or incorrect.
-Questions should test understanding, not just recall.
+Every option must have a detailed explanation of why it is correct or incorrect.
+Questions should test conceptual understanding, reasoning, and application.
 Randomize which option is correct across questions.`,
   user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
