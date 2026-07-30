@@ -1,4 +1,3 @@
-import type { Virtualizer } from "@tanstack/react-virtual";
 import { useMemo } from "react";
 import { cn } from "@/shared/lib/utils";
 import { VirtualizedDocumentContainer } from "./virtualized-document-container";
@@ -6,9 +5,6 @@ import { VirtualizedDocumentContainer } from "./virtualized-document-container";
 interface ArticleDocumentViewerProps {
   content: string;
   scrollElement?: HTMLDivElement | null;
-  onVirtualizerReady?: (
-    virtualizer: Virtualizer<HTMLDivElement, Element>,
-  ) => void;
 }
 
 interface ArticleBlock {
@@ -92,7 +88,6 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
 export function ArticleDocumentViewer({
   content,
   scrollElement,
-  onVirtualizerReady,
 }: ArticleDocumentViewerProps) {
   const blocks = useMemo(() => parseArticleBlocks(content || ""), [content]);
 
@@ -113,7 +108,6 @@ export function ArticleDocumentViewer({
           estimateSize={() => 60}
           overscan={5}
           getItemKey={(block, idx) => block.id || `block-${idx}`}
-          onVirtualizerReady={onVirtualizerReady}
           renderItem={(block) => {
             if (block.type === "heading") {
               const HeadingTag =

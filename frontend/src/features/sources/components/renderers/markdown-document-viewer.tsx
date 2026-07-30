@@ -2,7 +2,6 @@ import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
-import type { Virtualizer } from "@tanstack/react-virtual";
 import { type ReactNode, useMemo } from "react";
 import type { BundledLanguage } from "shiki";
 import { Streamdown } from "streamdown";
@@ -23,9 +22,6 @@ const streamdownPlugins = { cjk, code, math, mermaid };
 interface MarkdownDocumentViewerProps {
   content: string;
   scrollElement?: HTMLDivElement | null;
-  onVirtualizerReady?: (
-    virtualizer: Virtualizer<HTMLDivElement, Element>,
-  ) => void;
 }
 
 function getRawText(node: ReactNode): string {
@@ -166,7 +162,6 @@ const streamdownComponents = {
 export function MarkdownDocumentViewer({
   content,
   scrollElement,
-  onVirtualizerReady,
 }: MarkdownDocumentViewerProps) {
   const chunks = useMemo(() => splitTextIntoChunks(content || ""), [content]);
 
@@ -187,7 +182,6 @@ export function MarkdownDocumentViewer({
           estimateSize={() => 80}
           overscan={5}
           getItemKey={(_, idx) => idx}
-          onVirtualizerReady={onVirtualizerReady}
           renderItem={(chunk) => (
             <Streamdown
               controls={false}

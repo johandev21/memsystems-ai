@@ -7,7 +7,7 @@ import {
 } from "@/shared/ui/resizable";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
-import { SourcesPanel } from "@/features/sources";
+import { SourceContentViewer, SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, StudyMaterialsPanel } from "@/features/study-materials";
 import { StudioResources, RightPane } from "@/features/notebooks";
 import type { UseStudioDialogsReturn } from "@/features/notebooks";
@@ -23,6 +23,8 @@ export interface DesktopLayoutProps {
   onSyncSources: () => void;
   onSyncStudio: () => void;
   dialogs: UseStudioDialogsReturn;
+  selectedSourceId: string | null;
+  onSelectSource: (id: string | null) => void;
 }
 
 export function DesktopLayout({
@@ -34,6 +36,8 @@ export function DesktopLayout({
   onSyncSources,
   onSyncStudio,
   dialogs,
+  selectedSourceId,
+  onSelectSource,
 }: DesktopLayoutProps) {
   const toggleSourcesCollapse = () => {
     if (sourcesCollapsed) {
@@ -67,17 +71,27 @@ export function DesktopLayout({
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
-            <SourcesPanelHeader
-              collapsed={sourcesCollapsed}
-              notebookId={notebookId}
-              onToggleCollapse={toggleSourcesCollapse}
-            />
-            <ScrollArea className="flex-1 h-full">
-              <SourcesPanel
-                notebookId={notebookId}
-                collapsed={sourcesCollapsed}
+            {selectedSourceId ? (
+              <SourceContentViewer
+                sourceId={selectedSourceId}
+                onClose={() => onSelectSource(null)}
               />
-            </ScrollArea>
+            ) : (
+              <>
+                <SourcesPanelHeader
+                  collapsed={sourcesCollapsed}
+                  notebookId={notebookId}
+                  onToggleCollapse={toggleSourcesCollapse}
+                />
+                <div className="flex-1 min-h-0">
+                  <SourcesPanel
+                    notebookId={notebookId}
+                    collapsed={sourcesCollapsed}
+                    onSelectSource={onSelectSource}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </ResizablePanel>
         <ResizableHandle

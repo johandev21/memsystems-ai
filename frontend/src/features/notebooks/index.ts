@@ -9,4 +9,5 @@ export * from "./components/studio/right-pane";
 export * from "./components/studio/source-multi-select";
 export * from "./hooks/use-model-persistence";
 export * from "./hooks/use-notebook-panels";
+export * from "./hooks/use-sources-panel";
 export * from "./hooks/use-studio-dialogs";

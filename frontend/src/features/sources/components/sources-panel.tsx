@@ -13,14 +13,15 @@ import { cn } from "@/shared/lib/utils";
 import { useUploadStore } from "../model/upload-store";
 import { AddSourceDialog } from "./add-source-dialog";
 import { PendingUploadRow } from "./pending-upload-row";
-import { SourceViewerDialog } from "./source-viewer-dialog";
 
 export function SourcesPanel({
   notebookId,
   collapsed,
+  onSelectSource,
 }: {
   notebookId: string;
   collapsed?: boolean;
+  onSelectSource: (id: string) => void;
 }) {
   const queryClient = useQueryClient();
   const {
@@ -39,7 +40,6 @@ export function SourcesPanel({
     (state) => state.cancelPendingUpload,
   );
 
-  const [viewedSourceId, setViewedSourceId] = useState<string | null>(null);
   const [sourceToDelete, setSourceToDelete] = useState<{
     id: string;
     title: string;
@@ -65,7 +65,6 @@ export function SourcesPanel({
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col p-2 gap-1.5 overflow-y-auto flex-1">
-        {/* Active Non-Blocking Pending Uploads */}
         {pendingUploads.map((upload) => (
           <PendingUploadRow
             key={upload.id}
@@ -95,7 +94,7 @@ export function SourcesPanel({
             <SourceRow
               key={source.id}
               source={source}
-              onClick={() => setViewedSourceId(source.id)}
+              onClick={() => onSelectSource(source.id)}
               onDelete={() =>
                 setSourceToDelete({ id: source.id, title: source.title })
               }
@@ -114,14 +113,6 @@ export function SourcesPanel({
           </div>
         </AddSourceDialog>
       </div>
-
-      <SourceViewerDialog
-        sourceId={viewedSourceId}
-        open={viewedSourceId !== null}
-        onOpenChange={(open) => {
-          if (!open) setViewedSourceId(null);
-        }}
-      />
 
       <ConfirmDeleteDialog
         open={sourceToDelete !== null}

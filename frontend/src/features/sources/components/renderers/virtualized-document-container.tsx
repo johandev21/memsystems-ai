@@ -1,5 +1,5 @@
-import { useVirtualizer, type Virtualizer } from "@tanstack/react-virtual";
-import { type ReactNode, useEffect } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { type ReactNode } from "react";
 
 interface VirtualizedDocumentContainerProps<T> {
   items: T[];
@@ -8,9 +8,6 @@ interface VirtualizedDocumentContainerProps<T> {
   overscan?: number;
   renderItem: (item: T, index: number) => ReactNode;
   getItemKey?: (item: T, index: number) => string | number;
-  onVirtualizerReady?: (
-    virtualizer: Virtualizer<HTMLDivElement, Element>,
-  ) => void;
   className?: string;
 }
 
@@ -21,7 +18,6 @@ export function VirtualizedDocumentContainer<T>({
   overscan = 5,
   renderItem,
   getItemKey,
-  onVirtualizerReady,
   className,
 }: VirtualizedDocumentContainerProps<T>) {
   const virtualizer = useVirtualizer({
@@ -30,12 +26,6 @@ export function VirtualizedDocumentContainer<T>({
     estimateSize,
     overscan,
   });
-
-  useEffect(() => {
-    if (onVirtualizerReady) {
-      onVirtualizerReady(virtualizer);
-    }
-  }, [virtualizer, onVirtualizerReady]);
 
   const virtualItems = virtualizer.getVirtualItems();
 

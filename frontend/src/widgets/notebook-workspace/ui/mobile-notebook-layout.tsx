@@ -1,7 +1,7 @@
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Tabs, TabsContent } from "@/shared/ui/tabs";
 import { ChatPanel } from "@/features/notebook-chat";
-import { SourcesPanel } from "@/features/sources";
+import { SourceContentViewer, SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, MobileStudyMaterialsPanel } from "@/features/study-materials";
 import { StudioResources, RightPane } from "@/features/notebooks";
 import type { UseStudioDialogsReturn } from "@/features/notebooks";
@@ -10,11 +10,15 @@ import { MobileTabsHeader } from "./mobile-tabs-header";
 export interface MobileNotebookLayoutProps {
   notebookId: string;
   dialogs: UseStudioDialogsReturn;
+  selectedSourceId: string | null;
+  onSelectSource: (id: string | null) => void;
 }
 
 export function MobileNotebookLayout({
   notebookId,
   dialogs,
+  selectedSourceId,
+  onSelectSource,
 }: MobileNotebookLayoutProps) {
   return (
     <div className="lg:hidden h-full flex flex-col">
@@ -22,9 +26,17 @@ export function MobileNotebookLayout({
         <MobileTabsHeader notebookId={notebookId} />
 
         <TabsContent value="sources" className="flex-1 mt-0 min-h-0">
-          <ScrollArea className="h-full">
-            <SourcesPanel notebookId={notebookId} />
-          </ScrollArea>
+          {selectedSourceId ? (
+            <SourceContentViewer
+              sourceId={selectedSourceId}
+              onClose={() => onSelectSource(null)}
+            />
+          ) : (
+            <SourcesPanel
+              notebookId={notebookId}
+              onSelectSource={onSelectSource}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="chat" className="flex-1 mt-0 min-h-0">
