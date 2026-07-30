@@ -173,7 +173,7 @@ export function SourceContentViewer({
   const docType = detectDocumentType(source);
 
   const header = (
-    <div className="px-4 py-2.5 border-b border-border flex items-center justify-between gap-2 bg-panel-header-bg shrink-0 select-none">
+    <div className="flex items-center justify-between gap-2 p-1.5 bg-panel-header-bg min-h-[44px] shrink-0 select-none">
       <div className="flex items-center gap-2 min-w-0">
         <Button
           type="button"

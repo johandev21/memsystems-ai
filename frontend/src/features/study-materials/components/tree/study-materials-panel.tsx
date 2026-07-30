@@ -2,7 +2,6 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
-import { ScrollArea } from "@/shared/ui/scroll-area";
 import { StudyMaterialsTree } from "./study-materials-tree";
 
 export interface StudyMaterialsPanelProps {
@@ -43,7 +42,7 @@ export function StudyMaterialsPanel({
         </div>
       </CardHeader>
       {isExpanded && (
-        <ScrollArea className="h-[250px] w-full pr-2">
+        <div className="h-[250px] w-full overflow-auto pr-2">
           <CardContent className="p-3 pb-2">
             <StudyMaterialsTree
               notebookId={notebookId}
@@ -52,7 +51,7 @@ export function StudyMaterialsPanel({
               }}
             />
           </CardContent>
-        </ScrollArea>
+        </div>
       )}
     </Card>
   );

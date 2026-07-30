@@ -55,6 +55,20 @@ export function DesktopLayout({
     }
   };
 
+  const handleSyncSources = () => {
+    onSyncSources();
+    if (sourcesRef.current?.isCollapsed() && selectedSourceId) {
+      onSelectSource(null);
+    }
+  };
+
+  const handleSyncStudio = () => {
+    onSyncStudio();
+    if (studioRef.current?.isCollapsed() && dialogs.selectedStudyMaterialId) {
+      dialogs.setSelectedStudyMaterialId(null);
+    }
+  };
+
   return (
     <div className="hidden lg:block h-full scrollbar-none">
       <ResizablePanelGroup
@@ -67,7 +81,7 @@ export function DesktopLayout({
           minSize="15%"
           defaultSize="20%"
           panelRef={sourcesRef}
-          onResize={onSyncSources}
+          onResize={handleSyncSources}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
@@ -120,7 +134,7 @@ export function DesktopLayout({
           minSize="15%"
           defaultSize="20%"
           panelRef={studioRef}
-          onResize={onSyncStudio}
+          onResize={handleSyncStudio}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
