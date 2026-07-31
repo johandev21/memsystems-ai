@@ -20,6 +20,7 @@ import { Route as PrototypeQuizRouteImport } from './routes/prototype.quiz'
 import { Route as PrototypeReportRouteImport } from './routes/prototype.report'
 import { Route as PrototypeRoadmapRouteImport } from './routes/prototype.roadmap'
 import { Route as PrototypeSlidesRouteImport } from './routes/prototype.slides'
+import { Route as PrototypeSourcesWebRouteImport } from './routes/prototype.sources-web'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
@@ -78,6 +79,11 @@ const PrototypeSlidesRoute = PrototypeSlidesRouteImport.update({
   path: '/prototype/slides',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrototypeSourcesWebRoute = PrototypeSourcesWebRouteImport.update({
+  id: '/prototype/sources-web',
+  path: '/prototype/sources-web',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
   '/prototype/slides': typeof PrototypeSlidesRoute
+  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
   '/prototype/slides': typeof PrototypeSlidesRoute
+  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks': typeof NotebooksIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
   '/prototype/slides': typeof PrototypeSlidesRoute
+  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/prototype/report'
     | '/prototype/roadmap'
     | '/prototype/slides'
+    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/prototype/report'
     | '/prototype/roadmap'
     | '/prototype/slides'
+    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks'
     | '/settings'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/prototype/report'
     | '/prototype/roadmap'
     | '/prototype/slides'
+    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   PrototypeReportRoute: typeof PrototypeReportRoute
   PrototypeRoadmapRoute: typeof PrototypeRoadmapRoute
   PrototypeSlidesRoute: typeof PrototypeSlidesRoute
+  PrototypeSourcesWebRoute: typeof PrototypeSourcesWebRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrototypeSlidesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prototype/sources-web': {
+      id: '/prototype/sources-web'
+      path: '/prototype/sources-web'
+      fullPath: '/prototype/sources-web'
+      preLoaderRoute: typeof PrototypeSourcesWebRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/': {
       id: '/settings/'
       path: '/'
@@ -316,6 +336,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrototypeReportRoute: PrototypeReportRoute,
   PrototypeRoadmapRoute: PrototypeRoadmapRoute,
   PrototypeSlidesRoute: PrototypeSlidesRoute,
+  PrototypeSourcesWebRoute: PrototypeSourcesWebRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -130,16 +130,7 @@ export function MaterialViewer({
           title="Return to Studio overview"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          <span className="font-medium hidden sm:inline">Back to Studio</span>
         </Button>
-        <span className="text-border/60">|</span>
-        <Badge
-          variant="outline"
-          className="text-[11px] font-medium gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 text-primary border-primary/20 shrink-0"
-        >
-          <KindIcon className="h-3 w-3" />
-          {kindMeta.label}
-        </Badge>
         <h3 className="text-sm font-semibold truncate text-foreground ml-1">
           {material.title}
         </h3>

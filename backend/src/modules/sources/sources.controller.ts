@@ -16,6 +16,7 @@ import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SourcesService } from './sources.service';
+import { WebSearchService } from './web-search.service';
 
 const textSourceSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500),
@@ -27,10 +28,33 @@ const urlSourceSchema = z.object({
   title: z.string().max(500).optional(),
 });
 
+const webSearchSchema = z.object({
+  query: z.string().min(1, 'Query is required').max(500),
+  modelId: z.string().min(1, 'modelId is required'),
+});
+
+const webSearchImportCandidateSchema = z.object({
+  url: z.string().url('Must be a valid URL'),
+  title: z.string().max(500).optional(),
+  description: z.string().max(500).nullable().optional(),
+});
+
+const webSearchImportSchema = z.object({
+  candidates: z
+    .array(webSearchImportCandidateSchema)
+    .min(1, 'At least one candidate is required')
+    .max(50, 'Up to 50 candidates allowed per import'),
+  modelId: z.string().min(1, 'modelId is required'),
+  query: z.string().max(500).optional(),
+});
+
 @Controller()
 @UseGuards(AuthGuard)
 export class SourcesController {
-  constructor(private readonly sourcesService: SourcesService) {}
+  constructor(
+    private readonly sourcesService: SourcesService,
+    private readonly webSearchService: WebSearchService,
+  ) {}
 
   @Get('notebooks/:notebookId/sources')
   async listSources(
@@ -100,5 +124,29 @@ export class SourcesController {
     @Param('id') id: string,
   ) {
     return this.sourcesService.getDownload(userId, id);
+  }
+
+  @Post('notebooks/:notebookId/sources/web-search')
+  @UsePipes(new ZodValidationPipe(webSearchSchema))
+  async webSearch(
+    @CurrentUser('id') userId: string,
+    @Param('notebookId') notebookId: string,
+    @Body() body: z.infer<typeof webSearchSchema>,
+  ) {
+    return this.webSearchService.search(userId, notebookId, body);
+  }
+
+  @Post('notebooks/:notebookId/sources/web-search/import')
+  @UsePipes(new ZodValidationPipe(webSearchImportSchema))
+  async webSearchImport(
+    @CurrentUser('id') userId: string,
+    @Param('notebookId') notebookId: string,
+    @Body() body: z.infer<typeof webSearchImportSchema>,
+  ) {
+    return this.webSearchService.import(userId, notebookId, {
+      candidates: body.candidates,
+      modelId: body.modelId,
+      query: body.query ?? '',
+    });
   }
 }

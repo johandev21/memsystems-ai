@@ -1,9 +1,10 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, LanguageModel } from 'ai';
+import { generateText, LanguageModel, Tool } from 'ai';
 
 export interface ProviderModel {
   id: string;
   displayName: string;
+  supportsWebSearch: boolean;
 }
 
 export interface HealthCheckResult {
@@ -16,17 +17,25 @@ export interface Provider {
   name: string;
   listModels(): ProviderModel[];
   createModel(modelId: string): LanguageModel;
+  supportsWebSearch(modelId: string): boolean;
+  createWebSearchTool(): Tool;
   health(): Promise<HealthCheckResult>;
 }
 
+const WEB_SEARCH_MODELS = new Set([
+  'openai/gpt-5',
+  'openai/gpt-5-mini',
+  'openai/gpt-5-nano',
+]);
+
 export const OPENAI_MODELS: ProviderModel[] = [
-  { id: 'openai/gpt-4o-mini', displayName: 'GPT-4o Mini' },
-  { id: 'openai/gpt-4o', displayName: 'GPT-4o' },
-  { id: 'openai/gpt-5-nano', displayName: 'GPT-5 Nano' },
-  { id: 'openai/gpt-5-mini', displayName: 'GPT-5 Mini' },
-  { id: 'openai/gpt-5', displayName: 'GPT-5' },
-  { id: 'openai/o3-mini', displayName: 'O3 Mini' },
-  { id: 'openai/o1', displayName: 'O1' },
+  { id: 'openai/gpt-4o-mini', displayName: 'GPT-4o Mini', supportsWebSearch: false },
+  { id: 'openai/gpt-4o', displayName: 'GPT-4o', supportsWebSearch: false },
+  { id: 'openai/gpt-5-nano', displayName: 'GPT-5 Nano', supportsWebSearch: true },
+  { id: 'openai/gpt-5-mini', displayName: 'GPT-5 Mini', supportsWebSearch: true },
+  { id: 'openai/gpt-5', displayName: 'GPT-5', supportsWebSearch: true },
+  { id: 'openai/o3-mini', displayName: 'O3 Mini', supportsWebSearch: false },
+  { id: 'openai/o1', displayName: 'O1', supportsWebSearch: false },
 ];
 
 export function createOpenaiProvider(apiKey: string): Provider {
@@ -45,6 +54,14 @@ export function createOpenaiProvider(apiKey: string): Provider {
         ? modelId.replace('openai/', '')
         : modelId;
       return openaiInstance(cleanId);
+    },
+
+    supportsWebSearch(modelId: string): boolean {
+      return WEB_SEARCH_MODELS.has(modelId);
+    },
+
+    createWebSearchTool(): Tool {
+      return openaiInstance.tools.webSearch({});
     },
 
     async health(): Promise<HealthCheckResult> {

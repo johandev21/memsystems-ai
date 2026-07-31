@@ -20,6 +20,18 @@ import { user } from './auth-schema';
 
 export const sourceKindEnum = pgEnum('source_kind', ['text', 'url', 'file']);
 
+export const sourceAddedViaEnum = pgEnum('source_added_via', [
+  'manual',
+  'ai_search',
+]);
+
+export interface SourceMetadata {
+  searchQuery?: string;
+  modelId?: string;
+  searchedAt?: string;
+  description?: string | null;
+}
+
 export const studyMaterialKindEnum = pgEnum('study_material_kind', [
   'quiz',
   'simple_flashcard',
@@ -74,6 +86,8 @@ export const sources = pgTable(
       .notNull()
       .references(() => notebooks.id, { onDelete: 'cascade' }),
     kind: sourceKindEnum('kind').notNull(),
+    addedVia: sourceAddedViaEnum('added_via').default('manual').notNull(),
+    metadata: jsonb('metadata').$type<SourceMetadata | null>(),
     title: varchar('title', { length: 500 }).notNull(),
     rawText: text('raw_text').notNull(),
     url: text('url'),

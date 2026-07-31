@@ -13,6 +13,7 @@ import { cn } from "@/shared/lib/utils";
 import { useUploadStore } from "../model/upload-store";
 import { AddSourceDialog } from "./add-source-dialog";
 import { PendingUploadRow } from "./pending-upload-row";
+import { WebSearchComposer } from "./web-search-composer";
 
 export function SourcesPanel({
   notebookId,
@@ -65,6 +66,8 @@ export function SourcesPanel({
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col p-2 gap-1.5 overflow-y-auto flex-1">
+        <WebSearchComposer notebookId={notebookId} />
+
         {pendingUploads.map((upload) => (
           <PendingUploadRow
             key={upload.id}

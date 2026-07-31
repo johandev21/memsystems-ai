@@ -3,7 +3,7 @@ import { apiDelete, apiPost, createQueryOptions } from "./factory";
 import type { SourceKind, Source, SourceWithContent } from "@/entities/source";
 
 export type { SourceKind, Source, SourceWithContent };
-export const SOURCE_LIMIT = 50;
+export const SOURCE_LIMIT = 300;
 
 export const sourcesQueryOptions = (notebookId: string) =>
   createQueryOptions<Source[]>(

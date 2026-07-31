@@ -1,10 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import { desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as authSchema from '../../database/auth-schema';
 import * as appSchema from '../../database/schema';
-import { sources } from '../../database/schema';
+import { SourceMetadata, sources } from '../../database/schema';
 import {
   BadRequestError,
   NotFoundError,
@@ -14,7 +14,7 @@ import { DRIZZLE } from '../database/database.module';
 import { NotebooksService } from '../notebooks/notebooks.service';
 import { StorageService } from '../storage/storage.service';
 import { SourceExtractionService } from './source-extraction.service';
-import { WebScraperService } from './web-scraper.service';
+import { WebScrapeError, WebScraperService } from './web-scraper.service';
 
 export type SourceKind = 'text' | 'url' | 'file';
 
@@ -26,12 +26,19 @@ export interface CreateTextSourceInput {
 export interface CreateUrlSourceInput {
   url: string;
   title?: string;
+  minTextLength?: number;
+  provenance?: {
+    addedVia: 'ai_search';
+    metadata: SourceMetadata;
+  };
 }
 
 export interface DownloadInfo {
   url: string;
   expiresIn: number;
 }
+
+export const SOURCE_LIMIT = 300;
 
 const MAX_RAW_TEXT_BYTES = 5 * 1024 * 1024;
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
@@ -49,6 +56,21 @@ function pickExtension(originalName: string): string {
   const idx = originalName.lastIndexOf('.');
   if (idx === -1 || idx === originalName.length - 1) return '';
   return originalName.slice(idx).toLowerCase();
+}
+
+function looksLikeUrlTitle(title: string): boolean {
+  // Derived titles look like "en.wikipedia.org/wiki/Philosophy" or "https://..."
+  if (/^https?:\/\//i.test(title)) return true;
+  return /^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(title);
+}
+
+function resolveSourceTitle(providedTitle?: string, scrapedTitle?: string): string {
+  const provided = providedTitle?.trim();
+  const scraped = scrapedTitle?.trim();
+
+  if (provided && !looksLikeUrlTitle(provided)) return provided.slice(0, 500);
+  if (scraped && !looksLikeUrlTitle(scraped)) return scraped.slice(0, 500);
+  return (provided || scraped || 'Untitled').slice(0, 500);
 }
 
 @Injectable()
@@ -129,14 +151,25 @@ export class SourcesService {
   ) {
     await this.notebooksService.assertNotebookOwner(userId, notebookId);
     const scraped = await this.webScraperService.scrapeUrl(input.url);
-    const title = (input.title?.trim() || scraped.title).slice(0, 500);
+
+    const scrapedText = scraped.text.trim();
+    if (input.minTextLength && scrapedText.length < input.minTextLength) {
+      throw new WebScrapeError(
+        `Page has too little content (${scrapedText.length} chars, need at least ${input.minTextLength})`,
+        'not_readerable',
+      );
+    }
+
+    const title = resolveSourceTitle(input.title, scraped.title);
     const [row] = await this.db
       .insert(sources)
       .values({
         notebookId,
         kind: 'url',
+        addedVia: input.provenance?.addedVia ?? 'manual',
+        metadata: input.provenance?.metadata ?? null,
         title,
-        rawText: scraped.text,
+        rawText: scrapedText,
         url: input.url,
       })
       .returning();
@@ -148,6 +181,29 @@ export class SourcesService {
       });
     });
     return row;
+  }
+
+  async countForNotebook(userId: string, notebookId: string): Promise<number> {
+    await this.notebooksService.assertNotebookOwner(userId, notebookId);
+    const [row] = await this.db
+      .select({ value: count() })
+      .from(sources)
+      .where(eq(sources.notebookId, notebookId));
+    return row?.value ?? 0;
+  }
+
+  async listUrlsForNotebook(
+    userId: string,
+    notebookId: string,
+  ): Promise<string[]> {
+    await this.notebooksService.assertNotebookOwner(userId, notebookId);
+    const rows = await this.db
+      .select({ url: sources.url })
+      .from(sources)
+      .where(eq(sources.notebookId, notebookId));
+    return rows
+      .map((r) => r.url)
+      .filter((url): url is string => url !== null);
   }
 
   async createFile(

@@ -3,7 +3,6 @@ import {
   Brain,
   FileText,
   HelpCircle,
-  Loader2,
   type LucideIcon,
   Map as MapIcon,
   Network,
@@ -119,7 +118,7 @@ export function StudioResources({
             const isGenerating = activeGenerations.some(
               (g) => g.kind === resource.kind,
             );
-            const disabled = !isInScope(resource.kind) || isGenerating;
+            const disabled = !isInScope(resource.kind);
             return (
               <Tooltip key={resource.key}>
                 <TooltipTrigger
@@ -127,22 +126,13 @@ export function StudioResources({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={cn(
-                        "h-10 w-10 shrink-0 relative",
-                        resource.colorClasses,
-                        isGenerating &&
-                          "border-primary/50 bg-primary/10 text-primary dark:bg-primary/20",
-                      )}
+                      className={cn("h-10 w-10 shrink-0 relative", resource.colorClasses)}
                       onClick={() => !disabled && onGenerate(resource.kind)}
                       disabled={disabled}
                     />
                   }
                 >
-                  {isGenerating ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  ) : (
-                    <resource.icon className="h-5 w-5" />
-                  )}
+                  <resource.icon className="h-5 w-5" />
                   <span className="sr-only">{resource.label}</span>
                 </TooltipTrigger>
                 <TooltipContent side="left" sideOffset={10}>
@@ -161,10 +151,7 @@ export function StudioResources({
       {/* Creation Buttons Grid */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2">
         {RESOURCES.map((resource) => {
-          const isGenerating = activeGenerations.some(
-            (g) => g.kind === resource.kind,
-          );
-          const disabled = !isInScope(resource.kind) || isGenerating;
+          const disabled = !isInScope(resource.kind);
 
           return (
             <button
@@ -175,35 +162,20 @@ export function StudioResources({
               className={cn(
                 "group relative flex items-center h-11 w-full justify-between px-3.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background rounded-2xl cursor-pointer select-none overflow-hidden",
                 resource.colorClasses,
-                isGenerating &&
-                  "border-primary/60 bg-primary/10 dark:bg-primary/15 text-primary shadow-xs",
-                disabled && !isGenerating && "opacity-50 cursor-not-allowed",
+                disabled && "opacity-50 cursor-not-allowed",
               )}
             >
-              {/* Top-Right Arc/Pill Badge matching Image 3 when generating */}
-              {isGenerating && (
-                <span className="absolute top-0 right-0 h-4 w-6 rounded-bl-xl bg-primary/30 flex items-center justify-center">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-ping" />
-                </span>
-              )}
-
               <span className="text-sm font-medium text-foreground min-w-0 truncate">
                 {resource.label}
               </span>
 
-              {isGenerating ? (
-                <Loader2 className="h-4.5 w-4.5 shrink-0 animate-spin text-primary" />
-              ) : (
-                <resource.icon
-                  className={cn(
-                    "h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-105",
-                    isGenerating
-                      ? "text-primary opacity-100"
-                      : "text-muted-foreground opacity-80 group-hover:opacity-100",
-                  )}
-                  strokeWidth={1.75}
-                />
-              )}
+              <resource.icon
+                className={cn(
+                  "h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-105",
+                  "text-muted-foreground opacity-80 group-hover:opacity-100",
+                )}
+                strokeWidth={1.75}
+              />
             </button>
           );
         })}
