@@ -1,5 +1,6 @@
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Tabs, TabsContent } from "@/shared/ui/tabs";
+import { useEffect, useState } from "react";
 import { ChatPanel } from "@/features/notebook-chat";
 import { SourceContentViewer, SourcesPanel } from "@/features/sources";
 import { GenerateBriefDialog, MobileStudyMaterialsPanel } from "@/features/study-materials";
@@ -20,9 +21,42 @@ export function MobileNotebookLayout({
   selectedSourceId,
   onSelectSource,
 }: MobileNotebookLayoutProps) {
+  const [activeTab, setActiveTab] = useState("chat");
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<{
+    prompt: string;
+    autoSend?: boolean;
+    focusChat?: boolean;
+    concept?: string;
+    chatNavigationRetry?: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleChatNavigation = (event: Event) => {
+      if (!window.matchMedia("(max-width: 1023px)").matches) return;
+      const detail = (event as CustomEvent<typeof pendingChatPrompt>).detail;
+      if (!detail?.focusChat || detail.chatNavigationRetry) return;
+      setPendingChatPrompt(detail);
+      setActiveTab("chat");
+    };
+
+    window.addEventListener("send-chat-prompt", handleChatNavigation);
+    return () => window.removeEventListener("send-chat-prompt", handleChatNavigation);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== "chat" || !pendingChatPrompt) return;
+    const detail = pendingChatPrompt;
+    setPendingChatPrompt(null);
+    window.dispatchEvent(
+      new CustomEvent("send-chat-prompt", {
+        detail: { ...detail, chatNavigationRetry: true },
+      }),
+    );
+  }, [activeTab, pendingChatPrompt]);
+
   return (
     <div className="lg:hidden h-full flex flex-col">
-      <Tabs defaultValue="chat" className="flex flex-col h-full gap-0">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full gap-0">
         <MobileTabsHeader notebookId={notebookId} />
 
         <TabsContent value="sources" className="flex-1 mt-0 min-h-0">

@@ -19,7 +19,18 @@ import { notebookQueryOptions } from "@/shared/api";
 
 const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
 
-export function useChatPanel(notebookId: string) {
+export interface SendChatPromptDetail {
+  prompt: string;
+  autoSend?: boolean;
+  focusChat?: boolean;
+  concept?: string;
+  chatNavigationRetry?: boolean;
+}
+
+export function useChatPanel(
+  notebookId: string,
+  panelRef?: React.RefObject<HTMLElement | null>,
+) {
   const { data: notebook } = useQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
   const { data: chatHistory } = useQuery(
@@ -132,6 +143,7 @@ export function useChatPanel(notebookId: string) {
 
   const composerTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState("");
+  const [chatAnnouncement, setChatAnnouncement] = useState<string | null>(null);
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
 
   const clearHistoryMutation = useMutation({
@@ -168,10 +180,38 @@ export function useChatPanel(notebookId: string) {
 
   useEffect(() => {
     const handleSendPromptEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<{ prompt: string; autoSend?: boolean }>;
-      const promptText = customEvent.detail?.prompt;
+      const detail = (e as CustomEvent<SendChatPromptDetail>).detail;
+      const promptText = detail?.prompt;
       if (promptText?.trim()) {
-        if (customEvent.detail?.autoSend !== false) {
+        if (
+          detail.focusChat &&
+          panelRef?.current &&
+          panelRef.current.getClientRects().length === 0
+        ) {
+          return;
+        }
+
+        if (detail.focusChat) {
+          setChatAnnouncement(
+            detail.concept
+              ? `Opening chat for ${detail.concept}.`
+              : "Opening chat.",
+          );
+          window.setTimeout(() => setChatAnnouncement(null), 4000);
+          window.requestAnimationFrame(() => {
+            const textarea = composerTextareaRef.current;
+            if (!textarea) return;
+            textarea.scrollIntoView({
+              block: "center",
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ? "auto"
+                : "smooth",
+            });
+            textarea.focus();
+          });
+        }
+
+        if (detail.autoSend !== false) {
           handleSubmit(promptText);
         } else {
           setInput(promptText);
@@ -183,7 +223,7 @@ export function useChatPanel(notebookId: string) {
     return () => {
       window.removeEventListener("send-chat-prompt", handleSendPromptEvent);
     };
-  }, [handleSubmit, setInput]);
+  }, [handleSubmit, panelRef]);
 
   return {
     notebook,
@@ -206,5 +246,6 @@ export function useChatPanel(notebookId: string) {
     handleRegenerate,
     composerTextareaRef,
     stop,
+    chatAnnouncement,
   };
 }

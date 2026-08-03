@@ -6,12 +6,14 @@ import {
 } from "@/features/ai";
 import { NotebookBanner } from "@/features/notebooks";
 import { useChatPanel } from "../hooks/use-chat-panel";
+import { useRef } from "react";
 import { ChatEmptyState } from "./chat-empty-state";
 import { ChatMessageList } from "./chat-message-list";
 import { ClearHistoryDialog } from "./clear-history-dialog";
 import { Composer } from "./composer";
 
 export function ChatPanel({ notebookId }: { notebookId: string }) {
+  const panelRef = useRef<HTMLDivElement>(null);
   const {
     notebook,
     connection,
@@ -33,7 +35,8 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     handleRegenerate,
     composerTextareaRef,
     stop,
-  } = useChatPanel(notebookId);
+    chatAnnouncement,
+  } = useChatPanel(notebookId, panelRef);
 
   const notebookTitle = notebook?.title ?? "Notebook";
   const isUntitled = notebookTitle.toLowerCase() === "untitled";
@@ -41,7 +44,10 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
   const hasMessages = messageCount > 0;
 
   return (
-    <div className="flex flex-1 h-full w-full flex-col min-h-0">
+    <div ref={panelRef} className="flex flex-1 h-full w-full flex-col min-h-0">
+      <div aria-live="polite" className="sr-only">
+        {chatAnnouncement}
+      </div>
       <div className="mx-auto w-full max-w-4xl flex flex-col min-h-0 flex-1">
         <Conversation className="flex-1 min-h-0">
           <ConversationContent>

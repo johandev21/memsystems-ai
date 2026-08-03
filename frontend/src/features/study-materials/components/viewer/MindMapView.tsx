@@ -1,39 +1,29 @@
 import {
   Background,
   BackgroundVariant,
-  type Edge,
-  MiniMap,
-  type Node,
-  Panel,
+  BezierEdge,
+  Handle,
+  Position,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
   useReactFlow,
+  type Edge,
+  type EdgeProps,
+  type Node,
+  type NodeProps,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
-
-import {
-  Focus,
-  Info,
-  Maximize2,
-  Minimize2,
-  Network,
-  RotateCcw,
-  Search,
-} from "lucide-react";
+import { ChevronRight, Crosshair, Minus, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import { Card } from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/lib/utils";
-import { getLayoutedElements } from "./layout-utils";
-import { MindMapCustomNode } from "./MindMapCustomNode";
 
 export interface MindMapNodeData {
   id: string;
   label: string;
-  color?: string;
+  color?: string | null;
   position?: { x: number; y: number };
 }
 
@@ -47,537 +37,287 @@ export interface MindMapEdgeData {
 
 export interface MindMapViewProps {
   materialId: string;
+  materialTitle?: string;
   content: {
-    rootId?: string;
+    rootId?: string | null;
     nodes: MindMapNodeData[];
     edges: MindMapEdgeData[];
   };
 }
 
-const nodeTypes = {
-  custom: MindMapCustomNode,
+type MapItem = {
+  id: string;
+  label: string;
+  color?: string;
+  children: MapItem[];
 };
 
-const getClosestNodeInDirection = (
-  currentNode: { id: string; position: { x: number; y: number } },
-  allNodes: { id: string; position: { x: number; y: number } }[],
-  direction: "UP" | "DOWN" | "LEFT" | "RIGHT",
-) => {
-  const curX = currentNode.position.x;
-  const curY = currentNode.position.y;
-
-  let candidates = allNodes.filter((n) => n.id !== currentNode.id);
-
-  if (direction === "RIGHT") {
-    candidates = candidates.filter((n) => n.position.x > curX + 10);
-  } else if (direction === "LEFT") {
-    candidates = candidates.filter((n) => n.position.x < curX - 10);
-  } else if (direction === "DOWN") {
-    candidates = candidates.filter((n) => n.position.y > curY + 10);
-  } else if (direction === "UP") {
-    candidates = candidates.filter((n) => n.position.y < curY - 10);
-  }
-
-  if (candidates.length === 0) return null;
-
-  let best: (typeof candidates)[0] | null = null;
-  let minDist = Infinity;
-
-  for (const cand of candidates) {
-    const dx = cand.position.x - curX;
-    const dy = cand.position.y - curY;
-    const dist = dx * dx + dy * dy;
-    if (dist < minDist) {
-      minDist = dist;
-      best = cand;
-    }
-  }
-
-  return best;
+type MindMapNodeDataInternal = {
+  item: MapItem;
+  depth: number;
+  expanded: boolean;
+  selected: boolean;
+  onToggle: (id: string) => void;
 };
 
-interface MindMapDetailsCardProps {
-  selectedNode: MindMapNodeData;
-  selectedNodeParent: MindMapNodeData | null;
-  selectedNodeChildren: (MindMapNodeData | undefined)[];
-  setSelectedNodeId: (id: string | null) => void;
-}
+type MindMapFlowNode = Node<MindMapNodeDataInternal, "mindMap">;
 
-function MindMapDetailsCard({
-  selectedNode,
-  selectedNodeParent,
-  selectedNodeChildren,
-  setSelectedNodeId,
-}: MindMapDetailsCardProps) {
-  return (
-    <Card className="p-4 border border-border bg-card shadow-sm space-y-3 animate-in slide-in-from-bottom-2 duration-200 shrink-0">
-      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-        <Network className="h-4 w-4 text-primary" />
-        <span>Concept Details</span>
-      </div>
-
-      <div className="space-y-1">
-        <h3 className="text-sm font-bold text-foreground">
-          {selectedNode.label}
-        </h3>
-        {selectedNodeParent && (
-          <p className="text-[11px] text-muted-foreground">
-            Parent:{" "}
-            <button
-              type="button"
-              onClick={() => setSelectedNodeId(selectedNodeParent.id)}
-              className="text-primary hover:underline font-semibold cursor-pointer"
-            >
-              {selectedNodeParent.label}
-            </button>
-          </p>
-        )}
-      </div>
-
-      {selectedNodeChildren.length > 0 && (
-        <div className="space-y-1.5">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-            Sub-concepts ({selectedNodeChildren.length})
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {selectedNodeChildren.map((child) => {
-              if (!child) return null;
-              return (
-                <Button
-                  key={child.id}
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedNodeId(child.id)}
-                  className="h-6 text-[10px] font-medium border border-border/20 px-2.5 cursor-pointer rounded-full"
-                >
-                  {child.label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-interface MindMapControlPanelsProps {
-  direction: "LR" | "TB";
-  setDirection: (dir: "LR" | "TB") => void;
-  focusMode: boolean;
-  setFocusMode: React.Dispatch<React.SetStateAction<boolean>>;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  isFullscreen: boolean;
-  setIsFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
-  fitView: (options?: any) => void;
-}
-
-function MindMapControlPanels({
-  direction,
-  setDirection,
-  focusMode,
-  setFocusMode,
-  searchQuery,
-  setSearchQuery,
-  isFullscreen,
-  setIsFullscreen,
-  fitView,
-}: MindMapControlPanelsProps) {
-  return (
-    <>
-      <Panel
-        position="top-left"
-        className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
-      >
-        <Button
-          type="button"
-          variant={direction === "LR" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setDirection("LR")}
-          className="h-7 px-2.5 text-xs font-semibold cursor-pointer"
-          title="Horizontal layout"
-        >
-          Horizontal
-        </Button>
-        <Button
-          type="button"
-          variant={direction === "TB" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setDirection("TB")}
-          className="h-7 px-2.5 text-xs font-semibold cursor-pointer"
-          title="Vertical layout"
-        >
-          Vertical
-        </Button>
-        <div className="h-4 w-px bg-border/60 mx-1" />
-        <Button
-          type="button"
-          variant={focusMode ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setFocusMode((f) => !f)}
-          className={cn(
-            "h-7 px-2.5 text-xs font-semibold gap-1 cursor-pointer",
-            focusMode && "bg-primary text-primary-foreground",
-          )}
-          title="Focus mode (dim unselected branches)"
-        >
-          <Focus className="h-3.5 w-3.5" />
-          Focus
-        </Button>
-      </Panel>
-
-      <Panel
-        position="top-right"
-        className="flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-2xl border border-border/80 shadow-sm w-60"
-      >
-        <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <Input
-          type="text"
-          placeholder="Search concepts..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-6 text-xs bg-transparent border-none p-0 focus-visible:ring-0 shadow-none"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="text-[10px] text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
-          >
-            Clear
-          </button>
-        )}
-      </Panel>
-
-      <Panel
-        position="bottom-right"
-        className="flex items-center gap-1 bg-background/95 backdrop-blur-sm p-1.5 rounded-2xl border border-border/80 shadow-sm"
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 cursor-pointer"
-          onClick={() => fitView({ duration: 300 })}
-          title="Recenter view"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 cursor-pointer"
-          onClick={() => setIsFullscreen((f) => !f)}
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? (
-            <Minimize2 className="h-3.5 w-3.5" />
-          ) : (
-            <Maximize2 className="h-3.5 w-3.5" />
-          )}
-        </Button>
-      </Panel>
-
-      <Panel
-        position="bottom-left"
-        className="flex items-center gap-1 text-[10px] text-muted-foreground/80 bg-background/95 backdrop-blur-sm px-2.5 py-1.5 rounded-xl border border-border/50 font-medium max-w-xs shadow-sm"
-      >
-        <Info className="h-3.5 w-3.5 mr-1 text-primary shrink-0" />
-        <span>Click nodes to select. Use arrow keys to navigate. Space to expand/collapse.</span>
-      </Panel>
-    </>
-  );
-}
-
-type FlowState = {
-  selectedNodeId: string | null;
-  collapsedNodeIds: Set<string>;
-  focusMode: boolean;
-  searchQuery: string;
-};
-
-type FlowAction =
-  | { type: "RESET"; initialRoot: string | null }
-  | { type: "SET_SELECTED_NODE_ID"; id: string | null }
-  | { type: "TOGGLE_COLLAPSE"; id: string }
-  | { type: "SET_FOCUS_MODE"; mode: boolean }
-  | { type: "TOGGLE_FOCUS_MODE" }
-  | { type: "SET_SEARCH_QUERY"; query: string };
-
-function flowReducer(state: FlowState, action: FlowAction): FlowState {
-  switch (action.type) {
-    case "RESET":
-      return {
-        selectedNodeId: action.initialRoot,
-        collapsedNodeIds: new Set(),
-        focusMode: false,
-        searchQuery: "",
-      };
-    case "SET_SELECTED_NODE_ID":
-      return { ...state, selectedNodeId: action.id };
-    case "TOGGLE_COLLAPSE": {
-      const next = new Set(state.collapsedNodeIds);
-      if (next.has(action.id)) {
-        next.delete(action.id);
-      } else {
-        next.add(action.id);
-      }
-      return { ...state, collapsedNodeIds: next };
-    }
-    case "SET_FOCUS_MODE":
-      return { ...state, focusMode: action.mode };
-    case "TOGGLE_FOCUS_MODE":
-      return { ...state, focusMode: !state.focusMode };
-    case "SET_SEARCH_QUERY":
-      return { ...state, searchQuery: action.query };
-    default:
-      return state;
-  }
-}
-
-function MindMapFlow({ materialId: _materialId, content }: MindMapViewProps) {
-  const rawNodes = useMemo(() => content.nodes ?? [], [content.nodes]);
-  const rawEdges = useMemo(() => content.edges ?? [], [content.edges]);
-
-  const { fitView } = useReactFlow();
-
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-
-  const [state, dispatch] = useReducer(flowReducer, {
-    selectedNodeId:
-      content.rootId || (content.nodes && content.nodes[0]?.id) || null,
-    collapsedNodeIds: new Set<string>(),
-    focusMode: false,
-    searchQuery: "",
-  });
-  const { selectedNodeId, collapsedNodeIds, focusMode, searchQuery } = state;
-  const [direction, setDirection] = useState<"LR" | "TB">("LR");
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const [prevContent, setPrevContent] = useState(content);
-  if (content !== prevContent) {
-    setPrevContent(content);
-    dispatch({
-      type: "RESET",
-      initialRoot:
-        content.rootId || (content.nodes && content.nodes[0]?.id) || null,
-    });
-  }
-
-  const setSelectedNodeId = useCallback((id: string | null) => {
-    dispatch({ type: "SET_SELECTED_NODE_ID", id });
-  }, []);
-
-  const setFocusMode = useCallback(
-    (modeOrFn: boolean | ((prev: boolean) => boolean)) => {
-      if (typeof modeOrFn === "function") {
-        dispatch({ type: "TOGGLE_FOCUS_MODE" });
-      } else {
-        dispatch({ type: "SET_FOCUS_MODE", mode: modeOrFn });
-      }
-    },
-    [],
-  );
-
-  const setSearchQuery = useCallback((query: string) => {
-    dispatch({ type: "SET_SEARCH_QUERY", query });
-  }, []);
-
-  const { adjacencyList, parentMap } = useMemo(() => {
-    const adj: Record<string, string[]> = {};
-    const parents: Record<string, string> = {};
-
-    for (const node of rawNodes) {
-      adj[node.id] = [];
-    }
-    for (const edge of rawEdges) {
-      if (adj[edge.sourceId] && adj[edge.targetId]) {
-        adj[edge.sourceId].push(edge.targetId);
-        parents[edge.targetId] = edge.sourceId;
-      }
-    }
-    return { adjacencyList: adj, parentMap: parents };
-  }, [rawNodes, rawEdges]);
-
-  const handleToggleCollapse = useCallback(
-    (id: string, e?: React.MouseEvent) => {
-      if (e) e.stopPropagation();
-      dispatch({ type: "TOGGLE_COLLAPSE", id });
-    },
-    [],
-  );
-
-  const updateLayout = useCallback(() => {
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      rawNodes,
-      rawEdges,
-      collapsedNodeIds,
-      selectedNodeId,
-      focusMode,
-      { direction, nodeWidth: 220, nodeHeight: 90 },
-    );
-
-    const query = searchQuery.trim().toLowerCase();
-    const processedNodes = layoutedNodes.map((n) => {
-      const matchesSearch = query
-        ? n.data.label.toLowerCase().includes(query)
-        : true;
-      const isFocused = n.data.isFocused && matchesSearch;
-
-      return {
-        ...n,
-        data: {
-          ...n.data,
-          direction,
-          onToggleCollapse: handleToggleCollapse,
-          isFocused,
-          isHighlighted: query && matchesSearch,
-        },
-      };
-    });
-
-    setNodes(processedNodes);
-    setEdges(layoutedEdges);
-  }, [
-    rawNodes,
-    rawEdges,
-    collapsedNodeIds,
-    selectedNodeId,
-    focusMode,
-    direction,
-    searchQuery,
-    handleToggleCollapse,
-    setNodes,
-    setEdges,
-  ]);
-
-  useEffect(() => {
-    updateLayout();
-  }, [updateLayout]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fitView({ padding: 0.15, duration: 300 });
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [collapsedNodeIds, direction, focusMode, fitView]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
-
-      if (!selectedNodeId) return;
-      const currentRfNode = nodes.find((n) => n.id === selectedNodeId);
-      if (!currentRfNode) return;
-
-      let dir: "UP" | "DOWN" | "LEFT" | "RIGHT" | null = null;
-      if (e.key === "ArrowUp") dir = "UP";
-      else if (e.key === "ArrowDown") dir = "DOWN";
-      else if (e.key === "ArrowLeft") dir = "LEFT";
-      else if (e.key === "ArrowRight") dir = "RIGHT";
-
-      if (dir) {
-        e.preventDefault();
-        const next = getClosestNodeInDirection(currentRfNode, nodes, dir);
-        if (next) {
-          setSelectedNodeId(next.id);
-        }
-      } else if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        handleToggleCollapse(selectedNodeId);
-      }
-    },
-    [nodes, selectedNodeId, handleToggleCollapse, setSelectedNodeId],
-  );
-
-  const selectedNode = rawNodes.find((n) => n.id === selectedNodeId);
-  const selectedNodeChildren = useMemo(() => {
-    if (!selectedNodeId) return [];
-    return (adjacencyList[selectedNodeId] || []).flatMap((id) => {
-      const found = rawNodes.find((n) => n.id === id);
-      return found ? [found] : [];
-    });
-  }, [selectedNodeId, adjacencyList, rawNodes]);
-
-  const selectedNodeParent = useMemo(() => {
-    if (!selectedNodeId || !parentMap[selectedNodeId]) return null;
-    return rawNodes.find((n) => n.id === parentMap[selectedNodeId]) || null;
-  }, [selectedNodeId, parentMap, rawNodes]);
-
-  const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id);
-  }, [setSelectedNodeId]);
+function MindMapNode({ data }: NodeProps<MindMapFlowNode>) {
+  const isRoot = data.depth === 0;
+  const hasChildren = data.item.children.length > 0;
 
   return (
     <div
-      role="application"
       className={cn(
-        "flex flex-col gap-4 animate-in fade-in duration-200 w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        isFullscreen &&
-          "fixed inset-0 z-50 bg-background p-6 w-screen h-screen overflow-hidden",
+        "group relative min-w-[190px] max-w-[230px] rounded-lg border bg-card px-4 py-3 text-left text-card-foreground shadow-sm transition-all duration-200",
+        isRoot && "min-w-[210px] rounded-full border-primary bg-primary text-primary-foreground",
+        data.selected && !isRoot && "border-primary ring-1 ring-primary",
+        !data.selected && !isRoot && "border-border hover:border-foreground/30",
       )}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
     >
-      <Card
-        className={cn(
-          "relative w-full overflow-hidden border border-border bg-card shadow-sm flex flex-col transition-all duration-300",
-          isFullscreen ? "flex-1 h-full" : "h-[450px]",
+      <Handle type="target" position={Position.Left} className="!h-1 !w-1 !border-0 !bg-transparent" />
+      <div className="flex items-center gap-2">
+        {isRoot ? (
+          <Sparkles className="size-4 shrink-0" />
+        ) : (
+          <span className="size-1.5 shrink-0 rounded-full bg-primary" />
         )}
-      >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={onNodeClick}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.15 }}
-          colorMode="system"
-          className="flex-1 w-full h-full"
+        <span className="text-sm font-semibold leading-tight">{data.item.label}</span>
+      </div>
+
+      {hasChildren && (
+        <button
+          type="button"
+          aria-label={data.expanded ? `Collapse ${data.item.label}` : `Expand ${data.item.label}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            data.onToggle(data.item.id);
+          }}
+          className="absolute -right-3 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
         >
-          <Background
-            variant={BackgroundVariant.Dots}
-            gap={16}
-            size={1}
-            className="opacity-75"
-          />
-
-          <MindMapControlPanels
-            direction={direction}
-            setDirection={setDirection}
-            focusMode={focusMode}
-            setFocusMode={setFocusMode}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            isFullscreen={isFullscreen}
-            setIsFullscreen={setIsFullscreen}
-            fitView={fitView}
-          />
-
-          <MiniMap
-            nodeStrokeColor={(n) => (n.data?.color as string) || "#4f46e5"}
-            nodeColor={(n) => (n.data?.color as string) || "#4f46e5"}
-            maskColor="rgba(0, 0, 0, 0.08)"
-            style={{ width: 100, height: 70 }}
-            className="border border-border/60 rounded-2xl bg-card/65"
-          />
-        </ReactFlow>
-      </Card>
-
-      {selectedNode && (
-        <MindMapDetailsCard
-          selectedNode={selectedNode}
-          selectedNodeParent={selectedNodeParent}
-          selectedNodeChildren={selectedNodeChildren}
-          setSelectedNodeId={setSelectedNodeId}
-        />
+          <ChevronRight className={cn("size-3.5 transition-transform", data.expanded && "rotate-90")} />
+        </button>
       )}
+      <Handle type="source" position={Position.Right} className="!h-1 !w-1 !border-0 !bg-transparent" />
+    </div>
+  );
+}
+
+function HighlightEdge(props: EdgeProps<Edge>) {
+  return <BezierEdge {...props} />;
+}
+
+const nodeTypes = { mindMap: MindMapNode };
+const edgeTypes = { highlight: HighlightEdge };
+
+function createTree(
+  content: MindMapViewProps["content"],
+): { root: MapItem | null; depths: Map<string, number> } {
+  const nodesById = new Map(content.nodes.map((node) => [node.id, node]));
+  const childrenById = new Map<string, string[]>();
+  const childIds = new Set<string>();
+
+  for (const edge of content.edges) {
+    if (!nodesById.has(edge.sourceId) || !nodesById.has(edge.targetId)) continue;
+    const children = childrenById.get(edge.sourceId) ?? [];
+    children.push(edge.targetId);
+    childrenById.set(edge.sourceId, children);
+    childIds.add(edge.targetId);
+  }
+
+  const rootId = content.rootId || content.nodes.find((node) => !childIds.has(node.id))?.id;
+  if (!rootId || !nodesById.has(rootId)) return { root: null, depths: new Map() };
+
+  const visited = new Set<string>();
+  const depths = new Map<string, number>();
+  const build = (id: string, depth: number): MapItem | null => {
+    if (visited.has(id)) return null;
+    const node = nodesById.get(id);
+    if (!node) return null;
+    visited.add(id);
+    depths.set(id, depth);
+
+    return {
+      id: node.id,
+      label: node.label,
+      color: node.color,
+      children: (childrenById.get(id) ?? []).flatMap((childId) => {
+        const child = build(childId, depth + 1);
+        return child ? [child] : [];
+      }),
+    };
+  };
+
+  return { root: build(rootId, 0), depths };
+}
+
+function buildGraph(
+  root: MapItem,
+  expandedIds: Set<string>,
+  selectedId: string | null,
+  onToggle: (id: string) => void,
+): { nodes: MindMapFlowNode[]; edges: Edge[] } {
+  const nodes: MindMapFlowNode[] = [];
+  const edges: Edge[] = [];
+  const rowsByDepth = new Map<number, number>();
+
+  const visit = (item: MapItem, depth: number, parentId?: string) => {
+    const row = rowsByDepth.get(depth) ?? 0;
+    rowsByDepth.set(depth, row + 1);
+
+    nodes.push({
+      id: item.id,
+      type: "mindMap",
+      position: { x: depth * 330, y: (row - 2) * 128 },
+      data: {
+        item,
+        depth,
+        expanded: expandedIds.has(item.id),
+        selected: selectedId === item.id,
+        onToggle,
+      },
+    });
+
+    if (parentId) {
+      const active = parentId === selectedId || item.id === selectedId;
+      edges.push({
+        id: `${parentId}-${item.id}`,
+        source: parentId,
+        target: item.id,
+        type: active ? "highlight" : "default",
+        style: {
+          stroke: active ? "var(--foreground)" : "var(--border)",
+          strokeWidth: active ? 2.5 : 1.5,
+        },
+      });
+    }
+
+    if (expandedIds.has(item.id)) {
+      item.children.forEach((child) => visit(child, depth + 1, item.id));
+    }
+  };
+
+  visit(root, 0);
+  return { nodes, edges };
+}
+
+function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
+  const { root, depths } = useMemo(() => createTree(content), [content]);
+  const rootId = root?.id ?? null;
+  const [expandedIds, setExpandedIds] = useState(() => new Set(rootId ? [rootId] : []));
+  const [selectedId, setSelectedId] = useState<string | null>(rootId);
+  const [nodes, setNodes, onNodesChange] = useNodesState<MindMapFlowNode>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const { fitView, zoomIn, zoomOut, setCenter } = useReactFlow();
+
+  useEffect(() => {
+    setExpandedIds(new Set(rootId ? [rootId] : []));
+    setSelectedId(rootId);
+  }, [content, rootId]);
+
+  const toggleNode = useCallback(
+    (id: string) => {
+      setSelectedId(id);
+      setExpandedIds((current) => {
+        const next = new Set(current);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          const depth = depths.get(id);
+          if (depth !== undefined) {
+            for (const [candidateId, candidateDepth] of depths) {
+              if (candidateDepth === depth && candidateId !== id) next.delete(candidateId);
+            }
+          }
+          next.add(id);
+        }
+        return next;
+      });
+      window.setTimeout(() => fitView({ duration: 500, padding: 0.24 }), 30);
+    },
+    [depths, fitView],
+  );
+
+  const selectLeaf = useCallback(
+    (item: MapItem) => {
+      setSelectedId(item.id);
+      if (item.children.length > 0) {
+        toggleNode(item.id);
+        return;
+      }
+
+      const prompt = `I'm studying the mind-map concept "${item.label}"${materialTitle ? ` from the study material "${materialTitle}"` : ""}.\n\nPlease explain this concept in depth with practical examples, related ideas, and key insights I should remember.`;
+      window.dispatchEvent(
+        new CustomEvent("send-chat-prompt", {
+          detail: {
+            prompt,
+            autoSend: true,
+            focusChat: true,
+            concept: item.label,
+          },
+        }),
+      );
+    },
+    [materialTitle, toggleNode],
+  );
+
+  const graph = useMemo(
+    () => (root ? buildGraph(root, expandedIds, selectedId, toggleNode) : { nodes: [], edges: [] }),
+    [expandedIds, root, selectedId, toggleNode],
+  );
+
+  useEffect(() => setNodes(graph.nodes), [graph.nodes, setNodes]);
+  useEffect(() => setEdges(graph.edges), [graph.edges, setEdges]);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => fitView({ duration: 450, padding: 0.24 }), 150);
+    return () => window.clearTimeout(timeout);
+  }, [fitView, graph.nodes.length]);
+
+  const centerSelected = () => {
+    const node = nodes.find((candidate) => candidate.id === selectedId);
+    if (node) {
+      setCenter(node.position.x + 100, node.position.y + 40, { zoom: 1.05, duration: 500 });
+    } else {
+      fitView({ duration: 500, padding: 0.24 });
+    }
+  };
+
+  if (!root) {
+    return <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-border bg-card text-sm text-muted-foreground">This mind map has no connected nodes yet.</div>;
+  }
+
+  return (
+    <div className="relative h-[min(680px,calc(100vh-180px))] min-h-[420px] w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeClick={(_, node) => selectLeaf(node.data.item)}
+        onInit={(instance) => window.setTimeout(() => instance.fitView({ padding: 0.24 }), 100)}
+        fitView
+        minZoom={0.35}
+        maxZoom={1.7}
+        panOnDrag
+        zoomOnScroll
+        zoomOnPinch
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1} className="opacity-60" />
+      </ReactFlow>
+
+      <div className="absolute right-4 top-4 flex flex-col gap-1.5 rounded-xl border border-border bg-card/95 p-1.5 shadow-sm backdrop-blur-md">
+        <Button variant="ghost" size="icon" onClick={() => zoomIn({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom in"><Plus className="size-4" /></Button>
+        <Button variant="ghost" size="icon" onClick={() => zoomOut({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom out"><Minus className="size-4" /></Button>
+        <div className="mx-1 h-px bg-border" />
+        <Button variant="ghost" size="icon" onClick={centerSelected} className="size-8 text-muted-foreground" aria-label="Center selected node"><Crosshair className="size-4" /></Button>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-4 left-4 hidden items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-2 text-[10px] text-muted-foreground backdrop-blur-md sm:flex">
+        <span className="size-1.5 rounded-full bg-primary" /> Drag to pan · Scroll to zoom · Click a node to explore
+      </div>
     </div>
   );
 }

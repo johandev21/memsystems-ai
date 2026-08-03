@@ -4,22 +4,18 @@ import {
   Maximize2,
   Minimize2,
   X,
-  Brain,
-  HelpCircle,
-  FileText,
-  Map,
-  Presentation,
-  Network,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
 import type {
   FlashcardEditorContentType,
   QuizEditorContentType,
   RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
-import type { ReportContentType, SlideDeckContentType } from "@/features/study-materials";
+import type {
+  MindMapContentType,
+  ReportContentType,
+  SlideDeckContentType,
+} from "@/features/study-materials";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import { FlashcardView } from "./FlashcardView";
 import { MindMapView } from "./MindMapView";
@@ -34,24 +30,13 @@ export interface MaterialViewerProps {
   showHeader?: boolean;
 }
 
-const KIND_METADATA: Record<
-  string,
-  { label: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  simple_flashcard: { label: "Flashcards", icon: Brain },
-  quiz: { label: "Quiz", icon: HelpCircle },
-  report: { label: "Summary / Report", icon: FileText },
-  roadmap: { label: "Roadmap", icon: Map },
-  slide_deck: { label: "Slide Deck", icon: Presentation },
-  mind_map: { label: "Mind Map", icon: Network },
-};
-
 export function MaterialViewer({
   material,
   onClose,
   showHeader = true,
 }: MaterialViewerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isExitingFullscreen, setIsExitingFullscreen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -63,11 +48,31 @@ export function MaterialViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen]);
 
-  const kindMeta = KIND_METADATA[material.kind] || {
-    label: material.kind,
-    icon: Sparkles,
-  };
-  const KindIcon = kindMeta.icon;
+  useEffect(() => {
+    let exitTimer: number | undefined;
+    const handleChatNavigation = (event: Event) => {
+      const detail = (event as CustomEvent<{ focusChat?: boolean }>).detail;
+      if (detail?.focusChat && isFullscreen) {
+        setIsExitingFullscreen(true);
+        const reducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        exitTimer = window.setTimeout(
+          () => {
+            setIsFullscreen(false);
+            setIsExitingFullscreen(false);
+          },
+          reducedMotion ? 0 : 150,
+        );
+      }
+    };
+
+    window.addEventListener("send-chat-prompt", handleChatNavigation);
+    return () => {
+      window.removeEventListener("send-chat-prompt", handleChatNavigation);
+      if (exitTimer) window.clearTimeout(exitTimer);
+    };
+  }, [isFullscreen]);
 
   const renderContent = () => {
     switch (material.kind) {
@@ -104,10 +109,11 @@ export function MaterialViewer({
         );
       case "mind_map":
         return (
-          <MindMapView
-            materialId={material.id}
-            content={material.content as any}
-          />
+            <MindMapView
+              materialId={material.id}
+              materialTitle={material.title}
+              content={material.content as MindMapContentType}
+            />
         );
       default:
         return (
@@ -167,9 +173,15 @@ export function MaterialViewer({
     </div>
   );
 
-  if (isFullscreen) {
+  if (isFullscreen || isExitingFullscreen) {
     return (
-      <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col h-screen w-screen overflow-hidden animate-in fade-in duration-150">
+      <div
+        className={`fixed inset-0 z-50 flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground motion-reduce:animate-none ${
+          isExitingFullscreen
+            ? "animate-out fade-out duration-150"
+            : "animate-in fade-in duration-150"
+        }`}
+      >
         {header}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
           {renderContent()}
