@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { count, desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -9,12 +9,18 @@ import {
   BadRequestError,
   NotFoundError,
 } from '../../common/errors/domain-error';
-import { IndexingService } from '../ai/indexing.service';
 import { DRIZZLE } from '../database/database.module';
 import { NotebooksService } from '../notebooks/notebooks.service';
 import { StorageService } from '../storage/storage.service';
+import {
+  EXTRACTOR_VERSION,
+  NormalizedDocument,
+  NORMALIZATION_VERSION,
+} from './document-normalizer.service';
+import { SourceAcquisitionService } from './source-acquisition.service';
 import { SourceExtractionService } from './source-extraction.service';
-import { WebScrapeError, WebScraperService } from './web-scraper.service';
+import { SourceJobsService } from './source-jobs.service';
+import { WebScrapeError } from './source-errors';
 
 export type SourceKind = 'text' | 'url' | 'file';
 
@@ -64,7 +70,10 @@ function looksLikeUrlTitle(title: string): boolean {
   return /^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(title);
 }
 
-function resolveSourceTitle(providedTitle?: string, scrapedTitle?: string): string {
+function resolveSourceTitle(
+  providedTitle?: string,
+  scrapedTitle?: string,
+): string {
   const provided = providedTitle?.trim();
   const scraped = scrapedTitle?.trim();
 
@@ -75,16 +84,14 @@ function resolveSourceTitle(providedTitle?: string, scrapedTitle?: string): stri
 
 @Injectable()
 export class SourcesService {
-  private readonly logger = new Logger(SourcesService.name);
-
   constructor(
     @Inject(DRIZZLE)
     private readonly db: NodePgDatabase<typeof authSchema & typeof appSchema>,
     private readonly notebooksService: NotebooksService,
     private readonly storageService: StorageService,
-    private readonly indexingService: IndexingService,
+    private readonly acquisitionService: SourceAcquisitionService,
+    private readonly sourceJobsService: SourceJobsService,
     private readonly sourceExtractionService: SourceExtractionService,
-    private readonly webScraperService: WebScraperService,
   ) {}
 
   async list(userId: string, notebookId: string) {
@@ -106,7 +113,9 @@ export class SourcesService {
   }
 
   async get(userId: string, id: string) {
-    return this.fetchOwned(userId, id);
+    const source = await this.fetchOwned(userId, id);
+    const indexingStatus = await this.sourceJobsService.latestForSource(id);
+    return { ...source, indexingStatus };
   }
 
   async createText(
@@ -125,22 +134,23 @@ export class SourcesService {
         `rawText exceeds maximum size of ${MAX_RAW_TEXT_BYTES} bytes`,
       );
     }
+
+    const document = this.acquisitionService.fromText(rawText, title);
     const [row] = await this.db
       .insert(sources)
       .values({
         notebookId,
         kind: 'text',
-        title: title.slice(0, 500),
-        rawText,
+        title: document.title.slice(0, 500),
+        rawText: document.text,
+        contentHash: document.contentHash,
+        extractionMethod: document.extractionMethod,
+        extractorVersion: EXTRACTOR_VERSION,
+        normalizationVersion: NORMALIZATION_VERSION,
       })
       .returning();
 
-    this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error('Failed to index source after text creation', {
-        sourceId: row.id,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    });
+    await this.sourceJobsService.enqueue(row.id);
     return row;
   }
 
@@ -150,9 +160,9 @@ export class SourcesService {
     input: CreateUrlSourceInput,
   ) {
     await this.notebooksService.assertNotebookOwner(userId, notebookId);
-    const scraped = await this.webScraperService.scrapeUrl(input.url);
+    const document = await this.acquisitionService.acquireUrl(input.url);
 
-    const scrapedText = scraped.text.trim();
+    const scrapedText = document.text.trim();
     if (input.minTextLength && scrapedText.length < input.minTextLength) {
       throw new WebScrapeError(
         `Page has too little content (${scrapedText.length} chars, need at least ${input.minTextLength})`,
@@ -160,7 +170,7 @@ export class SourcesService {
       );
     }
 
-    const title = resolveSourceTitle(input.title, scraped.title);
+    const title = resolveSourceTitle(input.title, document.title);
     const [row] = await this.db
       .insert(sources)
       .values({
@@ -169,17 +179,24 @@ export class SourcesService {
         addedVia: input.provenance?.addedVia ?? 'manual',
         metadata: input.provenance?.metadata ?? null,
         title,
-        rawText: scrapedText,
+        rawText: document.text,
         url: input.url,
+        contentHash: document.contentHash,
+        canonicalUrl: document.canonicalUrl ?? null,
+        fetchedUrl: document.fetchedUrl ?? null,
+        httpStatus: document.status ?? null,
+        fetchedAt: new Date(),
+        etag: document.etag ?? null,
+        lastModified: document.lastModified ?? null,
+        contentType: document.httpContentType ?? null,
+        extractionMethod: document.extractionMethod,
+        extractorVersion: EXTRACTOR_VERSION,
+        normalizationVersion: NORMALIZATION_VERSION,
+        robotsDecision: document.robotsDecision ?? null,
       })
       .returning();
 
-    this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error('Failed to index source after URL creation', {
-        sourceId: row.id,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    });
+    await this.sourceJobsService.enqueue(row.id);
     return row;
   }
 
@@ -201,9 +218,7 @@ export class SourcesService {
       .select({ url: sources.url })
       .from(sources)
       .where(eq(sources.notebookId, notebookId));
-    return rows
-      .map((r) => r.url)
-      .filter((url): url is string => url !== null);
+    return rows.map((r) => r.url).filter((url): url is string => url !== null);
   }
 
   async createFile(
@@ -238,9 +253,9 @@ export class SourcesService {
       contentType: fileType || 'application/octet-stream',
     });
 
-    let extracted: { text: string };
+    let document: NormalizedDocument;
     try {
-      extracted = await this.sourceExtractionService.extractText(
+      document = await this.acquisitionService.acquireFile(
         fileBuffer,
         fileType,
         fileName,
@@ -258,20 +273,19 @@ export class SourcesService {
         notebookId,
         kind: 'file',
         title,
-        rawText: extracted.text,
+        rawText: document.text,
         s3Key,
         contentType: fileType || null,
         fileSize: fileBuffer.length,
         sha256,
+        contentHash: document.contentHash,
+        extractionMethod: document.extractionMethod,
+        extractorVersion: EXTRACTOR_VERSION,
+        normalizationVersion: NORMALIZATION_VERSION,
       })
       .returning();
 
-    this.indexingService.indexSource(row.id, userId).catch((err) => {
-      this.logger.error('Failed to index source after file creation', {
-        sourceId: row.id,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    });
+    await this.sourceJobsService.enqueue(row.id);
     return row;
   }
 
@@ -280,12 +294,25 @@ export class SourcesService {
     if (source.kind === 'file' && source.s3Key) {
       await this.storageService.deleteObject(source.s3Key).catch(() => {});
     }
-    await this.indexingService.deleteSourceChunks(id).catch(() => {});
+    await this.sourceJobsService.cancelForSource(id);
     const [deleted] = await this.db
       .delete(sources)
       .where(eq(sources.id, id))
       .returning();
     return deleted;
+  }
+
+  /** Explicit operator re-run: enqueues a fresh indexing job for a source. */
+  async reindex(userId: string, id: string) {
+    await this.fetchOwned(userId, id);
+    const job = await this.sourceJobsService.enqueue(id);
+    return job;
+  }
+
+  async reindexNotebook(userId: string, notebookId: string) {
+    await this.notebooksService.assertNotebookOwner(userId, notebookId);
+    const count = await this.sourceJobsService.reindexNotebook(notebookId);
+    return { enqueued: count };
   }
 
   async getDownload(

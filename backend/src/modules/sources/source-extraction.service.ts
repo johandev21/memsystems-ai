@@ -25,7 +25,8 @@ const DOCX_MIME_TYPES = new Set([
 function normalizeText(text: string): string {
   return text
     .replace(/\r\n/g, '\n')
-    .replace(/\u0000/g, '')
+    .split('\u0000')
+    .join('')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }

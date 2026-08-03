@@ -89,7 +89,7 @@ export class SourcesController {
   async createFileSource(
     @CurrentUser('id') userId: string,
     @Param('notebookId') notebookId: string,
-    @UploadedFile() file?: any,
+    @UploadedFile() file?: Express.Multer.File,
     @Body('title') title?: string,
   ) {
     if (!file) {
@@ -110,6 +110,14 @@ export class SourcesController {
     return this.sourcesService.get(userId, id);
   }
 
+  @Post('sources/:id/reindex')
+  async reindexSource(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.sourcesService.reindex(userId, id);
+  }
+
   @Delete('sources/:id')
   async deleteSource(
     @CurrentUser('id') userId: string,
@@ -124,6 +132,14 @@ export class SourcesController {
     @Param('id') id: string,
   ) {
     return this.sourcesService.getDownload(userId, id);
+  }
+
+  @Post('notebooks/:notebookId/sources/reindex')
+  async reindexNotebook(
+    @CurrentUser('id') userId: string,
+    @Param('notebookId') notebookId: string,
+  ) {
+    return this.sourcesService.reindexNotebook(userId, notebookId);
   }
 
   @Post('notebooks/:notebookId/sources/web-search')

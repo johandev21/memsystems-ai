@@ -1,86 +1,107 @@
-import { describe, expect, it, vi } from "vitest";
-import { WebScraperService } from "../src/modules/sources/web-scraper.service";
+import { describe, expect, it } from 'vitest';
+import { WebScraperService } from '../src/modules/sources/web-scraper.service';
 
-describe("WebScraperService Unit Tests", () => {
+const ARTICLE_PAGE = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Epistemology - Wikipedia</title>
+    </head>
+    <body>
+      <main id="content">
+        <h1>Epistemology</h1>
+        <p>
+          Epistemology is the branch of philosophy concerned with knowledge<sup class="reference"><a href="#cite_note-1">[1]</a></sup>.
+          Epistemologists study the nature, origin, and scope of knowledge, epistemic justification, the rationality of belief, and various related issues.
+          Epistemology is considered one of the core subfields of philosophy, alongside ethics, logic, and metaphysics.
+          Debates in epistemology are generally centered around four core areas: the philosophical analysis of the nature of knowledge and how it relates to concepts such as truth, belief, and justification.
+        </p>
+        <p>
+          Knowledge is often defined as justified true belief<sup class="reference"><a href="#cite_note-2">[2]</a></sup>.
+          This concept has been debated extensively across various philosophical traditions since Antiquity.
+          The Gettier problem, presented by Edmund Gettier in 1963, challenged the traditional view that justified true belief constitutes knowledge by presenting counterexamples where a belief is both true and justified, yet fails to count as genuine knowledge<sup class="reference"><a href="#cite_note-3">[3]</a></sup>.
+        </p>
+        <div id="References" class="reflist">
+          <h2>References</h2>
+          <ol class="references">
+            <li id="cite_note-1">1. Steup, Matthias (2005). Epistemology. Stanford Encyclopedia of Philosophy.</li>
+            <li id="cite_note-2">2. Gettier, Edmund (1963). Is Justified True Belief Knowledge? Analysis 23 (6): 121–123.</li>
+          </ol>
+        </div>
+        <div class="navbox">Navigation box content</div>
+      </main>
+    </body>
+  </html>
+`;
+
+const SHELL_PAGE = `
+  <!DOCTYPE html>
+  <html>
+    <head><title>App Shell</title></head>
+    <body>
+      <div id="root">
+        <nav>Menu</nav>
+        <footer>Copyright 2025</footer>
+      </div>
+    </body>
+  </html>
+`;
+
+describe('WebScraperService', () => {
   const service = new WebScraperService();
 
-  it("should throw WebScrapeError for invalid URLs", async () => {
-    await expect(service.scrapeUrl("invalid-url")).rejects.toThrow("Invalid URL");
-  });
-
-  it("should clean Wikipedia citation sections and inline references [1] from scraped HTML", async () => {
-    const wikipediaSampleHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Epistemology - Wikipedia</title>
-        </head>
-        <body>
-          <main id="content">
-            <h1>Epistemology</h1>
-            <p>
-              Epistemology is the branch of philosophy concerned with knowledge<sup class="reference"><a href="#cite_note-1">[1]</a></sup>.
-              Epistemologists study the nature, origin, and scope of knowledge, epistemic justification, the rationality of belief, and various related issues.
-              Epistemology is considered one of the core subfields of philosophy, alongside ethics, logic, and metaphysics.
-              Debates in epistemology are generally centered around four core areas: the philosophical analysis of the nature of knowledge and how it relates to concepts such as truth, belief, and justification.
-            </p>
-            <p>
-              Knowledge is often defined as justified true belief<sup class="reference"><a href="#cite_note-2">[2]</a></sup>.
-              This concept has been debated extensively across various philosophical traditions since Antiquity.
-              The Gettier problem, presented by Edmund Gettier in 1963, challenged the traditional view that justified true belief constitutes knowledge by presenting counterexamples where a belief is both true and justified, yet fails to count as genuine knowledge<sup class="reference"><a href="#cite_note-3">[3]</a></sup>.
-            </p>
-            <div id="References" class="reflist">
-              <h2>References</h2>
-              <ol class="references">
-                <li id="cite_note-1">1. Steup, Matthias (2005). Epistemology. Stanford Encyclopedia of Philosophy.</li>
-                <li id="cite_note-2">2. Gettier, Edmund (1963). Is Justified True Belief Knowledge? Analysis 23 (6): 121–123.</li>
-              </ol>
-            </div>
-            <div class="navbox">Navigation box content</div>
-          </main>
-        </body>
-      </html>
-    `;
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        headers: new Headers({ "content-type": "text/html; charset=utf-8" }),
-        body: {
-          getReader() {
-            let readCount = 0;
-            const encoder = new TextEncoder();
-            const data = encoder.encode(wikipediaSampleHtml);
-            return {
-              async read() {
-                if (readCount > 0) return { done: true, value: undefined };
-                readCount++;
-                return { done: false, value: data };
-              },
-              async cancel() {},
-            };
-          },
-        },
-      }),
+  it('cleans Wikipedia citation sections and inline superscript references', () => {
+    const scraped = service.extractHtml(
+      ARTICLE_PAGE,
+      'https://en.wikipedia.org/wiki/Epistemology',
     );
 
-    const scraped = await service.scrapeUrl("https://en.wikipedia.org/wiki/Epistemology");
+    expect(scraped.title).toBe('Epistemology - Wikipedia');
+    // Inline citations live inside <sup class="reference">, removed by DOM cleaning
+    expect(scraped.text).not.toContain('[1]');
+    expect(scraped.text).not.toContain('[2]');
+    expect(scraped.text).not.toContain('[3]');
+    // Citation section (.reflist) and navbox are stripped
+    expect(scraped.text).not.toContain('Steup, Matthias');
+    expect(scraped.text).not.toContain('Gettier, Edmund');
+    expect(scraped.text).not.toContain('Navigation box content');
+    // Main text is present
+    expect(scraped.text).toContain(
+      'Epistemology is the branch of philosophy concerned with knowledge',
+    );
+    // Article HTML is exposed for section derivation
+    expect(scraped.html).toContain('<p>');
+  });
 
-    expect(scraped.title).toBe("Epistemology - Wikipedia");
-    // Verify inline citations like [1], [2], [3] are stripped
-    expect(scraped.text).not.toContain("[1]");
-    expect(scraped.text).not.toContain("[2]");
-    expect(scraped.text).not.toContain("[3]");
-    // Verify citation section (.reflist) is stripped
-    expect(scraped.text).not.toContain("Steup, Matthias");
-    expect(scraped.text).not.toContain("Gettier, Edmund");
-    // Verify navbox is stripped
-    expect(scraped.text).not.toContain("Navigation box content");
-    // Verify main text is present
-    expect(scraped.text).toContain("Epistemology is the branch of philosophy concerned with knowledge");
+  it('throws not_readerable for pages with no article-like content', () => {
+    expect(() =>
+      service.extractHtml(SHELL_PAGE, 'https://example.com/app'),
+    ).toThrow('does not contain article-like content');
+  });
 
-    vi.unstubAllGlobals();
+  it('throws not_readerable for empty pages', () => {
+    expect(() =>
+      service.extractHtml(
+        '<!DOCTYPE html><html><body></body></html>',
+        'https://example.com/empty',
+      ),
+    ).toThrow('does not contain article-like content');
+  });
+
+  it('tolerates malformed HTML', () => {
+    const malformed = [
+      '<html><head><title>Broken</title></head>',
+      '<body><main><h1>Title</h1>',
+      '<p>Some substantial paragraph text that makes this article readable enough to be extracted by the reader heuristic. It has plenty of words across several sentences, and every sentence adds just a little more length to the paragraph so the overall block crosses the content threshold comfortably.',
+      '<p>Another paragraph with more content to push the length well past the readability threshold. Malformed markup like unclosed tags should not prevent extraction from working on broken pages, because the HTML parser recovers the structure and Readability only needs a solid block of text to work with.',
+      '<p>Even a third paragraph to be safe: broken HTML is common in the wild, and the extractor should still return the readable core of the page for indexing. Each of these paragraphs is long enough to contribute meaningful reader score on its own.',
+      '</main></body>',
+    ].join('');
+    const scraped = service.extractHtml(
+      malformed,
+      'https://example.com/broken',
+    );
+    expect(scraped.title).toBe('Broken');
+    expect(scraped.text).toContain('Title');
   });
 });

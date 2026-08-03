@@ -16,7 +16,7 @@ import {
 } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
-import { ChevronRight, Crosshair, Minus, Plus, Sparkles } from "lucide-react";
+import { ChevronRight, Crosshair, Minus, Plus } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/lib/utils";
 
@@ -77,11 +77,6 @@ function MindMapNode({ data }: NodeProps<MindMapFlowNode>) {
     >
       <Handle type="target" position={Position.Left} className="!h-1 !w-1 !border-0 !bg-transparent" />
       <div className="flex items-center gap-2">
-        {isRoot ? (
-          <Sparkles className="size-4 shrink-0" />
-        ) : (
-          <span className="size-1.5 shrink-0 rounded-full bg-primary" />
-        )}
         <span className="text-sm font-semibold leading-tight">{data.item.label}</span>
       </div>
 
@@ -206,6 +201,10 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
   const rootId = root?.id ?? null;
   const [expandedIds, setExpandedIds] = useState(() => new Set(rootId ? [rootId] : []));
   const [selectedId, setSelectedId] = useState<string | null>(rootId);
+  const [viewportFocus, setViewportFocus] = useState<{
+    id: string;
+    childrenOnly: boolean;
+  } | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<MindMapFlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const { fitView, zoomIn, zoomOut, setCenter } = useReactFlow();
@@ -218,6 +217,8 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
   const toggleNode = useCallback(
     (id: string) => {
       setSelectedId(id);
+      const isCollapsing = expandedIds.has(id);
+      setViewportFocus({ id, childrenOnly: !isCollapsing });
       setExpandedIds((current) => {
         const next = new Set(current);
         if (next.has(id)) {
@@ -233,9 +234,8 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
         }
         return next;
       });
-      window.setTimeout(() => fitView({ duration: 500, padding: 0.24 }), 30);
     },
-    [depths, fitView],
+    [depths, expandedIds],
   );
 
   const selectLeaf = useCallback(
@@ -271,7 +271,37 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
   useEffect(() => {
     const timeout = window.setTimeout(() => fitView({ duration: 450, padding: 0.24 }), 150);
     return () => window.clearTimeout(timeout);
-  }, [fitView, graph.nodes.length]);
+  }, [content, fitView]);
+
+  useEffect(() => {
+    if (!viewportFocus) return;
+
+    const focusNodeIds = new Set<string>();
+    if (!viewportFocus.childrenOnly) focusNodeIds.add(viewportFocus.id);
+    graph.edges.forEach((edge) => {
+      if (edge.source === viewportFocus.id) focusNodeIds.add(edge.target);
+    });
+    if (focusNodeIds.size === 0) focusNodeIds.add(viewportFocus.id);
+
+    const focusNodes = graph.nodes
+      .filter((node) => focusNodeIds.has(node.id))
+      .map((node) => ({ id: node.id }));
+    if (focusNodes.length === 0) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const timeout = window.setTimeout(() => {
+      fitView({
+        nodes: focusNodes,
+        padding: 0.35,
+        duration: reducedMotion ? 0 : 450,
+      });
+      setViewportFocusId(null);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [fitView, graph.edges, graph.nodes, viewportFocus]);
 
   const centerSelected = () => {
     const node = nodes.find((candidate) => candidate.id === selectedId);

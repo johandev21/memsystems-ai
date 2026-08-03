@@ -29,10 +29,22 @@ const WEB_SEARCH_MODELS = new Set([
 ]);
 
 export const OPENAI_MODELS: ProviderModel[] = [
-  { id: 'openai/gpt-4o-mini', displayName: 'GPT-4o Mini', supportsWebSearch: false },
+  {
+    id: 'openai/gpt-4o-mini',
+    displayName: 'GPT-4o Mini',
+    supportsWebSearch: false,
+  },
   { id: 'openai/gpt-4o', displayName: 'GPT-4o', supportsWebSearch: false },
-  { id: 'openai/gpt-5-nano', displayName: 'GPT-5 Nano', supportsWebSearch: true },
-  { id: 'openai/gpt-5-mini', displayName: 'GPT-5 Mini', supportsWebSearch: true },
+  {
+    id: 'openai/gpt-5-nano',
+    displayName: 'GPT-5 Nano',
+    supportsWebSearch: true,
+  },
+  {
+    id: 'openai/gpt-5-mini',
+    displayName: 'GPT-5 Mini',
+    supportsWebSearch: true,
+  },
   { id: 'openai/gpt-5', displayName: 'GPT-5', supportsWebSearch: true },
   { id: 'openai/o3-mini', displayName: 'O3 Mini', supportsWebSearch: false },
   { id: 'openai/o1', displayName: 'O1', supportsWebSearch: false },

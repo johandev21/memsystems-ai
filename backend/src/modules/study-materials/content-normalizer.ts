@@ -133,23 +133,33 @@ export function normalizeQuizContent(content: any): any {
     }
 
     // Check option explanations for explicit "Correct" or "Right answer" vs "Incorrect"
-    if (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length) {
-      const explicitCorrectIdx = normalizedOptions.findIndex((opt: any) =>
-        /^correct/i.test(opt.explanation.trim()) || /^right/i.test(opt.explanation.trim()),
+    if (
+      correctOptionIndex < 0 ||
+      correctOptionIndex >= normalizedOptions.length
+    ) {
+      const explicitCorrectIdx = normalizedOptions.findIndex(
+        (opt: any) =>
+          /^correct/i.test(opt.explanation.trim()) ||
+          /^right/i.test(opt.explanation.trim()),
       );
       if (explicitCorrectIdx >= 0) {
         correctOptionIndex = explicitCorrectIdx;
       }
     }
 
-    if (correctOptionIndex >= 0 && correctOptionIndex < normalizedOptions.length) {
+    if (
+      correctOptionIndex >= 0 &&
+      correctOptionIndex < normalizedOptions.length
+    ) {
       const currentOpt = normalizedOptions[correctOptionIndex];
       if (
         /^incorrect/i.test(currentOpt.explanation.trim()) ||
         /^not quite/i.test(currentOpt.explanation.trim())
       ) {
-        const realCorrectIdx = normalizedOptions.findIndex((opt: any) =>
-          /^correct/i.test(opt.explanation.trim()) || /^right/i.test(opt.explanation.trim()),
+        const realCorrectIdx = normalizedOptions.findIndex(
+          (opt: any) =>
+            /^correct/i.test(opt.explanation.trim()) ||
+            /^right/i.test(opt.explanation.trim()),
         );
         if (realCorrectIdx >= 0) {
           correctOptionIndex = realCorrectIdx;

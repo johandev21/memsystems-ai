@@ -120,7 +120,7 @@ export class AiService {
       this.logger.error('generateText failed during web search', {
         modelId,
         query,
-        error: err instanceof Error ? err.stack ?? err.message : String(err),
+        error: err instanceof Error ? (err.stack ?? err.message) : String(err),
       });
       throw err;
     }
@@ -196,14 +196,17 @@ export function parseSearchJson(text: string): ParsedSearchOutput | null {
     const end = text.lastIndexOf('}');
     if (start === -1 || end <= start) return null;
     const parsed = JSON.parse(text.slice(start, end + 1));
-    if (parsed && typeof parsed === 'object') return parsed as ParsedSearchOutput;
+    if (parsed && typeof parsed === 'object')
+      return parsed as ParsedSearchOutput;
     return null;
   } catch {
     return null;
   }
 }
 
-function extractWebSearchUrls(toolResults: readonly ToolResultLike[]): string[] {
+function extractWebSearchUrls(
+  toolResults: readonly ToolResultLike[],
+): string[] {
   const urls: string[] = [];
   for (const tr of toolResults) {
     if (tr.toolName !== 'web_search' || !tr.output) continue;
@@ -310,7 +313,9 @@ export function reconcileSearchSources(
 function deriveTitle(url: string): string {
   try {
     const parsed = new URL(url);
-    return parsed.hostname + (parsed.pathname.length > 1 ? parsed.pathname : '');
+    return (
+      parsed.hostname + (parsed.pathname.length > 1 ? parsed.pathname : '')
+    );
   } catch {
     return url;
   }

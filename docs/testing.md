@@ -22,7 +22,7 @@ cmd /c "cd /d backend && pnpm run test"  # PowerShell workaround
 ### Setup lifecycle
 - **`beforeAll`** (`tests/setup.ts`): `ensureTestDatabase()` — connects to `postgres`, creates DB if missing, runs `CREATE EXTENSION IF NOT EXISTS vector`.
 - **`beforeEach`**: `resetDatabase()` — `TRUNCATE ... RESTART IDENTITY CASCADE` on all tables.
-- Tables truncated: `notebook_chat_messages`, `generation_requests`, `source_chunks`, `study_materials`, `study_material_folders`, `sources`, `notebooks`, `user_settings`, `verification`, `account`, `session`, `user`.
+- Tables truncated: `notebook_chat_messages`, `generation_requests`, `source_chunks`, `source_index_jobs`, `study_materials`, `study_material_folders`, `sources`, `notebooks`, `user_settings`, `verification`, `account`, `session`, `user`.
 
 ### Fixtures
 `tests/fixtures.ts` provides:

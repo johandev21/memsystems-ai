@@ -1,13 +1,13 @@
-import { createId } from "@paralleldrive/cuid2";
-import { user } from "../src/database/auth-schema";
+import { createId } from '@paralleldrive/cuid2';
+import { user } from '../src/database/auth-schema';
 import {
   chatRoleEnum,
   notebookChatMessages,
   notebooks,
   sources,
   studyMaterials,
-} from "../src/database/schema";
-import { db } from "./db";
+} from '../src/database/schema';
+import { db } from './db';
 
 export interface SeededUser {
   id: string;
@@ -20,7 +20,7 @@ export async function seedUser(
 ): Promise<SeededUser> {
   const id = overrides.id ?? createId();
   const email = overrides.email ?? `test-${id}@example.com`;
-  const name = overrides.name ?? "Test User";
+  const name = overrides.name ?? 'Test User';
   const [row] = await db
     .insert(user)
     .values({ id, email, name, emailVerified: false })
@@ -38,8 +38,8 @@ export async function seedNotebook(
     .values({
       id,
       userId,
-      title: overrides.title ?? "Test Notebook",
-      description: overrides.description ?? "",
+      title: overrides.title ?? 'Test Notebook',
+      description: overrides.description ?? '',
     })
     .returning();
   return { id: row.id, userId: row.userId, title: row.title };
@@ -52,8 +52,7 @@ export async function seedChatMessage(
     content: string;
     createdAt?: Date;
     citedSourceIds?:
-      | { sourceId: string; number: number; quote: string | null }[]
-      | null;
+      { sourceId: string; number: number; quote: string | null }[] | null;
   },
 ): Promise<{ id: string }> {
   const [row] = await db
@@ -73,7 +72,7 @@ export async function seedSource(
   notebookId: string,
   input: {
     id?: string;
-    kind: "text" | "url" | "file";
+    kind: 'text' | 'url' | 'file';
     title: string;
     rawText: string;
     url?: string | null;
@@ -105,12 +104,12 @@ export async function seedStudyMaterial(
   input: {
     id?: string;
     kind:
-      | "quiz"
-      | "simple_flashcard"
-      | "roadmap"
-      | "report"
-      | "slide_deck"
-      | "mind_map";
+      | 'quiz'
+      | 'simple_flashcard'
+      | 'roadmap'
+      | 'report'
+      | 'slide_deck'
+      | 'mind_map';
     title: string;
     content?: unknown;
     folderId?: string | null;

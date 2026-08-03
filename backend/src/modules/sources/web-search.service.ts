@@ -36,10 +36,7 @@ export interface WebSearchImportInput {
 }
 
 export type WebSearchImportStatus =
-  | 'added'
-  | 'duplicate'
-  | 'limit_reached'
-  | 'scrape_failed';
+  'added' | 'duplicate' | 'limit_reached' | 'scrape_failed';
 
 export interface WebSearchImportResultItem {
   url: string;
@@ -156,24 +153,20 @@ export class WebSearchService {
       }
 
       try {
-        const source = await this.sourcesService.createUrl(
-          userId,
-          notebookId,
-          {
-            url: candidate.url,
-            title: candidate.title,
-            minTextLength: MIN_WEB_SEARCH_SOURCE_TEXT_LENGTH,
-            provenance: {
-              addedVia: 'ai_search',
-              metadata: {
-                searchQuery: input.query,
-                modelId: input.modelId,
-                searchedAt: new Date().toISOString(),
-                description: candidate.description ?? null,
-              },
+        const source = await this.sourcesService.createUrl(userId, notebookId, {
+          url: candidate.url,
+          title: candidate.title,
+          minTextLength: MIN_WEB_SEARCH_SOURCE_TEXT_LENGTH,
+          provenance: {
+            addedVia: 'ai_search',
+            metadata: {
+              searchQuery: input.query,
+              modelId: input.modelId,
+              searchedAt: new Date().toISOString(),
+              description: candidate.description ?? null,
             },
           },
-        );
+        });
         existingUrls.add(candidate.url);
         count += 1;
         this.logger.log(`web-search import: added`, {
@@ -191,7 +184,8 @@ export class WebSearchService {
           err instanceof Error ? err.message : 'Failed to scrape source';
         this.logger.error(`web-search import: scrape failed`, {
           url: candidate.url,
-          error: err instanceof Error ? err.stack ?? err.message : String(err),
+          error:
+            err instanceof Error ? (err.stack ?? err.message) : String(err),
         });
         results.push({
           url: candidate.url,

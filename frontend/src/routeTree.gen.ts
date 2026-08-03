@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
 import { Route as PrototypeFlashcardsRouteImport } from './routes/prototype.flashcards'
+import { Route as PrototypeMindMapRouteImport } from './routes/prototype.mind-map'
 import { Route as PrototypeQuizRouteImport } from './routes/prototype.quiz'
 import { Route as PrototypeReportRouteImport } from './routes/prototype.report'
 import { Route as PrototypeRoadmapRouteImport } from './routes/prototype.roadmap'
@@ -57,6 +58,11 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
 const PrototypeFlashcardsRoute = PrototypeFlashcardsRouteImport.update({
   id: '/prototype/flashcards',
   path: '/prototype/flashcards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeMindMapRoute = PrototypeMindMapRouteImport.update({
+  id: '/prototype/mind-map',
+  path: '/prototype/mind-map',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrototypeQuizRoute = PrototypeQuizRouteImport.update({
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/mind-map': typeof PrototypeMindMapRoute
   '/prototype/quiz': typeof PrototypeQuizRoute
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/mind-map': typeof PrototypeMindMapRoute
   '/prototype/quiz': typeof PrototypeQuizRoute
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
   '/prototype/flashcards': typeof PrototypeFlashcardsRoute
+  '/prototype/mind-map': typeof PrototypeMindMapRoute
   '/prototype/quiz': typeof PrototypeQuizRoute
   '/prototype/report': typeof PrototypeReportRoute
   '/prototype/roadmap': typeof PrototypeRoadmapRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/mind-map'
     | '/prototype/quiz'
     | '/prototype/report'
     | '/prototype/roadmap'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/mind-map'
     | '/prototype/quiz'
     | '/prototype/report'
     | '/prototype/roadmap'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/notebooks/$notebookId'
     | '/prototype/flashcards'
+    | '/prototype/mind-map'
     | '/prototype/quiz'
     | '/prototype/report'
     | '/prototype/roadmap'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
   PrototypeFlashcardsRoute: typeof PrototypeFlashcardsRoute
+  PrototypeMindMapRoute: typeof PrototypeMindMapRoute
   PrototypeQuizRoute: typeof PrototypeQuizRoute
   PrototypeReportRoute: typeof PrototypeReportRoute
   PrototypeRoadmapRoute: typeof PrototypeRoadmapRoute
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       path: '/prototype/flashcards'
       fullPath: '/prototype/flashcards'
       preLoaderRoute: typeof PrototypeFlashcardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype/mind-map': {
+      id: '/prototype/mind-map'
+      path: '/prototype/mind-map'
+      fullPath: '/prototype/mind-map'
+      preLoaderRoute: typeof PrototypeMindMapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prototype/quiz': {
@@ -332,6 +352,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
   PrototypeFlashcardsRoute: PrototypeFlashcardsRoute,
+  PrototypeMindMapRoute: PrototypeMindMapRoute,
   PrototypeQuizRoute: PrototypeQuizRoute,
   PrototypeReportRoute: PrototypeReportRoute,
   PrototypeRoadmapRoute: PrototypeRoadmapRoute,

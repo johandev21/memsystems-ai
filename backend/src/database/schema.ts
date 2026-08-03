@@ -25,6 +25,14 @@ export const sourceAddedViaEnum = pgEnum('source_added_via', [
   'ai_search',
 ]);
 
+export const sourceIndexJobStatusEnum = pgEnum('source_index_job_status', [
+  'pending',
+  'processing',
+  'ready',
+  'failed',
+  'cancelled',
+]);
+
 export interface SourceMetadata {
   searchQuery?: string;
   modelId?: string;
@@ -95,11 +103,59 @@ export const sources = pgTable(
     contentType: varchar('content_type', { length: 200 }),
     fileSize: integer('file_size'),
     sha256: varchar('sha256', { length: 64 }),
+    contentHash: varchar('content_hash', { length: 64 }),
+    canonicalUrl: text('canonical_url'),
+    fetchedUrl: text('fetched_url'),
+    httpStatus: integer('http_status'),
+    fetchedAt: timestamp('fetched_at'),
+    etag: varchar('etag', { length: 200 }),
+    lastModified: varchar('last_modified', { length: 100 }),
+    extractionMethod: varchar('extraction_method', { length: 20 }),
+    extractorVersion: varchar('extractor_version', { length: 20 }),
+    normalizationVersion: integer('normalization_version'),
+    robotsDecision: varchar('robots_decision', { length: 20 }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (table) => [
     index('sources_notebook_id_idx').on(table.notebookId),
     index('sources_kind_idx').on(table.kind),
+    index('sources_content_hash_idx').on(table.contentHash),
+  ],
+);
+
+export const sourceIndexJobs = pgTable(
+  'source_index_jobs',
+  {
+    id: varchar('id')
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    sourceId: varchar('source_id')
+      .notNull()
+      .references(() => sources.id, { onDelete: 'cascade' }),
+    notebookId: varchar('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    status: sourceIndexJobStatusEnum('status').notNull().default('pending'),
+    attemptCount: integer('attempt_count').notNull().default(0),
+    lastError: text('last_error'),
+    contentHash: varchar('content_hash', { length: 64 }),
+    processingVersion: integer('processing_version'),
+    embeddingModel: varchar('embedding_model', { length: 200 }),
+    embeddingDimensions: integer('embedding_dimensions'),
+    chunksCount: integer('chunks_count'),
+    startedAt: timestamp('started_at'),
+    completedAt: timestamp('completed_at'),
+    nextAttemptAt: timestamp('next_attempt_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('source_index_jobs_source_id_idx').on(table.sourceId),
+    index('source_index_jobs_status_idx').on(table.status),
+    index('source_index_jobs_notebook_id_idx').on(table.notebookId),
   ],
 );
 
@@ -246,6 +302,7 @@ export const sourceChunks = pgTable(
 export const notebooksRelations = relations(notebooks, ({ many }) => ({
   sources: many(sources),
   sourceChunks: many(sourceChunks),
+  sourceIndexJobs: many(sourceIndexJobs),
   studyMaterials: many(studyMaterials),
   studyMaterialFolders: many(studyMaterialFolders),
   chatMessages: many(notebookChatMessages),
@@ -258,7 +315,22 @@ export const sourcesRelations = relations(sources, ({ one, many }) => ({
     references: [notebooks.id],
   }),
   chunks: many(sourceChunks),
+  indexJobs: many(sourceIndexJobs),
 }));
+
+export const sourceIndexJobsRelations = relations(
+  sourceIndexJobs,
+  ({ one }) => ({
+    source: one(sources, {
+      fields: [sourceIndexJobs.sourceId],
+      references: [sources.id],
+    }),
+    notebook: one(notebooks, {
+      fields: [sourceIndexJobs.notebookId],
+      references: [notebooks.id],
+    }),
+  }),
+);
 
 export const sourceChunksRelations = relations(sourceChunks, ({ one }) => ({
   source: one(sources, {
@@ -342,6 +414,7 @@ export const table = {
   notebooks,
   sources,
   sourceChunks,
+  sourceIndexJobs,
   studyMaterials,
   studyMaterialFolders,
   generationRequests,
