@@ -23,14 +23,7 @@ import { StudyMaterialService } from './study-material.service';
 import { TrashService } from './trash.service';
 
 const createStudyMaterialSchema = z.object({
-  kind: z.enum([
-    'quiz',
-    'simple_flashcard',
-    'report',
-    'roadmap',
-    'slide_deck',
-    'mind_map',
-  ]),
+  kind: z.enum(['quiz', 'simple_flashcard', 'roadmap', 'mind_map']),
   title: z.string().min(1, 'Title is required').max(200),
   content: z.unknown(),
   folderId: z.string().optional(),
@@ -55,25 +48,8 @@ const updateFolderSchema = z.object({
   parentId: z.string().nullable().optional(),
 });
 
-const reportOptionsSchema = z.object({
-  type: z.enum(['summary', 'detailed', 'academic', 'executive']),
-  tone: z.enum(['formal', 'conversational', 'technical', 'journalistic']),
-  length: z.enum(['short', 'medium', 'long', 'comprehensive', 'custom']),
-  sectionCount: z.number().min(1).max(50),
-  includeSummary: z.boolean(),
-  includeCitations: z.boolean(),
-  sections: z.array(z.string()).optional(),
-});
-
 const generateRequestSchema = z.object({
-  kind: z.enum([
-    'quiz',
-    'simple_flashcard',
-    'report',
-    'roadmap',
-    'slide_deck',
-    'mind_map',
-  ]),
+  kind: z.enum(['quiz', 'simple_flashcard', 'roadmap', 'mind_map']),
   brief: z.string().default(''),
   sourceIds: z.array(z.string()).default([]),
   folderId: z.string().nullable().optional(),
@@ -81,24 +57,15 @@ const generateRequestSchema = z.object({
   questionCount: z.number().min(1).max(50).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   cardStyle: z.enum(['qa', 'definition', 'cloze', 'mixed']).optional(),
-  reportOptions: reportOptionsSchema.optional(),
   roadmapOptions: z
     .object({
       phaseCount: z.number().min(0).max(50),
       detailLevel: z.enum(['basic', 'detailed']),
     })
     .optional(),
-  slideDeckOptions: z
-    .object({
-      slideCount: z.number().min(0).max(50),
-      style: z.enum(['concise', 'detailed', 'storytelling']),
-      audience: z.enum(['beginner', 'intermediate', 'expert']),
-      includeSpeakerNotes: z.boolean(),
-    })
-    .optional(),
   mindMapOptions: z
     .object({
-      nodeCount: z.number().min(1).max(100),
+      nodeCount: z.number().min(0).max(100),
       structure: z.enum(['radial', 'hierarchical', 'organic']),
       colorGroups: z.boolean(),
       crossLinks: z.boolean(),

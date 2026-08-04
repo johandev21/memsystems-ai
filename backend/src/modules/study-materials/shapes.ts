@@ -2,12 +2,7 @@ import { z } from 'zod';
 import { BadRequestError } from '../../common/errors/domain-error';
 
 export type StudyMaterialKind =
-  | 'quiz'
-  | 'simple_flashcard'
-  | 'report'
-  | 'roadmap'
-  | 'slide_deck'
-  | 'mind_map';
+  'quiz' | 'simple_flashcard' | 'roadmap' | 'mind_map';
 
 export const QuizQuestionOption = z.object({
   text: z.string().min(1).max(2000),
@@ -51,18 +46,6 @@ export const SimpleFlashcardContent = z.preprocess(
   }),
 );
 
-export const ReportSection = z.object({
-  id: z.string(),
-  heading: z.string().min(1).max(200),
-  body: z.string().min(1).max(50000),
-});
-
-export const ReportContent = z.object({
-  title: z.string().max(200),
-  summary: z.string().max(1000),
-  sections: z.array(ReportSection).min(1).max(50),
-});
-
 export const RoadmapTopic = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
@@ -84,18 +67,6 @@ export const RoadmapContent = z.object({
   title: z.string().max(200),
   description: z.string().max(5000),
   phases: z.array(RoadmapPhase).min(1).max(20),
-});
-
-export const SlideDeckSlide = z.object({
-  id: z.string(),
-  title: z.string().min(1).max(200),
-  body: z.string().min(1).max(10000),
-  notes: z.string().max(10000),
-});
-
-export const SlideDeckContent = z.object({
-  title: z.string().max(200),
-  slides: z.array(SlideDeckSlide).min(1).max(100),
 });
 
 export const MindMapNode = z.object({
@@ -126,9 +97,7 @@ export const MindMapContent = z.object({
 const contentSchemas: Record<StudyMaterialKind, z.ZodTypeAny> = {
   quiz: QuizContent,
   simple_flashcard: SimpleFlashcardContent,
-  report: ReportContent,
   roadmap: RoadmapContent,
-  slide_deck: SlideDeckContent,
   mind_map: MindMapContent,
 };
 

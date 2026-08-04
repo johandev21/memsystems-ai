@@ -110,8 +110,6 @@ export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
           },
         ],
       };
-    case "report":
-    case "slide_deck":
     case "mind_map":
       throw new Error(
         `createEmptyStudyMaterial is not implemented for kind "${kind}"`,

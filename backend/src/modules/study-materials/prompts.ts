@@ -11,22 +11,9 @@ export interface FlashcardGenerationOptions {
   cardStyle: 'qa' | 'definition' | 'cloze' | 'mixed';
 }
 
-interface ReportOptions {
-  type: 'summary' | 'detailed' | 'academic' | 'executive';
-  tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
-  length: 'short' | 'medium' | 'long' | 'comprehensive' | 'custom';
-  sectionCount: number;
-  includeSummary: boolean;
-  includeCitations: boolean;
-  sections?: string[];
-}
-
-export type ReportGenerationOptions = ReportOptions;
-
 export type StudyMaterialOptions =
   | ({ kind: 'quiz' } & QuizGenerationOptions)
-  | ({ kind: 'simple_flashcard' } & FlashcardGenerationOptions)
-  | ({ kind: 'report' } & ReportOptions);
+  | ({ kind: 'simple_flashcard' } & FlashcardGenerationOptions);
 
 interface PromptTemplate {
   system: string;
@@ -37,16 +24,9 @@ interface PromptTemplate {
       questionCount?: number;
       difficulty?: string;
       cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
-      reportOptions?: ReportOptions;
       roadmapOptions?: {
         phaseCount: number;
         detailLevel: 'basic' | 'detailed';
-      };
-      slideDeckOptions?: {
-        slideCount: number;
-        style: 'concise' | 'detailed' | 'storytelling';
-        audience: 'beginner' | 'intermediate' | 'expert';
-        includeSpeakerNotes: boolean;
       };
       mindMapOptions?: {
         nodeCount: number;
@@ -128,41 +108,6 @@ Use markdown formatting where appropriate.`,
   },
 };
 
-const reportTemplate: PromptTemplate = {
-  system: `You are an expert report writer. Generate a structured report based on the instructions or source material provided. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-report') ending with '-report'.
-All section headings and summary text MUST use natural Title Case and proper sentence capitalization with spaces. NEVER format section headings in kebab-case.
-Start with a brief summary (1-2 sentences).
-Then create sections with clear headings and detailed markdown bodies.
-Sections should flow logically and cover the key topics.`,
-  user: (brief, sourceTexts, options) => {
-    const opts = options?.reportOptions;
-    const sourceBlock = sourceTexts
-      ? `Source material:\n${sourceTexts}\n\n`
-      : '';
-    const instructionsBlock = brief
-      ? `Generate a report based on these instructions: ${brief}`
-      : 'Generate a general report.';
-
-    const typeText = opts?.type ? `Report type: ${opts.type}.` : '';
-    const toneText = opts?.tone ? `Use a ${opts.tone} tone.` : '';
-    const sectionText = opts?.sectionCount
-      ? `Generate EXACTLY ${opts.sectionCount} sections.`
-      : '';
-    const structureText =
-      opts?.sections && opts.sections.length > 0
-        ? `Use the following section structure in this exact order:\n${opts.sections.map((s, i) => `${i + 1}. ${s}`).join('\n')}`
-        : '';
-    const summaryText = opts?.includeSummary
-      ? 'Include an executive summary at the beginning.'
-      : 'Do not include an executive summary.';
-    const citationsText = opts?.includeCitations
-      ? 'Include citations or references where applicable.'
-      : 'Do not include citations.';
-
-    return `${sourceBlock}${instructionsBlock}\n\n${typeText} ${toneText} ${sectionText}\n${summaryText} ${citationsText}\n${structureText}\n\nGenerate a report with a summary and structured sections.`;
-  },
-};
-
 const roadmapTemplate: PromptTemplate = {
   system: `You are an expert learning designer. Create a structured learning roadmap. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. ONLY the top-level 'title' field must be formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-roadmap') ending with '-roadmap'.
 All phase titles and topic titles MUST use natural Title Case capitalization with spaces (e.g. 'Life and Key Milestones', 'Influences and Context', 'Major Works Overview', 'Hello Brazil and Chile'). NEVER use kebab-case for phase titles or topic titles.
@@ -188,43 +133,6 @@ Topics should build upon each other logically.`,
         }.`
       : '';
     return `${sourceBlock}${instructionsBlock}\n\n${phaseText} ${detailText}\n\nGenerate a learning roadmap with phases and ordered topics.`;
-  },
-};
-
-const slideDeckTemplate: PromptTemplate = {
-  system: `You are an expert presentation designer. Create a slide deck. Generate a descriptive, unique title reflecting the core topic or overview of the material and place it in the top-level 'title' field. Only the top-level 'title' field must be concise and formatted in kebab-case (lowercase, alphanumeric characters and hyphens only, e.g. 'concepcion-de-socrates-platon-y-aristoteles-slide-deck') ending with '-slide-deck'.
-All slide titles MUST use natural Title Case capitalization with spaces.
-Each slide should have a clear title and concise body content.
-Use markdown formatting for slide bodies.
-Keep slides focused - one idea per slide.
-Optional speaker notes should provide additional context.`,
-  user: (brief, sourceTexts, options) => {
-    const sourceBlock = sourceTexts
-      ? `Source material:\n${sourceTexts}\n\n`
-      : '';
-    const instructionsBlock = brief
-      ? `Generate a slide deck based on these instructions: ${brief}`
-      : 'Generate a general slide deck.';
-    const opts = options?.slideDeckOptions;
-    const countText = opts?.slideCount
-      ? `Create EXACTLY ${opts.slideCount} slides.`
-      : '';
-    const styleText = opts?.style
-      ? `Style: ${
-          opts.style === 'concise'
-            ? 'Brief bullet points, minimal text per slide'
-            : opts.style === 'storytelling'
-              ? 'Narrative flow with engaging transitions between slides'
-              : 'Detailed content with thorough explanations per slide'
-        }.`
-      : '';
-    const audienceText = opts?.audience
-      ? `Target audience: ${opts.audience} level.`
-      : '';
-    const notesText = opts?.includeSpeakerNotes
-      ? 'Include speaker notes for each slide.'
-      : 'Do not include speaker notes.';
-    return `${sourceBlock}${instructionsBlock}\n\n${countText} ${styleText}\n${audienceText} ${notesText}\n\nGenerate a slide deck with titled slides and markdown content.`;
   },
 };
 
@@ -262,9 +170,7 @@ Identify the root node that represents the main topic.`,
 const templates: Record<StudyMaterialKind, PromptTemplate> = {
   quiz: quizTemplate,
   simple_flashcard: simpleFlashcardTemplate,
-  report: reportTemplate,
   roadmap: roadmapTemplate,
-  slide_deck: slideDeckTemplate,
   mind_map: mindMapTemplate,
 };
 

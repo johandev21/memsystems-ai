@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Brain,
-  FileText,
   HelpCircle,
   type LucideIcon,
   Map as MapIcon,
   Network,
-  Presentation,
   RefreshCw,
   X,
 } from "lucide-react";
@@ -51,28 +49,10 @@ const RESOURCES: ResourceConfig[] = [
     hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
   },
   {
-    key: "report",
-    kind: "report",
-    icon: FileText,
-    label: "Report",
-    colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
-  },
-  {
     key: "roadmap",
     kind: "roadmap",
     icon: MapIcon,
     label: "Roadmap",
-    colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
-  },
-  {
-    key: "slideDeck",
-    kind: "slide_deck",
-    icon: Presentation,
-    label: "Slide Deck",
     colorClasses:
       "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
     hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
@@ -230,12 +210,5 @@ export function StudioResources({
 }
 
 function isInScope(kind: StudyMaterialKind): boolean {
-  return [
-    "quiz",
-    "simple_flashcard",
-    "roadmap",
-    "report",
-    "slide_deck",
-    "mind_map",
-  ].includes(kind);
+  return ["quiz", "simple_flashcard", "roadmap", "mind_map"].includes(kind);
 }

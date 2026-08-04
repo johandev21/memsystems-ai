@@ -107,8 +107,6 @@ export async function seedStudyMaterial(
       | 'quiz'
       | 'simple_flashcard'
       | 'roadmap'
-      | 'report'
-      | 'slide_deck'
       | 'mind_map';
     title: string;
     content?: unknown;

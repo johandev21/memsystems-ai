@@ -10,15 +10,12 @@ import { getPromptTemplate } from './prompts';
 import type {
   QuizGenerationOptions,
   FlashcardGenerationOptions,
-  ReportGenerationOptions,
 } from './prompts';
 import {
   MindMapContent,
   QuizContent,
-  ReportContent,
   RoadmapContent,
   SimpleFlashcardContent,
-  SlideDeckContent,
   StudyMaterialKind,
   validateContent,
 } from './shapes';
@@ -53,16 +50,9 @@ export class StreamHandler {
       questionCount?: number;
       difficulty?: 'easy' | 'medium' | 'hard';
       cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
-      reportOptions?: ReportGenerationOptions;
       roadmapOptions?: {
         phaseCount: number;
         detailLevel: 'basic' | 'detailed';
-      };
-      slideDeckOptions?: {
-        slideCount: number;
-        style: 'concise' | 'detailed' | 'storytelling';
-        audience: 'beginner' | 'intermediate' | 'expert';
-        includeSpeakerNotes: boolean;
       };
       mindMapOptions?: {
         nodeCount: number;
@@ -88,9 +78,7 @@ export class StreamHandler {
         questionCount: input.questionCount,
         difficulty: input.difficulty,
         cardStyle: input.cardStyle,
-        reportOptions: input.reportOptions,
         roadmapOptions: input.roadmapOptions,
-        slideDeckOptions: input.slideDeckOptions,
         mindMapOptions: input.mindMapOptions,
       },
     );
@@ -261,9 +249,7 @@ export class StreamHandler {
     const schemas: Record<StudyMaterialKind, any> = {
       quiz: QuizContent,
       simple_flashcard: SimpleFlashcardContent,
-      report: ReportContent,
       roadmap: RoadmapContent,
-      slide_deck: SlideDeckContent,
       mind_map: MindMapContent,
     };
     return schemas[kind];
@@ -275,16 +261,9 @@ function buildOptions(input: {
   questionCount?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
   cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
-  reportOptions?: ReportGenerationOptions;
   roadmapOptions?: {
     phaseCount: number;
     detailLevel: 'basic' | 'detailed';
-  };
-  slideDeckOptions?: {
-    slideCount: number;
-    style: 'concise' | 'detailed' | 'storytelling';
-    audience: 'beginner' | 'intermediate' | 'expert';
-    includeSpeakerNotes: boolean;
   };
   mindMapOptions?: {
     nodeCount: number;
@@ -316,17 +295,9 @@ function buildOptions(input: {
       };
       return opts as unknown as Record<string, unknown>;
     }
-    case 'report': {
-      if (input.reportOptions == null) return null;
-      return input.reportOptions as unknown as Record<string, unknown>;
-    }
     case 'roadmap': {
       if (input.roadmapOptions == null) return null;
       return input.roadmapOptions;
-    }
-    case 'slide_deck': {
-      if (input.slideDeckOptions == null) return null;
-      return input.slideDeckOptions;
     }
     case 'mind_map': {
       if (input.mindMapOptions == null) return null;

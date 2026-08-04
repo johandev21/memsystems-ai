@@ -15,13 +15,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
-import { Route as PrototypeFlashcardsRouteImport } from './routes/prototype.flashcards'
-import { Route as PrototypeMindMapRouteImport } from './routes/prototype.mind-map'
-import { Route as PrototypeQuizRouteImport } from './routes/prototype.quiz'
-import { Route as PrototypeReportRouteImport } from './routes/prototype.report'
-import { Route as PrototypeRoadmapRouteImport } from './routes/prototype.roadmap'
-import { Route as PrototypeSlidesRouteImport } from './routes/prototype.slides'
-import { Route as PrototypeSourcesWebRouteImport } from './routes/prototype.sources-web'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
@@ -55,41 +48,6 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrototypeFlashcardsRoute = PrototypeFlashcardsRouteImport.update({
-  id: '/prototype/flashcards',
-  path: '/prototype/flashcards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeMindMapRoute = PrototypeMindMapRouteImport.update({
-  id: '/prototype/mind-map',
-  path: '/prototype/mind-map',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeQuizRoute = PrototypeQuizRouteImport.update({
-  id: '/prototype/quiz',
-  path: '/prototype/quiz',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeReportRoute = PrototypeReportRouteImport.update({
-  id: '/prototype/report',
-  path: '/prototype/report',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeRoadmapRoute = PrototypeRoadmapRouteImport.update({
-  id: '/prototype/roadmap',
-  path: '/prototype/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeSlidesRoute = PrototypeSlidesRouteImport.update({
-  id: '/prototype/slides',
-  path: '/prototype/slides',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrototypeSourcesWebRoute = PrototypeSourcesWebRouteImport.update({
-  id: '/prototype/sources-web',
-  path: '/prototype/sources-web',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -107,13 +65,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
-  '/prototype/mind-map': typeof PrototypeMindMapRoute
-  '/prototype/quiz': typeof PrototypeQuizRoute
-  '/prototype/report': typeof PrototypeReportRoute
-  '/prototype/roadmap': typeof PrototypeRoadmapRoute
-  '/prototype/slides': typeof PrototypeSlidesRoute
-  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -123,13 +74,6 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
-  '/prototype/mind-map': typeof PrototypeMindMapRoute
-  '/prototype/quiz': typeof PrototypeQuizRoute
-  '/prototype/report': typeof PrototypeReportRoute
-  '/prototype/roadmap': typeof PrototypeRoadmapRoute
-  '/prototype/slides': typeof PrototypeSlidesRoute
-  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks': typeof NotebooksIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -141,13 +85,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/flashcards': typeof PrototypeFlashcardsRoute
-  '/prototype/mind-map': typeof PrototypeMindMapRoute
-  '/prototype/quiz': typeof PrototypeQuizRoute
-  '/prototype/report': typeof PrototypeReportRoute
-  '/prototype/roadmap': typeof PrototypeRoadmapRoute
-  '/prototype/slides': typeof PrototypeSlidesRoute
-  '/prototype/sources-web': typeof PrototypeSourcesWebRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -160,13 +97,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
-    | '/prototype/flashcards'
-    | '/prototype/mind-map'
-    | '/prototype/quiz'
-    | '/prototype/report'
-    | '/prototype/roadmap'
-    | '/prototype/slides'
-    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -176,13 +106,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/notebooks/$notebookId'
-    | '/prototype/flashcards'
-    | '/prototype/mind-map'
-    | '/prototype/quiz'
-    | '/prototype/report'
-    | '/prototype/roadmap'
-    | '/prototype/slides'
-    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks'
     | '/settings'
@@ -193,13 +116,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
-    | '/prototype/flashcards'
-    | '/prototype/mind-map'
-    | '/prototype/quiz'
-    | '/prototype/report'
-    | '/prototype/roadmap'
-    | '/prototype/slides'
-    | '/prototype/sources-web'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -211,13 +127,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
-  PrototypeFlashcardsRoute: typeof PrototypeFlashcardsRoute
-  PrototypeMindMapRoute: typeof PrototypeMindMapRoute
-  PrototypeQuizRoute: typeof PrototypeQuizRoute
-  PrototypeReportRoute: typeof PrototypeReportRoute
-  PrototypeRoadmapRoute: typeof PrototypeRoadmapRoute
-  PrototypeSlidesRoute: typeof PrototypeSlidesRoute
-  PrototypeSourcesWebRoute: typeof PrototypeSourcesWebRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -265,55 +174,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/prototype/flashcards': {
-      id: '/prototype/flashcards'
-      path: '/prototype/flashcards'
-      fullPath: '/prototype/flashcards'
-      preLoaderRoute: typeof PrototypeFlashcardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/mind-map': {
-      id: '/prototype/mind-map'
-      path: '/prototype/mind-map'
-      fullPath: '/prototype/mind-map'
-      preLoaderRoute: typeof PrototypeMindMapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/quiz': {
-      id: '/prototype/quiz'
-      path: '/prototype/quiz'
-      fullPath: '/prototype/quiz'
-      preLoaderRoute: typeof PrototypeQuizRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/report': {
-      id: '/prototype/report'
-      path: '/prototype/report'
-      fullPath: '/prototype/report'
-      preLoaderRoute: typeof PrototypeReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/roadmap': {
-      id: '/prototype/roadmap'
-      path: '/prototype/roadmap'
-      fullPath: '/prototype/roadmap'
-      preLoaderRoute: typeof PrototypeRoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/slides': {
-      id: '/prototype/slides'
-      path: '/prototype/slides'
-      fullPath: '/prototype/slides'
-      preLoaderRoute: typeof PrototypeSlidesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prototype/sources-web': {
-      id: '/prototype/sources-web'
-      path: '/prototype/sources-web'
-      fullPath: '/prototype/sources-web'
-      preLoaderRoute: typeof PrototypeSourcesWebRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/': {
       id: '/settings/'
       path: '/'
@@ -351,13 +211,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
-  PrototypeFlashcardsRoute: PrototypeFlashcardsRoute,
-  PrototypeMindMapRoute: PrototypeMindMapRoute,
-  PrototypeQuizRoute: PrototypeQuizRoute,
-  PrototypeReportRoute: PrototypeReportRoute,
-  PrototypeRoadmapRoute: PrototypeRoadmapRoute,
-  PrototypeSlidesRoute: PrototypeSlidesRoute,
-  PrototypeSourcesWebRoute: PrototypeSourcesWebRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport

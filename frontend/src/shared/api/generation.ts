@@ -3,26 +3,9 @@ import { getApiUrl } from "../lib/utils";
 
 export type { StudyMaterialKind };
 
-export interface ReportGenerationOptions {
-  type: "summary" | "detailed" | "academic" | "executive";
-  tone: "formal" | "conversational" | "technical" | "journalistic";
-  length: "short" | "medium" | "long" | "comprehensive" | "custom";
-  sectionCount: number;
-  includeSummary: boolean;
-  includeCitations: boolean;
-  sections?: string[];
-}
-
 export interface RoadmapGenerationOptions {
   phaseCount: number;
   detailLevel: "basic" | "detailed";
-}
-
-export interface SlideDeckGenerationOptions {
-  slideCount: number;
-  style: "concise" | "detailed" | "storytelling";
-  audience: "beginner" | "intermediate" | "expert";
-  includeSpeakerNotes: boolean;
 }
 
 export interface MindMapGenerationOptions {
@@ -41,9 +24,7 @@ export interface StartGenerationInput {
   questionCount?: number;
   difficulty?: "easy" | "medium" | "hard";
   cardStyle?: "qa" | "definition" | "cloze";
-  reportOptions?: ReportGenerationOptions;
   roadmapOptions?: RoadmapGenerationOptions;
-  slideDeckOptions?: SlideDeckGenerationOptions;
   mindMapOptions?: MindMapGenerationOptions;
 }
 

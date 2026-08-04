@@ -13,16 +13,12 @@ import type {
 } from "@/features/study-materials/editor-schemas";
 import type {
   MindMapContentType,
-  ReportContentType,
-  SlideDeckContentType,
 } from "@/features/study-materials";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import { FlashcardView } from "./FlashcardView";
 import { MindMapView } from "./MindMapView";
 import { QuizView } from "./QuizView";
-import { ReportView } from "./ReportView";
 import { RoadmapView } from "./RoadmapView";
-import { SlideDeckView } from "./SlideDeckView";
 
 export interface MaterialViewerProps {
   material: StudyMaterialDTO;
@@ -91,20 +87,6 @@ export function MaterialViewer({
           <RoadmapView
             materialId={material.id}
             content={material.content as RoadmapEditorContentType}
-          />
-        );
-      case "report":
-        return (
-          <ReportView
-            materialId={material.id}
-            content={material.content as ReportContentType}
-          />
-        );
-      case "slide_deck":
-        return (
-          <SlideDeckView
-            materialId={material.id}
-            content={material.content as SlideDeckContentType}
           />
         );
       case "mind_map":

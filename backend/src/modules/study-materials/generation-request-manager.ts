@@ -8,16 +8,6 @@ import { NotFoundError } from '../../common/errors/domain-error';
 import { DRIZZLE } from '../database/database.module';
 import { StudyMaterialKind } from './shapes';
 
-export interface ReportOptions {
-  type: 'summary' | 'detailed' | 'academic' | 'executive';
-  tone: 'formal' | 'conversational' | 'technical' | 'journalistic';
-  length: 'short' | 'medium' | 'long' | 'comprehensive' | 'custom';
-  sectionCount: number;
-  includeSummary: boolean;
-  includeCitations: boolean;
-  sections?: string[];
-}
-
 export interface StartGenerationInput {
   kind: StudyMaterialKind;
   brief: string;
@@ -27,16 +17,9 @@ export interface StartGenerationInput {
   questionCount?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
   cardStyle?: 'qa' | 'definition' | 'cloze' | 'mixed';
-  reportOptions?: ReportOptions;
   roadmapOptions?: {
     phaseCount: number;
     detailLevel: 'basic' | 'detailed';
-  };
-  slideDeckOptions?: {
-    slideCount: number;
-    style: 'concise' | 'detailed' | 'storytelling';
-    audience: 'beginner' | 'intermediate' | 'expert';
-    includeSpeakerNotes: boolean;
   };
   mindMapOptions?: {
     nodeCount: number;

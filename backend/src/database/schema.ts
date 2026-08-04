@@ -43,9 +43,7 @@ export interface SourceMetadata {
 export const studyMaterialKindEnum = pgEnum('study_material_kind', [
   'quiz',
   'simple_flashcard',
-  'report',
   'roadmap',
-  'slide_deck',
   'mind_map',
 ]);
 

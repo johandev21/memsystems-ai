@@ -258,80 +258,6 @@ export function normalizeRoadmapContent(content: any): any {
   };
 }
 
-export function normalizeSlideDeckContent(content: any): any {
-  let slides = content.slides;
-  if (Array.isArray(content)) {
-    slides = content;
-  } else if (!Array.isArray(slides)) {
-    const arrayKey = Object.keys(content).find((k) =>
-      Array.isArray(content[k]),
-    );
-    if (arrayKey) {
-      slides = content[arrayKey];
-    } else {
-      slides = [];
-    }
-  }
-
-  const normalizedSlides = slides.map((s: any, sIndex: number) => {
-    if (!s || typeof s !== 'object') {
-      return {
-        id: `s-${sIndex}`,
-        title: 'Slide',
-        body: String(s),
-      };
-    }
-    return {
-      id: s.id ?? `s-${sIndex}-${Math.random().toString(36).substring(7)}`,
-      title: s.title ?? s.heading ?? 'Slide Title',
-      body: s.body ?? s.content ?? 'Slide Body',
-      notes: s.notes ?? undefined,
-    };
-  });
-
-  return {
-    title: content.title ? String(content.title) : undefined,
-    slides: normalizedSlides,
-  };
-}
-
-export function normalizeReportContent(content: any): any {
-  let sections = content.sections;
-  if (Array.isArray(content)) {
-    sections = content;
-  } else if (!Array.isArray(sections)) {
-    const arrayKey = Object.keys(content).find((k) =>
-      Array.isArray(content[k]),
-    );
-    if (arrayKey) {
-      sections = content[arrayKey];
-    } else {
-      sections = [];
-    }
-  }
-
-  const normalizedSections = sections.map((s: any, sIndex: number) => {
-    if (!s || typeof s !== 'object') {
-      return {
-        id: `sec-${sIndex}`,
-        heading: 'Section',
-        body: String(s),
-      };
-    }
-    return {
-      id: s.id ?? `sec-${sIndex}-${Math.random().toString(36).substring(7)}`,
-      heading: s.heading ?? s.title ?? 'Section Heading',
-      body: s.body ?? s.content ?? 'Section Content',
-    };
-  });
-
-  return {
-    title: content.title ? String(content.title) : undefined,
-    summary: content.summary ?? undefined,
-    sections: normalizedSections,
-  };
-}
-
 export function normalizeMindMapContent(content: any): any {
   let nodes = content.nodes ?? [];
   let edges = content.edges ?? [];
@@ -398,10 +324,6 @@ export function normalizeContent(kind: StudyMaterialKind, content: any): any {
       return normalizeQuizContent(content);
     case 'roadmap':
       return normalizeRoadmapContent(content);
-    case 'slide_deck':
-      return normalizeSlideDeckContent(content);
-    case 'report':
-      return normalizeReportContent(content);
     case 'mind_map':
       return normalizeMindMapContent(content);
     default:
@@ -445,9 +367,7 @@ export function slugifyTitle(title: string, kind: StudyMaterialKind): string {
   const suffixMap: Record<StudyMaterialKind, string> = {
     quiz: '-quiz',
     simple_flashcard: '-flashcards',
-    report: '-report',
     roadmap: '-roadmap',
-    slide_deck: '-slide-deck',
     mind_map: '-mind-map',
   };
 
@@ -498,14 +418,8 @@ export function generateTitle(kind: StudyMaterialKind, content: any): string {
       case 'simple_flashcard':
         rawTitle = 'Flashcards';
         break;
-      case 'report':
-        rawTitle = content.summary?.slice(0, 100) || 'Report';
-        break;
       case 'roadmap':
         rawTitle = `Roadmap (${content.phases?.length ?? 0} phases)`;
-        break;
-      case 'slide_deck':
-        rawTitle = `Slides (${content.slides?.length ?? 0} slides)`;
         break;
       case 'mind_map':
         rawTitle = `Mind Map (${content.nodes?.length ?? 0} nodes)`;

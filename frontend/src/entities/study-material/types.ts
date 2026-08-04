@@ -1,9 +1,7 @@
 export type StudyMaterialKind =
   | "quiz"
   | "simple_flashcard"
-  | "report"
   | "roadmap"
-  | "slide_deck"
   | "mind_map";
 
 export interface StudyMaterialDTO {

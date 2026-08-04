@@ -19,18 +19,14 @@ import { FileTreeItemNode } from "./tree-node";
 export type ResourceType =
   | "quiz"
   | "flashcards"
-  | "report"
   | "roadmap"
-  | "slidedeck"
   | "mindmap"
   | "folder";
 
 const KIND_TO_RESOURCE_TYPE: Record<string, ResourceType> = {
   quiz: "quiz",
   simple_flashcard: "flashcards",
-  report: "report",
   roadmap: "roadmap",
-  slide_deck: "slidedeck",
   mind_map: "mindmap",
 };
 
@@ -156,7 +152,7 @@ export function StudyMaterialsTree(props: RealDataProps) {
     return {
       id: node.id,
       name: node.name,
-      type: KIND_TO_RESOURCE_TYPE[node.materialKind ?? "report"] ?? "report",
+      type: KIND_TO_RESOURCE_TYPE[node.materialKind ?? "quiz"] ?? "quiz",
     };
   });
 
@@ -229,7 +225,7 @@ function folderChildrenIndex(
           id: child.id,
           name: child.name,
           type:
-            KIND_TO_RESOURCE_TYPE[child.materialKind ?? "report"] ?? "report",
+            KIND_TO_RESOURCE_TYPE[child.materialKind ?? "quiz"] ?? "quiz",
         };
       });
       out.set(node.id, items);
