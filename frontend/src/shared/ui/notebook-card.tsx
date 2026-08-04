@@ -25,7 +25,7 @@ export function NotebookCard({
       to="/notebooks/$notebookId"
       params={{ notebookId: id }}
       className={cn(
-        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-foreground/20 transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
+        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:-translate-y-0.5 hover:ring-primary/35 hover:shadow-md transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
         className,
       )}
     >
@@ -37,10 +37,10 @@ export function NotebookCard({
             className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-muted" />
+           <div className="flex h-full w-full items-center justify-center bg-muted" />
         )}
       </div>
-      <div className="absolute left-4 top-36 flex size-14 -translate-y-1/2 items-center justify-center text-notebook-icon z-10 [&_svg]:size-full">
+       <div className="absolute left-4 top-36 flex size-14 -translate-y-1/2 items-center justify-center text-notebook-icon z-10 drop-shadow-sm [&_svg]:size-full">
         {icon}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4 pt-8">

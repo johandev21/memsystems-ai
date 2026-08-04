@@ -114,7 +114,7 @@ export function RoadmapBriefForm({
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
           <Label className="text-sm font-medium text-foreground">Number of Phases</Label>
-          <span className="text-xs font-mono font-medium text-primary">{phaseLabel}</span>
+          <span className="text-xs font-medium text-primary">{phaseLabel}</span>
         </div>
 
         <div className="grid grid-cols-6 gap-2">
@@ -287,7 +287,7 @@ export function RoadmapBriefForm({
       {/* Submit Button */}
       <Button
         type="button"
-        className="w-full h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all mt-1"
+        className="w-full h-10 rounded-full border border-border/80 bg-panel-header-bg text-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:bg-muted transition-colors disabled:bg-muted disabled:text-foreground disabled:opacity-100 mt-1"
         disabled={!canSubmit}
         onClick={onSubmit}
       >

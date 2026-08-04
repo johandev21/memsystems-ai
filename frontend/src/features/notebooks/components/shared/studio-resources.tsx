@@ -26,7 +26,6 @@ type ResourceConfig = {
   icon: LucideIcon;
   label: string;
   colorClasses: string;
-  hoverBgClasses: string;
 };
 
 const RESOURCES: ResourceConfig[] = [
@@ -36,8 +35,7 @@ const RESOURCES: ResourceConfig[] = [
     icon: HelpCircle,
     label: "Quiz",
     colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
+      "bg-studio-resource hover:bg-studio-resource-hover text-studio-resource-foreground",
   },
   {
     key: "flashcards",
@@ -45,8 +43,7 @@ const RESOURCES: ResourceConfig[] = [
     icon: Brain,
     label: "Flashcards",
     colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
+      "bg-studio-resource hover:bg-studio-resource-hover text-studio-resource-foreground",
   },
   {
     key: "roadmap",
@@ -54,8 +51,7 @@ const RESOURCES: ResourceConfig[] = [
     icon: MapIcon,
     label: "Roadmap",
     colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
+      "bg-studio-resource hover:bg-studio-resource-hover text-studio-resource-foreground",
   },
   {
     key: "mindMap",
@@ -63,8 +59,7 @@ const RESOURCES: ResourceConfig[] = [
     icon: Network,
     label: "Mind Map",
     colorClasses:
-      "bg-muted/80 hover:bg-muted text-foreground dark:bg-muted/30 dark:hover:bg-muted/50 border border-transparent",
-    hoverBgClasses: "hover:bg-muted dark:hover:bg-muted/30",
+      "bg-studio-resource hover:bg-studio-resource-hover text-studio-resource-foreground",
   },
 ];
 
@@ -152,7 +147,7 @@ export function StudioResources({
               <resource.icon
                 className={cn(
                   "h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-105",
-                  "text-muted-foreground opacity-80 group-hover:opacity-100",
+                  "text-studio-resource-icon opacity-80 group-hover:opacity-100",
                 )}
                 strokeWidth={1.75}
               />

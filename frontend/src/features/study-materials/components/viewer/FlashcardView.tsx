@@ -185,7 +185,7 @@ export function FlashcardView({
 
   const renderCardFront = () => (
     <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
-      <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span className="font-semibold text-muted-foreground/80">
           {currentCardIndex + 1} / {totalCardsCount}
         </span>
@@ -225,11 +225,11 @@ export function FlashcardView({
 
   const renderCardBack = () => (
     <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
-      <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span className="font-semibold text-muted-foreground/80">
           {currentCardIndex + 1} / {totalCardsCount}
         </span>
-        <span className="text-[10px] uppercase font-semibold text-emerald-500/80 tracking-wider">
+        <span className="text-[10px] uppercase font-semibold text-success tracking-wider">
           Answer
         </span>
       </div>
@@ -309,17 +309,17 @@ export function FlashcardView({
           "relative w-full rounded-[28px] border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm min-h-[300px]",
           canDrag && ratingSwipeState === "idle" && "cursor-grab active:cursor-grabbing",
           !isFlipped && activeCardFormat !== "cloze" && "cursor-pointer hover:border-primary/40",
-          !isFlipped ? "bg-card border-border/80" : "bg-muted/40 dark:bg-muted/20 border-border"
+           !isFlipped ? "bg-card border-border" : "bg-muted border-border"
         )}
       >
         {/* Tinder Swipe Badge Indicator Overlay (only on back when dragging) */}
         {canDrag && dragXOffset > 25 && ratingSwipeState === "idle" && (
-          <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold font-mono text-sm tracking-wider uppercase rotate-[-12deg] pointer-events-none animate-in fade-in duration-100">
+          <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-xl border-2 border-success bg-success/20 text-success font-bold text-sm tracking-wider uppercase rotate-[-12deg] pointer-events-none animate-in fade-in duration-100">
             KNOW
           </div>
         )}
         {canDrag && dragXOffset < -25 && ratingSwipeState === "idle" && (
-          <div className="absolute top-4 right-4 z-20 px-4 py-1.5 rounded-xl border-2 border-rose-500 bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold font-mono text-sm tracking-wider uppercase rotate-[12deg] pointer-events-none animate-in fade-in duration-100">
+          <div className="absolute top-4 right-4 z-20 px-4 py-1.5 rounded-xl border-2 border-rose-500 bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-sm tracking-wider uppercase rotate-[12deg] pointer-events-none animate-in fade-in duration-100">
             NEED PRACTICE
           </div>
         )}
@@ -347,7 +347,7 @@ export function FlashcardView({
           <button
             type="button"
             onClick={() => handleRateCard("incorrect")}
-            className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+             className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-rose-600 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
             title="Swipe Left: Need Practice (Left Arrow)"
           >
             <X className="size-3.5" />
@@ -357,7 +357,7 @@ export function FlashcardView({
           <button
             type="button"
             onClick={() => handleRateCard("correct")}
-            className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+             className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-success text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
             title="Swipe Right: Know (Right Arrow)"
           >
             <span>{correctRatingCount}</span>

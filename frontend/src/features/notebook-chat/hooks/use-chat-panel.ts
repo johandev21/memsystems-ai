@@ -17,7 +17,7 @@ import {
 import { modelsQueryOptions } from "@/shared/api/models";
 import { notebookQueryOptions } from "@/shared/api";
 
-const DEFAULT_MODEL_ID = "openai/gpt-4o-mini";
+const DEFAULT_MODEL_ID = "openai/gpt-5.6-sol";
 
 export interface SendChatPromptDetail {
   prompt: string;

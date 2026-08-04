@@ -28,10 +28,10 @@ describe('AiService.searchWeb', () => {
     );
 
     await expect(
-      aiService.searchWeb('philosophy', 'openai/gpt-4o-mini', 'user-1'),
+      aiService.searchWeb('philosophy', 'openai/gpt-5.6-sol', 'user-1'),
     ).rejects.toThrow(BadRequestError);
     await expect(
-      aiService.searchWeb('philosophy', 'openai/gpt-4o-mini', 'user-1'),
+      aiService.searchWeb('philosophy', 'openai/gpt-5.6-sol', 'user-1'),
     ).rejects.toThrow(/does not support web search/);
   });
 });

@@ -1,227 +1,247 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { Anthropic, Deepseek, GoogleGemini, Kimi, Openai } from "@thesvg/react";
 import {
+  AlertCircle,
+  Check,
   CheckCircle2,
+  Clipboard,
+  ExternalLink,
   Eye,
   EyeOff,
-  Key,
+  KeyRound,
   Monitor,
   Moon,
   RefreshCw,
+  ShieldCheck,
   Sun,
-  Terminal,
   Trash2,
-  XCircle,
+  WandSparkles,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { AppHeader } from "@/shared/ui/layout";
-import { Button } from "@/shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
 import { useConnectionStatus } from "@/features/ai";
+import { AppHeader } from "@/shared/ui/layout";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/ui/alert-dialog";
+import { Button } from "@/shared/ui/button";
 import { fetchApi } from "@/shared/lib/utils";
 
-function OpenAiConnectionCard() {
+const MASKED_KEY = "••••••••••••••••••••••••••••••••";
+
+const providerConfig = [
+  { id: "openai", name: "OpenAI", icon: Openai, placeholder: "sk-proj-...", keyUrl: "https://platform.openai.com/api-keys" },
+  { id: "deepseek", name: "DeepSeek", icon: Deepseek, placeholder: "sk-...", keyUrl: "https://platform.deepseek.com/api_keys" },
+  { id: "anthropic", name: "Anthropic", icon: Anthropic, placeholder: "sk-ant-...", keyUrl: "https://console.anthropic.com/settings/keys" },
+  { id: "google", name: "Google Gemini", icon: GoogleGemini, placeholder: "AIza...", keyUrl: "https://aistudio.google.com/app/apikey" },
+  { id: "kimi", name: "Kimi", icon: Kimi, placeholder: "sk-...", keyUrl: "https://platform.moonshot.ai/console/api-keys" },
+] as const;
+
+type Provider = (typeof providerConfig)[number];
+
+function keyLooksValid(provider: Provider, value: string) {
+  if (!value || value === MASKED_KEY) return true;
+  if (provider.id === "anthropic") return value.startsWith("sk-ant-") && value.length > 15;
+  if (provider.id === "google") return value.startsWith("AIza") && value.length > 15;
+  return value.startsWith("sk-") && value.length > 15;
+}
+
+function ProviderMark({ provider }: { provider: Provider }) {
+  const Icon = provider.icon;
+
+  const monochromeClass = provider.id === "deepseek" || provider.id === "kimi" ? "" : "brightness-0 dark:invert";
+  const kimiClass = provider.id === "kimi" ? "text-[#171717]" : "";
+
+  return <Icon className={`size-7 shrink-0 ${monochromeClass} ${kimiClass}`} aria-hidden="true" />;
+}
+
+function StatusBadge({ hasKey, ok, isPending, isInvalid }: { hasKey: boolean; ok: boolean; isPending: boolean; isInvalid: boolean }) {
+  if (isPending) return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground"><span className="size-1.5 animate-pulse rounded-full bg-muted-foreground" />Checking</span>;
+  if (isInvalid || (hasKey && !ok)) return <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive"><AlertCircle className="size-3" />Invalid key</span>;
+  if (hasKey && ok) return <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success"><CheckCircle2 className="size-3" />Connected</span>;
+  return <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground"><span className="size-1.5 rounded-full bg-muted-foreground/50" />Not configured</span>;
+}
+
+function ProviderRow({ provider }: { provider: Provider }) {
   const { data: connection, isPending } = useConnectionStatus();
   const queryClient = useQueryClient();
-
+  const providerStatus = connection?.providers?.[provider.id];
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [pasted, setPasted] = useState(false);
+  const [replaceOpen, setReplaceOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
-    if (connection?.openai?.hasKey) {
-      setApiKeyInput("••••••••••••••••••••••••••••••••");
-    } else {
-      setApiKeyInput("");
+    setApiKeyInput(providerStatus?.hasKey ? MASKED_KEY : "");
+  }, [providerStatus?.hasKey]);
+
+  const isMasked = apiKeyInput === MASKED_KEY;
+  const isDirty = Boolean(apiKeyInput.trim()) && !isMasked;
+  const isInvalid = isDirty && !keyLooksValid(provider, apiKeyInput);
+
+  const beginReplacement = () => {
+    setApiKeyInput("");
+    setShowKey(false);
+    setReplaceOpen(false);
+  };
+
+  const handlePaste = async () => {
+    try {
+      const value = await navigator.clipboard.readText();
+      if (value) {
+        setApiKeyInput(value.trim());
+        setPasted(true);
+        window.setTimeout(() => setPasted(false), 1400);
+      }
+    } catch {
+      toast.error("Clipboard access is unavailable");
     }
-  }, [connection?.openai?.hasKey]);
+  };
 
-  const handleSaveKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!apiKeyInput.trim()) return;
-
+  const handleSaveKey = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!isDirty || isInvalid) return;
     setIsSaving(true);
     try {
       const res = await fetchApi("/api/ai/connection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ openaiApiKey: apiKeyInput }),
+        body: JSON.stringify({ provider: provider.id, apiKey: apiKeyInput }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to save API key");
-      }
-
-      toast.success("API key saved successfully");
+      if (!res.ok) throw new Error("Could not save this key");
+      setSaved(true);
+      toast.success(`${provider.name} key saved`);
       queryClient.invalidateQueries({ queryKey: ["connection-status"] });
       queryClient.invalidateQueries({ queryKey: ["models"] });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save API key");
+      window.setTimeout(() => setSaved(false), 1800);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save this key");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeleteKey = async () => {
-    if (!confirm("Are you sure you want to delete your API key?")) return;
-
+  const handleDelete = async () => {
     setIsDeleting(true);
     try {
       const res = await fetchApi("/api/ai/connection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ openaiApiKey: null }),
+        body: JSON.stringify({ provider: provider.id, apiKey: null }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete API key");
-      }
-
+      if (!res.ok) throw new Error("Could not remove this key");
       setApiKeyInput("");
-      toast.success("API key deleted");
+      setDeleteOpen(false);
+      toast.success(`${provider.name} key removed`);
       queryClient.invalidateQueries({ queryKey: ["connection-status"] });
       queryClient.invalidateQueries({ queryKey: ["models"] });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete API key");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not remove this key");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const isPlaceholderKey = apiKeyInput === "••••••••••••••••••••••••••••••••";
-
   return (
-    <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
-          <Key className="h-4.5 w-4.5 text-muted-foreground" />
-          OpenAI Provider
-        </CardTitle>
-        <CardDescription className="text-xs">
-          Configure your personal OpenAI API key for AI features
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <form onSubmit={handleSaveKey} className="space-y-3">
-          <div className="flex gap-2 relative items-center">
-            <div className="relative flex-1">
-              <Input
-                type={showKey ? "text" : "password"}
-                placeholder="sk-..."
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                disabled={isSaving || isDeleting}
-                className="pr-10"
-              />
-              {apiKeyInput && !isPlaceholderKey && (
-                <button
-                  type="button"
-                  onClick={() => setShowKey(!showKey)}
-                  aria-label={showKey ? "Hide API key" : "Show API key"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  {showKey ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              )}
-            </div>
+    <div className="group grid gap-4 px-5 py-4 transition-colors hover:bg-muted/25 md:grid-cols-[minmax(185px,0.8fr)_minmax(260px,1.45fr)_auto] md:items-center md:gap-6 lg:px-6">
+      <div className="flex min-w-0 items-center gap-3">
+        <ProviderMark provider={provider} />
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="truncate text-sm font-semibold tracking-[-0.01em]">{provider.name}</h3>
+            <StatusBadge hasKey={providerStatus?.hasKey ?? false} ok={providerStatus?.ok ?? false} isPending={isPending} isInvalid={isInvalid} />
+          </div>
+          <a href={provider.keyUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground hover:underline">
+            Get an API key <ExternalLink className="size-2.5" />
+          </a>
+        </div>
+      </div>
 
-            <Button
-              type="submit"
-              size="sm"
-              disabled={
-                isSaving || isDeleting || !apiKeyInput || isPlaceholderKey
-              }
-              className="cursor-pointer shrink-0"
+      <form id={`provider-form-${provider.id}`} onSubmit={handleSaveKey} className="min-w-0">
+        <div className={`relative flex h-10 items-center rounded-xl border bg-background shadow-[0_1px_2px_rgb(15_23_42/0.03)] transition-all focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/10 ${isInvalid ? "border-destructive/60" : "border-border/70"}`}>
+          <KeyRound className="ml-3 size-3.5 shrink-0 text-muted-foreground/70" />
+          <input
+            aria-label={`${provider.name} API key`}
+            type={showKey ? "text" : "password"}
+            placeholder={provider.placeholder}
+            value={apiKeyInput}
+            onChange={(event) => setApiKeyInput(event.target.value)}
+            readOnly={isMasked}
+            disabled={isSaving || isDeleting}
+            className="h-full min-w-0 flex-1 bg-transparent px-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60 disabled:opacity-50"
+          />
+          {isMasked && <button type="button" onClick={() => setReplaceOpen(true)} className="mr-1 rounded-lg px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">Replace</button>}
+          {!isMasked && <button type="button" onClick={handlePaste} className="mr-1.5 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" aria-label="Paste API key">
+            {pasted ? <Check className="size-3.5 text-success" /> : <Clipboard className="size-3.5" />}
+          </button>}
+          {apiKeyInput && <button type="button" onClick={() => setShowKey((current) => !current)} className="mr-2 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" aria-label={showKey ? "Hide API key" : "Show API key"}>
+            {showKey ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+          </button>}
+          {isDirty && <span className={`mr-3 size-1.5 rounded-full ${isInvalid ? "bg-destructive" : "bg-success"}`} aria-label={isInvalid ? "Invalid key format" : "Key format looks valid"} />}
+        </div>
+        {isInvalid && <p className="mt-1.5 text-[11px] text-destructive">That key format doesn&apos;t look right.</p>}
+      </form>
+
+      <div className="flex items-center gap-2 md:justify-end">
+        <Button type="submit" form={`provider-form-${provider.id}`} size="sm" disabled={!isDirty || isInvalid || isSaving || isDeleting} className="h-9 min-w-20 rounded-xl text-xs font-semibold shadow-sm">
+          {isSaving ? <RefreshCw className="size-3.5 animate-spin" /> : saved ? <Check className="size-3.5" /> : "Save changes"}
+        </Button>
+        {providerStatus?.hasKey && <Button type="button" variant="ghost" size="icon-sm" onClick={() => setDeleteOpen(true)} disabled={isSaving || isDeleting} aria-label={`Delete ${provider.name} API key`} className="size-9 rounded-xl text-destructive/70 hover:bg-destructive/10 hover:text-destructive">
+          {isDeleting ? <RefreshCw className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+        </Button>}
+      </div>
+
+      <AlertDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace {provider.name} key?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your current key will stay active until you save a replacement. You will need to paste the new key on the next step.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={beginReplacement}>Replace key</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {provider.name} key?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will disconnect {provider.name} from your account. You can add the key again at any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                void handleDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isSaving ? "Saving..." : "Save Key"}
-            </Button>
-
-            {connection?.openai?.hasKey && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={handleDeleteKey}
-                disabled={isSaving || isDeleting}
-                className="cursor-pointer shrink-0"
-                title="Delete Key"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </form>
-
-        {isPending ? (
-          <div className="text-sm text-muted-foreground animate-pulse">
-            Checking OpenAI connection...
-          </div>
-        ) : connection?.openai ? (
-          <div className="space-y-4 pt-2 border-t border-border/40">
-            <div className="flex items-center gap-2">
-              {connection.openai.hasKey ? (
-                connection.openai.ok ? (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                    <span className="text-sm font-medium text-emerald-700">
-                      Active & Verified
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-5 w-5 text-red-500" />
-                    <span className="text-sm font-medium text-red-700">
-                      Verification Failed
-                    </span>
-                  </>
-                )
-              ) : (
-                <div className="text-xs text-muted-foreground">
-                  No API key configured
-                </div>
-              )}
-            </div>
-
-            {connection.openai.hasKey && connection.openai.detail && (
-              <div className="rounded bg-muted p-3 text-xs text-muted-foreground">
-                {connection.openai.detail}
-              </div>
-            )}
-
-            {connection.openai.ok && connection.openai.models.length > 0 && (
-              <div>
-                <div className="text-xs font-medium text-muted-foreground mb-2">
-                  Available Models ({connection.openai.models.length})
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {connection.openai.models.map((model) => (
-                    <span
-                      key={model.id}
-                      className="inline-flex items-center rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground"
-                    >
-                      {model.displayName}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-      </CardContent>
-    </Card>
+              {isDeleting ? <RefreshCw className="size-3.5 animate-spin" /> : "Remove key"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
 
@@ -229,99 +249,60 @@ export function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { isPending } = useConnectionStatus();
   const queryClient = useQueryClient();
+  const [testing, setTesting] = useState(false);
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["connection-status"] });
     queryClient.invalidateQueries({ queryKey: ["models"] });
   };
 
+  const handleTestAll = async () => {
+    setTesting(true);
+    await queryClient.invalidateQueries({ queryKey: ["connection-status"] });
+    setTesting(false);
+    toast.success("Connection checks complete");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-
-      <main className="mx-auto max-w-2xl px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+      <main className="mx-auto max-w-[1040px] px-5 pb-16 pt-10 sm:px-8 lg:pt-14">
+        <header className="flex flex-col gap-6  pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="gradient-text font-heading text-2xl font-bold">
-              Settings
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your AI provider keys, preferences, and theme settings
-            </p>
+            <h1 className="text-[2rem] font-semibold leading-none tracking-[-0.055em] sm:text-[2.4rem]">Settings</h1>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground">Connect the AI providers you trust. Keys stay private to your account and power your notebooks.</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isPending}
-            className="cursor-pointer"
-          >
-            <RefreshCw
-              className={`mr-1.5 h-3.5 w-3.5 ${isPending ? "animate-spin" : ""}`}
-            />
-            Refresh Status
-          </Button>
-        </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isPending} className="h-9 rounded-xl border-border/70 bg-background text-xs">
+              <RefreshCw className={isPending ? "size-3.5 animate-spin" : "size-3.5"} /> Refresh status
+            </Button>
+            <Button size="sm" onClick={handleTestAll} disabled={testing || isPending} className="h-9 rounded-xl text-xs shadow-sm">
+              <WandSparkles className="size-3.5" /> {testing ? "Testing..." : "Test all"}
+            </Button>
+          </div>
+        </header>
 
-        <OpenAiConnectionCard />
+        <section className="mt-9" aria-labelledby="providers-heading">
+          <div className="mb-3 flex items-end justify-between px-1">
+            <div><h2 id="providers-heading" className="text-base font-semibold tracking-[-0.02em]">AI providers</h2><p className="mt-1 text-xs text-muted-foreground">Use your own keys for more control over models and usage.</p></div>
+            <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex"><ShieldCheck className="size-3.5" /> Encrypted at rest</span>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_8px_30px_rgb(15_23_42/0.035)] divide-y divide-border/60">
+            {providerConfig.map((provider) => <ProviderRow key={provider.id} provider={provider} />)}
+          </div>
+        </section>
 
-        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-base">Setup Instructions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <Terminal className="mt-0.5 h-4 w-4 shrink-0" />
-              <div>
-                <p className="font-medium text-foreground mb-1">
-                  Using OpenAI API Keys
-                </p>
-                <p className="text-xs">
-                  Your API key is encrypted and stored securely in your user session profile.
-                </p>
-              </div>
+        <section className="mt-10 grid gap-5 md:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_rgb(15_23_42/0.025)] sm:p-6">
+            <div className="flex items-start gap-3"><div className="flex size-9 items-center justify-center rounded-xl bg-accent/10 text-accent"><ShieldCheck className="size-4" /></div><div><h2 className="text-sm font-semibold">Your keys, your control</h2><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Keys are encrypted before they are stored and are only used to make requests on your behalf. They are never exposed in the client.</p></div></div>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_rgb(15_23_42/0.025)] sm:p-6">
+            <h2 className="text-sm font-semibold">Appearance</h2><p className="mt-1.5 text-xs text-muted-foreground">Choose how Memsystems looks for you.</p>
+            <div className="mt-4 flex gap-1 rounded-xl bg-muted/70 p-1" role="radiogroup" aria-label="Theme preference">
+              {[{ value: "light", icon: Sun, name: "Light" }, { value: "dark", icon: Moon, name: "Dark" }, { value: "system", icon: Monitor, name: "System" }].map((item) => { const Icon = item.icon; const selected = (theme ?? "system") === item.value; return <button key={item.value} type="button" role="radio" aria-checked={selected} onClick={() => setTheme(item.value)} className={`flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg text-[11px] font-medium transition-all ${selected ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}><Icon className="size-3.5" />{item.name}</button>; })}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6 border border-border/40 bg-card/60 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sun className="h-4.5 w-4.5 text-muted-foreground" />
-              Theme Appearance
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Select your preferred color scheme
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "light", icon: Sun, name: "Light" },
-                { value: "dark", icon: Moon, name: "Dark" },
-                { value: "system", icon: Monitor, name: "System" },
-              ].map((item) => {
-                const Icon = item.icon;
-                const isSelected = (theme ?? "system") === item.value;
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setTheme(item.value)}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all cursor-pointer select-none ${
-                      isSelected
-                        ? "border-primary bg-primary/5 text-primary shadow-sm"
-                        : "border-border/55 hover:border-border hover:bg-muted/40"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5 mb-1.5" />
-                    <span className="text-sm font-semibold">{item.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </main>
     </div>
   );

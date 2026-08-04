@@ -111,7 +111,7 @@ export function SourcesPanel({
 
       <div className="p-2">
         <AddSourceDialog notebookId={notebookId}>
-          <div className="border-2 border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer rounded-2xl">
+          <div className="border-2 border-dashed border-border p-4 text-center text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 cursor-pointer rounded-2xl">
             Add sources (PDF, Web, Text) to inform your AI study assistant
           </div>
         </AddSourceDialog>
@@ -156,7 +156,7 @@ function SourceRow({
         onClick={onClick}
         className={cn(
           "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl cursor-pointer",
-          "text-muted-foreground hover:bg-muted hover:text-foreground",
+          "text-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <span className="w-3.5 shrink-0" />

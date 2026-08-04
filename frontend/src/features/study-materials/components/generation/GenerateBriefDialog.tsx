@@ -103,7 +103,7 @@ export function GenerateBriefDialog({
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">Generate {label}</DialogTitle>
         </DialogHeader>
-        {connection?.openai?.ok !== false ? (
+        {connection?.ok !== false ? (
           <BriefForm
             notebookId={notebookId}
             kind={kind}
@@ -128,7 +128,7 @@ export function GenerateBriefDialog({
             disabled={false}
           />
         ) : (
-          <OpenAIKeyPrompt description="An OpenAI API Key is required to generate study materials." />
+          <OpenAIKeyPrompt description="An API key is required to generate study materials." />
         )}
       </DialogContent>
     </Dialog>

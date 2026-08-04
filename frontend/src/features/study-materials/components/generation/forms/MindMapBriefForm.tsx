@@ -94,7 +94,7 @@ export function MindMapBriefForm({
 
   return (
     <div className="flex w-full flex-col gap-5 font-sans text-foreground">
-      <section className="rounded-2xl border border-border bg-muted/20 p-4 sm:p-5">
+      <section className="rounded-2xl border border-border bg-muted p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export function MindMapBriefForm({
               "flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-xs font-medium transition-colors",
               isAutoMode
                 ? "border-primary bg-primary font-semibold text-primary-foreground"
-                : "border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground",
+                : "border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             <Wand2 className="size-3.5" /> Auto
@@ -152,7 +152,7 @@ export function MindMapBriefForm({
                   "flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-xs font-medium transition-colors",
                   selected
                     ? "border-primary bg-primary font-semibold text-primary-foreground"
-                    : "border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground",
+                    : "border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 {selected && <Check className="size-3" />}
@@ -182,7 +182,7 @@ export function MindMapBriefForm({
                 setIsCustomMode(true);
                 setNodeCount(Math.min(MAX_NODE_COUNT, Math.max(1, Number.parseInt(customValue, 10) || 40)));
               }}
-              className="flex h-9 cursor-pointer items-center justify-center rounded-xl border border-border bg-muted/40 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex h-9 cursor-pointer items-center justify-center rounded-xl border border-border bg-muted text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               Custom
             </button>
@@ -240,7 +240,7 @@ export function MindMapBriefForm({
 
       <Button
         type="button"
-        className="h-10 w-full gap-2 rounded-full bg-primary text-sm font-medium text-primary-foreground shadow-md transition-opacity hover:opacity-95"
+        className="h-10 w-full gap-2 rounded-full border border-border/80 bg-panel-header-bg text-foreground text-sm font-medium shadow-md transition-colors hover:bg-muted disabled:bg-muted disabled:text-foreground disabled:opacity-100"
         disabled={!canSubmit}
         onClick={onSubmit}
       >
@@ -272,7 +272,7 @@ function TreePreview() {
                 {title}
               </div>
               <span className="h-px w-4 bg-border" />
-              <div className="flex h-8 w-24 items-center rounded-lg border border-border bg-muted/40 px-2 text-[10px] text-muted-foreground">
+              <div className="flex h-8 w-24 items-center rounded-lg border border-border bg-muted px-2 text-[10px] text-muted-foreground">
                 {detail}
               </div>
             </div>
@@ -325,7 +325,7 @@ function MindMapSourcePopover({
         }
       />
       <PopoverContent align="start" className="w-[320px] overflow-hidden rounded-2xl p-0 shadow-xl">
-        <div className="flex items-center justify-between bg-muted/30 px-3.5 py-2.5">
+        <div className="flex items-center justify-between bg-muted px-3.5 py-2.5">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Search className="size-4 shrink-0 text-muted-foreground" />
             <input type="text" placeholder="Search sources..." value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
@@ -341,7 +341,7 @@ function MindMapSourcePopover({
             {filtered.map((source) => {
               const checked = selectedIds.includes(source.id);
               return (
-                <button key={source.id} type="button" onClick={() => toggleOne(source.id)} className={cn("flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs", checked ? "bg-muted/70 font-medium" : "text-muted-foreground hover:bg-muted/40")}>
+                <button key={source.id} type="button" onClick={() => toggleOne(source.id)} className={cn("flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs", checked ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted")}>
                   <span className="flex min-w-0 items-center gap-2 truncate pr-2">
                     {source.kind === "web" ? <Globe className="size-4 shrink-0 text-primary" /> : source.kind === "file" ? <FileText className="size-4 shrink-0 text-primary" /> : <BookOpen className="size-4 shrink-0 text-primary" />}
                     <span className="truncate">{source.title}</span>
@@ -352,7 +352,7 @@ function MindMapSourcePopover({
             })}
           </div>
         )}
-        <div className="bg-muted/20 p-2.5 text-xs text-muted-foreground">{selectedIds.length} selected</div>
+        <div className="bg-muted p-2.5 text-xs text-muted-foreground">{selectedIds.length} selected</div>
       </PopoverContent>
     </Popover>
   );

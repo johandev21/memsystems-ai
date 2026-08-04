@@ -40,7 +40,7 @@ export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteract
       {/* Sentence display with inline blank slot */}
       <p className="text-lg md:text-xl font-medium leading-relaxed tracking-tight text-foreground">
         <span>{parsed.prefix}</span>
-        <span className="inline-flex items-center px-3 py-1 mx-1.5 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 font-bold text-primary font-mono text-base transition-colors">
+        <span className="inline-flex items-center px-3 py-1 mx-1.5 rounded-xl border-2 border-dashed border-primary bg-primary font-bold text-primary-foreground text-base transition-colors">
           {inputVal || "____"}
         </span>
         <span>{parsed.suffix}</span>
@@ -65,8 +65,8 @@ export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteract
           placeholder="Type missing word..."
           className={cn(
             "h-10 text-sm rounded-2xl text-center font-medium transition-all shadow-2xs focus-visible:ring-2",
-            status === "correct" && "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 focus-visible:ring-emerald-500/30",
-            status === "incorrect" && "border-destructive bg-destructive/10 text-destructive focus-visible:ring-destructive/30"
+            status === "correct" && "border-success bg-success text-success-foreground focus-visible:ring-success",
+            status === "incorrect" && "border-destructive bg-destructive text-destructive-foreground focus-visible:ring-destructive"
           )}
         />
         <Button
@@ -82,18 +82,18 @@ export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteract
 
       {/* Visual Feedback Banner */}
       {status === "correct" && (
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 animate-in fade-in zoom-in-95 duration-150">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-success-foreground bg-success border border-success animate-in fade-in zoom-in-95 duration-150">
           <CheckCircle2 className="size-4 shrink-0" /> Correct answer!
         </div>
       )}
       {status === "incorrect" && (
-        <div className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl text-xs bg-destructive/10 border border-destructive/20 animate-in fade-in zoom-in-95 duration-150 w-full max-w-sm mx-auto">
+        <div className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl text-xs bg-destructive border border-destructive text-destructive-foreground animate-in fade-in zoom-in-95 duration-150 w-full max-w-sm mx-auto">
           <div className="flex items-center gap-1.5 font-semibold text-destructive">
             <XCircle className="size-4 shrink-0" /> Incorrect
           </div>
           <p className="text-foreground text-xs font-medium">
             Correct Answer:{" "}
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="font-bold text-success">
               {parsed.expected}
             </span>
           </p>

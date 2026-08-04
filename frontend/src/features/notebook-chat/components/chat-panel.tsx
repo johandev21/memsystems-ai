@@ -100,7 +100,7 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
             onConfirm={() => clearHistoryMutation.mutate()}
             isClearing={clearHistoryMutation.isPending}
           />
-          {connection?.openai?.ok !== false ? (
+          {connection?.ok !== false ? (
             <Composer
               input={input}
               onInputChange={setInput}
@@ -116,7 +116,14 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               isClearingHistory={clearHistoryMutation.isPending}
             />
           ) : (
-            <OpenAIKeyPrompt description="An OpenAI API Key is required to chat with your study assistant." />
+            <OpenAIKeyPrompt
+              provider={modelOptions.length > 0 ? selectedModel.split("/")[0] : undefined}
+              description={
+                modelOptions.length > 0
+                  ? "An API key is required to chat with your study assistant."
+                  : undefined
+              }
+            />
           )}
         </div>
       </div>

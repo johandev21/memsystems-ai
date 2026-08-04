@@ -317,7 +317,7 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
   }
 
   return (
-    <div className="relative h-[min(680px,calc(100vh-180px))] min-h-[420px] w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm">
+    <div className="relative h-[min(680px,calc(100vh-180px))] min-h-[420px] w-full overflow-hidden rounded-xl border border-border bg-panel-bg shadow-sm">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -338,14 +338,14 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} className="opacity-60" />
       </ReactFlow>
 
-      <div className="absolute right-4 top-4 flex flex-col gap-1.5 rounded-xl border border-border bg-card/95 p-1.5 shadow-sm backdrop-blur-md">
+      <div className="absolute right-4 top-4 flex flex-col gap-1.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
         <Button variant="ghost" size="icon" onClick={() => zoomIn({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom in"><Plus className="size-4" /></Button>
         <Button variant="ghost" size="icon" onClick={() => zoomOut({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom out"><Minus className="size-4" /></Button>
         <div className="mx-1 h-px bg-border" />
         <Button variant="ghost" size="icon" onClick={centerSelected} className="size-8 text-muted-foreground" aria-label="Center selected node"><Crosshair className="size-4" /></Button>
       </div>
 
-      <div className="pointer-events-none absolute bottom-4 left-4 hidden items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-2 text-[10px] text-muted-foreground backdrop-blur-md sm:flex">
+      <div className="pointer-events-none absolute bottom-4 left-4 hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-[10px] text-muted-foreground sm:flex">
         <span className="size-1.5 rounded-full bg-primary" /> Drag to pan · Scroll to zoom · Click a node to explore
       </div>
     </div>

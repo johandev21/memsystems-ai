@@ -126,7 +126,7 @@ export function FlashcardBriefForm({
                   "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5",
                   selected
                     ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                    : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
                 {selected && <Check className="size-3.5 text-primary-foreground shrink-0" />}
@@ -153,7 +153,7 @@ export function FlashcardBriefForm({
                     "flex-1 h-9 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center justify-center gap-1",
                     selected
                       ? "bg-primary text-primary-foreground border-primary font-semibold"
-                      : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                      : "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   {d.title}
@@ -235,7 +235,7 @@ export function FlashcardBriefForm({
       {/* Submit */}
       <Button
         type="button"
-        className="w-full h-10 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all"
+        className="w-full h-10 rounded-full border border-border/80 bg-panel-header-bg text-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:bg-muted transition-colors disabled:bg-muted disabled:text-foreground disabled:opacity-100"
         disabled={!canSubmit}
         onClick={onSubmit}
       >
@@ -287,7 +287,7 @@ function FlashcardSourcePopover({
 
   function renderHeader() {
     return (
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-muted/30">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-muted">
         <div className="flex items-center gap-2 flex-1">
           <Search className="size-4 text-muted-foreground shrink-0" />
           <input
@@ -330,7 +330,7 @@ function FlashcardSourcePopover({
               onClick={() => toggleOne(src.id)}
               className={cn(
                 "flex items-center justify-between px-3 py-2 rounded-xl text-xs cursor-pointer transition-colors",
-                checked ? "bg-muted/70 text-foreground font-medium" : "hover:bg-muted/40 text-muted-foreground"
+                checked ? "bg-muted text-foreground font-medium" : "hover:bg-muted text-muted-foreground"
               )}
             >
               <div className="flex items-center gap-2 truncate pr-2">
@@ -353,7 +353,7 @@ function FlashcardSourcePopover({
 
   function renderFooter() {
     return (
-      <div className="p-2.5 bg-muted/20 flex justify-between items-center text-xs text-muted-foreground">
+      <div className="p-2.5 bg-muted flex justify-between items-center text-xs text-muted-foreground">
         <span>{selectedIds.length} selected</span>
       </div>
     );
@@ -410,7 +410,7 @@ export function FlashcardModelPopover({
         onClick={() => onModelChange(m.id)}
         className={cn(
           "flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-colors",
-          isSelected ? "bg-muted text-foreground font-semibold" : "hover:bg-muted/50 text-muted-foreground"
+          isSelected ? "bg-muted text-foreground font-semibold" : "hover:bg-muted text-muted-foreground"
         )}
       >
         <div className="flex flex-col min-w-0">
@@ -479,7 +479,7 @@ function CardCountSelector({
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
         <Label className="text-sm font-medium text-foreground">Cards</Label>
-        <span className="text-xs font-mono font-medium text-primary">{cardLabel}</span>
+        <span className="text-xs font-medium text-primary">{cardLabel}</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2">
@@ -494,7 +494,7 @@ function CardCountSelector({
                 "h-9 rounded-xl text-sm font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5",
                 selected
                   ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                  : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               {selected && <Check className="size-3.5 text-primary-foreground shrink-0" />}
@@ -521,7 +521,7 @@ function CardCountSelector({
           <button
             type="button"
             onClick={onEnableCustom}
-            className="h-9 rounded-xl text-sm font-medium border border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-center cursor-pointer flex items-center justify-center gap-1.5"
+            className="h-9 rounded-xl text-sm font-medium border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-center cursor-pointer flex items-center justify-center gap-1.5"
           >
             Custom
           </button>

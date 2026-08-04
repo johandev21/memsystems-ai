@@ -6,24 +6,33 @@ import {
   EyeOff,
   Key,
   Loader2,
+  Settings2,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { fetchApi } from "@/shared/lib/utils";
 
-interface OpenAIKeyPromptProps {
+interface ProviderKeyPromptProps {
   className?: string;
   description?: string;
+  provider?: string;
+  providerName?: string;
 }
 
-export function OpenAIKeyPrompt({
+export function ProviderKeyPrompt({
   className = "",
   description = "",
-}: OpenAIKeyPromptProps) {
+  provider,
+  providerName = provider === "openai" ? "OpenAI" : provider,
+}: ProviderKeyPromptProps) {
   const queryClient = useQueryClient();
-  const defaultDescription = "Connect your OpenAI account to use AI features";
+  const isProviderUnselected = !provider;
+  const defaultDescription = isProviderUnselected
+    ? "Add an API key in Settings to unlock models from the providers you trust."
+    : `Connect your ${providerName} account to use AI features`;
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,7 +50,7 @@ export function OpenAIKeyPrompt({
       const res = await fetchApi("/api/ai/connection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ openaiApiKey: cleanKey }),
+        body: JSON.stringify({ provider, apiKey: cleanKey }),
       });
 
       if (!res.ok) {
@@ -50,8 +59,8 @@ export function OpenAIKeyPrompt({
 
       const status = await res.json();
 
-      if (!status.openai?.ok) {
-        throw new Error(status.openai?.detail ?? "Verification failed");
+      if (!status.providers?.[provider]?.ok) {
+        throw new Error(status.providers?.[provider]?.detail ?? "Verification failed");
       }
 
       toast.success("API key verified and saved");
@@ -70,15 +79,15 @@ export function OpenAIKeyPrompt({
 
   return (
     <div
-      className={`w-full rounded-xl border border-border/50 bg-card/65 backdrop-blur-md p-5 shadow-sm transition-all focus-within:shadow-md ${className}`}
+      className={`w-full rounded-xl border border-border/70 bg-card p-5 shadow-sm transition-all focus-within:border-primary/35 focus-within:shadow-md ${className}`}
     >
-      <div className="flex items-start gap-3 mb-4">
+      <div className="mb-4 flex items-start gap-3">
         <div className="rounded-xl bg-primary/10 p-2 text-primary">
           <Key className="h-5 w-5" />
         </div>
         <div className="space-y-1">
           <h4 className="text-sm font-semibold text-foreground">
-            OpenAI API Key Required
+            {isProviderUnselected ? "Connect an AI provider" : `${providerName} API key required`}
           </h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
             {description || defaultDescription}
@@ -86,51 +95,60 @@ export function OpenAIKeyPrompt({
         </div>
       </div>
 
-      <form onSubmit={handleSaveKey} className="space-y-3">
-        <div className="flex gap-2 relative items-center">
-          <div className="relative flex-1">
-            <Input
-              type={showKey ? "text" : "password"}
-              placeholder="sk-..."
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              disabled={isSaving}
-              className="pr-10 bg-background/50 h-9 text-sm"
-              autoComplete="off"
-            />
-            {apiKeyInput && (
-              <button
-                type="button"
-                onClick={() => setShowKey(!showKey)}
-                aria-label={showKey ? "Hide API key" : "Show API key"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                {showKey ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            )}
-          </div>
-
-          <Button
-            type="submit"
-            size="sm"
-            disabled={isSaving || !apiKeyInput.trim()}
-            className="cursor-pointer shrink-0 h-9 px-4"
+      {isProviderUnselected ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/settings"
+            className="inline-flex h-9 items-center gap-1.5 rounded-2xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              "Connect"
-            )}
-          </Button>
+            <Settings2 className="size-3.5" />
+            Open provider settings
+          </Link>
+          <span className="text-[11px] text-muted-foreground">OpenAI, Anthropic, Google, DeepSeek, and Kimi</span>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSaveKey} className="space-y-3">
+          <div className="relative flex items-center gap-2">
+            <div className="relative flex-1">
+              <Input
+                type={showKey ? "text" : "password"}
+                placeholder={provider === "google" ? "AIza..." : provider === "anthropic" ? "sk-ant-..." : "sk-..."}
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                disabled={isSaving}
+                className="h-9 bg-background/50 pr-10 text-sm"
+                autoComplete="off"
+              />
+              {apiKeyInput && (
+                <button
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  aria-label={showKey ? "Hide API key" : "Show API key"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+                >
+                  {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isSaving || !apiKeyInput.trim()}
+              className="h-9 shrink-0 px-4"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Connect"
+              )}
+            </Button>
+          </div>
+        </form>
+      )}
 
       {errorMessage && (
         <div className="flex items-start gap-1.5 mt-3 text-xs text-destructive rounded-xl bg-destructive/10 border border-destructive/20 p-2.5">
@@ -142,15 +160,17 @@ export function OpenAIKeyPrompt({
       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
         <span>Stored securely for your session</span>
         <a
-          href="https://platform.openai.com/api-keys"
+          href={provider === "openai" ? "https://platform.openai.com/api-keys" : undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-0.5 text-primary hover:underline font-medium shrink-0 ml-2"
         >
-          Get API Key
+          {isProviderUnselected ? "Manage providers" : "Get API Key"}
           <ExternalLink className="h-2.5 w-2.5" />
         </a>
       </div>
     </div>
   );
 }
+
+export const OpenAIKeyPrompt = ProviderKeyPrompt;

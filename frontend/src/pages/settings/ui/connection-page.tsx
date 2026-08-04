@@ -12,14 +12,14 @@ export function ConnectionPage() {
     <div className="min-h-screen bg-background">
       <AppHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="gradient-text font-heading text-2xl font-bold mb-2">
+        <h1 className="font-heading text-2xl font-semibold tracking-[-0.03em] mb-2">
           AI Connection Configuration
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
           Configure model endpoints and backend services
         </p>
 
-        <Card className="border border-border/40 bg-card/60 backdrop-blur-md">
+        <Card>
           <CardHeader>
             <CardTitle>Provider Status</CardTitle>
             <CardDescription>
@@ -28,7 +28,7 @@ export function ConnectionPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Refer to the main settings page to manage your OpenAI API key.
+              Refer to the main settings page to manage your AI provider API keys.
             </p>
           </CardContent>
         </Card>

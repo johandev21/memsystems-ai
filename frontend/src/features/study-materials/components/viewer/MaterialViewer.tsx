@@ -158,7 +158,7 @@ export function MaterialViewer({
   if (isFullscreen || isExitingFullscreen) {
     return (
       <div
-        className={`fixed inset-0 z-50 flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground motion-reduce:animate-none ${
+        className={`fixed inset-0 z-50 flex h-screen w-screen flex-col overflow-hidden bg-panel-bg text-foreground motion-reduce:animate-none ${
           isExitingFullscreen
             ? "animate-out fade-out duration-150"
             : "animate-in fade-in duration-150"
@@ -173,7 +173,7 @@ export function MaterialViewer({
   }
 
   return (
-    <div className="flex h-full flex-col bg-background text-foreground overflow-hidden">
+    <div className="flex h-full flex-col bg-panel-bg text-foreground overflow-hidden">
       {showHeader && header}
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         {renderContent()}

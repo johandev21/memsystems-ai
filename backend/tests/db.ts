@@ -60,6 +60,18 @@ export async function ensureTestDatabase(): Promise<void> {
   try {
     await pgClient.connect();
     await pgClient.query('CREATE EXTENSION IF NOT EXISTS vector');
+    await pgClient.query(
+      'ALTER TABLE "user_settings" ADD COLUMN IF NOT EXISTS "deepseek_api_key" text',
+    );
+    await pgClient.query(
+      'ALTER TABLE "user_settings" ADD COLUMN IF NOT EXISTS "anthropic_api_key" text',
+    );
+    await pgClient.query(
+      'ALTER TABLE "user_settings" ADD COLUMN IF NOT EXISTS "gemini_api_key" text',
+    );
+    await pgClient.query(
+      'ALTER TABLE "user_settings" ADD COLUMN IF NOT EXISTS "kimi_api_key" text',
+    );
   } finally {
     await pgClient.end();
   }

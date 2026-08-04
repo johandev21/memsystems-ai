@@ -9,7 +9,7 @@ export function StudyMaterialsEmptyState() {
       <h3 className="text-sm font-semibold text-foreground mb-1 tracking-tight">
         No study materials yet
       </h3>
-      <p className="text-xs text-muted-foreground/80 max-w-[280px] leading-relaxed">
+      <p className="text-xs text-muted-foreground max-w-[280px] leading-relaxed">
         Select a resource above to generate quizzes, flashcards, or roadmaps from your sources.
       </p>
     </div>

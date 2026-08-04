@@ -55,7 +55,7 @@ export function NotebooksSection() {
     <>
       <section className="flex flex-col gap-4 py-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="gradient-text max-w-md font-heading text-2xl leading-snug font-bold italic">
+          <h1 className="max-w-md font-heading text-2xl leading-snug font-semibold tracking-[-0.03em] text-foreground">
             Make progress on what matters.
           </h1>
           <p className="text-sm text-muted-foreground">Pick up where you left off, or start something fresh.</p>
@@ -70,7 +70,7 @@ export function NotebooksSection() {
           ) : (
             <Plus className="mr-2 size-4" />
           )}
-          New Notebook
+          New notebook
         </Button>
       </section>
 
@@ -117,7 +117,7 @@ export function NotebooksSection() {
               ) : (
                 <Plus className="mr-2 size-4" />
               )}
-              New Notebook
+              New notebook
             </Button>
           </EmptyState>
         ) : (

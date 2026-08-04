@@ -35,4 +35,29 @@ describe('ConnectionService & UserSettingsService Tests', () => {
     const snapshotAfterDelete = await connectionService.snapshot(user.id);
     expect(snapshotAfterDelete.openai.hasKey).toBe(false);
   });
+
+  it('stores keys independently for each provider', async () => {
+    const user = await seedUser();
+    await userSettingsService.setUserApiKey(
+      user.id,
+      'anthropic',
+      'sk-ant-test',
+    );
+    await userSettingsService.setUserApiKey(user.id, 'kimi', 'sk-kimi-test');
+
+    expect(await userSettingsService.getUserApiKey(user.id, 'anthropic')).toBe(
+      'sk-ant-test',
+    );
+    expect(await userSettingsService.getUserApiKey(user.id, 'kimi')).toBe(
+      'sk-kimi-test',
+    );
+
+    await userSettingsService.removeUserApiKey(user.id, 'anthropic');
+    expect(
+      await userSettingsService.getUserApiKey(user.id, 'anthropic'),
+    ).toBeNull();
+    expect(await userSettingsService.getUserApiKey(user.id, 'kimi')).toBe(
+      'sk-kimi-test',
+    );
+  });
 });

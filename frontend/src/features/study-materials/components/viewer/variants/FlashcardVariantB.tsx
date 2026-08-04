@@ -138,7 +138,7 @@ export function FlashcardVariantB({
                       : "bg-card/50 border-border/40 hover:bg-card text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <span className="text-[10px] font-mono text-muted-foreground/80 block">
+                  <span className="text-[10px] text-muted-foreground/80 block">
                     #{c.originalIndex + 1}
                   </span>
                   <p className="line-clamp-2 leading-relaxed">{c.front}</p>
@@ -151,7 +151,7 @@ export function FlashcardVariantB({
         {/* Right Stage: Active Card & Navigation */}
         <div className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col justify-between space-y-6">
           <div className="space-y-6">
-            <div className="text-xs font-mono font-medium text-muted-foreground border-b border-border/40 pb-3 flex items-center justify-between">
+            <div className="text-xs font-medium text-muted-foreground border-b border-border/40 pb-3 flex items-center justify-between">
               <span>ACTIVE CARD</span>
               <span>
                 Card {currentIndex + 1} of {cards.length}
@@ -197,7 +197,7 @@ export function FlashcardVariantB({
                         variant="outline"
                         size="sm"
                         onClick={() => setShowExplainModal(!showExplainModal)}
-                        className="rounded-full h-7 px-3 text-[11px] gap-1 cursor-pointer bg-background/60"
+                        className="rounded-full h-7 px-3 text-[11px] gap-1 cursor-pointer bg-background"
                       >
                         <Sparkles className="size-3 text-muted-foreground" /> Explain
                       </Button>
@@ -234,7 +234,7 @@ export function FlashcardVariantB({
                         variant="outline"
                         size="sm"
                         onClick={() => setShowExplainModal(!showExplainModal)}
-                        className="rounded-full h-7 px-3 text-[11px] gap-1 cursor-pointer bg-background/60"
+                        className="rounded-full h-7 px-3 text-[11px] gap-1 cursor-pointer bg-background"
                       >
                         <Sparkles className="size-3 text-muted-foreground" /> Explain
                       </Button>
@@ -261,7 +261,7 @@ export function FlashcardVariantB({
               <button
                 type="button"
                 onClick={() => triggerRating("incorrect")}
-                className="h-9 px-3.5 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold font-mono flex items-center gap-1.5 cursor-pointer transition-all"
+                className="h-9 px-3.5 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
               >
                 <X className="size-3" /> {incorrectCount}
               </button>
@@ -269,7 +269,7 @@ export function FlashcardVariantB({
               <button
                 type="button"
                 onClick={() => triggerRating("correct")}
-                className="h-9 px-3.5 rounded-full border border-border/80 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold font-mono flex items-center gap-1.5 cursor-pointer transition-all"
+                className="h-9 px-3.5 rounded-full border border-border/80 bg-muted/30 hover:bg-success/10 hover:border-success/30 text-success text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
               >
                 {correctCount} <Check className="size-3" />
               </button>
@@ -322,7 +322,7 @@ export function FlashcardVariantB({
               <X className="size-3" />
             </Button>
           </div>
-          <p className="text-xs font-mono text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             &quot;On the front: &apos;{activeCard.front}&apos;. On the back: &apos;{activeCard.back}&apos;. Explain this topic in more detail.&quot;
           </p>
         </div>

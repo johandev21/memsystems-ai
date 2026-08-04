@@ -19,10 +19,10 @@ import { StudyMaterialKind } from './shapes';
 import { StreamHandler } from './stream-handler';
 
 const MODELS_BY_KIND: Record<StudyMaterialKind, string> = {
-  quiz: 'openai/gpt-4o-mini',
-  simple_flashcard: 'openai/gpt-4o-mini',
-  roadmap: 'openai/gpt-4o-mini',
-  mind_map: 'openai/gpt-4o-mini',
+  quiz: 'openai/gpt-5.6-sol',
+  simple_flashcard: 'openai/gpt-5.6-sol',
+  roadmap: 'openai/gpt-5.6-sol',
+  mind_map: 'openai/gpt-5.6-sol',
 };
 
 @Injectable()

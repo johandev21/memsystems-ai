@@ -43,13 +43,13 @@ export const ModelSelectorContent = ({
   <DialogContent
     aria-describedby={undefined}
     className={cn(
-      "outline! border-none! p-0 outline-border! outline-solid! overflow-hidden",
+      "outline! border border-border! p-0 outline-border! outline-solid! overflow-hidden rounded-2xl bg-popover shadow-2xl [&>button]:top-2",
       className,
     )}
     {...props}
   >
     <DialogTitle className="sr-only">{title}</DialogTitle>
-    <Command className="**:data-[slot=command-input-wrapper]:h-auto">
+    <Command className="**:data-[slot=command-input-wrapper]:h-auto [&_[cmdk-input-wrapper]]:border-0">
       {children}
     </Command>
   </DialogContent>
@@ -67,7 +67,7 @@ export const ModelSelectorInput = ({
   className,
   ...props
 }: ModelSelectorInputProps) => (
-  <CommandInput className={cn("h-auto py-3.5", className)} {...props} />
+  <CommandInput className={cn("h-11 rounded-none border-0 px-3", className)} {...props} />
 );
 
 export type ModelSelectorListProps = ComponentProps<typeof CommandList>;
@@ -109,8 +109,8 @@ export const ModelSelectorSeparator = (props: ModelSelectorSeparatorProps) => (
 );
 
 export type ModelSelectorLogoProps = Omit<
-  ComponentProps<"img">,
-  "src" | "alt"
+  ComponentProps<"span">,
+  "aria-label"
 > & {
   provider: string;
 };
@@ -120,13 +120,19 @@ export const ModelSelectorLogo = ({
   className,
   ...props
 }: ModelSelectorLogoProps) => (
-  <img
+  <span
     {...props}
-    alt={`${provider} logo`}
-    className={cn("size-5 dark:invert shrink-0 object-contain", className)}
-    height={20}
-    src={`https://models.dev/logos/${provider}.svg`}
-    width={20}
+    aria-label={`${provider} logo`}
+    className={cn(
+      "size-4.5 shrink-0 bg-[var(--model-icon-color)] text-[var(--model-icon-color)]",
+      "[mask-position:center] [mask-repeat:no-repeat] [mask-size:contain]",
+      "[-webkit-mask-position:center] [-webkit-mask-repeat:no-repeat] [-webkit-mask-size:contain]",
+      className,
+    )}
+    style={{
+      WebkitMaskImage: `url(https://models.dev/logos/${provider}.svg)`,
+      maskImage: `url(https://models.dev/logos/${provider}.svg)`,
+    }}
   />
 );
 
@@ -138,7 +144,7 @@ export const ModelSelectorLogoGroup = ({
 }: ModelSelectorLogoGroupProps) => (
   <div
     className={cn(
-      "flex shrink-0 items-center -space-x-1 [&>img]:rounded-full [&>img]:bg-background [&>img]:p-px [&>img]:ring-1 dark:[&>img]:bg-foreground",
+      "flex shrink-0 items-center -space-x-1 [&>span]:rounded-full [&>span]:bg-background [&>span]:p-px [&>span]:ring-1 dark:[&>span]:bg-foreground",
       className,
     )}
     {...props}

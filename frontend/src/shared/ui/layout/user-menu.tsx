@@ -22,6 +22,7 @@ export function UserMenu() {
 
   async function handleLogout() {
     await authClient.signOut();
+    await router.navigate({ to: "/" });
     await router.invalidate();
   }
 

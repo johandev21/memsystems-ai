@@ -394,6 +394,10 @@ export const userSettings = pgTable('user_settings', {
     .primaryKey()
     .references(() => user.id, { onDelete: 'cascade' }),
   openaiApiKey: text('openai_api_key'),
+  deepseekApiKey: text('deepseek_api_key'),
+  anthropicApiKey: text('anthropic_api_key'),
+  geminiApiKey: text('gemini_api_key'),
+  kimiApiKey: text('kimi_api_key'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()

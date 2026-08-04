@@ -8,7 +8,7 @@ export const TypographyH1 = React.forwardRef<
   <h1
     ref={ref}
     className={cn(
-      "scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance",
+      "scroll-m-20 text-center text-4xl font-semibold tracking-[-0.035em] text-balance",
       className,
     )}
     {...props}
@@ -23,7 +23,7 @@ export const TypographyH2 = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0",
+      "scroll-m-20 border-b pb-3 text-3xl font-semibold tracking-[-0.03em] first:mt-0",
       className,
     )}
     {...props}
@@ -38,7 +38,7 @@ export const TypographyH3 = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "scroll-m-20 text-2xl font-semibold tracking-tight",
+      "scroll-m-20 text-2xl font-semibold tracking-[-0.025em]",
       className,
     )}
     {...props}
@@ -53,7 +53,7 @@ export const TypographyH4 = React.forwardRef<
   <h4
     ref={ref}
     className={cn(
-      "scroll-m-20 text-xl font-semibold tracking-tight",
+      "scroll-m-20 text-xl font-semibold tracking-[-0.02em]",
       className,
     )}
     {...props}

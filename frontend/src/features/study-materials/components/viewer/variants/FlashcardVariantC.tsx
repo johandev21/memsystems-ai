@@ -103,7 +103,7 @@ export function FlashcardVariantC({
           </Badge>
         </div>
 
-        <span className="text-xs font-mono font-medium text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           {currentIndex + 1} / {cards.length}
         </span>
       </div>
@@ -114,7 +114,7 @@ export function FlashcardVariantC({
           onClick={onFlip}
           className={cn(
             "w-full rounded-3xl border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm cursor-pointer hover:border-primary/40 select-none transition-all duration-300 ease-out",
-            !isFlipped ? "bg-card border-border/80" : "bg-muted/40 dark:bg-muted/20 border-border",
+            !isFlipped ? "bg-card border-border" : "bg-muted border-border",
             swipeState === "correct" && "translate-x-20 rotate-6 opacity-0",
             swipeState === "incorrect" && "-translate-x-20 -rotate-6 opacity-0"
           )}
@@ -197,7 +197,7 @@ export function FlashcardVariantC({
         <button
           type="button"
           onClick={() => triggerRating("incorrect")}
-          className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+          className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-rose-600 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
         >
           <X className="size-3.5" />
           <span>{incorrectCount}</span>
@@ -206,7 +206,7 @@ export function FlashcardVariantC({
         <button
           type="button"
           onClick={() => triggerRating("correct")}
-          className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+          className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-success text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
         >
           <span>{correctCount}</span>
           <Check className="size-3.5" />
@@ -272,7 +272,7 @@ export function FlashcardVariantC({
               <X className="size-3" />
             </Button>
           </div>
-          <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             &quot;On the front: &apos;{currentCard.front}&apos;. On the back: &apos;{currentCard.back}&apos;. Explain this topic in more detail.&quot;
           </p>
         </div>

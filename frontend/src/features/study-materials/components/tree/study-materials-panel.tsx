@@ -20,7 +20,7 @@ export function StudyMaterialsPanel({
 
   return (
     <Card
-      className="mx-auto w-full flex flex-col ring-0 bg-card shadow-sm dark:shadow-none p-0 py-0 gap-0 overflow-hidden"
+      className="mx-auto w-full flex flex-col ring-0 bg-study-materials-panel shadow-sm dark:shadow-none p-0 py-0 gap-0 overflow-hidden"
       size="sm"
     >
       <CardHeader className="flex items-center justify-between p-1.5 pl-3 bg-panel-header-bg min-h-[44px]">

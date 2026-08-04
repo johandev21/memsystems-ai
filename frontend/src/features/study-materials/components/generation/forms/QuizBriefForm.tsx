@@ -140,7 +140,7 @@ export function QuizBriefForm({
           <Button
             type="button"
             onClick={() => setStep(2)}
-            className="h-9 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium gap-1.5 cursor-pointer hover:opacity-95"
+            className="h-9 px-5 rounded-full border border-border/80 bg-panel-header-bg text-foreground text-sm font-medium gap-1.5 cursor-pointer hover:bg-muted transition-colors disabled:bg-muted disabled:text-foreground disabled:opacity-100"
           >
             Next Step
             <ArrowRight className="size-4" />
@@ -205,7 +205,7 @@ export function QuizBriefForm({
 
           <Button
             type="button"
-            className="h-10 px-6 rounded-full bg-primary text-primary-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:opacity-95 transition-all"
+            className="h-10 px-6 rounded-full border border-border/80 bg-panel-header-bg text-foreground font-medium text-sm shadow-md gap-2 cursor-pointer hover:bg-muted transition-colors disabled:bg-muted disabled:text-foreground disabled:opacity-100"
             disabled={!canSubmit}
             onClick={onSubmit}
           >
@@ -529,7 +529,7 @@ function QuestionSelector({
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
         <Label className="text-sm font-medium text-foreground">2. Number of Questions</Label>
-        <span className="text-xs font-mono font-medium text-primary">{questionLabel}</span>
+        <span className="text-xs font-medium text-primary">{questionLabel}</span>
       </div>
 
       <div className="grid grid-cols-5 gap-2">

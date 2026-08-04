@@ -169,10 +169,10 @@ function ScoreDonut({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-xl font-extrabold text-foreground font-mono leading-none">
+            <span className="text-xl font-extrabold text-foreground leading-none">
               {correctCount}/{totalQuestions}
             </span>
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
+            <span className="text-xs font-semibold text-success mt-1">
               {percent}%
             </span>
           </div>
@@ -180,16 +180,16 @@ function ScoreDonut({
 
         <div className="flex flex-col justify-center gap-2 text-sm">
           <div className="flex items-center gap-3">
-            <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
+            <span className="size-2.5 rounded-full bg-success shrink-0" />
             <span className="text-muted-foreground font-medium">Right</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono ml-4">
+            <span className="font-bold text-success ml-4">
               {correctCount}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="size-2.5 rounded-full bg-muted-foreground/30 shrink-0" />
             <span className="text-muted-foreground font-medium">Wrong</span>
-            <span className="font-bold text-foreground font-mono ml-4">
+            <span className="font-bold text-foreground ml-4">
               {wrongCount}
             </span>
           </div>
@@ -202,8 +202,8 @@ function ScoreDonut({
           className={cn(
             "px-3 py-1 text-xs font-semibold rounded-full",
             percent >= 70
-              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400"
-              : "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400"
+              ? "bg-success text-success-foreground border-success"
+              : "bg-warning text-warning-foreground border-warning"
           )}
         >
           {percent === 100
@@ -237,7 +237,7 @@ function QuizUnansweredModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+          <DialogTitle className="flex items-center gap-2 text-warning-foreground">
             <AlertCircle className="size-5" /> Unanswered Questions
           </DialogTitle>
           <DialogDescription className="pt-2 text-sm text-muted-foreground leading-relaxed">
@@ -388,7 +388,7 @@ function QuizQuestionStepper({
                 {Object.keys(selectedOptions).length} of {questions.length} answered
               </span>
             </div>
-            <span className="font-mono font-semibold">
+            <span className="font-semibold">
               {currentIdx + 1} / {questions.length}
             </span>
           </div>
@@ -414,14 +414,14 @@ function QuizQuestionStepper({
               const isCurrentCorrect = oi === correctOptionIdx;
 
               let optionStyle =
-                "border-border/70 bg-secondary/30 hover:bg-secondary/60 hover:border-primary/40 text-foreground transition-all shadow-2xs";
+              "border-border bg-secondary hover:bg-muted hover:border-primary text-foreground transition-all shadow-2xs";
               let badge = (
                 <span
                   className={cn(
-                    "flex size-7 shrink-0 items-center justify-center rounded-xl border text-xs font-mono font-bold transition-all",
+                    "flex size-7 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-all",
                     isCurrentSelected
                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "border-border/80 bg-background text-foreground group-hover:border-primary group-hover:bg-primary/10 group-hover:text-primary"
+                       : "border-border bg-background text-foreground group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
                   )}
                 >
                   {String.fromCharCode(65 + oi)}
@@ -432,14 +432,14 @@ function QuizQuestionStepper({
               if (isChecked) {
                 if (isCurrentCorrect) {
                   optionStyle =
-                    "border-emerald-500/80 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100 font-medium shadow-2xs";
+                    "border-success bg-success text-success-foreground font-medium shadow-2xs";
                   badge = (
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white border-emerald-500 shadow-2xs">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success text-success-foreground border-success shadow-2xs">
                       <CheckCircle2 className="size-4" />
                     </span>
                   );
                   statusTag = (
-                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <span className="text-xs font-bold text-success flex items-center gap-1">
                       <Check className="size-3.5" /> Right answer
                     </span>
                   );
@@ -458,9 +458,9 @@ function QuizQuestionStepper({
                   );
                 } else {
                   optionStyle =
-                    "border-border/40 bg-muted/20 opacity-50 text-muted-foreground pointer-events-none";
+                    "border-border bg-muted text-muted-foreground pointer-events-none";
                   badge = (
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border/40 bg-muted/60 text-muted-foreground text-xs font-mono font-bold">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground text-xs font-bold">
                       {String.fromCharCode(65 + oi)}
                     </span>
                   );
@@ -719,7 +719,7 @@ export function QuizView({ content }: QuizViewProps) {
   if (totalQuestions === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-        <AlertCircle className="size-8 mb-2 text-amber-500" />
+        <AlertCircle className="size-8 mb-2 text-warning" />
         <p>No quiz questions available.</p>
       </div>
     );

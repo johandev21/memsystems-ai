@@ -100,7 +100,7 @@ export function FlashcardVariantA({
         <div
           className={cn(
             "relative w-full rounded-[28px] border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm min-h-[300px] transition-all duration-300 ease-out select-none",
-            !isFlipped ? "bg-card border-border/80" : "bg-muted/40 dark:bg-muted/20 border-border",
+            !isFlipped ? "bg-card border-border" : "bg-muted border-border",
             swipeState === "correct" && "translate-x-24 rotate-6 opacity-0 scale-95",
             swipeState === "incorrect" && "-translate-x-24 -rotate-6 opacity-0 scale-95"
           )}
@@ -108,7 +108,7 @@ export function FlashcardVariantA({
           {!isFlipped ? (
             /* FRONT SIDE */
             <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="font-semibold text-muted-foreground/80">
                   {currentIndex + 1} / {cards.length}
                 </span>
@@ -146,7 +146,7 @@ export function FlashcardVariantA({
           ) : (
             /* BACK SIDE */
             <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="font-semibold text-muted-foreground/80">
                   {currentIndex + 1} / {cards.length}
                 </span>
@@ -208,7 +208,7 @@ export function FlashcardVariantA({
         <button
           type="button"
           onClick={() => triggerRating("incorrect")}
-          className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+          className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-rose-600 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
         >
           <X className="size-3.5" />
           <span>{incorrectCount}</span>
@@ -217,7 +217,7 @@ export function FlashcardVariantA({
         <button
           type="button"
           onClick={() => triggerRating("correct")}
-          className="h-10 px-4 rounded-full border border-border/80 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold font-mono flex items-center gap-2 cursor-pointer transition-all"
+          className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-success text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
         >
           <span>{correctCount}</span>
           <Check className="size-3.5" />
@@ -283,7 +283,7 @@ export function FlashcardVariantA({
               Close
             </Button>
           </div>
-          <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-foreground font-mono leading-relaxed space-y-2">
+          <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-foreground leading-relaxed space-y-2">
             <p className="text-muted-foreground">
               &quot;I&apos;m reviewing flashcards based on the source material and I&apos;d like to expand my understanding of one of them.
             </p>

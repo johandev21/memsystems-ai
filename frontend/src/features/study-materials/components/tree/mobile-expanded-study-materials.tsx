@@ -97,7 +97,7 @@ export function MobileExpandedStudyMaterials({
             <StudyMaterialsEmptyState />
           </div>
         ) : (
-          <div className="flex-1 min-h-0 bg-background">
+          <div className="flex-1 min-h-0 bg-panel-bg">
             <RightPane
               notebookId={notebookId}
               mode={mode}

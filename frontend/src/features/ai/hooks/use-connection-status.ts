@@ -6,6 +6,8 @@ export interface ProviderStatus {
   ok: boolean;
   detail?: string;
   models: Array<{ id: string; displayName: string }>;
+  hasKey: boolean;
+  checkedAt: string | null;
 }
 
 export interface ConnectionStatus {
@@ -13,8 +15,9 @@ export interface ConnectionStatus {
   detail?: string;
   models: Array<{ id: string; displayName: string }>;
   checkedAt: string | null;
+  providers: Record<string, ProviderStatus>;
   opencode: ProviderStatus;
-  openai: ProviderStatus & { hasKey: boolean };
+  openai: ProviderStatus;
 }
 
 async function fetchConnection(): Promise<ConnectionStatus> {
@@ -27,13 +30,15 @@ async function fetchConnection(): Promise<ConnectionStatus> {
       detail: "Failed to check connection",
       models: [],
       checkedAt: null,
-      opencode: { ok: false, detail: "Failed to check connection", models: [] },
-      openai: {
+       providers: {},
+       opencode: { ok: false, detail: "Failed to check connection", models: [], hasKey: false, checkedAt: null },
+       openai: {
         ok: false,
         detail: "Failed to check connection",
-        models: [],
-        hasKey: false,
-      },
+         models: [],
+         hasKey: false,
+         checkedAt: null,
+       },
     };
   }
   return res.json();

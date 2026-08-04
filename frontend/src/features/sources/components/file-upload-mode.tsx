@@ -140,7 +140,7 @@ export function FileUploadMode({
           onClick={onSelectUrlMode}
           disabled={busy}
         >
-          <LinkIcon className="h-4 w-4 mr-2 text-blue-500/80" />
+              <LinkIcon className="h-4 w-4 mr-2 text-info" />
           Websites
         </Button>
         <Button
@@ -150,7 +150,7 @@ export function FileUploadMode({
           className="h-10 px-5 bg-background shadow-sm transition-all opacity-50 cursor-not-allowed"
           title="Coming soon"
         >
-          <HardDrive className="h-4 w-4 mr-2 text-emerald-500/80" />
+              <HardDrive className="h-4 w-4 mr-2 text-success" />
           Drive
         </Button>
         <Button
@@ -160,7 +160,7 @@ export function FileUploadMode({
           onClick={onSelectTextMode}
           disabled={busy}
         >
-          <Type className="h-4 w-4 mr-2 text-amber-500/80" />
+              <Type className="h-4 w-4 mr-2 text-warning" />
           Copied Text
         </Button>
       </div>

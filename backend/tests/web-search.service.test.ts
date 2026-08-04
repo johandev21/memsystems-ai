@@ -104,12 +104,12 @@ describe('WebSearchService', () => {
     );
     const result = await service.search(user.id, notebook.id, {
       query: 'philosophy',
-      modelId: 'openai/gpt-5-mini',
+      modelId: 'openai/gpt-5.6-sol',
     });
 
     expect(aiService.searchWeb).toHaveBeenCalledWith(
       'philosophy',
-      'openai/gpt-5-mini',
+      'openai/gpt-5.6-sol',
       user.id,
     );
     expect(result.summary).toBe('A summary of philosophy sources.');
@@ -132,7 +132,7 @@ describe('WebSearchService', () => {
         { url: 'https://example.com/one', title: 'One', description: 'First' },
         { url: 'https://example.com/two', description: 'Second' },
       ],
-      modelId: 'openai/gpt-5-mini',
+      modelId: 'openai/gpt-5.6-sol',
       query: 'philosophy',
     });
 
@@ -172,7 +172,7 @@ describe('WebSearchService', () => {
         { url: 'https://example.com/one', title: 'One' },
         { url: 'https://example.com/two' },
       ],
-      modelId: 'openai/gpt-5-mini',
+      modelId: 'openai/gpt-5.6-sol',
       query: 'philosophy',
     });
 
@@ -209,7 +209,7 @@ describe('WebSearchService', () => {
         { url: 'https://example.com/good' },
         { url: 'https://example.com/bad' },
       ],
-      modelId: 'openai/gpt-5-mini',
+      modelId: 'openai/gpt-5.6-sol',
       query: 'philosophy',
     });
 
@@ -229,7 +229,7 @@ describe('WebSearchService', () => {
     );
     await service.import(user.id, notebook.id, {
       candidates: [{ url: 'https://example.com/provenance' }],
-      modelId: 'openai/gpt-5-mini',
+      modelId: 'openai/gpt-5.6-sol',
       query: 'philosophy',
     });
 
@@ -239,7 +239,7 @@ describe('WebSearchService', () => {
       .where(eq(sources.url, 'https://example.com/provenance'));
     expect(row.addedVia).toBe('ai_search');
     expect(row.metadata?.searchQuery).toBe('philosophy');
-    expect(row.metadata?.modelId).toBe('openai/gpt-5-mini');
+      expect(row.metadata?.modelId).toBe('openai/gpt-5.6-sol');
     expect(row.metadata?.searchedAt).toBeDefined();
   });
 });

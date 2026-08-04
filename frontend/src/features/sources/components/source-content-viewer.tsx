@@ -274,8 +274,8 @@ export function SourceContentViewer({
     <div
       className={
         isFullscreen
-          ? "fixed inset-0 z-50 flex flex-col bg-background text-foreground overflow-hidden animate-in fade-in duration-150"
-          : "flex h-full flex-col bg-background text-foreground overflow-hidden"
+          ? "fixed inset-0 z-50 flex flex-col bg-panel-bg text-foreground overflow-hidden animate-in fade-in duration-150"
+          : "flex h-full flex-col bg-panel-bg text-foreground overflow-hidden"
       }
     >
       {header}

@@ -7,7 +7,13 @@ import {
 } from 'ai';
 import { BadRequestError } from '../../common/errors/domain-error';
 import { ConnectionService } from './connection.service';
-import { createOpenaiProvider, Provider } from './openai.provider';
+import { createProvider } from './providers/registry';
+import {
+  providerIdFromModel,
+  PROVIDER_NAMES,
+  PROVIDER_MODELS,
+} from './providers/model-catalog';
+import type { Provider } from './providers/provider';
 import { UserSettingsService } from './user-settings.service';
 
 type ConvertInput = Parameters<typeof convertToModelMessages>[0];
@@ -66,25 +72,32 @@ export class AiService {
     modelId: string,
     userId?: string,
   ): Promise<Provider> {
-    if (modelId.startsWith('openai/')) {
-      if (!userId) {
-        throw new BadRequestError('User context required for OpenAI provider.');
-      }
-      const apiKey = await this.userSettingsService.getUserOpenaiApiKey(userId);
+    const providerId = providerIdFromModel(modelId);
+    if (!providerId) {
+      throw new BadRequestError(`Model ${modelId} is not supported.`);
+    }
+    if (!PROVIDER_MODELS[providerId].some((model) => model.id === modelId)) {
+      throw new BadRequestError(`Model ${modelId} is not supported.`);
+    }
+    if (userId) {
+      const apiKey = await this.userSettingsService.getUserApiKey(
+        userId,
+        providerId,
+      );
       if (!apiKey) {
         throw new BadRequestError(
-          'OpenAI API key not configured. Please add your key in the Connection settings.',
+          `${PROVIDER_NAMES[providerId]} API key not configured. Please add it in the Connection settings.`,
         );
       }
-      return createOpenaiProvider(apiKey);
+      return createProvider(providerId, apiKey);
     }
     throw new BadRequestError(
-      `Model ${modelId} is not supported. Only OpenAI provider is enabled.`,
+      `User context required for ${PROVIDER_NAMES[providerId]} provider.`,
     );
   }
 
-  listModels(_userId?: string) {
-    return createOpenaiProvider('').listModels();
+  async listModels(userId: string) {
+    return (await this.connectionService.snapshot(userId)).models;
   }
 
   async searchWeb(
@@ -103,9 +116,14 @@ export class AiService {
     }
 
     const model = provider.createModel(modelId);
-    const webSearchTool = provider.createWebSearchTool();
+    const webSearchTool = provider.createWebSearchTool?.();
+    if (!webSearchTool) {
+      throw new BadRequestError(
+        `Model ${modelId} does not support web search.`,
+      );
+    }
 
-    let result;
+    let result: SearchGenerationResult;
     try {
       result = await generateText({
         model,
@@ -184,6 +202,13 @@ interface ToolResultLike {
   output?: unknown;
 }
 
+interface SearchGenerationResult {
+  finishReason?: string;
+  text: string;
+  sources?: readonly SourceLike[];
+  toolResults?: readonly ToolResultLike[];
+}
+
 interface SourceLike {
   sourceType?: string;
   url?: string;
@@ -195,9 +220,8 @@ export function parseSearchJson(text: string): ParsedSearchOutput | null {
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
     if (start === -1 || end <= start) return null;
-    const parsed = JSON.parse(text.slice(start, end + 1));
-    if (parsed && typeof parsed === 'object')
-      return parsed as ParsedSearchOutput;
+    const parsed: unknown = JSON.parse(text.slice(start, end + 1));
+    if (parsed && typeof parsed === 'object') return parsed;
     return null;
   } catch {
     return null;

@@ -1,6 +1,7 @@
 /* Roadmap View Theme Variables - Integrated with Design System globals.css */
 
 :root {
+  --roadmap-muted-foreground: #525252;
   --roadmap-milestone-bg: var(--card);
   --roadmap-milestone-text: var(--foreground);
   --roadmap-milestone-border: var(--border);
@@ -24,6 +25,7 @@
 
 .dark,
 [data-theme="dark"] {
+  --roadmap-muted-foreground: #c4c4c4;
   --roadmap-milestone-bg: var(--card);
   --roadmap-milestone-text: var(--foreground);
   --roadmap-milestone-border: var(--border);
@@ -43,4 +45,9 @@
   --roadmap-badge-bg: color-mix(in srgb, var(--primary) 15%, transparent);
   --roadmap-badge-text: var(--primary);
   --roadmap-badge-border: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* Roadmap descriptions need a stronger reading contrast than generic metadata. */
+.roadmap-view .roadmap-muted {
+  color: var(--roadmap-muted-foreground);
 }

@@ -69,7 +69,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
     <div className="flex flex-col gap-2">
       {/* Capability warning */}
       {!hasCapableModel && (
-        <div className="flex items-start gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
+        <div className="flex items-start gap-2 rounded-[10px] border border-warning/30 bg-warning/10 p-2.5 text-[11px] leading-relaxed text-warning-foreground">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           <span>
             Web search isn&apos;t supported by your current models. Connect a
@@ -92,7 +92,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
           }}
           placeholder="Search sources about any topic..."
           disabled={!hasCapableModel}
-          className="field-sizing-content min-h-10 w-full resize-none rounded-xl bg-input/50 px-2.5 py-1.5 text-[13px] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+          className="field-sizing-content min-h-10 w-full resize-none rounded-xl bg-input/50 px-2.5 py-1.5 text-[13px] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-100"
         />
 
         <div className="flex items-center justify-between gap-1">
@@ -249,7 +249,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
               {hasImport ? (
                 <span className="flex items-center gap-1">
-                  <Check className="size-3 text-emerald-500" />
+                  <Check className="size-3 text-success" />
                   {importedCount} added
                   {failedUrls.length > 0 && ` · ${failedUrls.length} failed`}
                 </span>

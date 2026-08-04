@@ -19,7 +19,11 @@
     "test:db:setup": "ts-node tests/ensure-test-db.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.29",
+    "@ai-sdk/deepseek": "^3.0.21",
+    "@ai-sdk/google": "^4.0.33",
     "@ai-sdk/openai": "^3.0.74",
+    "@ai-sdk/openai-compatible": "^3.0.22",
     "@aws-sdk/client-s3": "^3.1069.0",
     "@aws-sdk/s3-request-presigner": "^3.1069.0",
     "@mozilla/readability": "^0.6.0",

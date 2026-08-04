@@ -41,7 +41,10 @@ const providerNames: Record<string, string> = {
   openai: "OpenAI",
   opencode: "OpenCode",
   google: "Google",
+  gemini: "Gemini",
   anthropic: "Anthropic",
+  deepseek: "DeepSeek",
+  kimi: "Kimi",
 };
 
 export function Composer({
@@ -194,7 +197,7 @@ export function Composer({
             disabled={!canClearHistory || isClearingHistory}
             aria-label="Clear chat history"
             title="Clear chat history"
-            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
+            className="h-8 w-8 shrink-0 cursor-pointer text-[var(--composer-icon-color)] hover:text-destructive"
           >
             <Eraser className="h-4 w-4" />
           </Button>

@@ -64,10 +64,10 @@ export function FileTreeItemNode({
       }}
       style={{ paddingLeft: `${paddingLeft}px` }}
       className={cn(
-        "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] font-mono transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none rounded-xl w-max min-w-full",
+        "group relative flex w-full items-center gap-2.5 py-1.5 pr-4 text-left text-[13px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none rounded-xl w-max min-w-full",
         isFolder
-          ? "text-foreground hover:bg-muted/50"
-          : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+          ? "text-foreground hover:bg-muted"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       {isFolder && (
@@ -82,7 +82,7 @@ export function FileTreeItemNode({
       <Icon
         className={cn(
           "h-4 w-4 shrink-0",
-          isFolder ? "text-foreground/70" : config.className,
+          isFolder ? "text-foreground" : config.className,
         )}
         strokeWidth={2}
       />
@@ -90,7 +90,7 @@ export function FileTreeItemNode({
       {isFolder && (
         <div className="ml-auto flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           {typeof item.materialCount === "number" && item.materialCount > 0 && (
-            <span className="text-[10px] text-muted-foreground/70 tabular-nums mr-1">
+            <span className="text-[10px] text-muted-foreground tabular-nums mr-1">
               {item.materialCount}
             </span>
           )}
@@ -99,7 +99,7 @@ export function FileTreeItemNode({
               render={
                 <button
                   type="button"
-                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                   aria-label={`Options for ${item.name}`}
                 />
@@ -131,7 +131,7 @@ export function FileTreeItemNode({
               render={
                 <button
                   type="button"
-                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="h-6 w-6 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                   aria-label={`Options for ${item.name}`}
                 />

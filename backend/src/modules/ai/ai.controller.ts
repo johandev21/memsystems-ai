@@ -14,8 +14,12 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { AiService } from './ai.service';
 import { ConnectionService } from './connection.service';
 import { UserSettingsService } from './user-settings.service';
+import { PROVIDER_IDS } from './providers/model-catalog';
 
 const updateSettingsSchema = z.object({
+  provider: z.enum(PROVIDER_IDS).optional(),
+  apiKey: z.string().nullable().optional(),
+  // Accept the previous payload during the client rollout.
   openaiApiKey: z.string().nullable().optional(),
 });
 
@@ -30,7 +34,7 @@ export class AiController {
 
   @Get('models')
   async listModels(@CurrentUser('id') userId: string) {
-    const models = this.aiService.listModels(userId);
+    const models = await this.aiService.listModels(userId);
     return { models };
   }
 
@@ -46,16 +50,23 @@ export class AiController {
     @CurrentUser('id') userId: string,
     @Body() body: z.infer<typeof updateSettingsSchema>,
   ) {
-    if (body.openaiApiKey !== undefined) {
-      if (body.openaiApiKey === null || body.openaiApiKey.trim() === '') {
-        await this.userSettingsService.removeUserOpenaiApiKey(userId);
+    const providerId =
+      body.provider ?? (body.openaiApiKey !== undefined ? 'openai' : undefined);
+    const apiKey = body.apiKey ?? body.openaiApiKey;
+    if (
+      providerId &&
+      (body.apiKey !== undefined || body.openaiApiKey !== undefined)
+    ) {
+      if (apiKey == null || apiKey.trim() === '') {
+        await this.userSettingsService.removeUserApiKey(userId, providerId);
       } else {
-        await this.userSettingsService.setUserOpenaiApiKey(
+        await this.userSettingsService.setUserApiKey(
           userId,
-          body.openaiApiKey,
+          providerId,
+          apiKey ?? null,
         );
       }
-      this.connectionService.invalidateUserOpenaiCache(userId);
+      this.connectionService.invalidateUserProviderCache(userId, providerId);
     }
     return this.connectionService.snapshot(userId);
   }
@@ -63,8 +74,11 @@ export class AiController {
   @Delete('connection')
   @Delete('connection/settings')
   async deleteSettings(@CurrentUser('id') userId: string) {
-    await this.userSettingsService.removeUserOpenaiApiKey(userId);
-    this.connectionService.invalidateUserOpenaiCache(userId);
+    const provider = undefined;
+    if (provider)
+      await this.userSettingsService.removeUserApiKey(userId, provider);
+    else await this.userSettingsService.removeUserOpenaiApiKey(userId);
+    this.connectionService.invalidateUserProviderCache(userId, provider);
     return this.connectionService.snapshot(userId);
   }
 }

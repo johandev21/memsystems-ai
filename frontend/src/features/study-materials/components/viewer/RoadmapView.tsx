@@ -174,7 +174,7 @@ function RoadmapHeader({ title, description }: RoadmapHeaderProps) {
       </h1>
 
       {description && (
-        <p className="text-xs @sm:text-sm @3xl:text-base text-muted-foreground leading-relaxed">
+        <p className="roadmap-muted text-xs @sm:text-sm @3xl:text-base leading-relaxed">
           {description}
         </p>
       )}
@@ -190,8 +190,8 @@ function PhaseMilestoneCard({
   return (
     <div className="bg-card border border-border rounded-2xl p-4 @sm:p-5 @3xl:p-6 max-w-lg w-full text-center flex flex-col items-center gap-2.5 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs">
       <Badge
-        variant="outline"
-        className="bg-primary/10 text-primary border-primary/20 text-xs font-mono font-bold uppercase px-2.5 py-0.5"
+        variant="default"
+        className="bg-primary text-primary-foreground border-primary text-xs font-bold uppercase px-2.5 py-0.5"
       >
         {formatMilestoneLabel(phaseIndex)}
       </Badge>
@@ -201,17 +201,17 @@ function PhaseMilestoneCard({
       </h3>
 
       {phase.description && (
-        <p className="text-xs @sm:text-sm text-muted-foreground leading-relaxed wrap-break-words">
+        <p className="roadmap-muted text-xs @sm:text-sm leading-relaxed wrap-break-words">
           {phase.description}
         </p>
       )}
 
       <Button
         type="button"
-        variant="outline"
+        variant="default"
         size="sm"
         onClick={() => onStudyPhase(phase, phaseIndex)}
-        className="mt-1 h-8 @sm:h-9 px-3 @sm:px-4 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary text-xs @sm:text-sm font-semibold gap-2 cursor-pointer transition-colors"
+        className="mt-1 h-8 @sm:h-9 px-3 @sm:px-4 rounded-xl border-primary bg-primary text-primary-foreground text-xs @sm:text-sm font-semibold gap-2 cursor-pointer transition-colors hover:bg-primary/90"
       >
         <Sparkles className="size-3.5 @sm:size-4" />
         <span>Study Phase in Chat</span>
@@ -249,7 +249,7 @@ function TopicCard({ topic, isLeft, onSelectTopic }: TopicCardProps) {
         </h4>
 
         {topic.description && (
-          <p className="text-xs @sm:text-sm text-muted-foreground line-clamp-3 leading-relaxed wrap-break-words">
+          <p className="roadmap-muted text-xs @sm:text-sm line-clamp-3 leading-relaxed wrap-break-words">
             {topic.description}
           </p>
         )}
@@ -312,7 +312,7 @@ function TopicDetailModal({
               </DialogTitle>
 
               {topic.description && (
-                <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed wrap-break-words">
+                <DialogDescription className="roadmap-muted text-xs sm:text-sm leading-relaxed wrap-break-words">
                   {topic.description}
                 </DialogDescription>
               )}
@@ -320,11 +320,11 @@ function TopicDetailModal({
 
             {/* Key Objectives */}
             {topic.keyTakeaways && topic.keyTakeaways.length > 0 && (
-              <div className="bg-muted/30 p-3.5 sm:p-4 rounded-xl border border-border/50 flex flex-col gap-2.5">
-                <span className="font-mono font-bold uppercase text-xs text-primary flex items-center gap-1.5">
+              <div className="bg-muted p-3.5 sm:p-4 rounded-xl border border-border flex flex-col gap-2.5">
+                <span className="font-bold uppercase text-xs text-primary flex items-center gap-1.5">
                   <Target className="size-4 shrink-0" /> Key Objectives
                 </span>
-                <ul className="flex flex-col gap-2 text-xs sm:text-sm text-muted-foreground">
+                <ul className="roadmap-muted flex flex-col gap-2 text-xs sm:text-sm">
                   {topic.keyTakeaways.map((keyPoint, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="size-1.5 rounded-full bg-primary mt-2 shrink-0" />
@@ -392,7 +392,7 @@ export function RoadmapView({ materialId, content }: RoadmapViewProps) {
 
   // 6. Render
   return (
-    <div className="@container flex flex-col items-center gap-6 @sm:gap-8 @3xl:gap-10 w-full max-w-4xl mx-auto animate-in fade-in duration-300 pb-20 select-none px-2 @sm:px-4">
+    <div className="roadmap-view @container flex flex-col items-center gap-6 @sm:gap-8 @3xl:gap-10 w-full max-w-4xl mx-auto animate-in fade-in duration-300 pb-20 select-none px-2 @sm:px-4">
       <RoadmapHeader title={content.title} description={content.description} />
 
       <RoadmapSpine
