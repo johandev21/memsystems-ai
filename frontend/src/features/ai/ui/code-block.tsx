@@ -110,10 +110,9 @@ const CodeBlockContext = createContext<CodeBlockContextType>({
   code: "",
 });
 
-const highlighterCache = new Map<
-  string,
-  Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
->();
+let highlighterPromise: Promise<
+  HighlighterGeneric<BundledLanguage, BundledTheme>
+> | null = null;
 
 const tokensCache = new Map<string, TokenizedCode>();
 const subscribers = new Map<string, Set<(result: TokenizedCode) => void>>();
@@ -124,18 +123,16 @@ const getTokensCacheKey = (code: string, language: BundledLanguage) => {
   return `${language}:${code.length}:${start}:${end}`;
 };
 
-const getHighlighter = (
-  language: BundledLanguage,
-): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
-  const cached = highlighterCache.get(language);
-  if (cached) return cached;
+const getHighlighter = (): Promise<
+  HighlighterGeneric<BundledLanguage, BundledTheme>
+> => {
+  if (highlighterPromise) return highlighterPromise;
 
-  const highlighterPromise = createHighlighter({
-    langs: [language],
+  highlighterPromise = createHighlighter({
+    langs: ["text"],
     themes: ["github-light", "github-dark"],
   });
 
-  highlighterCache.set(language, highlighterPromise);
   return highlighterPromise;
 };
 
@@ -171,10 +168,18 @@ export const highlightCode = (
     subscribers.get(tokensCacheKey)?.add(callback);
   }
 
-  getHighlighter(language)
-    .then((highlighter) => {
-      const availableLangs = highlighter.getLoadedLanguages();
-      const langToUse = availableLangs.includes(language) ? language : "text";
+  getHighlighter()
+    .then(async (highlighter) => {
+      let langToUse: BundledLanguage = "text";
+
+      if (language !== "text") {
+        try {
+          await highlighter.loadLanguage(language);
+          langToUse = language;
+        } catch {
+          // Unknown language identifiers fall back to plain text.
+        }
+      }
 
       const result = highlighter.codeToTokens(code, {
         lang: langToUse,

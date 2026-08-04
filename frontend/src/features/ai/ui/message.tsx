@@ -1,14 +1,9 @@
-import { cjk } from "@streamdown/cjk";
-import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
-import { mermaid } from "@streamdown/mermaid";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type {
   ComponentProps,
   HTMLAttributes,
   ReactElement,
-  ReactNode,
 } from "react";
 import {
   createContext,
@@ -19,19 +14,14 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { BundledLanguage } from "shiki";
-import { Streamdown } from "streamdown";
 import { Button } from "@/shared/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/shared/ui/button-group";
 import { cn } from "@/shared/lib/utils";
 import {
-  CodeBlock,
-  CodeBlockActions,
-  CodeBlockCopyButton,
-  CodeBlockFilename,
-  CodeBlockHeader,
-  CodeBlockTitle,
-} from "./code-block";
+  MarkdownRenderer,
+  type MarkdownRendererProps,
+} from "@/shared/ui/markdown";
+import { MarkdownCodeBlock } from "./markdown-code-block";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
@@ -301,80 +291,25 @@ export const MessageBranchPage = ({
   );
 };
 
-export type MessageResponseProps = ComponentProps<typeof Streamdown>;
-
-const streamdownPlugins = { cjk, code, math, mermaid };
-
-const MarkdownCodeBlock = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children?: ReactNode;
-}) => {
-  const match = /language-(\w+)/.exec(className || "");
-  const language = (match ? match[1] : "text") as BundledLanguage;
-
-  const getRawText = (node: ReactNode): string => {
-    if (!node) return "";
-    if (typeof node === "string") return node;
-    if (typeof node === "number") return String(node);
-    if (Array.isArray(node)) return node.map(getRawText).join("");
-    if (typeof node === "object" && node !== null && "props" in node) {
-      const element = node as ReactElement<{
-        children?: ReactNode;
-        dangerouslySetInnerHTML?: { __html: string };
-      }>;
-      if (element.props.children !== undefined)
-        return getRawText(element.props.children);
-      if (element.props.dangerouslySetInnerHTML?.__html) {
-        return element.props.dangerouslySetInnerHTML.__html.replace(
-          /<[^>]*>/g,
-          "",
-        );
-      }
-    }
-    return "";
-  };
-
-  const rawCode = getRawText(children).trim();
-
-  return (
-    <CodeBlock code={rawCode} language={language} className="my-4">
-      <CodeBlockHeader>
-        <CodeBlockTitle>
-          <CodeBlockFilename>{language}</CodeBlockFilename>
-        </CodeBlockTitle>
-        <CodeBlockActions>
-          <CodeBlockCopyButton />
-        </CodeBlockActions>
-      </CodeBlockHeader>
-    </CodeBlock>
-  );
-};
+export type MessageResponseProps = MarkdownRendererProps;
 
 export const MessageResponse = memo(
-  ({ className, components, ...props }: MessageResponseProps) => {
+  ({ className, components, isStreaming, ...props }: MessageResponseProps) => {
     const mergedComponents = useMemo(
       () => ({
         code: MarkdownCodeBlock,
-        inlineCode: ({ children }: { children?: ReactNode }) => (
-          <code className="bg-muted px-1.5 py-0.5 rounded text-[13px] font-mono border border-border/40 text-foreground font-medium">
-            {children}
-          </code>
-        ),
         ...components,
       }),
       [components],
     );
 
     return (
-      <Streamdown
+      <MarkdownRenderer
         className={cn(
-          "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 prose-markdown",
+          "typeset typeset-chat size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
           className,
         )}
-        plugins={streamdownPlugins}
+        isStreaming={isStreaming}
         components={mergedComponents}
         {...props}
       />
@@ -382,7 +317,8 @@ export const MessageResponse = memo(
   },
   (prevProps, nextProps) =>
     prevProps.children === nextProps.children &&
-    nextProps.isAnimating === prevProps.isAnimating &&
+    prevProps.isStreaming === nextProps.isStreaming &&
+    nextProps.className === prevProps.className &&
     prevProps.components === nextProps.components,
 );
 

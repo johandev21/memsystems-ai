@@ -86,6 +86,7 @@ export function AssistantMessage({ message }: AssistantMessageProps) {
           <MessageResponse
             key={`${message.id}-${index}`}
             components={messageComponents}
+            isStreaming={isStreaming}
           >
             {part.text ?? ""}
           </MessageResponse>

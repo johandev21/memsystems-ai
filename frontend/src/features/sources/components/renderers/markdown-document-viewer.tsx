@@ -1,23 +1,9 @@
-import { cjk } from "@streamdown/cjk";
-import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
-import { mermaid } from "@streamdown/mermaid";
 import { type ReactNode, useMemo } from "react";
-import type { BundledLanguage } from "shiki";
-import { Streamdown } from "streamdown";
 import { cn } from "@/shared/lib/utils";
-import {
-  CodeBlock,
-  CodeBlockActions,
-  CodeBlockCopyButton,
-  CodeBlockFilename,
-  CodeBlockHeader,
-  CodeBlockTitle,
-} from "@/features/ai/ui/code-block";
+import { MarkdownRenderer } from "@/shared/ui/markdown";
+import { MarkdownCodeBlock } from "@/features/ai";
 import { splitTextIntoChunks } from "./document-type-detector";
 import { VirtualizedDocumentContainer } from "./virtualized-document-container";
-
-const streamdownPlugins = { cjk, code, math, mermaid };
 
 interface MarkdownDocumentViewerProps {
   content: string;
@@ -72,34 +58,7 @@ const HeadingWithId = ({
   );
 };
 
-const MarkdownCodeBlock = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children?: ReactNode;
-}) => {
-  const match = /language-(\w+)/.exec(className || "");
-  const language = (match ? match[1] : "text") as BundledLanguage;
-  const rawCode = getRawText(children).replace(/\n$/, "");
-
-  return (
-    <CodeBlock className="my-4 rounded-xl border border-border/60" code={rawCode} language={language} showLineNumbers>
-      <CodeBlockHeader>
-        <CodeBlockTitle>
-          <CodeBlockFilename className="font-mono text-xs text-muted-foreground">
-            {language}
-          </CodeBlockFilename>
-        </CodeBlockTitle>
-        <CodeBlockActions>
-          <CodeBlockCopyButton />
-        </CodeBlockActions>
-      </CodeBlockHeader>
-    </CodeBlock>
-  );
-};
-
-const streamdownComponents = {
+const markdownComponents = {
   h1: ({ children }: { children?: ReactNode }) => <HeadingWithId level={1}>{children}</HeadingWithId>,
   h2: ({ children }: { children?: ReactNode }) => <HeadingWithId level={2}>{children}</HeadingWithId>,
   h3: ({ children }: { children?: ReactNode }) => <HeadingWithId level={3}>{children}</HeadingWithId>,
@@ -146,17 +105,15 @@ const streamdownComponents = {
       {children}
     </td>
   ),
-  code: ({ className, children }: { className?: string; children?: ReactNode }) => {
-    const isInline = !className && typeof children === "string" && !children.includes("\n");
-    if (isInline) {
-      return (
-        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs font-medium text-foreground">
-          {children}
-        </code>
-      );
-    }
-    return <MarkdownCodeBlock className={className}>{children}</MarkdownCodeBlock>;
-  },
+  code: ({ className, children }: { className?: string; children?: ReactNode }) => (
+    <MarkdownCodeBlock
+      className={className}
+      containerClassName="rounded-xl border border-border/60"
+      showLineNumbers
+    >
+      {children}
+    </MarkdownCodeBlock>
+  ),
 };
 
 export function MarkdownDocumentViewer({
@@ -183,13 +140,9 @@ export function MarkdownDocumentViewer({
           overscan={5}
           getItemKey={(_, idx) => idx}
           renderItem={(chunk) => (
-            <Streamdown
-              controls={false}
-              plugins={streamdownPlugins}
-              components={streamdownComponents}
-            >
+            <MarkdownRenderer components={markdownComponents}>
               {chunk}
-            </Streamdown>
+            </MarkdownRenderer>
           )}
         />
       </div>
@@ -198,13 +151,9 @@ export function MarkdownDocumentViewer({
 
   return (
     <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
-      <Streamdown
-        controls={false}
-        plugins={streamdownPlugins}
-        components={streamdownComponents}
-      >
+      <MarkdownRenderer components={markdownComponents}>
         {content}
-      </Streamdown>
+      </MarkdownRenderer>
     </div>
   );
 }
