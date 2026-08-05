@@ -88,7 +88,7 @@ export function StudioResources({
   if (collapsed) {
     return (
       <TooltipProvider>
-        <div className="flex flex-col gap-3 py-2 px-0 items-center border-b border-border w-full">
+        <div className="flex flex-col gap-3 py-2 px-0 items-center w-full">
           {RESOURCES.map((resource) => {
             const isGenerating = activeGenerations.some(
               (g) => g.kind === resource.kind,
@@ -98,16 +98,29 @@ export function StudioResources({
               <Tooltip key={resource.key}>
                 <TooltipTrigger
                   render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={cn("h-10 w-10 shrink-0 relative", resource.colorClasses)}
+                    <span
+                      role="button"
+                      tabIndex={disabled ? -1 : 0}
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center relative",
+                        "text-studio-resource-foreground",
+                        disabled && "opacity-50 cursor-not-allowed",
+                      )}
                       onClick={() => !disabled && onGenerate(resource.kind)}
-                      disabled={disabled}
-                    />
+                      onKeyDown={(event) => {
+                        if (
+                          !disabled &&
+                          (event.key === "Enter" || event.key === " ")
+                        ) {
+                          event.preventDefault();
+                          onGenerate(resource.kind);
+                        }
+                      }}
+                    >
+                      <resource.icon className="h-5 w-5" />
+                    </span>
                   }
                 >
-                  <resource.icon className="h-5 w-5" />
                   <span className="sr-only">{resource.label}</span>
                 </TooltipTrigger>
                 <TooltipContent side="left" sideOffset={10}>
@@ -181,7 +194,7 @@ export function StudioResources({
                     <span className="text-xs font-semibold text-foreground truncate">
                       Generating {KIND_LABELS[job.kind] || job.kind}...
                     </span>
-                    <span className="text-[11px] text-muted-foreground truncate">
+                    <span className="text-xs text-muted-foreground truncate">
                       {subtitleText}
                     </span>
                   </div>

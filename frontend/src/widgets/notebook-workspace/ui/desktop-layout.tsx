@@ -17,6 +17,7 @@ import { StudioPanelHeader } from "./studio-panel-header";
 export interface DesktopLayoutProps {
   notebookId: string;
   sourcesRef: RefObject<PanelImperativeHandle | null>;
+  chatRef: RefObject<PanelImperativeHandle | null>;
   studioRef: RefObject<PanelImperativeHandle | null>;
   sourcesCollapsed: boolean;
   studioCollapsed: boolean;
@@ -30,6 +31,7 @@ export interface DesktopLayoutProps {
 export function DesktopLayout({
   notebookId,
   sourcesRef,
+  chatRef,
   studioRef,
   sourcesCollapsed,
   studioCollapsed,
@@ -39,7 +41,23 @@ export function DesktopLayout({
   selectedSourceId,
   onSelectSource,
 }: DesktopLayoutProps) {
+  const isReviewingStudyMaterial = Boolean(dialogs.selectedStudyMaterialId);
+
+  const exitStudyMaterialReview = () => {
+    dialogs.setSelectedStudyMaterialId(null);
+    sourcesRef.current?.expand();
+    requestAnimationFrame(() => {
+      chatRef.current?.resize("60%");
+      studioRef.current?.resize("20%");
+    });
+  };
+
   const toggleSourcesCollapse = () => {
+    if (isReviewingStudyMaterial) {
+      exitStudyMaterialReview();
+      return;
+    }
+
     if (sourcesCollapsed) {
       sourcesRef.current?.expand();
     } else {
@@ -65,7 +83,7 @@ export function DesktopLayout({
   const handleSyncStudio = () => {
     onSyncStudio();
     if (studioRef.current?.isCollapsed() && dialogs.selectedStudyMaterialId) {
-      dialogs.setSelectedStudyMaterialId(null);
+      exitStudyMaterialReview();
     }
   };
 
@@ -109,12 +127,15 @@ export function DesktopLayout({
           </div>
         </ResizablePanel>
         <ResizableHandle
+          disabled={isReviewingStudyMaterial}
           withHandle
           className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
-          minSize="40%"
-          defaultSize="60%"
+          minSize={isReviewingStudyMaterial ? "460px" : "40%"}
+          maxSize={isReviewingStudyMaterial ? "560px" : undefined}
+          defaultSize={isReviewingStudyMaterial ? "40%" : "60%"}
+          panelRef={chatRef}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border/80 bg-card"
         >
           <div className="flex flex-col h-full min-w-0 overflow-hidden bg-panel-bg">
@@ -125,14 +146,16 @@ export function DesktopLayout({
           </div>
         </ResizablePanel>
         <ResizableHandle
+          disabled={isReviewingStudyMaterial}
           withHandle
           className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
           collapsible
           collapsedSize="48px"
-          minSize="15%"
-          defaultSize="20%"
+          minSize={isReviewingStudyMaterial ? "30%" : "15%"}
+          defaultSize={isReviewingStudyMaterial ? "60%" : "20%"}
+          disabled={isReviewingStudyMaterial}
           panelRef={studioRef}
           onResize={handleSyncStudio}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border/80 bg-card"
@@ -147,7 +170,7 @@ export function DesktopLayout({
                 }}
                 onModeChange={(mode) => {
                   if (mode.kind === "select") {
-                    dialogs.setSelectedStudyMaterialId(null);
+                    exitStudyMaterialReview();
                   }
                 }}
               />

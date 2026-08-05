@@ -6,6 +6,7 @@ export type { StudyMaterialKind };
 const cuid = z.string().min(1).max(64);
 
 const QuizOptionInput = z.object({
+  id: cuid,
   text: z.string().min(0).max(2000),
   explanation: z.string().min(0).max(2000),
 });
@@ -14,7 +15,7 @@ const QuizQuestionInput = z.object({
   id: cuid,
   prompt: z.string().min(0).max(2000),
   options: z.array(QuizOptionInput).min(2).max(6),
-  correctOptionIndex: z.number().int().min(0).max(5),
+  correctOptionId: cuid,
   hint: z.string().optional(),
   topic: z.string().optional(),
 });
@@ -75,20 +76,23 @@ export type RoadmapEditorContentType = z.infer<typeof RoadmapEditorContent>;
 
 export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
   switch (kind) {
-    case "quiz":
+    case "quiz": {
+      const optionAId = makeId();
+      const optionBId = makeId();
       return {
         questions: [
           {
             id: makeId(),
             prompt: "Question 1",
             options: [
-              { text: "Option A", explanation: "Explanation A" },
-              { text: "Option B", explanation: "Explanation B" },
+              { id: optionAId, text: "Option A", explanation: "Explanation A" },
+              { id: optionBId, text: "Option B", explanation: "Explanation B" },
             ],
-            correctOptionIndex: 0,
+            correctOptionId: optionAId,
           },
         ],
       };
+    }
     case "simple_flashcard":
       return { cards: [{ front: "Front", back: "Back" }] };
     case "roadmap":

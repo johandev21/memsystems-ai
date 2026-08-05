@@ -16,6 +16,7 @@ import {
   StudyMaterialKind,
   validateContent,
 } from './shapes';
+import { normalizeContent } from './content-normalizer';
 
 export interface CreateStudyMaterialInput {
   kind: StudyMaterialKind;
@@ -57,11 +58,16 @@ export class StudyMaterialService {
     if (filters?.kind) {
       conditions.push(eq(studyMaterials.kind, filters.kind));
     }
-    return this.db
+    const materials = await this.db
       .select()
       .from(studyMaterials)
       .where(and(...conditions))
       .orderBy(desc(studyMaterials.createdAt));
+    return materials.map((material) =>
+      material.kind === 'quiz'
+        ? { ...material, content: normalizeContent('quiz', material.content) }
+        : material,
+    );
   }
 
   async get(userId: string, smId: string) {
@@ -88,7 +94,9 @@ export class StudyMaterialService {
         folderId: input.folderId ?? null,
       })
       .returning();
-    return sm;
+    return sm.kind === 'quiz'
+      ? { ...sm, content: normalizeContent('quiz', sm.content) }
+      : sm;
   }
 
   async update(userId: string, smId: string, input: UpdateStudyMaterialInput) {

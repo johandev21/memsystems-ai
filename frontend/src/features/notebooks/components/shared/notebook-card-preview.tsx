@@ -191,7 +191,7 @@ export function NotebookCardPreview({
           <IconPicker
             value={icon}
             onChange={setIcon}
-            className="size-10 shrink-0 border-border bg-background shadow-xs hover:border-primary/50"
+            className="size-10 shrink-0 border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent [&_svg]:size-10"
           />
 
           <div className="flex flex-1 flex-col gap-0.5 min-w-0 pr-2">

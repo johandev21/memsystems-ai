@@ -197,6 +197,7 @@ export function NotebooksPage() {
                   description={notebook.description}
                   updatedAt=""
                   imageUrl={notebook.bannerUrl ?? undefined}
+                  bannerFocalPoint={notebook.bannerFocalPoint}
                   icon={<NotebookIcon name={notebook.icon} />}
                 />
               ))}

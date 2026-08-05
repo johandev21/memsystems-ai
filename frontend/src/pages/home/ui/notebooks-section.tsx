@@ -130,6 +130,7 @@ export function NotebooksSection() {
                 description={notebook.description}
                 updatedAt={formatUpdatedAt(notebook.updatedAt)}
                 imageUrl={notebook.bannerUrl ?? undefined}
+                bannerFocalPoint={notebook.bannerFocalPoint}
                 icon={<NotebookIcon name={notebook.icon} />}
               />
             ))}

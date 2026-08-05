@@ -44,7 +44,8 @@ All question prompts and option texts MUST use natural language with proper capi
 Each question must have 2-6 options with exactly one correct answer.
 Every option must have a detailed explanation of why it is correct or incorrect.
 Questions should test conceptual understanding, reasoning, and application.
-Randomize which option is correct across questions.`,
+Randomize which option is correct across questions.
+Each option must have a unique stable string 'id'. Set 'correctOptionId' to the exact id of the correct option. Never identify the correct answer by array position.`,
   user: (brief, sourceTexts, options) => {
     const sourceBlock = sourceTexts
       ? `Source material:\n${sourceTexts}\n\n`

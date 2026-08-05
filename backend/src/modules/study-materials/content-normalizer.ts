@@ -68,10 +68,10 @@ export function normalizeQuizContent(content: any): any {
         id: `q-${index}`,
         prompt: String(q),
         options: [
-          { text: 'Option A', explanation: '' },
-          { text: 'Option B', explanation: '' },
+          { id: `q-${index}-o-0`, text: 'Option A', explanation: '' },
+          { id: `q-${index}-o-1`, text: 'Option B', explanation: '' },
         ],
-        correctOptionIndex: 0,
+        correctOptionId: `q-${index}-o-0`,
       };
     }
 
@@ -81,11 +81,16 @@ export function normalizeQuizContent(content: any): any {
       options = [];
     }
 
-    const normalizedOptions = options.map((opt: any) => {
+    const normalizedOptions = options.map((opt: any, optionIndex: number) => {
       if (typeof opt === 'string') {
-        return { text: opt, explanation: 'Correct answer choice' };
+        return {
+          id: `q-${index}-o-${optionIndex}`,
+          text: opt,
+          explanation: 'Correct answer choice',
+        };
       }
       return {
+        id: String(opt.id ?? `q-${index}-o-${optionIndex}`),
         text: opt.text ?? opt.choice ?? opt.value ?? 'Option',
         explanation: opt.explanation ?? opt.reason ?? 'Explanation',
       };
@@ -93,6 +98,7 @@ export function normalizeQuizContent(content: any): any {
 
     while (normalizedOptions.length < 2) {
       normalizedOptions.push({
+        id: `q-${index}-o-${normalizedOptions.length}`,
         text: `Option ${String.fromCharCode(65 + normalizedOptions.length)}`,
         explanation: 'Placeholder option',
       });
@@ -100,6 +106,17 @@ export function normalizeQuizContent(content: any): any {
 
     if (normalizedOptions.length > 6) {
       normalizedOptions.length = 6;
+    }
+
+    let correctOptionId: string | undefined;
+    const rawCorrectId = q.correctOptionId ?? q.correct_option_id;
+    if (typeof rawCorrectId === 'string') {
+      const matchingOption = normalizedOptions.find(
+        (opt: any) => opt.id === rawCorrectId,
+      );
+      if (matchingOption) {
+        correctOptionId = matchingOption.id;
+      }
     }
 
     let correctOptionIndex = -1;
@@ -111,9 +128,9 @@ export function normalizeQuizContent(content: any): any {
       q.correct_answer ??
       q.answer;
 
-    if (typeof rawCorrect === 'number') {
+    if (!correctOptionId && typeof rawCorrect === 'number') {
       correctOptionIndex = rawCorrect;
-    } else if (typeof rawCorrect === 'string') {
+    } else if (!correctOptionId && typeof rawCorrect === 'string') {
       const trimmed = rawCorrect.trim();
       if (/^[a-fA-F]$/.test(trimmed)) {
         correctOptionIndex = trimmed.toUpperCase().charCodeAt(0) - 65;
@@ -134,8 +151,8 @@ export function normalizeQuizContent(content: any): any {
 
     // Check option explanations for explicit "Correct" or "Right answer" vs "Incorrect"
     if (
-      correctOptionIndex < 0 ||
-      correctOptionIndex >= normalizedOptions.length
+      !correctOptionId &&
+      (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length)
     ) {
       const explicitCorrectIdx = normalizedOptions.findIndex(
         (opt: any) =>
@@ -148,6 +165,7 @@ export function normalizeQuizContent(content: any): any {
     }
 
     if (
+      !correctOptionId &&
       correctOptionIndex >= 0 &&
       correctOptionIndex < normalizedOptions.length
     ) {
@@ -168,17 +186,21 @@ export function normalizeQuizContent(content: any): any {
     }
 
     if (
-      correctOptionIndex < 0 ||
-      correctOptionIndex >= normalizedOptions.length
+      !correctOptionId &&
+      (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length)
     ) {
       correctOptionIndex = 0;
     }
 
+    if (!correctOptionId) {
+      correctOptionId = normalizedOptions[correctOptionIndex].id;
+    }
+
     return {
-      id: q.id ?? `q-${index}-${Math.random().toString(36).substring(7)}`,
+      id: q.id ?? `q-${index}`,
       prompt: String(prompt),
       options: normalizedOptions,
-      correctOptionIndex,
+      correctOptionId,
     };
   });
 

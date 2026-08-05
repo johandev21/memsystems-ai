@@ -3,6 +3,7 @@ import type { PanelImperativeHandle } from "react-resizable-panels";
 
 export interface UseNotebookPanelsReturn {
   sourcesRef: React.RefObject<PanelImperativeHandle | null>;
+  chatRef: React.RefObject<PanelImperativeHandle | null>;
   studioRef: React.RefObject<PanelImperativeHandle | null>;
   sourcesCollapsed: boolean;
   studioCollapsed: boolean;
@@ -12,6 +13,7 @@ export interface UseNotebookPanelsReturn {
 
 export function useNotebookPanels(): UseNotebookPanelsReturn {
   const sourcesRef = useRef<PanelImperativeHandle>(null);
+  const chatRef = useRef<PanelImperativeHandle>(null);
   const studioRef = useRef<PanelImperativeHandle>(null);
   const [sourcesCollapsed, setSourcesCollapsed] = useState(false);
   const [studioCollapsed, setStudioCollapsed] = useState(false);
@@ -26,6 +28,7 @@ export function useNotebookPanels(): UseNotebookPanelsReturn {
 
   return {
     sourcesRef,
+    chatRef,
     studioRef,
     sourcesCollapsed,
     studioCollapsed,

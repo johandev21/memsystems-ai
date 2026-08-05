@@ -104,7 +104,7 @@ export function ProviderKeyPrompt({
             <Settings2 className="size-3.5" />
             Open provider settings
           </Link>
-          <span className="text-[11px] text-muted-foreground">OpenAI, Anthropic, Google, DeepSeek, and Kimi</span>
+          <span className="text-sm text-muted-foreground">OpenAI, Anthropic, Google, DeepSeek, and Kimi</span>
         </div>
       ) : (
         <form onSubmit={handleSaveKey} className="space-y-3">
@@ -157,7 +157,7 @@ export function ProviderKeyPrompt({
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
         <span>Stored securely for your session</span>
         <a
           href={provider === "openai" ? "https://platform.openai.com/api-keys" : undefined}

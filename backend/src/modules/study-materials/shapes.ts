@@ -5,6 +5,7 @@ export type StudyMaterialKind =
   'quiz' | 'simple_flashcard' | 'roadmap' | 'mind_map';
 
 export const QuizQuestionOption = z.object({
+  id: z.string(),
   text: z.string().min(1).max(2000),
   explanation: z.string().min(1).max(2000),
 });
@@ -13,7 +14,7 @@ export const QuizQuestion = z.object({
   id: z.string(),
   prompt: z.string().min(1).max(2000),
   options: z.array(QuizQuestionOption).min(2).max(6),
-  correctOptionIndex: z.number().int().min(0),
+  correctOptionId: z.string(),
   hint: z.string().optional(),
   topic: z.string().optional(),
 });
@@ -115,22 +116,16 @@ export function validateContent(kind: string, content: unknown) {
 
 export function shuffleQuizOptions(content: any) {
   const shuffled = {
+    ...content,
     questions: content.questions.map((q: any) => {
-      const pairs = q.options.map((opt: any, i: number) => ({
-        opt,
-        originalIndex: i,
-      }));
+      const pairs = [...q.options];
       for (let i = pairs.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
       }
-      const newCorrectIndex = pairs.findIndex(
-        (p) => p.originalIndex === q.correctOptionIndex,
-      );
       return {
         ...q,
-        options: pairs.map((p) => p.opt),
-        correctOptionIndex: newCorrectIndex,
+        options: pairs,
       };
     }),
   };

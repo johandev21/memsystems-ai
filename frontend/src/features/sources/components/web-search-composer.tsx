@@ -69,7 +69,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
     <div className="flex flex-col gap-2">
       {/* Capability warning */}
       {!hasCapableModel && (
-        <div className="flex items-start gap-2 rounded-[10px] border border-warning/30 bg-warning/10 p-2.5 text-[11px] leading-relaxed text-warning-foreground">
+        <div className="flex items-start gap-2 rounded-[10px] border border-warning/30 bg-warning/10 p-2.5 text-sm leading-relaxed text-warning-foreground">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           <span>
             Web search isn&apos;t supported by your current models. Connect a

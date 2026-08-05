@@ -28,6 +28,7 @@ import { cn } from "@/shared/lib/utils";
 // -----------------------------------------------------------------------------
 
 export interface QuizQuestionOption {
+  id: string;
   text: string;
   explanation: string;
 }
@@ -36,7 +37,7 @@ export interface QuizQuestion {
   id: string;
   prompt: string;
   options: QuizQuestionOption[];
-  correctOptionIndex: number;
+  correctOptionId: string;
   hint?: string;
   topic?: string;
 }
@@ -55,33 +56,10 @@ type ViewMode = "active" | "summary" | "review";
 // -----------------------------------------------------------------------------
 
 /**
- * Dynamically resolves the true correct option index for a question.
- * Handles cases where LLM outputted incorrect index or string key,
- * or where correctOptionIndex points to an option labeled "Incorrect".
+ * Resolves the correct option by its stable ID so answer order can change safely.
  */
 function getCorrectOptionIndex(q: QuizQuestion): number {
-  let idx = typeof q.correctOptionIndex === "number" ? q.correctOptionIndex : 0;
-  if (idx < 0 || idx >= q.options.length) {
-    idx = 0;
-  }
-
-  const currentOpt = q.options[idx];
-  if (
-    currentOpt &&
-    (/^incorrect/i.test(currentOpt.explanation.trim()) ||
-      /^not quite/i.test(currentOpt.explanation.trim()))
-  ) {
-    const realIdx = q.options.findIndex(
-      (opt) =>
-        /^correct/i.test(opt.explanation.trim()) ||
-        /^right/i.test(opt.explanation.trim())
-    );
-    if (realIdx >= 0) {
-      return realIdx;
-    }
-  }
-
-  return idx;
+  return q.options.findIndex((option) => option.id === q.correctOptionId);
 }
 
 function formatExplanationText(explanation: string): string {
@@ -172,7 +150,7 @@ function ScoreDonut({
             <span className="text-xl font-extrabold text-foreground leading-none">
               {correctCount}/{totalQuestions}
             </span>
-            <span className="text-xs font-semibold text-success mt-1">
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mt-1">
               {percent}%
             </span>
           </div>
@@ -180,9 +158,9 @@ function ScoreDonut({
 
         <div className="flex flex-col justify-center gap-2 text-sm">
           <div className="flex items-center gap-3">
-            <span className="size-2.5 rounded-full bg-success shrink-0" />
+            <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
             <span className="text-muted-foreground font-medium">Right</span>
-            <span className="font-bold text-success ml-4">
+              <span className="font-bold text-emerald-700 dark:text-emerald-300 ml-4">
               {correctCount}
             </span>
           </div>
@@ -202,8 +180,8 @@ function ScoreDonut({
           className={cn(
             "px-3 py-1 text-xs font-semibold rounded-full",
             percent >= 70
-              ? "bg-success text-success-foreground border-success"
-              : "bg-warning text-warning-foreground border-warning"
+              ? "bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-700"
+              : "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-700"
           )}
         >
           {percent === 100
@@ -428,24 +406,29 @@ function QuizQuestionStepper({
                 </span>
               );
               let statusTag: React.ReactNode = null;
+              let explanationStyle = "text-muted-foreground";
 
               if (isChecked) {
                 if (isCurrentCorrect) {
                   optionStyle =
-                    "border-success bg-success text-success-foreground font-medium shadow-2xs";
+                    "border-emerald-500/80 bg-emerald-50 text-emerald-950 dark:bg-emerald-950/50 dark:text-emerald-50 font-medium shadow-2xs";
+                  explanationStyle =
+                    "text-emerald-900/80 dark:text-emerald-100/80";
                   badge = (
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success text-success-foreground border-success shadow-2xs">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white dark:bg-emerald-500 border-emerald-600 dark:border-emerald-500 shadow-2xs">
                       <CheckCircle2 className="size-4" />
                     </span>
                   );
                   statusTag = (
-                    <span className="text-xs font-bold text-success flex items-center gap-1">
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
                       <Check className="size-3.5" /> Right answer
                     </span>
                   );
                 } else if (isCurrentSelected && !isCorrect) {
                   optionStyle =
-                    "border-rose-500/80 bg-rose-500/10 text-rose-950 dark:text-rose-100 font-medium shadow-2xs";
+                    "border-rose-500/80 bg-rose-50 text-rose-950 dark:bg-rose-950/40 dark:text-rose-50 font-medium shadow-2xs";
+                  explanationStyle =
+                    "text-rose-900/80 dark:text-rose-100/80";
                   badge = (
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white border-rose-500 shadow-2xs">
                       <XCircle className="size-4" />
@@ -456,11 +439,11 @@ function QuizQuestionStepper({
                       <XCircle className="size-3.5" /> Not quite
                     </span>
                   );
-                } else {
-                  optionStyle =
-                    "border-border bg-muted text-muted-foreground pointer-events-none";
-                  badge = (
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground text-xs font-bold">
+                  } else {
+                    optionStyle =
+                      "border-border bg-muted/60 text-foreground/70 dark:bg-muted/40 dark:text-foreground/70 pointer-events-none";
+                    badge = (
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-foreground/70 text-xs font-bold">
                       {String.fromCharCode(65 + oi)}
                     </span>
                   );
@@ -495,7 +478,7 @@ function QuizQuestionStepper({
                   {isChecked && (
                     <div className="pl-10 pt-1 flex flex-col gap-1 text-xs leading-relaxed">
                       {statusTag}
-                      <p className="text-muted-foreground">
+                      <p className={explanationStyle}>
                         {formatExplanationText(opt.explanation)}
                       </p>
                     </div>

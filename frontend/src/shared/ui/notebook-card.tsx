@@ -7,6 +7,7 @@ interface NotebookCardProps {
   description: string;
   updatedAt: string;
   imageUrl?: string;
+  bannerFocalPoint?: { x: number; y: number } | null;
   icon: React.ReactNode;
   className?: string;
 }
@@ -17,6 +18,7 @@ export function NotebookCard({
   description,
   updatedAt,
   imageUrl,
+  bannerFocalPoint,
   icon,
   className,
 }: NotebookCardProps) {
@@ -35,6 +37,9 @@ export function NotebookCard({
             src={imageUrl}
             alt={title}
             className="h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            style={{
+              objectPosition: `${Math.round((bannerFocalPoint?.x ?? 0.5) * 100)}% ${Math.round((bannerFocalPoint?.y ?? 0.5) * 100)}%`,
+            }}
           />
         ) : (
            <div className="flex h-full w-full items-center justify-center bg-muted" />

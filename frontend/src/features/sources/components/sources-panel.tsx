@@ -64,8 +64,8 @@ export function SourcesPanel({
     pendingUploads.length === 0;
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex flex-col p-2 gap-1.5 overflow-y-auto flex-1">
+    <div className="flex h-full min-w-0 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-auto p-2">
         <WebSearchComposer notebookId={notebookId} />
 
         {pendingUploads.map((upload) => (
@@ -150,18 +150,18 @@ function SourceRow({
   const Icon = getIcon(source.kind);
 
   return (
-    <div className="group relative">
+    <div className="group relative w-max min-w-full">
       <button
         type="button"
         onClick={onClick}
         className={cn(
-          "group/row relative flex w-full items-center gap-2 py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl cursor-pointer",
+          "group/row relative flex w-max min-w-full items-center gap-2 whitespace-nowrap py-2 pl-2 pr-8 text-left text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl cursor-pointer",
           "text-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <span className="w-3.5 shrink-0" />
         <Icon className="size-4 shrink-0 text-muted-foreground" />
-        <span className="truncate">{source.title}</span>
+        <span>{source.title}</span>
       </button>
       <button
         type="button"
