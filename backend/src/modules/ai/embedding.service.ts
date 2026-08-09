@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createOpenAI } from '@ai-sdk/openai';
-import { embed, embedMany } from 'ai';
+import { embed, embedMany, type EmbeddingModel } from 'ai';
 import { ServiceUnavailableError } from '../../common/errors/domain-error';
 import { UserSettingsService } from './user-settings.service';
 
@@ -11,7 +11,7 @@ export const EMBEDDING_DIMENSIONS = 1536;
 export class EmbeddingService {
   constructor(private readonly userSettingsService: UserSettingsService) {}
 
-  async getEmbeddingModel(userId: string): Promise<any> {
+  async getEmbeddingModel(userId: string): Promise<EmbeddingModel> {
     const apiKey = await this.userSettingsService.getUserOpenaiApiKey(userId);
     if (!apiKey) {
       throw new ServiceUnavailableError(

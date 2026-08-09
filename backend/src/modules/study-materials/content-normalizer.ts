@@ -1,21 +1,94 @@
 import { StudyMaterialKind } from './shapes';
 
-export function normalizeFlashcardContent(content: any): any {
-  let cardsList: any[] = [];
+type NormalizedFlashcard = { front: string; back: string };
+type NormalizedFlashcardContent = {
+  title?: string;
+  cards: NormalizedFlashcard[];
+};
+
+type NormalizedQuizOption = { id: string; text: string; explanation: string };
+type NormalizedQuizQuestion = {
+  id: string;
+  prompt: string;
+  options: NormalizedQuizOption[];
+  correctOptionId: string;
+};
+type NormalizedQuizContent = {
+  title?: string;
+  questions: NormalizedQuizQuestion[];
+};
+
+type NormalizedRoadmapTopic = {
+  id: string;
+  title: string;
+  description?: string;
+  estimatedMinutes?: number;
+  order: number;
+};
+type NormalizedRoadmapPhase = {
+  id: string;
+  title: string;
+  description?: string;
+  color?: string;
+  order: number;
+  topics: NormalizedRoadmapTopic[];
+};
+type NormalizedRoadmapContent = {
+  title?: string;
+  description?: string;
+  phases: NormalizedRoadmapPhase[];
+};
+
+type NormalizedMindMapNode = {
+  id: string;
+  label: string;
+  color?: string;
+  position?: { x: number; y: number };
+};
+type NormalizedMindMapEdge = {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  label?: string;
+  directed?: boolean;
+};
+type NormalizedMindMapContent = {
+  title?: string;
+  rootId?: string;
+  nodes: NormalizedMindMapNode[];
+  edges: NormalizedMindMapEdge[];
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const toArray = (value: unknown): unknown[] =>
+  Array.isArray(value) ? (value as unknown[]) : [];
+
+const arrayLength = (value: unknown): number =>
+  Array.isArray(value) ? value.length : 0;
+
+const stringify = (value: unknown): string =>
+  typeof value === 'string' ? value : String(value);
+
+export function normalizeFlashcardContent(
+  content: unknown,
+): NormalizedFlashcardContent {
+  let cardsList: unknown[] = [];
 
   if (Array.isArray(content)) {
-    cardsList = content;
-  } else if (content && typeof content === 'object') {
+    cardsList = toArray(content);
+  } else if (isRecord(content)) {
     if (Array.isArray(content.cards)) {
-      cardsList = content.cards;
+      cardsList = toArray(content.cards);
     } else if (Array.isArray(content.flashcards)) {
-      cardsList = content.flashcards;
+      cardsList = toArray(content.flashcards);
     } else {
       const arrayKey = Object.keys(content).find((k) =>
         Array.isArray(content[k]),
       );
       if (arrayKey) {
-        cardsList = content[arrayKey];
+        cardsList = toArray(content[arrayKey]);
       } else if ('front' in content || 'back' in content) {
         cardsList = [content];
       }
@@ -26,235 +99,256 @@ export function normalizeFlashcardContent(content: any): any {
     cardsList = [{ front: 'Front', back: 'Back' }];
   }
 
-  const normalizedCards = cardsList.map((card: any, index: number) => {
-    if (!card || typeof card !== 'object') {
+  const normalizedCards = cardsList.map((card, index): NormalizedFlashcard => {
+    if (!isRecord(card)) {
       return {
-        front: String(card) || `Question ${index + 1}`,
+        front: stringify(card) || `Question ${index + 1}`,
         back: 'Answer',
       };
     }
     const front = card.front ?? card.question ?? card.prompt ?? card.q ?? '';
     const back = card.back ?? card.answer ?? card.response ?? card.a ?? '';
     return {
-      front: String(front) || `Question ${index + 1}`,
-      back: String(back) || 'Answer',
+      front: stringify(front) || `Question ${index + 1}`,
+      back: stringify(back) || 'Answer',
     };
   });
 
   return {
-    title: content.title ? String(content.title) : undefined,
+    title:
+      isRecord(content) && content.title ? stringify(content.title) : undefined,
     cards: normalizedCards,
   };
 }
 
-export function normalizeQuizContent(content: any): any {
-  let questions = content.questions;
+export function normalizeQuizContent(content: unknown): NormalizedQuizContent {
+  let questions: unknown[];
   if (Array.isArray(content)) {
-    questions = content;
-  } else if (!Array.isArray(questions)) {
+    questions = toArray(content);
+  } else if (isRecord(content) && Array.isArray(content.questions)) {
+    questions = toArray(content.questions);
+  } else if (isRecord(content)) {
     const arrayKey = Object.keys(content).find((k) =>
       Array.isArray(content[k]),
     );
-    if (arrayKey) {
-      questions = content[arrayKey];
-    } else {
-      questions = [content];
-    }
+    questions = arrayKey ? toArray(content[arrayKey]) : [content];
+  } else {
+    questions = [content];
   }
 
-  const normalizedQuestions = questions.map((q: any, index: number) => {
-    if (!q || typeof q !== 'object') {
-      return {
-        id: `q-${index}`,
-        prompt: String(q),
-        options: [
-          { id: `q-${index}-o-0`, text: 'Option A', explanation: '' },
-          { id: `q-${index}-o-1`, text: 'Option B', explanation: '' },
-        ],
-        correctOptionId: `q-${index}-o-0`,
-      };
-    }
-
-    const prompt = q.prompt ?? q.question ?? q.text ?? q.title ?? 'Question';
-    let options = q.options ?? q.choices ?? q.answers ?? [];
-    if (!Array.isArray(options)) {
-      options = [];
-    }
-
-    const normalizedOptions = options.map((opt: any, optionIndex: number) => {
-      if (typeof opt === 'string') {
+  const normalizedQuestions = questions.map(
+    (q, index): NormalizedQuizQuestion => {
+      if (!isRecord(q)) {
         return {
-          id: `q-${index}-o-${optionIndex}`,
-          text: opt,
-          explanation: 'Correct answer choice',
+          id: `q-${index}`,
+          prompt: String(q),
+          options: [
+            { id: `q-${index}-o-0`, text: 'Option A', explanation: '' },
+            { id: `q-${index}-o-1`, text: 'Option B', explanation: '' },
+          ],
+          correctOptionId: `q-${index}-o-0`,
         };
       }
-      return {
-        id: String(opt.id ?? `q-${index}-o-${optionIndex}`),
-        text: opt.text ?? opt.choice ?? opt.value ?? 'Option',
-        explanation: opt.explanation ?? opt.reason ?? 'Explanation',
-      };
-    });
 
-    while (normalizedOptions.length < 2) {
-      normalizedOptions.push({
-        id: `q-${index}-o-${normalizedOptions.length}`,
-        text: `Option ${String.fromCharCode(65 + normalizedOptions.length)}`,
-        explanation: 'Placeholder option',
-      });
-    }
+      const prompt = q.prompt ?? q.question ?? q.text ?? q.title ?? 'Question';
+      const rawOptions = q.options ?? q.choices ?? q.answers ?? [];
+      const options: unknown[] = toArray(rawOptions);
 
-    if (normalizedOptions.length > 6) {
-      normalizedOptions.length = 6;
-    }
-
-    let correctOptionId: string | undefined;
-    const rawCorrectId = q.correctOptionId ?? q.correct_option_id;
-    if (typeof rawCorrectId === 'string') {
-      const matchingOption = normalizedOptions.find(
-        (opt: any) => opt.id === rawCorrectId,
+      const normalizedOptions = options.map(
+        (opt, optionIndex): NormalizedQuizOption => {
+          if (typeof opt === 'string') {
+            return {
+              id: `q-${index}-o-${optionIndex}`,
+              text: opt,
+              explanation: 'Correct answer choice',
+            };
+          }
+          const optRecord = isRecord(opt) ? opt : {};
+          return {
+            id: stringify(optRecord.id ?? `q-${index}-o-${optionIndex}`),
+            text: stringify(
+              optRecord.text ?? optRecord.choice ?? optRecord.value ?? 'Option',
+            ),
+            explanation: stringify(
+              optRecord.explanation ?? optRecord.reason ?? 'Explanation',
+            ),
+          };
+        },
       );
-      if (matchingOption) {
-        correctOptionId = matchingOption.id;
+
+      while (normalizedOptions.length < 2) {
+        normalizedOptions.push({
+          id: `q-${index}-o-${normalizedOptions.length}`,
+          text: `Option ${String.fromCharCode(65 + normalizedOptions.length)}`,
+          explanation: 'Placeholder option',
+        });
       }
-    }
 
-    let correctOptionIndex = -1;
-    const rawCorrect =
-      q.correctOptionIndex ??
-      q.correct_option_index ??
-      q.correctIndex ??
-      q.correctAnswer ??
-      q.correct_answer ??
-      q.answer;
+      if (normalizedOptions.length > 6) {
+        normalizedOptions.length = 6;
+      }
 
-    if (!correctOptionId && typeof rawCorrect === 'number') {
-      correctOptionIndex = rawCorrect;
-    } else if (!correctOptionId && typeof rawCorrect === 'string') {
-      const trimmed = rawCorrect.trim();
-      if (/^[a-fA-F]$/.test(trimmed)) {
-        correctOptionIndex = trimmed.toUpperCase().charCodeAt(0) - 65;
-      } else if (/^option\s*([a-fA-F])$/i.test(trimmed)) {
-        const letter = trimmed.match(/^option\s*([a-fA-F])$/i)![1];
-        correctOptionIndex = letter.toUpperCase().charCodeAt(0) - 65;
-      } else if (/^\d+$/.test(trimmed)) {
-        correctOptionIndex = parseInt(trimmed, 10);
-      } else {
-        const idx = normalizedOptions.findIndex(
-          (opt: any) => opt.text.trim().toLowerCase() === trimmed.toLowerCase(),
+      let correctOptionId: string | undefined;
+      const rawCorrectId = q.correctOptionId ?? q.correct_option_id;
+      if (typeof rawCorrectId === 'string') {
+        const matchingOption = normalizedOptions.find(
+          (opt) => opt.id === rawCorrectId,
         );
-        if (idx >= 0) {
-          correctOptionIndex = idx;
+        if (matchingOption) {
+          correctOptionId = matchingOption.id;
         }
       }
-    }
 
-    // Check option explanations for explicit "Correct" or "Right answer" vs "Incorrect"
-    if (
-      !correctOptionId &&
-      (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length)
-    ) {
-      const explicitCorrectIdx = normalizedOptions.findIndex(
-        (opt: any) =>
-          /^correct/i.test(opt.explanation.trim()) ||
-          /^right/i.test(opt.explanation.trim()),
-      );
-      if (explicitCorrectIdx >= 0) {
-        correctOptionIndex = explicitCorrectIdx;
+      let correctOptionIndex = -1;
+      const rawCorrect =
+        q.correctOptionIndex ??
+        q.correct_option_index ??
+        q.correctIndex ??
+        q.correctAnswer ??
+        q.correct_answer ??
+        q.answer;
+
+      if (!correctOptionId && typeof rawCorrect === 'number') {
+        correctOptionIndex = rawCorrect;
+      } else if (!correctOptionId && typeof rawCorrect === 'string') {
+        const trimmed = rawCorrect.trim();
+        if (/^[a-fA-F]$/.test(trimmed)) {
+          correctOptionIndex = trimmed.toUpperCase().charCodeAt(0) - 65;
+        } else if (/^option\s*([a-fA-F])$/i.test(trimmed)) {
+          const letter = trimmed.match(/^option\s*([a-fA-F])$/i)![1];
+          correctOptionIndex = letter.toUpperCase().charCodeAt(0) - 65;
+        } else if (/^\d+$/.test(trimmed)) {
+          correctOptionIndex = parseInt(trimmed, 10);
+        } else {
+          const idx = normalizedOptions.findIndex(
+            (opt) => opt.text.trim().toLowerCase() === trimmed.toLowerCase(),
+          );
+          if (idx >= 0) {
+            correctOptionIndex = idx;
+          }
+        }
       }
-    }
 
-    if (
-      !correctOptionId &&
-      correctOptionIndex >= 0 &&
-      correctOptionIndex < normalizedOptions.length
-    ) {
-      const currentOpt = normalizedOptions[correctOptionIndex];
+      // Check option explanations for explicit "Correct" or "Right answer" vs "Incorrect"
       if (
-        /^incorrect/i.test(currentOpt.explanation.trim()) ||
-        /^not quite/i.test(currentOpt.explanation.trim())
+        !correctOptionId &&
+        (correctOptionIndex < 0 ||
+          correctOptionIndex >= normalizedOptions.length)
       ) {
-        const realCorrectIdx = normalizedOptions.findIndex(
-          (opt: any) =>
+        const explicitCorrectIdx = normalizedOptions.findIndex(
+          (opt) =>
             /^correct/i.test(opt.explanation.trim()) ||
             /^right/i.test(opt.explanation.trim()),
         );
-        if (realCorrectIdx >= 0) {
-          correctOptionIndex = realCorrectIdx;
+        if (explicitCorrectIdx >= 0) {
+          correctOptionIndex = explicitCorrectIdx;
         }
       }
-    }
 
-    if (
-      !correctOptionId &&
-      (correctOptionIndex < 0 || correctOptionIndex >= normalizedOptions.length)
-    ) {
-      correctOptionIndex = 0;
-    }
+      if (
+        !correctOptionId &&
+        correctOptionIndex >= 0 &&
+        correctOptionIndex < normalizedOptions.length
+      ) {
+        const currentOpt = normalizedOptions[correctOptionIndex];
+        if (
+          /^incorrect/i.test(currentOpt.explanation.trim()) ||
+          /^not quite/i.test(currentOpt.explanation.trim())
+        ) {
+          const realCorrectIdx = normalizedOptions.findIndex(
+            (opt) =>
+              /^correct/i.test(opt.explanation.trim()) ||
+              /^right/i.test(opt.explanation.trim()),
+          );
+          if (realCorrectIdx >= 0) {
+            correctOptionIndex = realCorrectIdx;
+          }
+        }
+      }
 
-    if (!correctOptionId) {
-      correctOptionId = normalizedOptions[correctOptionIndex].id;
-    }
+      if (
+        !correctOptionId &&
+        (correctOptionIndex < 0 ||
+          correctOptionIndex >= normalizedOptions.length)
+      ) {
+        correctOptionIndex = 0;
+      }
 
-    return {
-      id: q.id ?? `q-${index}`,
-      prompt: String(prompt),
-      options: normalizedOptions,
-      correctOptionId,
-    };
-  });
+      if (!correctOptionId) {
+        correctOptionId = normalizedOptions[correctOptionIndex].id;
+      }
+
+      return {
+        id: typeof q.id === 'string' ? q.id : `q-${index}`,
+        prompt: stringify(prompt),
+        options: normalizedOptions,
+        correctOptionId,
+      };
+    },
+  );
 
   return {
-    title: content.title ? String(content.title) : undefined,
+    title:
+      isRecord(content) && content.title ? stringify(content.title) : undefined,
     questions: normalizedQuestions,
   };
 }
 
-export function normalizeRoadmapContent(content: any): any {
-  let phases = content.phases;
+export function normalizeRoadmapContent(
+  content: unknown,
+): NormalizedRoadmapContent {
+  let phases: unknown[];
   if (Array.isArray(content)) {
-    phases = content;
-  } else if (!Array.isArray(phases)) {
+    phases = toArray(content);
+  } else if (isRecord(content) && Array.isArray(content.phases)) {
+    phases = toArray(content.phases);
+  } else if (isRecord(content)) {
     const arrayKey = Object.keys(content).find((k) =>
       Array.isArray(content[k]),
     );
-    if (arrayKey) {
-      phases = content[arrayKey];
-    } else {
-      phases = [];
-    }
+    phases = arrayKey ? toArray(content[arrayKey]) : [];
+  } else {
+    phases = [];
   }
 
-  const normalizedPhases = phases.map((p: any, pIndex: number) => {
-    if (!p || typeof p !== 'object') {
+  const normalizedPhases = phases.map((p, pIndex): NormalizedRoadmapPhase => {
+    if (!isRecord(p)) {
       return {
         id: `p-${pIndex}`,
-        title: String(p),
+        title: stringify(p),
         order: pIndex,
         topics: [],
       };
     }
 
-    let topics = p.topics;
-    if (!Array.isArray(topics)) {
+    let topics: unknown[] = [];
+    if (Array.isArray(p.topics)) {
+      topics = toArray(p.topics);
+    } else {
       const arrayKey = Object.keys(p).find((k) => Array.isArray(p[k]));
-      topics = arrayKey ? p[arrayKey] : [];
+      if (arrayKey) topics = toArray(p[arrayKey]);
     }
 
-    const normalizedTopics = topics.map((t: any, tIndex: number) => {
-      if (!t || typeof t !== 'object') {
+    const normalizedTopics = topics.map((t, tIndex): NormalizedRoadmapTopic => {
+      if (!isRecord(t)) {
         return {
           id: `t-${pIndex}-${tIndex}`,
-          title: String(t),
+          title: stringify(t),
           order: tIndex,
         };
       }
       return {
         id:
-          t.id ??
-          `t-${pIndex}-${tIndex}-${Math.random().toString(36).substring(7)}`,
-        title: t.title ?? t.name ?? 'Topic',
-        description: t.description ?? t.details ?? undefined,
+          typeof t.id === 'string'
+            ? t.id
+            : `t-${pIndex}-${tIndex}-${Math.random().toString(36).substring(7)}`,
+        title: stringify(t.title ?? t.name ?? 'Topic'),
+        description:
+          typeof t.description === 'string'
+            ? t.description
+            : typeof t.details === 'string'
+              ? t.details
+              : undefined,
         estimatedMinutes:
           typeof t.estimatedMinutes === 'number'
             ? t.estimatedMinutes
@@ -264,77 +358,100 @@ export function normalizeRoadmapContent(content: any): any {
     });
 
     return {
-      id: p.id ?? `p-${pIndex}-${Math.random().toString(36).substring(7)}`,
-      title: p.title ?? p.name ?? 'Phase',
-      description: p.description ?? undefined,
-      color: p.color && /^#[0-9A-Fa-f]{6}$/.test(p.color) ? p.color : undefined,
+      id:
+        typeof p.id === 'string'
+          ? p.id
+          : `p-${pIndex}-${Math.random().toString(36).substring(7)}`,
+      title: stringify(p.title ?? p.name ?? 'Phase'),
+      description:
+        typeof p.description === 'string' ? p.description : undefined,
+      color:
+        typeof p.color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(p.color)
+          ? p.color
+          : undefined,
       order: typeof p.order === 'number' ? p.order : pIndex,
       topics: normalizedTopics,
     };
   });
 
   return {
-    title: content.title ? String(content.title) : undefined,
-    description: content.description ?? undefined,
+    title:
+      isRecord(content) && content.title ? stringify(content.title) : undefined,
+    description:
+      isRecord(content) && typeof content.description === 'string'
+        ? content.description
+        : undefined,
     phases: normalizedPhases,
   };
 }
 
-export function normalizeMindMapContent(content: any): any {
-  let nodes = content.nodes ?? [];
-  let edges = content.edges ?? [];
+export function normalizeMindMapContent(
+  content: unknown,
+): NormalizedMindMapContent {
+  const record = isRecord(content) ? content : {};
+  const nodes: unknown[] = toArray(record.nodes);
+  const edges: unknown[] = toArray(record.edges);
 
-  if (!Array.isArray(nodes)) {
-    nodes = [];
-  }
-  if (!Array.isArray(edges)) {
-    edges = [];
-  }
-
-  const normalizedNodes = nodes.map((n: any, nIndex: number) => {
-    if (!n || typeof n !== 'object') {
+  const normalizedNodes = nodes.map((n, nIndex): NormalizedMindMapNode => {
+    if (!isRecord(n)) {
       return {
         id: `node-${nIndex}`,
-        label: String(n),
+        label: stringify(n),
       };
     }
     return {
-      id: n.id ?? `node-${nIndex}-${Math.random().toString(36).substring(7)}`,
-      label: n.label ?? n.title ?? n.text ?? 'Concept',
-      color: n.color && /^#[0-9A-Fa-f]{6}$/.test(n.color) ? n.color : undefined,
+      id:
+        typeof n.id === 'string'
+          ? n.id
+          : `node-${nIndex}-${Math.random().toString(36).substring(7)}`,
+      label: stringify(n.label ?? n.title ?? n.text ?? 'Concept'),
+      color:
+        typeof n.color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(n.color)
+          ? n.color
+          : undefined,
       position:
-        n.position &&
+        isRecord(n.position) &&
         typeof n.position.x === 'number' &&
         typeof n.position.y === 'number'
-          ? n.position
+          ? { x: n.position.x, y: n.position.y }
           : undefined,
     };
   });
 
   const normalizedEdges = edges
-    .map((e: any, eIndex: number) => {
-      if (!e || typeof e !== 'object') {
+    .map((e, eIndex): NormalizedMindMapEdge | null => {
+      if (!isRecord(e)) {
         return null;
       }
       return {
-        id: e.id ?? `edge-${eIndex}-${Math.random().toString(36).substring(7)}`,
-        sourceId: e.sourceId ?? e.source ?? '',
-        targetId: e.targetId ?? e.target ?? '',
-        label: e.label ?? undefined,
+        id:
+          typeof e.id === 'string'
+            ? e.id
+            : `edge-${eIndex}-${Math.random().toString(36).substring(7)}`,
+        sourceId: stringify(e.sourceId ?? e.source ?? ''),
+        targetId: stringify(e.targetId ?? e.target ?? ''),
+        label: typeof e.label === 'string' ? e.label : undefined,
         directed: typeof e.directed === 'boolean' ? e.directed : undefined,
       };
     })
-    .filter((e: any): e is Exclude<typeof e, null> => e !== null);
+    .filter((e): e is NormalizedMindMapEdge => e !== null);
 
   return {
-    title: content.title ? String(content.title) : undefined,
-    rootId: content.rootId ?? undefined,
+    title:
+      isRecord(content) && content.title ? stringify(content.title) : undefined,
+    rootId:
+      isRecord(content) && typeof content.rootId === 'string'
+        ? content.rootId
+        : undefined,
     nodes: normalizedNodes,
     edges: normalizedEdges,
   };
 }
 
-export function normalizeContent(kind: StudyMaterialKind, content: any): any {
+export function normalizeContent(
+  kind: StudyMaterialKind,
+  content: unknown,
+): unknown {
   if (!content || typeof content !== 'object') {
     return content;
   }
@@ -424,27 +541,27 @@ export function slugifyTitle(title: string, kind: StudyMaterialKind): string {
   return `${slug}${suffix}`;
 }
 
-export function generateTitle(kind: StudyMaterialKind, content: any): string {
+export function generateTitle(
+  kind: StudyMaterialKind,
+  content: unknown,
+): string {
+  const record = isRecord(content) ? content : {};
   let rawTitle = '';
-  if (
-    content.title &&
-    typeof content.title === 'string' &&
-    content.title.trim()
-  ) {
-    rawTitle = content.title.trim();
+  if (typeof record.title === 'string' && record.title.trim()) {
+    rawTitle = record.title.trim();
   } else {
     switch (kind) {
       case 'quiz':
-        rawTitle = `Quiz (${content.questions?.length ?? 0} questions)`;
+        rawTitle = `Quiz (${arrayLength(record.questions)} questions)`;
         break;
       case 'simple_flashcard':
         rawTitle = 'Flashcards';
         break;
       case 'roadmap':
-        rawTitle = `Roadmap (${content.phases?.length ?? 0} phases)`;
+        rawTitle = `Roadmap (${arrayLength(record.phases)} phases)`;
         break;
       case 'mind_map':
-        rawTitle = `Mind Map (${content.nodes?.length ?? 0} nodes)`;
+        rawTitle = `Mind Map (${arrayLength(record.nodes)} nodes)`;
         break;
       default:
         rawTitle = 'Untitled';

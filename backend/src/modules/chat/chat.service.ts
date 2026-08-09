@@ -9,7 +9,6 @@ import {
   notebooks,
   sources,
 } from '../../database/schema';
-import { BadRequestError } from '../../common/errors/domain-error';
 import { AiService } from '../ai/ai.service';
 import { ConnectionService } from '../ai/connection.service';
 import { RetrievalService } from '../ai/retrieval.service';
@@ -245,7 +244,7 @@ export class ChatService {
             error: error instanceof Error ? error.message : String(error),
           });
         },
-        onFinish: async ({ text, finishReason, usage, reasoning }) => {
+        onFinish: async ({ text, reasoning }) => {
           const reasoningString = reasoning
             ? typeof reasoning === 'string'
               ? reasoning

@@ -28,7 +28,7 @@ export const SimpleFlashcardContent = z.preprocess(
   (val) => {
     if (val && typeof val === 'object' && 'front' in val && 'back' in val) {
       return {
-        cards: [{ front: (val as any).front, back: (val as any).back }],
+        cards: [{ front: val.front, back: val.back }],
       };
     }
     return val;
@@ -114,10 +114,12 @@ export function validateContent(kind: string, content: unknown) {
   return result.data;
 }
 
-export function shuffleQuizOptions(content: any) {
+export function shuffleQuizOptions(
+  content: z.infer<typeof QuizContent>,
+): z.infer<typeof QuizContent> {
   const shuffled = {
     ...content,
-    questions: content.questions.map((q: any) => {
+    questions: content.questions.map((q) => {
       const pairs = [...q.options];
       for (let i = pairs.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

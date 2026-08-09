@@ -22,4 +22,4 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   console.log(`NestJS backend listening on http://127.0.0.1:${port}/api`);
 }
-bootstrap();
+void bootstrap();

@@ -55,7 +55,7 @@ export class GenerationRequestManager {
     return request.id;
   }
 
-  async markCompleted(requestId: string, _materialId?: string): Promise<void> {
+  async markCompleted(requestId: string): Promise<void> {
     await this.db
       .update(generationRequests)
       .set({
@@ -65,7 +65,7 @@ export class GenerationRequestManager {
       .where(eq(generationRequests.id, requestId));
   }
 
-  async markFailed(requestId: string, _error?: string): Promise<void> {
+  async markFailed(requestId: string): Promise<void> {
     await this.db
       .update(generationRequests)
       .set({ status: 'failed' })

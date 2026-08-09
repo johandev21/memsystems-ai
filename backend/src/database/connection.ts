@@ -8,8 +8,8 @@ export const fullSchema = { ...authSchema, ...appSchema };
 export function createDatabaseConnection(connectionString?: string) {
   const pool = new Pool({
     connectionString: connectionString || process.env.DATABASE_URL,
-    onConnect: async (client) => {
-      await client.query("SET timezone = 'UTC'");
+    onConnect: (client) => {
+      void client.query("SET timezone = 'UTC'");
     },
   });
 

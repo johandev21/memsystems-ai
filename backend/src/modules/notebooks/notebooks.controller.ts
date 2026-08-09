@@ -99,14 +99,16 @@ export class NotebooksController {
   async uploadBanner(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,
-    @UploadedFile() file?: any,
+    @UploadedFile() file?: Express.Multer.File,
     @Body('focalPoint') focalPointRaw?: string,
   ) {
     let focalPoint: { x: number; y: number } | undefined;
     if (focalPointRaw) {
       try {
-        focalPoint = JSON.parse(focalPointRaw);
-      } catch {}
+        focalPoint = JSON.parse(focalPointRaw) as { x: number; y: number };
+      } catch {
+        // Ignore malformed focal point JSON
+      }
     }
 
     if (!file) {

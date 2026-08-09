@@ -4,10 +4,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as authSchema from '../../database/auth-schema';
 import * as appSchema from '../../database/schema';
 import { sources } from '../../database/schema';
-import {
-  BadRequestError,
-  NotFoundError,
-} from '../../common/errors/domain-error';
+import { NotFoundError } from '../../common/errors/domain-error';
 import { ConnectionService } from '../ai/connection.service';
 import { DRIZZLE } from '../database/database.module';
 import { NotebooksService } from '../notebooks/notebooks.service';
@@ -65,9 +62,12 @@ export class GenerationService {
       },
       sourceTexts,
       requestId,
-      (result) =>
-        this.requestManager.markCompleted(requestId, result.materialId),
-      (error) => this.requestManager.markFailed(requestId, error),
+      () => {
+        void this.requestManager.markCompleted(requestId);
+      },
+      () => {
+        void this.requestManager.markFailed(requestId);
+      },
     );
 
     return { stream, requestId };

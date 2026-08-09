@@ -11,7 +11,9 @@ import {
 } from '../../common/errors/domain-error';
 import { DRIZZLE } from '../database/database.module';
 import { NotebooksService } from '../notebooks/notebooks.service';
+import { z } from 'zod';
 import {
+  QuizContent,
   shuffleQuizOptions,
   StudyMaterialKind,
   validateContent,
@@ -159,7 +161,9 @@ export class StudyMaterialService {
     if (sm.kind !== 'quiz') {
       throw new BadRequestError('Only quizzes can be shuffled');
     }
-    const shuffledContent = shuffleQuizOptions(sm.content as any);
+    const shuffledContent = shuffleQuizOptions(
+      sm.content as z.infer<typeof QuizContent>,
+    );
     const [updated] = await this.db
       .update(studyMaterials)
       .set({ content: shuffledContent })

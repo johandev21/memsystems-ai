@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Output, parsePartialJson, streamText } from 'ai';
+import { Output, parsePartialJson, streamText, type LanguageModel } from 'ai';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { z } from 'zod';
 import * as authSchema from '../../database/auth-schema';
 import * as appSchema from '../../database/schema';
 import { studyMaterials } from '../../database/schema';
@@ -85,9 +86,9 @@ export class StreamHandler {
     const schema = this.getContentSchema(input.kind);
     const options = buildOptions(input);
 
-    const stream = new ReadableStream({
+    const stream = new ReadableStream<Uint8Array>({
       start: async (controller) => {
-        let model: any;
+        let model!: LanguageModel;
         try {
           const modelId = input.model!;
           const provider = await this.aiService.getProviderForModel(
@@ -109,7 +110,7 @@ export class StreamHandler {
             );
           }
 
-          const finalContent = await result.output;
+          const finalContent: unknown = await result.output;
           const normalized = normalizeContent(input.kind, finalContent);
           const validated = validateContent(input.kind, normalized);
 
@@ -176,7 +177,7 @@ export class StreamHandler {
 
             const cleanText = extractJson(accumulatedText);
 
-            let parsedContent: any;
+            let parsedContent: unknown;
             try {
               parsedContent = JSON.parse(cleanText);
             } catch (parseError) {
@@ -245,8 +246,8 @@ export class StreamHandler {
     return { stream };
   }
 
-  private getContentSchema(kind: StudyMaterialKind) {
-    const schemas: Record<StudyMaterialKind, any> = {
+  private getContentSchema(kind: StudyMaterialKind): z.ZodTypeAny {
+    const schemas: Record<StudyMaterialKind, z.ZodTypeAny> = {
       quiz: QuizContent,
       simple_flashcard: SimpleFlashcardContent,
       roadmap: RoadmapContent,

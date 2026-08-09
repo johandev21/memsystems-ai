@@ -1,17 +1,13 @@
 import { createId } from '@paralleldrive/cuid2';
 import { relations } from 'drizzle-orm';
 import {
-  boolean,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
-  primaryKey,
-  real,
   text,
   timestamp,
-  uniqueIndex,
   varchar,
   vector,
 } from 'drizzle-orm/pg-core';

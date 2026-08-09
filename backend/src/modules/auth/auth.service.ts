@@ -1,15 +1,19 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { betterAuth } from 'better-auth';
+import { betterAuth, type BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as authSchema from '../../database/auth-schema';
 import * as appSchema from '../../database/schema';
 import { DRIZZLE } from '../database/database.module';
 
+export type AuthInstance = ReturnType<AuthService['createAuth']>;
+export type AuthUser = AuthInstance['$Infer']['Session']['user'];
+export type AuthSession = AuthInstance['$Infer']['Session']['session'];
+
 @Injectable()
 export class AuthService implements OnModuleInit {
-  public auth: any;
+  public auth!: AuthInstance;
 
   constructor(
     @Inject(DRIZZLE)
@@ -17,8 +21,8 @@ export class AuthService implements OnModuleInit {
     private readonly configService: ConfigService,
   ) {}
 
-  onModuleInit() {
-    this.auth = betterAuth({
+  private createAuth() {
+    return betterAuth({
       database: drizzleAdapter(this.db, {
         provider: 'pg',
       }),
@@ -38,7 +42,11 @@ export class AuthService implements OnModuleInit {
         expiresIn: 60 * 60 * 24 * 7,
         updateAge: 60 * 60 * 24,
       },
-    });
+    } satisfies BetterAuthOptions);
+  }
+
+  onModuleInit() {
+    this.auth = this.createAuth();
   }
 
   async getSessionFromHeaders(headers: Headers) {
