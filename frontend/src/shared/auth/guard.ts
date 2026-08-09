@@ -18,11 +18,7 @@ export function requireAuth({
   }
 }
 
-export function redirectIfAuthenticated({
-  context,
-}: {
-  context: RouterContext;
-}) {
+export function redirectIfAuthenticated({ context }: { context: RouterContext }) {
   if (!context.auth.isPending && context.auth.session) {
     throw redirect({
       to: "/home",

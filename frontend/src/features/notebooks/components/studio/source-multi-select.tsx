@@ -77,11 +77,7 @@ function SourceRow({
       htmlFor={id}
       className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-muted/60 cursor-pointer text-sm"
     >
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={(c) => onToggle(c === true)}
-      />
+      <Checkbox id={id} checked={checked} onCheckedChange={(c) => onToggle(c === true)} />
       <span className="truncate flex-1">{source.title}</span>
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
         {source.kind}

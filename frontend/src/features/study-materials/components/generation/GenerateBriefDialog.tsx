@@ -1,14 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { OpenAIKeyPrompt, useConnectionStatus } from "@/features/ai";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { useModelPersistence } from "@/features/notebooks";
-import { useGenerationStore, KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
+import {
+  useGenerationStore,
+  KIND_LABELS,
+  type StudyMaterialKind,
+} from "@/features/study-materials";
 import type { ModelOption } from "@/shared/api/models";
 import type { RoadmapOptions, MindMapOptions } from "./forms/types";
 import { BriefForm } from "./BriefForm";
@@ -32,9 +31,7 @@ export function GenerateBriefDialog({
   onComplete,
 }: GenerateBriefDialogProps) {
   const queryClient = useQueryClient();
-  const startBackgroundGeneration = useGenerationStore(
-    (s) => s.startBackgroundGeneration,
-  );
+  const startBackgroundGeneration = useGenerationStore((s) => s.startBackgroundGeneration);
   const setCollapsed = useGenerationStore((s) => s.setCollapsed);
   const { data: connection } = useConnectionStatus();
 
@@ -46,8 +43,7 @@ export function GenerateBriefDialog({
   const [cardStyle, setCardStyle] = useState<"qa" | "definition" | "cloze" | undefined>(undefined);
   const [roadmapOptions, setRoadmapOptions] = useState<RoadmapOptions | undefined>(undefined);
   const [mindMapOptions, setMindMapOptions] = useState<MindMapOptions | undefined>(undefined);
-  const { model: persistedModel, setModel: setPersistedModel } =
-    useModelPersistence(notebookId);
+  const { model: persistedModel, setModel: setPersistedModel } = useModelPersistence(notebookId);
   const model = persistedModel ?? "";
 
   const [prevModels, setPrevModels] = useState<ModelOption[] | null>(null);
@@ -99,9 +95,17 @@ export function GenerateBriefDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className={cn("sm:max-w-md", (kind === "quiz" || kind === "simple_flashcard") && "sm:max-w-2xl", (kind === "roadmap" || kind === "mind_map") && "sm:max-w-3xl")}>
+      <DialogContent
+        className={cn(
+          "sm:max-w-md",
+          (kind === "quiz" || kind === "simple_flashcard") && "sm:max-w-2xl",
+          (kind === "roadmap" || kind === "mind_map") && "sm:max-w-3xl",
+        )}
+      >
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-foreground">Generate {label}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-foreground">
+            Generate {label}
+          </DialogTitle>
         </DialogHeader>
         {connection?.ok !== false ? (
           <BriefForm
@@ -109,7 +113,17 @@ export function GenerateBriefDialog({
             kind={kind}
             models={models}
             defaultModel={models[0]?.id}
-            value={{ brief, sourceIds, folderId, model, questionCount, difficulty, cardStyle, roadmapOptions, mindMapOptions }}
+            value={{
+              brief,
+              sourceIds,
+              folderId,
+              model,
+              questionCount,
+              difficulty,
+              cardStyle,
+              roadmapOptions,
+              mindMapOptions,
+            }}
             onChange={(next) => {
               setBrief(next.brief);
               setSourceIds(next.sourceIds);

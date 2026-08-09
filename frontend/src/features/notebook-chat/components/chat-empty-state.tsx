@@ -7,11 +7,7 @@ export interface ChatEmptyStateProps {
   isUntitled: boolean;
 }
 
-export function ChatEmptyState({
-  notebookTitle,
-  description,
-  isUntitled,
-}: ChatEmptyStateProps) {
+export function ChatEmptyState({ notebookTitle, description, isUntitled }: ChatEmptyStateProps) {
   if (isUntitled) {
     return (
       <ConversationEmptyState

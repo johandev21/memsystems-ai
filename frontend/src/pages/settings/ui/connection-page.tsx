@@ -1,11 +1,5 @@
 import { AppHeader } from "@/shared/ui/layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 
 export function ConnectionPage() {
   return (
@@ -22,9 +16,7 @@ export function ConnectionPage() {
         <Card>
           <CardHeader>
             <CardTitle>Provider Status</CardTitle>
-            <CardDescription>
-              Backend AI providers and available language models
-            </CardDescription>
+            <CardDescription>Backend AI providers and available language models</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">

@@ -1,11 +1,4 @@
-import {
-  FileUp,
-  HardDrive,
-  Link as LinkIcon,
-  Loader2,
-  Type,
-  Upload,
-} from "lucide-react";
+import { FileUp, HardDrive, Link as LinkIcon, Loader2, Type, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
@@ -50,9 +43,7 @@ export function FileUploadMode({
     const file = e.dataTransfer.files?.[0];
     if (file) {
       if (!isClientSupportedFile(file)) {
-        toast.error(
-          "Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.",
-        );
+        toast.error("Unsupported file type. Please upload a PDF, DOCX, TXT, or Markdown file.");
         return;
       }
       onUploadFile(file);
@@ -107,10 +98,7 @@ export function FileUploadMode({
 
       <div className="bg-background p-4 shadow-sm mb-4 border border-border/50 rounded-2xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-primary/30">
         {isUploading ? (
-          <Loader2
-            className="h-6 w-6 text-primary animate-spin"
-            strokeWidth={2}
-          />
+          <Loader2 className="h-6 w-6 text-primary animate-spin" strokeWidth={2} />
         ) : (
           <FileUp className="h-6 w-6 text-primary" strokeWidth={2} />
         )}
@@ -140,7 +128,7 @@ export function FileUploadMode({
           onClick={onSelectUrlMode}
           disabled={busy}
         >
-              <LinkIcon className="h-4 w-4 mr-2 text-info" />
+          <LinkIcon className="h-4 w-4 mr-2 text-info" />
           Websites
         </Button>
         <Button
@@ -150,7 +138,7 @@ export function FileUploadMode({
           className="h-10 px-5 bg-background shadow-sm transition-all opacity-50 cursor-not-allowed"
           title="Coming soon"
         >
-              <HardDrive className="h-4 w-4 mr-2 text-success" />
+          <HardDrive className="h-4 w-4 mr-2 text-success" />
           Drive
         </Button>
         <Button
@@ -160,7 +148,7 @@ export function FileUploadMode({
           onClick={onSelectTextMode}
           disabled={busy}
         >
-              <Type className="h-4 w-4 mr-2 text-warning" />
+          <Type className="h-4 w-4 mr-2 text-warning" />
           Copied Text
         </Button>
       </div>

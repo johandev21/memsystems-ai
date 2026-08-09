@@ -17,11 +17,7 @@ export function SourcesPanelHeader({
 }: SourcesPanelHeaderProps) {
   return (
     <header className="flex items-center justify-between p-1.5 bg-panel-header-bg min-h-[44px]">
-      <h2
-        className={`text-sm font-semibold pl-1.5 ${collapsed ? "hidden" : ""}`}
-      >
-        Sources
-      </h2>
+      <h2 className={`text-sm font-semibold pl-1.5 ${collapsed ? "hidden" : ""}`}>Sources</h2>
       <div className="flex items-center gap-0.5">
         {!collapsed && (
           <AddSourceDialog notebookId={notebookId}>
@@ -44,11 +40,7 @@ export function SourcesPanelHeader({
           aria-label={collapsed ? "Expand sources" : "Collapse sources"}
           onClick={onToggleCollapse}
         >
-          {collapsed ? (
-            <PanelLeftOpen className="size-4" />
-          ) : (
-            <PanelLeftClose className="size-4" />
-          )}
+          {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
         </Button>
       </div>
     </header>

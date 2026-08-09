@@ -83,13 +83,28 @@ export function FlashcardVariantA({
         </div>
 
         <div className="flex items-center gap-1 text-muted-foreground">
-          <Button type="button" variant="ghost" size="sm" className="size-8 p-0 rounded-full cursor-pointer">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="size-8 p-0 rounded-full cursor-pointer"
+          >
             <Share2 className="size-4" />
           </Button>
-          <Button type="button" variant="ghost" size="sm" className="size-8 p-0 rounded-full cursor-pointer">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="size-8 p-0 rounded-full cursor-pointer"
+          >
             <Maximize2 className="size-4" />
           </Button>
-          <Button type="button" variant="ghost" size="sm" className="size-8 p-0 rounded-full cursor-pointer">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="size-8 p-0 rounded-full cursor-pointer"
+          >
             <MoreVertical className="size-4" />
           </Button>
         </div>
@@ -102,7 +117,7 @@ export function FlashcardVariantA({
             "relative w-full rounded-[28px] border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm min-h-[300px] transition-all duration-300 ease-out select-none",
             !isFlipped ? "bg-card border-border" : "bg-muted border-border",
             swipeState === "correct" && "translate-x-24 rotate-6 opacity-0 scale-95",
-            swipeState === "incorrect" && "-translate-x-24 -rotate-6 opacity-0 scale-95"
+            swipeState === "incorrect" && "-translate-x-24 -rotate-6 opacity-0 scale-95",
           )}
         >
           {!isFlipped ? (
@@ -161,7 +176,10 @@ export function FlashcardVariantA({
                   <p className="text-xs text-muted-foreground italic leading-relaxed pt-2 border-t border-border/30">
                     Full sentence:{" "}
                     <span className="text-foreground font-medium not-italic">
-                      {currentCard.front.replace(/_{2,}|\[\s*blank\s*\]|\[\s*\.\.\.\s*\]|___+/i, currentCard.back)}
+                      {currentCard.front.replace(
+                        /_{2,}|\[\s*blank\s*\]|\[\s*\.\.\.\s*\]|___+/i,
+                        currentCard.back,
+                      )}
                     </span>
                   </p>
                 )}
@@ -245,7 +263,7 @@ export function FlashcardVariantA({
             onClick={() => setFeedback(feedback === "good" ? null : "good")}
             className={cn(
               "rounded-full h-8 px-3 text-xs gap-1.5 border-border/80 cursor-pointer transition-all",
-              feedback === "good" && "bg-muted text-foreground border-foreground/40 font-medium"
+              feedback === "good" && "bg-muted text-foreground border-foreground/40 font-medium",
             )}
           >
             <ThumbsUp className="size-3.5" /> Good content
@@ -258,7 +276,7 @@ export function FlashcardVariantA({
             onClick={() => setFeedback(feedback === "bad" ? null : "bad")}
             className={cn(
               "rounded-full h-8 px-3 text-xs gap-1.5 border-border/80 cursor-pointer transition-all",
-              feedback === "bad" && "bg-muted text-foreground border-foreground/40 font-medium"
+              feedback === "bad" && "bg-muted text-foreground border-foreground/40 font-medium",
             )}
           >
             <ThumbsDown className="size-3.5" /> Bad content
@@ -271,7 +289,8 @@ export function FlashcardVariantA({
         <div className="w-full rounded-2xl border border-border/80 bg-card p-5 shadow-lg space-y-3 animate-in fade-in duration-150">
           <div className="flex items-center justify-between border-b border-border/60 pb-2">
             <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <MessageSquare className="size-4 text-muted-foreground" /> Static Explain Prompt Preview
+              <MessageSquare className="size-4 text-muted-foreground" /> Static Explain Prompt
+              Preview
             </span>
             <Button
               type="button"
@@ -285,13 +304,16 @@ export function FlashcardVariantA({
           </div>
           <div className="rounded-xl bg-muted/40 p-3.5 text-xs text-foreground leading-relaxed space-y-2">
             <p className="text-muted-foreground">
-              &quot;I&apos;m reviewing flashcards based on the source material and I&apos;d like to expand my understanding of one of them.
+              &quot;I&apos;m reviewing flashcards based on the source material and I&apos;d like to
+              expand my understanding of one of them.
             </p>
             <p>
-              On the front it reads: <span className="text-foreground font-semibold">&quot;{currentCard.front}&quot;</span>
+              On the front it reads:{" "}
+              <span className="text-foreground font-semibold">&quot;{currentCard.front}&quot;</span>
             </p>
             <p>
-              The answer on the back reads: <span className="text-foreground font-semibold">&quot;{currentCard.back}&quot;</span>
+              The answer on the back reads:{" "}
+              <span className="text-foreground font-semibold">&quot;{currentCard.back}&quot;</span>
             </p>
             <p className="text-muted-foreground">Explain this topic in more detail.&quot;</p>
           </div>

@@ -1,11 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { create } from "zustand";
-import {
-  cancelGeneration,
-  type StudyMaterialKind,
-  startGeneration,
-} from "@/shared/api/generation";
+import { cancelGeneration, type StudyMaterialKind, startGeneration } from "@/shared/api/generation";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import type { RoadmapGenerationOptions, MindMapGenerationOptions } from "@/shared/api/generation";
 import { KIND_LABELS } from "../shapes";
@@ -51,12 +47,7 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   isCollapsed: false,
   setCollapsed: (collapsed) => set({ isCollapsed: collapsed }),
 
-  startBackgroundGeneration: async (
-    notebookId,
-    input,
-    queryClient,
-    onComplete,
-  ) => {
+  startBackgroundGeneration: async (notebookId, input, queryClient, onComplete) => {
     const tempId = `temp-${Math.random().toString(36).substring(7)}-${Date.now()}`;
 
     set((state) => ({
@@ -155,15 +146,10 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
 
             if (!viewMaterialId) {
               const list =
-                queryClient.getQueryData<StudyMaterialDTO[]>([
-                  "study-materials",
-                  notebookId,
-                ]) || [];
+                queryClient.getQueryData<StudyMaterialDTO[]>(["study-materials", notebookId]) || [];
               const matching = list.filter((m) => m.kind === input.kind);
               matching.sort(
-                (a, b) =>
-                  new Date(b.createdAt).getTime() -
-                  new Date(a.createdAt).getTime(),
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
               );
               viewMaterialId = matching[0]?.id;
             }

@@ -8,4 +8,3 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
   return <Outlet />;
 }
-

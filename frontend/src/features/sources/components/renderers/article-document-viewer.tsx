@@ -71,9 +71,7 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
 
     if (level > 0 && text) {
       flushParagraph();
-      const id = `heading-${headingCount}-${text
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")}`;
+      const id = `heading-${headingCount}-${text.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
       headingCount++;
       blocks.push({ type: "heading", level, text, id });
     } else {
@@ -85,10 +83,7 @@ function parseArticleBlocks(rawText: string): ArticleBlock[] {
   return blocks;
 }
 
-export function ArticleDocumentViewer({
-  content,
-  scrollElement,
-}: ArticleDocumentViewerProps) {
+export function ArticleDocumentViewer({ content, scrollElement }: ArticleDocumentViewerProps) {
   const blocks = useMemo(() => parseArticleBlocks(content || ""), [content]);
 
   if (blocks.length === 0) {
@@ -110,8 +105,7 @@ export function ArticleDocumentViewer({
           getItemKey={(block, idx) => block.id || `block-${idx}`}
           renderItem={(block) => {
             if (block.type === "heading") {
-              const HeadingTag =
-                block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
+              const HeadingTag = block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
               return (
                 <HeadingTag
                   id={block.id}
@@ -128,9 +122,7 @@ export function ArticleDocumentViewer({
             }
 
             return (
-              <p className="text-foreground/90 leading-relaxed font-sans my-2.5">
-                {block.text}
-              </p>
+              <p className="text-foreground/90 leading-relaxed font-sans my-2.5">{block.text}</p>
             );
           }}
         />
@@ -142,8 +134,7 @@ export function ArticleDocumentViewer({
     <article className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
       {blocks.map((block, idx) => {
         if (block.type === "heading") {
-          const HeadingTag =
-            block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
+          const HeadingTag = block.level === 1 ? "h1" : block.level === 2 ? "h2" : "h3";
           return (
             <HeadingTag
               key={block.id || idx}

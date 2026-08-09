@@ -1,10 +1,6 @@
 import type { RefObject } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/shared/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/ui/resizable";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
 import { SourceContentViewer, SourcesPanel } from "@/features/sources";
@@ -89,10 +85,7 @@ export function DesktopLayout({
 
   return (
     <div className="hidden lg:block h-full scrollbar-none">
-      <ResizablePanelGroup
-        orientation="horizontal"
-        className="max-w-full h-full"
-      >
+      <ResizablePanelGroup orientation="horizontal" className="max-w-full h-full">
         <ResizablePanel
           collapsible
           collapsedSize="48px"

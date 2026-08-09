@@ -3,10 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
 import { deleteFolder, foldersQueryOptions } from "@/shared/api/folders";
-import {
-  deleteStudyMaterial,
-  studyMaterialsQueryOptions,
-} from "@/shared/api/study-materials";
+import { deleteStudyMaterial, studyMaterialsQueryOptions } from "@/shared/api/study-materials";
 import { cn } from "@/shared/lib/utils";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 import {
@@ -16,12 +13,7 @@ import {
 } from "./study-materials-tree-helpers";
 import { FileTreeItemNode } from "./tree-node";
 
-export type ResourceType =
-  | "quiz"
-  | "flashcards"
-  | "roadmap"
-  | "mindmap"
-  | "folder";
+export type ResourceType = "quiz" | "flashcards" | "roadmap" | "mindmap" | "folder";
 
 const KIND_TO_RESOURCE_TYPE: Record<string, ResourceType> = {
   quiz: "quiz",
@@ -224,8 +216,7 @@ function folderChildrenIndex(
         return {
           id: child.id,
           name: child.name,
-          type:
-            KIND_TO_RESOURCE_TYPE[child.materialKind ?? "quiz"] ?? "quiz",
+          type: KIND_TO_RESOURCE_TYPE[child.materialKind ?? "quiz"] ?? "quiz",
         };
       });
       out.set(node.id, items);
@@ -243,14 +234,10 @@ function hasActiveMaterials(
   folders: { id: string; parentId: string | null; deletedAt: string | null }[],
   materials: { folderId: string | null; deletedAt: string | null }[],
 ): boolean {
-  const directMaterials = materials.some(
-    (m) => m.folderId === folderId && !m.deletedAt,
-  );
+  const directMaterials = materials.some((m) => m.folderId === folderId && !m.deletedAt);
   if (directMaterials) return true;
 
-  const childFolders = folders.filter(
-    (f) => f.parentId === folderId && !f.deletedAt,
-  );
+  const childFolders = folders.filter((f) => f.parentId === folderId && !f.deletedAt);
   for (const child of childFolders) {
     if (hasActiveMaterials(child.id, folders, materials)) return true;
   }

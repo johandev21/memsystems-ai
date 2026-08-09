@@ -1,19 +1,11 @@
 import { useChat } from "@ai-sdk/react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useConnectionStatus } from "@/features/ai";
 import { useModelPersistence } from "@/features/notebooks";
-import {
-  type CitedSourceDTO,
-  chatMessagesQueryOptions,
-  clearChatHistory,
-} from "@/shared/api/chat";
+import { type CitedSourceDTO, chatMessagesQueryOptions, clearChatHistory } from "@/shared/api/chat";
 import { modelsQueryOptions } from "@/shared/api/models";
 import { notebookQueryOptions } from "@/shared/api";
 
@@ -27,21 +19,15 @@ export interface SendChatPromptDetail {
   chatNavigationRetry?: boolean;
 }
 
-export function useChatPanel(
-  notebookId: string,
-  panelRef?: React.RefObject<HTMLElement | null>,
-) {
+export function useChatPanel(notebookId: string, panelRef?: React.RefObject<HTMLElement | null>) {
   const { data: notebook } = useQuery(notebookQueryOptions(notebookId));
   const { data: models } = useQuery(modelsQueryOptions);
-  const { data: chatHistory } = useQuery(
-    chatMessagesQueryOptions(notebookId),
-  );
+  const { data: chatHistory } = useQuery(chatMessagesQueryOptions(notebookId));
   const { data: connection } = useConnectionStatus();
 
   const modelOptions = useMemo(() => models ?? [], [models]);
 
-  const { model: persistedModel, setModel: setPersistedModel } =
-    useModelPersistence(notebookId);
+  const { model: persistedModel, setModel: setPersistedModel } = useModelPersistence(notebookId);
   const selectedModel = persistedModel ?? DEFAULT_MODEL_ID;
 
   useEffect(() => {
@@ -68,9 +54,7 @@ export function useChatPanel(
       api: `/api/notebooks/${notebookId}/chat`,
       credentials: "include",
       prepareSendMessagesRequest: ({ messages }) => {
-        const lastUserMessage = [...messages]
-          .reverse()
-          .find((m) => m.role === "user");
+        const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
         return {
           body: {
             model: selectedModelRef.current,
@@ -117,26 +101,25 @@ export function useChatPanel(
     queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
   }, [queryClient, notebookId]);
 
-  const { messages, sendMessage, regenerate, setMessages, status, stop } =
-    useChat({
-      transport,
-      messages: initialMessages,
-      onFinish: async ({ isError }) => {
-        if (!isError) {
-          await queryClient.refetchQueries({
-            queryKey: ["chat", notebookId, "messages"],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["notebooks", notebookId],
-          });
-          queryClient.invalidateQueries({ queryKey: ["notebooks", "home"] });
-          queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
-        }
-      },
-      onError: () => {
-        invalidateNotebookCaches();
-      },
-    });
+  const { messages, sendMessage, regenerate, setMessages, status, stop } = useChat({
+    transport,
+    messages: initialMessages,
+    onFinish: async ({ isError }) => {
+      if (!isError) {
+        await queryClient.refetchQueries({
+          queryKey: ["chat", notebookId, "messages"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["notebooks", notebookId],
+        });
+        queryClient.invalidateQueries({ queryKey: ["notebooks", "home"] });
+        queryClient.invalidateQueries({ queryKey: ["notebooks", "all"] });
+      }
+    },
+    onError: () => {
+      invalidateNotebookCaches();
+    },
+  });
 
   const isLoading = status === "submitted" || status === "streaming";
   const messageCount = messages.length;
@@ -193,9 +176,7 @@ export function useChatPanel(
 
         if (detail.focusChat) {
           setChatAnnouncement(
-            detail.concept
-              ? `Opening chat for ${detail.concept}.`
-              : "Opening chat.",
+            detail.concept ? `Opening chat for ${detail.concept}.` : "Opening chat.",
           );
           window.setTimeout(() => setChatAnnouncement(null), 4000);
           window.requestAnimationFrame(() => {

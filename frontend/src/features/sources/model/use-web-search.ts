@@ -69,8 +69,7 @@ export function useWebSearch(notebookId: string) {
         setState((prev) => ({
           ...prev,
           phase: "idle",
-          searchError:
-            err instanceof Error ? err.message : "Web search failed",
+          searchError: err instanceof Error ? err.message : "Web search failed",
         }));
       }
     },
@@ -89,9 +88,7 @@ export function useWebSearch(notebookId: string) {
   const importSelected = useCallback(
     async (modelId: string) => {
       const query = state.query.trim();
-      const selected = state.candidates.filter((c) =>
-        state.selectedUrls.has(c.url),
-      );
+      const selected = state.candidates.filter((c) => state.selectedUrls.has(c.url));
       if (selected.length === 0 || state.importing) return;
 
       setState((prev) => ({ ...prev, importing: true }));
@@ -118,8 +115,7 @@ export function useWebSearch(notebookId: string) {
         setState((prev) => ({
           ...prev,
           importing: false,
-          searchError:
-            err instanceof Error ? err.message : "Import failed",
+          searchError: err instanceof Error ? err.message : "Import failed",
         }));
       }
     },
@@ -159,8 +155,7 @@ export function useWebSearch(notebookId: string) {
         setState((prev) => ({
           ...prev,
           importing: false,
-          searchError:
-            err instanceof Error ? err.message : "Retry failed",
+          searchError: err instanceof Error ? err.message : "Retry failed",
         }));
       }
     },

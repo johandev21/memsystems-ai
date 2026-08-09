@@ -37,10 +37,7 @@ export const TypographyH3 = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn(
-      "scroll-m-20 text-2xl font-semibold tracking-[-0.025em]",
-      className,
-    )}
+    className={cn("scroll-m-20 text-2xl font-semibold tracking-[-0.025em]", className)}
     {...props}
   />
 ));
@@ -52,10 +49,7 @@ export const TypographyH4 = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h4
     ref={ref}
-    className={cn(
-      "scroll-m-20 text-xl font-semibold tracking-[-0.02em]",
-      className,
-    )}
+    className={cn("scroll-m-20 text-xl font-semibold tracking-[-0.02em]", className)}
     {...props}
   />
 ));
@@ -65,11 +59,7 @@ export const TypographyP = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("leading-7 [&:not(:first-child)]:mt-6", className)} {...props} />
 ));
 TypographyP.displayName = "TypographyP";
 
@@ -77,11 +67,7 @@ export const TypographyBlockquote = React.forwardRef<
   HTMLQuoteElement,
   React.BlockquoteHTMLAttributes<HTMLQuoteElement>
 >(({ className, ...props }, ref) => (
-  <blockquote
-    ref={ref}
-    className={cn("mt-6 border-l-2 pl-6 italic", className)}
-    {...props}
-  />
+  <blockquote ref={ref} className={cn("mt-6 border-l-2 pl-6 italic", className)} {...props} />
 ));
 TypographyBlockquote.displayName = "TypographyBlockquote";
 
@@ -99,11 +85,7 @@ export const TypographyTableRow = React.forwardRef<
   HTMLTableRowElement,
   React.HTMLAttributes<HTMLTableRowElement>
 >(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn("m-0 border-t p-0 even:bg-muted", className)}
-    {...props}
-  />
+  <tr ref={ref} className={cn("m-0 border-t p-0 even:bg-muted", className)} {...props} />
 ));
 TypographyTableRow.displayName = "TypographyTableRow";
 
@@ -141,11 +123,7 @@ export const TypographyList = React.forwardRef<
   HTMLUListElement,
   React.HTMLAttributes<HTMLUListElement>
 >(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    className={cn("my-6 ml-6 list-disc [&>li]:mt-2", className)}
-    {...props}
-  />
+  <ul ref={ref} className={cn("my-6 ml-6 list-disc [&>li]:mt-2", className)} {...props} />
 ));
 TypographyList.displayName = "TypographyList";
 
@@ -168,11 +146,7 @@ export const TypographyLead = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-xl text-muted-foreground", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("text-xl text-muted-foreground", className)} {...props} />
 ));
 TypographyLead.displayName = "TypographyLead";
 
@@ -180,34 +154,21 @@ export const TypographyLarge = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-lg font-semibold", className)}
-    {...props}
-  />
+  <div ref={ref} className={cn("text-lg font-semibold", className)} {...props} />
 ));
 TypographyLarge.displayName = "TypographyLarge";
 
-export const TypographySmall = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement>
->(({ className, ...props }, ref) => (
-  <small
-    ref={ref}
-    className={cn("text-sm font-medium leading-none", className)}
-    {...props}
-  />
-));
+export const TypographySmall = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
+  ({ className, ...props }, ref) => (
+    <small ref={ref} className={cn("text-sm font-medium leading-none", className)} {...props} />
+  ),
+);
 TypographySmall.displayName = "TypographySmall";
 
 export const TypographyMuted = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
 ));
 TypographyMuted.displayName = "TypographyMuted";

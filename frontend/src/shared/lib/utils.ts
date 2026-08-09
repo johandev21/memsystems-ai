@@ -12,10 +12,7 @@ export function getApiUrl(path: string): string {
   return path.startsWith("/") ? path : `/${path}`;
 }
 
-export async function fetchApi(
-  path: string,
-  init?: RequestInit,
-): Promise<Response> {
+export async function fetchApi(path: string, init?: RequestInit): Promise<Response> {
   const options: RequestInit = { credentials: "include", ...init };
   return fetch(getApiUrl(path), options);
 }
@@ -65,4 +62,3 @@ export function formatDisplayTitle(title?: string): string {
 
   return clean;
 }
-

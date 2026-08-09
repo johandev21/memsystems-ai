@@ -1,4 +1,8 @@
-import type { StudyMaterialKind, StudyMaterialDTO, CreateStudyMaterialInput } from "@/entities/study-material";
+import type {
+  StudyMaterialKind,
+  StudyMaterialDTO,
+  CreateStudyMaterialInput,
+} from "@/entities/study-material";
 import { apiDelete, apiPost, createQueryOptions } from "./factory";
 
 export type { StudyMaterialKind, StudyMaterialDTO, CreateStudyMaterialInput };
@@ -15,10 +19,7 @@ export const studyMaterialQueryOptions = (materialId: string) =>
     `/api/study-materials/${materialId}`,
   );
 
-export const createStudyMaterial = (
-  notebookId: string,
-  input: CreateStudyMaterialInput,
-) =>
+export const createStudyMaterial = (notebookId: string, input: CreateStudyMaterialInput) =>
   apiPost<CreateStudyMaterialInput, StudyMaterialDTO>(
     `/api/notebooks/${notebookId}/study-materials`,
     input,

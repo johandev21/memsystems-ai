@@ -34,11 +34,7 @@ export function MobileStudyMaterialsPanel({
             className="h-6 w-6 cursor-pointer"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronUp className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
           </Button>
         </div>
       </div>

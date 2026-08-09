@@ -10,11 +10,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { cn, formatDisplayTitle } from "@/shared/lib/utils";
-import {
-  useRoadmapProgress,
-  type RoadmapPhase,
-  type RoadmapTopic,
-} from "./useRoadmapProgress";
+import { useRoadmapProgress, type RoadmapPhase, type RoadmapTopic } from "./useRoadmapProgress";
 import "./roadmap-theme.css";
 
 // =============================================================================
@@ -101,9 +97,7 @@ function buildPhaseStudyPrompt(
 ): string {
   const formattedPhaseTitle = formatDisplayTitle(phase.title);
   const topicSummary = formatTopicSummary(phase.topics);
-  const roadmapContext = roadmapTitle
-    ? ` ("${formatDisplayTitle(roadmapTitle)}")`
-    : "";
+  const roadmapContext = roadmapTitle ? ` ("${formatDisplayTitle(roadmapTitle)}")` : "";
 
   return `I'm studying Phase ${phaseIndex + 1}: "${formattedPhaseTitle}" from my learning roadmap${roadmapContext}.\n\nPhase Description: ${phase.description || "N/A"}\n\nTopics covered in this phase:\n${topicSummary}\n\nPlease act as my interactive AI tutor for this phase. Start by giving me a clear, high-level summary of what I'll master in this phase, and then ask me an initial concept question to check my understanding and kick off our study session!`;
 }
@@ -111,10 +105,7 @@ function buildPhaseStudyPrompt(
 /**
  * Builds the AI chat prompt for explaining a specific topic.
  */
-function buildTopicExplainPrompt(
-  topic: RoadmapTopic,
-  roadmapTitle?: string,
-): string {
+function buildTopicExplainPrompt(topic: RoadmapTopic, roadmapTitle?: string): string {
   const formattedTopicTitle = formatDisplayTitle(topic.title);
   const roadmapContext = roadmapTitle
     ? ` in my roadmap ("${formatDisplayTitle(roadmapTitle)}")`
@@ -182,11 +173,7 @@ function RoadmapHeader({ title, description }: RoadmapHeaderProps) {
   );
 }
 
-function PhaseMilestoneCard({
-  phase,
-  phaseIndex,
-  onStudyPhase,
-}: PhaseMilestoneCardProps) {
+function PhaseMilestoneCard({ phase, phaseIndex, onStudyPhase }: PhaseMilestoneCardProps) {
   return (
     <div className="bg-card border border-border rounded-2xl p-4 @sm:p-5 @3xl:p-6 max-w-lg w-full text-center flex flex-col items-center gap-2.5 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs">
       <Badge
@@ -265,12 +252,11 @@ function RoadmapSpine({ phases, onStudyPhase, onSelectTopic }: RoadmapSpineProps
       <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-primary/30 -translate-x-1/2 z-0" />
 
       {phases.map((phase, phaseIndex) => (
-        <div key={phase.id} className="relative z-10 w-full flex flex-col items-center gap-4 @sm:gap-6 @3xl:gap-8">
-          <PhaseMilestoneCard
-            phase={phase}
-            phaseIndex={phaseIndex}
-            onStudyPhase={onStudyPhase}
-          />
+        <div
+          key={phase.id}
+          className="relative z-10 w-full flex flex-col items-center gap-4 @sm:gap-6 @3xl:gap-8"
+        >
+          <PhaseMilestoneCard phase={phase} phaseIndex={phaseIndex} onStudyPhase={onStudyPhase} />
 
           <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-4 @sm:gap-6 @3xl:gap-8 w-full px-1 @sm:px-4">
             {phase.topics.map((topic, topicIndex) => (
@@ -288,11 +274,7 @@ function RoadmapSpine({ phases, onStudyPhase, onSelectTopic }: RoadmapSpineProps
   );
 }
 
-function TopicDetailModal({
-  topic,
-  onClose,
-  onExplainInChat,
-}: TopicDetailModalProps) {
+function TopicDetailModal({ topic, onClose, onExplainInChat }: TopicDetailModalProps) {
   const isModalOpen = Boolean(topic);
 
   const handleOpenChange = (open: boolean) => {

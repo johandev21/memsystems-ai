@@ -61,15 +61,9 @@ export function MobileNotebookLayout({
 
         <TabsContent value="sources" className="flex-1 mt-0 min-h-0">
           {selectedSourceId ? (
-            <SourceContentViewer
-              sourceId={selectedSourceId}
-              onClose={() => onSelectSource(null)}
-            />
+            <SourceContentViewer sourceId={selectedSourceId} onClose={() => onSelectSource(null)} />
           ) : (
-            <SourcesPanel
-              notebookId={notebookId}
-              onSelectSource={onSelectSource}
-            />
+            <SourcesPanel notebookId={notebookId} onSelectSource={onSelectSource} />
           )}
         </TabsContent>
 

@@ -78,11 +78,7 @@ function ReaderMoreMenu({
           </DropdownMenuItem>
         )}
         {showDownload && (
-          <DropdownMenuItem
-            onClick={onDownload}
-            disabled={downloading}
-            className="cursor-pointer"
-          >
+          <DropdownMenuItem onClick={onDownload} disabled={downloading} className="cursor-pointer">
             {downloading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
@@ -96,21 +92,12 @@ function ReaderMoreMenu({
   );
 }
 
-export function SourceContentViewer({
-  sourceId,
-  onClose,
-}: SourceContentViewerProps) {
-  const {
-    data: source,
-    isPending,
-    isError,
-  } = useQuery(sourceQueryOptions(sourceId));
+export function SourceContentViewer({ sourceId, onClose }: SourceContentViewerProps) {
+  const { data: source, isPending, isError } = useQuery(sourceQueryOptions(sourceId));
 
   const [downloading, setDownloading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
-    null,
-  );
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -186,17 +173,11 @@ export function SourceContentViewer({
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h3 className="text-sm font-semibold truncate text-foreground">
-          {source.title}
-        </h3>
+        <h3 className="text-sm font-semibold truncate text-foreground">{source.title}</h3>
       </div>
 
       <div className="flex items-center gap-1">
-        <ReaderMoreMenu
-          source={source}
-          downloading={downloading}
-          onDownload={handleDownload}
-        />
+        <ReaderMoreMenu source={source} downloading={downloading} onDownload={handleDownload} />
         <Button
           type="button"
           variant="ghost"
@@ -205,11 +186,7 @@ export function SourceContentViewer({
           className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
           title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Mode"}
         >
-          {isFullscreen ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </Button>
         {isFullscreen && (
           <Button
@@ -229,42 +206,26 @@ export function SourceContentViewer({
 
   const body = (
     <div className="flex-1 min-h-0 overflow-hidden">
-      <div
-        ref={setScrollElement}
-        className="h-full w-full overflow-y-auto"
-      >
+      <div ref={setScrollElement} className="h-full w-full overflow-y-auto">
         <div
           className={cn(
             "w-full flex flex-col",
-            isFullscreen
-              ? "px-8 py-6 max-w-4xl mx-auto gap-4"
-              : "p-4",
+            isFullscreen ? "px-8 py-6 max-w-4xl mx-auto gap-4" : "p-4",
           )}
         >
           {docType === "markdown" && (
-            <MarkdownDocumentViewer
-              content={source.rawText}
-              scrollElement={scrollElement}
-            />
+            <MarkdownDocumentViewer content={source.rawText} scrollElement={scrollElement} />
           )}
 
           {docType === "code" && (
-            <CodeDocumentViewer
-              title={source.title}
-              content={source.rawText}
-            />
+            <CodeDocumentViewer title={source.title} content={source.rawText} />
           )}
 
           {docType === "article" && (
-            <ArticleDocumentViewer
-              content={source.rawText}
-              scrollElement={scrollElement}
-            />
+            <ArticleDocumentViewer content={source.rawText} scrollElement={scrollElement} />
           )}
 
-          {docType === "plaintext" && (
-            <PlainTextDocumentViewer content={source.rawText} />
-          )}
+          {docType === "plaintext" && <PlainTextDocumentViewer content={source.rawText} />}
         </div>
       </div>
     </div>

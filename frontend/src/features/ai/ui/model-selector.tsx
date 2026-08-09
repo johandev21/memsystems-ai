@@ -9,20 +9,13 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/shared/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/shared/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/shared/ui/dialog";
 import { cn } from "@/shared/lib/utils";
 import type { ComponentProps, ReactNode } from "react";
 
 export type ModelSelectorProps = ComponentProps<typeof Dialog>;
 
-export const ModelSelector = (props: ModelSelectorProps) => (
-  <Dialog {...props} />
-);
+export const ModelSelector = (props: ModelSelectorProps) => <Dialog {...props} />;
 
 export type ModelSelectorTriggerProps = ComponentProps<typeof DialogTrigger>;
 
@@ -63,36 +56,25 @@ export const ModelSelectorDialog = (props: ModelSelectorDialogProps) => (
 
 export type ModelSelectorInputProps = ComponentProps<typeof CommandInput>;
 
-export const ModelSelectorInput = ({
-  className,
-  ...props
-}: ModelSelectorInputProps) => (
+export const ModelSelectorInput = ({ className, ...props }: ModelSelectorInputProps) => (
   <CommandInput className={cn("h-11 rounded-none border-0 px-3", className)} {...props} />
 );
 
 export type ModelSelectorListProps = ComponentProps<typeof CommandList>;
 
-export const ModelSelectorList = (props: ModelSelectorListProps) => (
-  <CommandList {...props} />
-);
+export const ModelSelectorList = (props: ModelSelectorListProps) => <CommandList {...props} />;
 
 export type ModelSelectorEmptyProps = ComponentProps<typeof CommandEmpty>;
 
-export const ModelSelectorEmpty = (props: ModelSelectorEmptyProps) => (
-  <CommandEmpty {...props} />
-);
+export const ModelSelectorEmpty = (props: ModelSelectorEmptyProps) => <CommandEmpty {...props} />;
 
 export type ModelSelectorGroupProps = ComponentProps<typeof CommandGroup>;
 
-export const ModelSelectorGroup = (props: ModelSelectorGroupProps) => (
-  <CommandGroup {...props} />
-);
+export const ModelSelectorGroup = (props: ModelSelectorGroupProps) => <CommandGroup {...props} />;
 
 export type ModelSelectorItemProps = ComponentProps<typeof CommandItem>;
 
-export const ModelSelectorItem = (props: ModelSelectorItemProps) => (
-  <CommandItem {...props} />
-);
+export const ModelSelectorItem = (props: ModelSelectorItemProps) => <CommandItem {...props} />;
 
 export type ModelSelectorShortcutProps = ComponentProps<typeof CommandShortcut>;
 
@@ -100,26 +82,17 @@ export const ModelSelectorShortcut = (props: ModelSelectorShortcutProps) => (
   <CommandShortcut {...props} />
 );
 
-export type ModelSelectorSeparatorProps = ComponentProps<
-  typeof CommandSeparator
->;
+export type ModelSelectorSeparatorProps = ComponentProps<typeof CommandSeparator>;
 
 export const ModelSelectorSeparator = (props: ModelSelectorSeparatorProps) => (
   <CommandSeparator {...props} />
 );
 
-export type ModelSelectorLogoProps = Omit<
-  ComponentProps<"span">,
-  "aria-label"
-> & {
+export type ModelSelectorLogoProps = Omit<ComponentProps<"span">, "aria-label"> & {
   provider: string;
 };
 
-export const ModelSelectorLogo = ({
-  provider,
-  className,
-  ...props
-}: ModelSelectorLogoProps) => (
+export const ModelSelectorLogo = ({ provider, className, ...props }: ModelSelectorLogoProps) => (
   <span
     {...props}
     aria-label={`${provider} logo`}
@@ -138,10 +111,7 @@ export const ModelSelectorLogo = ({
 
 export type ModelSelectorLogoGroupProps = ComponentProps<"div">;
 
-export const ModelSelectorLogoGroup = ({
-  className,
-  ...props
-}: ModelSelectorLogoGroupProps) => (
+export const ModelSelectorLogoGroup = ({ className, ...props }: ModelSelectorLogoGroupProps) => (
   <div
     className={cn(
       "flex shrink-0 items-center -space-x-1 [&>span]:rounded-full [&>span]:bg-background [&>span]:p-px [&>span]:ring-1 dark:[&>span]:bg-foreground",
@@ -153,9 +123,6 @@ export const ModelSelectorLogoGroup = ({
 
 export type ModelSelectorNameProps = ComponentProps<"span">;
 
-export const ModelSelectorName = ({
-  className,
-  ...props
-}: ModelSelectorNameProps) => (
+export const ModelSelectorName = ({ className, ...props }: ModelSelectorNameProps) => (
   <span className={cn("flex-1 truncate text-left", className)} {...props} />
 );

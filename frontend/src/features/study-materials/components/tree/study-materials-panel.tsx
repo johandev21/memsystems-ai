@@ -12,10 +12,7 @@ export interface StudyMaterialsPanelProps {
   onSelectMaterial: (materialId: string | null) => void;
 }
 
-export function StudyMaterialsPanel({
-  notebookId,
-  onSelectMaterial,
-}: StudyMaterialsPanelProps) {
+export function StudyMaterialsPanel({ notebookId, onSelectMaterial }: StudyMaterialsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -33,11 +30,7 @@ export function StudyMaterialsPanel({
             onClick={() => setIsExpanded(!isExpanded)}
             aria-label={isExpanded ? "Collapse study materials" : "Expand study materials"}
           >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronUp className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
           </Button>
         </div>
       </CardHeader>

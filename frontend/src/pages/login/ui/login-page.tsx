@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { Logo } from "@/shared/ui/logo";
 import { Button } from "@/shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { authClient } from "@/shared/auth";
 
 function GoogleIcon() {
@@ -35,7 +29,6 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const [loading, setLoading] = useState(false);
-
 
   async function handleGoogleSignIn() {
     setLoading(true);

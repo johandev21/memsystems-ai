@@ -1,9 +1,5 @@
 import type { UIMessage } from "@ai-sdk/react";
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/features/ai";
+import { Message, MessageContent, MessageResponse } from "@/features/ai";
 
 const isTextPart = (
   part: UIMessage["parts"][number],
@@ -17,9 +13,7 @@ export function UserMessage({ message }: { message: UIMessage }) {
       <MessageContent>
         {message.parts.map((part, index) =>
           isTextPart(part) ? (
-            <MessageResponse key={`${message.id}-${index}`}>
-              {part.text}
-            </MessageResponse>
+            <MessageResponse key={`${message.id}-${index}`}>{part.text}</MessageResponse>
           ) : null,
         )}
       </MessageContent>

@@ -30,15 +30,21 @@ async function fetchConnection(): Promise<ConnectionStatus> {
       detail: "Failed to check connection",
       models: [],
       checkedAt: null,
-       providers: {},
-       opencode: { ok: false, detail: "Failed to check connection", models: [], hasKey: false, checkedAt: null },
-       openai: {
+      providers: {},
+      opencode: {
         ok: false,
         detail: "Failed to check connection",
-         models: [],
-         hasKey: false,
-         checkedAt: null,
-       },
+        models: [],
+        hasKey: false,
+        checkedAt: null,
+      },
+      openai: {
+        ok: false,
+        detail: "Failed to check connection",
+        models: [],
+        hasKey: false,
+        checkedAt: null,
+      },
     };
   }
   return res.json();

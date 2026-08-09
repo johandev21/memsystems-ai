@@ -8,7 +8,6 @@ export const Route = createFileRoute("/notebooks/$notebookId")({
   component: NotebookPageComponent,
 });
 
-
 function NotebookPageComponent() {
   const { notebookId } = Route.useParams();
 

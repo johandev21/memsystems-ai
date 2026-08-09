@@ -8,10 +8,7 @@ interface NotebookIconProps extends Omit<LucideProps, "ref" | "name"> {
 }
 
 export function NotebookIcon({ name, ...props }: NotebookIconProps) {
-  const normalized = (name || "notebook")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-");
+  const normalized = (name || "notebook").toLowerCase().trim().replace(/\s+/g, "-");
 
   const isValid = normalized in dynamicIconImports;
 
@@ -21,7 +18,5 @@ export function NotebookIcon({ name, ...props }: NotebookIconProps) {
 
   const fallback = () => <BookOpen {...props} />;
 
-  return (
-    <DynamicIcon name={normalized as IconName} fallback={fallback} {...props} />
-  );
+  return <DynamicIcon name={normalized as IconName} fallback={fallback} {...props} />;
 }

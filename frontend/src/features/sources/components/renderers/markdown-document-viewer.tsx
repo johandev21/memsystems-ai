@@ -59,35 +59,39 @@ const HeadingWithId = ({
 };
 
 const markdownComponents = {
-  h1: ({ children }: { children?: ReactNode }) => <HeadingWithId level={1}>{children}</HeadingWithId>,
-  h2: ({ children }: { children?: ReactNode }) => <HeadingWithId level={2}>{children}</HeadingWithId>,
-  h3: ({ children }: { children?: ReactNode }) => <HeadingWithId level={3}>{children}</HeadingWithId>,
-  h4: ({ children }: { children?: ReactNode }) => <HeadingWithId level={4}>{children}</HeadingWithId>,
-  h5: ({ children }: { children?: ReactNode }) => <HeadingWithId level={5}>{children}</HeadingWithId>,
-  h6: ({ children }: { children?: ReactNode }) => <HeadingWithId level={6}>{children}</HeadingWithId>,
+  h1: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={1}>{children}</HeadingWithId>
+  ),
+  h2: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={2}>{children}</HeadingWithId>
+  ),
+  h3: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={3}>{children}</HeadingWithId>
+  ),
+  h4: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={4}>{children}</HeadingWithId>
+  ),
+  h5: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={5}>{children}</HeadingWithId>
+  ),
+  h6: ({ children }: { children?: ReactNode }) => (
+    <HeadingWithId level={6}>{children}</HeadingWithId>
+  ),
   p: ({ children }: { children?: ReactNode }) => (
-    <p className="text-foreground/90 leading-relaxed font-sans my-2.5">
-      {children}
-    </p>
+    <p className="text-foreground/90 leading-relaxed font-sans my-2.5">{children}</p>
   ),
   ul: ({ children }: { children?: ReactNode }) => (
-    <ul className="list-disc pl-6 my-3 space-y-1.5 text-foreground/90">
-      {children}
-    </ul>
+    <ul className="list-disc pl-6 my-3 space-y-1.5 text-foreground/90">{children}</ul>
   ),
   ol: ({ children }: { children?: ReactNode }) => (
-    <ol className="list-decimal pl-6 my-3 space-y-1.5 text-foreground/90">
-      {children}
-    </ol>
+    <ol className="list-decimal pl-6 my-3 space-y-1.5 text-foreground/90">{children}</ol>
   ),
   li: ({ children }: { children?: ReactNode }) => (
     <li className="leading-relaxed font-sans pl-1">{children}</li>
   ),
   table: ({ children }: { children?: ReactNode }) => (
     <div className="my-4 overflow-x-auto">
-      <table className="w-full text-left text-sm border-collapse">
-        {children}
-      </table>
+      <table className="w-full text-left text-sm border-collapse">{children}</table>
     </div>
   ),
   thead: ({ children }: { children?: ReactNode }) => (
@@ -101,9 +105,7 @@ const markdownComponents = {
     </th>
   ),
   td: ({ children }: { children?: ReactNode }) => (
-    <td className="px-4 py-2 text-xs text-foreground/80 border-b border-border/20">
-      {children}
-    </td>
+    <td className="px-4 py-2 text-xs text-foreground/80 border-b border-border/20">{children}</td>
   ),
   code: ({ className, children }: { className?: string; children?: ReactNode }) => (
     <MarkdownCodeBlock
@@ -116,10 +118,7 @@ const markdownComponents = {
   ),
 };
 
-export function MarkdownDocumentViewer({
-  content,
-  scrollElement,
-}: MarkdownDocumentViewerProps) {
+export function MarkdownDocumentViewer({ content, scrollElement }: MarkdownDocumentViewerProps) {
   const chunks = useMemo(() => splitTextIntoChunks(content || ""), [content]);
 
   if (!content?.trim()) {
@@ -140,9 +139,7 @@ export function MarkdownDocumentViewer({
           overscan={5}
           getItemKey={(_, idx) => idx}
           renderItem={(chunk) => (
-            <MarkdownRenderer components={markdownComponents}>
-              {chunk}
-            </MarkdownRenderer>
+            <MarkdownRenderer components={markdownComponents}>{chunk}</MarkdownRenderer>
           )}
         />
       </div>
@@ -151,9 +148,7 @@ export function MarkdownDocumentViewer({
 
   return (
     <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed font-sans">
-      <MarkdownRenderer components={markdownComponents}>
-        {content}
-      </MarkdownRenderer>
+      <MarkdownRenderer components={markdownComponents}>{content}</MarkdownRenderer>
     </div>
   );
 }

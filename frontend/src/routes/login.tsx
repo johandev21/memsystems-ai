@@ -6,4 +6,3 @@ export const Route = createFileRoute("/login")({
   beforeLoad: redirectIfAuthenticated,
   component: LoginPage,
 });
-

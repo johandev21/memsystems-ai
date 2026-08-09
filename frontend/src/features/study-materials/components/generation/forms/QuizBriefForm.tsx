@@ -80,7 +80,6 @@ export function QuizBriefForm({
   // Sync internal state to parent brief form values
   useEffect(() => {
     update({ questionCount, difficulty });
-
   }, [questionCount, difficulty]);
 
   const handleCustomChange = (raw: string) => {
@@ -126,7 +125,10 @@ export function QuizBriefForm({
           />
 
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">3. Knowledge Sources{!hasInstructions && <span className="text-destructive ml-0.5">*</span>}</Label>
+            <Label className="text-sm font-medium text-foreground">
+              3. Knowledge Sources
+              {!hasInstructions && <span className="text-destructive ml-0.5">*</span>}
+            </Label>
             <QuizSourcePopover
               sources={sources}
               selectedIds={value.sourceIds}
@@ -171,7 +173,9 @@ export function QuizBriefForm({
 
           <div className="grid grid-cols-2 gap-4 items-center">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Destination Folder</Label>
+              <Label className="text-xs font-medium text-muted-foreground">
+                Destination Folder
+              </Label>
               <FolderPicker
                 notebookId={notebookId}
                 value={value.folderId}
@@ -181,7 +185,9 @@ export function QuizBriefForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">AI Intelligence Model</Label>
+              <Label className="text-xs font-medium text-muted-foreground">
+                AI Intelligence Model
+              </Label>
               <QuizModelPopover
                 models={models}
                 selectedModel={value.model}
@@ -239,12 +245,9 @@ function QuizSourcePopover({
 }) {
   const [search, setSearch] = useState("");
 
-  const filtered = sources.filter((s) =>
-    s.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = sources.filter((s) => s.title.toLowerCase().includes(search.toLowerCase()));
 
-  const allSelected =
-    filtered.length > 0 && filtered.every((s) => selectedIds.includes(s.id));
+  const allSelected = filtered.length > 0 && filtered.every((s) => selectedIds.includes(s.id));
 
   const toggleAll = () => {
     if (allSelected) {
@@ -309,7 +312,9 @@ function QuizSourcePopover({
               onClick={() => toggleOne(src.id)}
               className={cn(
                 "flex items-center justify-between px-3 py-2 rounded-xl text-xs cursor-pointer transition-colors",
-                checked ? "bg-muted/70 text-foreground font-medium" : "hover:bg-muted/40 text-muted-foreground"
+                checked
+                  ? "bg-muted/70 text-foreground font-medium"
+                  : "hover:bg-muted/40 text-muted-foreground",
               )}
             >
               <div className="flex items-center gap-2 truncate pr-2">
@@ -349,13 +354,20 @@ function QuizSourcePopover({
           >
             <div className="flex items-center gap-2 truncate">
               <BookOpen className="size-4 text-primary shrink-0" />
-              <span className="truncate">{selectedIds.length === 0 ? "None selected (General Knowledge)" : `${selectedIds.length} source${selectedIds.length !== 1 ? "s" : ""} selected`}</span>
+              <span className="truncate">
+                {selectedIds.length === 0
+                  ? "None selected (General Knowledge)"
+                  : `${selectedIds.length} source${selectedIds.length !== 1 ? "s" : ""} selected`}
+              </span>
             </div>
             <ChevronDown className="size-4 text-muted-foreground shrink-0" />
           </Button>
         }
       />
-      <PopoverContent align="start" className="w-[320px] p-0 bg-popover border-border shadow-xl rounded-2xl overflow-hidden">
+      <PopoverContent
+        align="start"
+        className="w-[320px] p-0 bg-popover border-border shadow-xl rounded-2xl overflow-hidden"
+      >
         {renderHeader()}
         {renderSourceList()}
         {renderFooter()}
@@ -389,7 +401,9 @@ export function QuizModelPopover({
         onClick={() => onModelChange(m.id)}
         className={cn(
           "flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-colors",
-          isSelected ? "bg-muted text-foreground font-semibold" : "hover:bg-muted/50 text-muted-foreground"
+          isSelected
+            ? "bg-muted text-foreground font-semibold"
+            : "hover:bg-muted/50 text-muted-foreground",
         )}
       >
         <div className="flex flex-col min-w-0">
@@ -413,19 +427,20 @@ export function QuizModelPopover({
           >
             <div className="flex items-center gap-2 truncate">
               <Cpu className="size-4 text-primary shrink-0" />
-              <span className="truncate">{selected?.displayName || selectedModel || "Select Model"}</span>
+              <span className="truncate">
+                {selected?.displayName || selectedModel || "Select Model"}
+              </span>
             </div>
             <ChevronDown className="size-4 text-muted-foreground shrink-0" />
           </Button>
         }
       />
-      <PopoverContent align="end" className="w-[280px] p-2 bg-popover border-border shadow-xl rounded-2xl">
-        <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
-          Select Model
-        </div>
-        <div className="space-y-1 mt-1">
-          {models.map(renderModelRow)}
-        </div>
+      <PopoverContent
+        align="end"
+        className="w-[280px] p-2 bg-popover border-border shadow-xl rounded-2xl"
+      >
+        <div className="px-2 py-1 text-xs font-medium text-muted-foreground">Select Model</div>
+        <div className="space-y-1 mt-1">{models.map(renderModelRow)}</div>
       </PopoverContent>
     </Popover>
   );
@@ -457,14 +472,14 @@ function WizardHeader({
           onClick={() => onStepChange(1)}
           className={cn(
             "h-1.5 rounded-full transition-all cursor-pointer",
-            step >= 1 ? "bg-primary" : "bg-muted"
+            step >= 1 ? "bg-primary" : "bg-muted",
           )}
         />
         <div
           onClick={() => onStepChange(2)}
           className={cn(
             "h-1.5 rounded-full transition-all cursor-pointer",
-            step === 2 ? "bg-primary" : "bg-muted"
+            step === 2 ? "bg-primary" : "bg-muted",
           )}
         />
       </div>
@@ -491,7 +506,7 @@ function DifficultySelector({
               "p-3 rounded-2xl border bg-card cursor-pointer transition-all flex flex-col justify-between gap-1.5",
               value === d.id
                 ? "border-primary bg-muted/40 ring-1 ring-primary/30"
-                : "border-border hover:bg-muted/30"
+                : "border-border hover:bg-muted/30",
             )}
           >
             <div className="flex items-center justify-between">
@@ -544,7 +559,7 @@ function QuestionSelector({
                 "h-9 rounded-xl text-sm font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5",
                 selected
                   ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                  : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               {selected && <Check className="size-3.5 text-primary-foreground shrink-0" />}

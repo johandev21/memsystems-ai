@@ -41,12 +41,8 @@ export function AddSourceDialog({
   const queryClient = useQueryClient();
   const { data: sources } = useQuery(sourcesQueryOptions(notebookId));
   const addPendingUpload = useUploadStore((state) => state.addPendingUpload);
-  const updatePendingUpload = useUploadStore(
-    (state) => state.updatePendingUpload,
-  );
-  const removePendingUpload = useUploadStore(
-    (state) => state.removePendingUpload,
-  );
+  const updatePendingUpload = useUploadStore((state) => state.updatePendingUpload);
+  const removePendingUpload = useUploadStore((state) => state.removePendingUpload);
 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("menu");

@@ -2,14 +2,7 @@
 // 1. Imports
 // -----------------------------------------------------------------------------
 import { useState, useEffect, useCallback } from "react";
-import {
-  RotateCw,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  X,
-} from "lucide-react";
+import { RotateCw, Sparkles, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -85,12 +78,10 @@ export function FlashcardView({
   const showRatingButtons = activeCardFormat !== "cloze" && isFlipped;
 
   const incorrectRatingCount = Object.values(progress).filter(
-    (s) => s.status === "dont-know"
+    (s) => s.status === "dont-know",
   ).length;
 
-  const correctRatingCount = Object.values(progress).filter(
-    (s) => s.status === "know"
-  ).length;
+  const correctRatingCount = Object.values(progress).filter((s) => s.status === "know").length;
 
   // ---------------------------------------------------------------------------
   // Event handlers & Keyboard Shortcuts
@@ -132,7 +123,7 @@ export function FlashcardView({
     window.dispatchEvent(
       new CustomEvent("send-chat-prompt", {
         detail: { prompt: promptText, autoSend: true },
-      })
+      }),
     );
   };
 
@@ -181,7 +172,6 @@ export function FlashcardView({
   // ---------------------------------------------------------------------------
   // Render helpers
   // ---------------------------------------------------------------------------
-
 
   const renderCardFront = () => (
     <div className="flex flex-col justify-between gap-8 min-h-[220px] animate-in fade-in duration-150">
@@ -242,7 +232,10 @@ export function FlashcardView({
           <p className="text-xs text-muted-foreground italic leading-relaxed pt-2 border-t border-border/30">
             Full sentence:{" "}
             <span className="text-foreground font-medium not-italic">
-              {activeCard.front.replace(/_{2,}|\[\s*blank\s*\]|\[\s*\.\.\.\s*\]|___+/i, activeCard.back)}
+              {activeCard.front.replace(
+                /_{2,}|\[\s*blank\s*\]|\[\s*\.\.\.\s*\]|___+/i,
+                activeCard.back,
+              )}
             </span>
           </p>
         )}
@@ -309,7 +302,7 @@ export function FlashcardView({
           "relative w-full rounded-[28px] border p-8 md:p-10 flex flex-col justify-between gap-8 shadow-sm min-h-[300px]",
           canDrag && ratingSwipeState === "idle" && "cursor-grab active:cursor-grabbing",
           !isFlipped && activeCardFormat !== "cloze" && "cursor-pointer hover:border-primary/40",
-           !isFlipped ? "bg-card border-border" : "bg-muted border-border"
+          !isFlipped ? "bg-card border-border" : "bg-muted border-border",
         )}
       >
         {/* Tinder Swipe Badge Indicator Overlay (only on back when dragging) */}
@@ -347,7 +340,7 @@ export function FlashcardView({
           <button
             type="button"
             onClick={() => handleRateCard("incorrect")}
-             className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-rose-600 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
+            className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-rose-600 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
             title="Swipe Left: Need Practice (Left Arrow)"
           >
             <X className="size-3.5" />
@@ -357,7 +350,7 @@ export function FlashcardView({
           <button
             type="button"
             onClick={() => handleRateCard("correct")}
-             className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-success text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
+            className="h-10 px-4 rounded-full border border-border bg-muted hover:bg-muted text-success text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all"
             title="Swipe Right: Know (Right Arrow)"
           >
             <span>{correctRatingCount}</span>

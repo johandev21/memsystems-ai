@@ -1,12 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import {
-  ChevronLeft,
-  ChevronRight,
-  NotebookText,
-  Plus,
-  Search,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, NotebookText, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { NotebookIcon } from "@/shared/ui/notebook-icon";
@@ -30,9 +24,7 @@ export function NotebooksPage() {
   const [searchInput, setSearchInput] = useState(search);
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data, isLoading } = useQuery(
-    allNotebooksQueryOptions(page, search || undefined),
-  );
+  const { data, isLoading } = useQuery(allNotebooksQueryOptions(page, search || undefined));
 
   const notebooks = data?.notebooks ?? [];
   const total = data?.total ?? 0;
@@ -99,11 +91,7 @@ export function NotebooksPage() {
             disabled={isCreating}
             className="w-full sm:w-auto cursor-pointer"
           >
-            {isCreating ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <Plus className="mr-2 size-4" />
-            )}
+            {isCreating ? <Spinner className="mr-2" /> : <Plus className="mr-2 size-4" />}
             New Notebook
           </Button>
         </section>
@@ -119,11 +107,7 @@ export function NotebooksPage() {
               className="pl-9"
             />
           </div>
-          <Button
-            variant="outline"
-            onClick={handleSearch}
-            className="cursor-pointer"
-          >
+          <Button variant="outline" onClick={handleSearch} className="cursor-pointer">
             Search
           </Button>
           {search && (
@@ -178,11 +162,7 @@ export function NotebooksPage() {
                   size="sm"
                   className="cursor-pointer"
                 >
-                  {isCreating ? (
-                    <Spinner className="mr-2" />
-                  ) : (
-                    <Plus className="mr-2 size-4" />
-                  )}
+                  {isCreating ? <Spinner className="mr-2" /> : <Plus className="mr-2 size-4" />}
                   New Notebook
                 </Button>
               )}

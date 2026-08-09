@@ -9,12 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useGenerationStore } from "@/features/study-materials";
 import { KIND_LABELS, type StudyMaterialKind } from "@/features/study-materials";
 import { sourcesQueryOptions } from "@/shared/api/sources";
@@ -69,15 +64,9 @@ export interface StudioResourcesProps {
   onGenerate: (kind: StudyMaterialKind) => void;
 }
 
-export function StudioResources({
-  notebookId,
-  collapsed,
-  onGenerate,
-}: StudioResourcesProps) {
+export function StudioResources({ notebookId, collapsed, onGenerate }: StudioResourcesProps) {
   const storeGenerations = useGenerationStore((s) => s.generations);
-  const cancelBackgroundGeneration = useGenerationStore(
-    (s) => s.cancelBackgroundGeneration,
-  );
+  const cancelBackgroundGeneration = useGenerationStore((s) => s.cancelBackgroundGeneration);
   const sourcesQuery = useQuery(sourcesQueryOptions(notebookId));
   const totalSourceCount = sourcesQuery.data?.length ?? 0;
 
@@ -90,9 +79,7 @@ export function StudioResources({
       <TooltipProvider>
         <div className="flex flex-col gap-3 py-2 px-0 items-center w-full">
           {RESOURCES.map((resource) => {
-            const isGenerating = activeGenerations.some(
-              (g) => g.kind === resource.kind,
-            );
+            const isGenerating = activeGenerations.some((g) => g.kind === resource.kind);
             const disabled = !isInScope(resource.kind);
             return (
               <Tooltip key={resource.key}>
@@ -108,10 +95,7 @@ export function StudioResources({
                       )}
                       onClick={() => !disabled && onGenerate(resource.kind)}
                       onKeyDown={(event) => {
-                        if (
-                          !disabled &&
-                          (event.key === "Enter" || event.key === " ")
-                        ) {
+                        if (!disabled && (event.key === "Enter" || event.key === " ")) {
                           event.preventDefault();
                           onGenerate(resource.kind);
                         }
@@ -194,9 +178,7 @@ export function StudioResources({
                     <span className="text-xs font-semibold text-foreground truncate">
                       Generating {KIND_LABELS[job.kind] || job.kind}...
                     </span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      {subtitleText}
-                    </span>
+                    <span className="text-xs text-muted-foreground truncate">{subtitleText}</span>
                   </div>
                 </div>
                 <Button

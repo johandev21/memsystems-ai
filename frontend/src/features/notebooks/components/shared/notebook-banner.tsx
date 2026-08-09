@@ -62,9 +62,7 @@ export function NotebookBanner({
         />
       ) : (
         <div className="absolute inset-0 bg-muted flex items-center justify-center">
-          {imageError && (
-            <AlertCircle className="size-6 text-muted-foreground/50" />
-          )}
+          {imageError && <AlertCircle className="size-6 text-muted-foreground/50" />}
         </div>
       )}
 
@@ -74,9 +72,7 @@ export function NotebookBanner({
           <h3 className="text-sm font-medium tracking-tight text-foreground truncate">
             {isUntitled ? "Untitled Notebook" : title}
           </h3>
-          <span className="text-xs text-muted-foreground/80 font-medium">
-            {formattedDate}
-          </span>
+          <span className="text-xs text-muted-foreground/80 font-medium">{formattedDate}</span>
         </div>
       </div>
     </div>

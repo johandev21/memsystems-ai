@@ -26,26 +26,18 @@ export function UserMenu() {
     await router.invalidate();
   }
 
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon" className="cursor-pointer" />
-        }
+        render={<Button variant="ghost" size="icon" className="cursor-pointer" />}
       >
         <div className="size-6 flex items-center justify-center">
           {isPending ? (
             <Skeleton className="size-6 rounded-full" />
           ) : (
             <Avatar size="sm">
-              <AvatarImage
-                src={user?.image ?? undefined}
-                alt={user?.name ?? undefined}
-              />
-              <AvatarFallback>
-                {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-              </AvatarFallback>
+              <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? undefined} />
+              <AvatarFallback>{user?.name?.charAt(0)?.toUpperCase() ?? "U"}</AvatarFallback>
             </Avatar>
           )}
         </div>
@@ -60,10 +52,7 @@ export function UserMenu() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => navigate({ to: "/settings" })}
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem onClick={() => navigate({ to: "/settings" })} className="cursor-pointer">
           <Settings className="mr-2 size-4" />
           <span>Settings</span>
         </DropdownMenuItem>

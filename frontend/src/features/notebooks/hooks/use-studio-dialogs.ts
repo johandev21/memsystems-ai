@@ -4,15 +4,10 @@ import type { StudyMaterialKind } from "@/features/study-materials";
 import { modelsQueryOptions } from "@/shared/api/models";
 
 export function useStudioDialogs() {
-  const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(
-    null,
-  );
+  const [generateKind, setGenerateKind] = useState<StudyMaterialKind | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [studyMaterialsDialogOpen, setStudyMaterialsDialogOpen] =
-    useState(false);
-  const [selectedStudyMaterialId, setSelectedStudyMaterialId] = useState<
-    string | null
-  >(null);
+  const [studyMaterialsDialogOpen, setStudyMaterialsDialogOpen] = useState(false);
+  const [selectedStudyMaterialId, setSelectedStudyMaterialId] = useState<string | null>(null);
 
   const models = useQuery(modelsQueryOptions);
 

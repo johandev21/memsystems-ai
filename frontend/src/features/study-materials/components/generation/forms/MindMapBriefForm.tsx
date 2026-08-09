@@ -81,9 +81,7 @@ export function MindMapBriefForm({
 
   const handleCustomBlur = () => {
     const parsed = Number.parseInt(customValue, 10);
-    const nextValue = Number.isNaN(parsed)
-      ? 40
-      : Math.min(MAX_NODE_COUNT, Math.max(1, parsed));
+    const nextValue = Number.isNaN(parsed) ? 40 : Math.min(MAX_NODE_COUNT, Math.max(1, parsed));
     setCustomValue(String(nextValue));
     setNodeCount(nextValue);
   };
@@ -180,7 +178,9 @@ export function MindMapBriefForm({
               onClick={() => {
                 setIsAutoMode(false);
                 setIsCustomMode(true);
-                setNodeCount(Math.min(MAX_NODE_COUNT, Math.max(1, Number.parseInt(customValue, 10) || 40)));
+                setNodeCount(
+                  Math.min(MAX_NODE_COUNT, Math.max(1, Number.parseInt(customValue, 10) || 40)),
+                );
               }}
               className="flex h-9 cursor-pointer items-center justify-center rounded-xl border border-border bg-muted text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
@@ -209,7 +209,8 @@ export function MindMapBriefForm({
 
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label className="text-sm font-medium">
-            Knowledge sources{!hasInstructions && <span className="ml-0.5 text-destructive">*</span>}
+            Knowledge sources
+            {!hasInstructions && <span className="ml-0.5 text-destructive">*</span>}
           </Label>
           <MindMapSourcePopover
             sources={sources}
@@ -293,8 +294,11 @@ function MindMapSourcePopover({
   onChange: (ids: string[]) => void;
 }) {
   const [search, setSearch] = useState("");
-  const filtered = sources.filter((source) => source.title.toLowerCase().includes(search.toLowerCase()));
-  const allSelected = filtered.length > 0 && filtered.every((source) => selectedIds.includes(source.id));
+  const filtered = sources.filter((source) =>
+    source.title.toLowerCase().includes(search.toLowerCase()),
+  );
+  const allSelected =
+    filtered.length > 0 && filtered.every((source) => selectedIds.includes(source.id));
 
   const toggleAll = () => {
     if (allSelected) {
@@ -306,18 +310,26 @@ function MindMapSourcePopover({
   };
 
   const toggleOne = (id: string) => {
-    onChange(selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id]);
+    onChange(
+      selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id],
+    );
   };
 
   return (
     <Popover>
       <PopoverTrigger
         render={
-          <Button variant="outline" size="sm" className="h-9 w-full justify-between gap-2 rounded-2xl bg-card px-3.5 text-xs font-medium hover:bg-muted">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 w-full justify-between gap-2 rounded-2xl bg-card px-3.5 text-xs font-medium hover:bg-muted"
+          >
             <span className="flex min-w-0 items-center gap-2 truncate">
               <BookOpen className="size-4 shrink-0 text-primary" />
               <span className="truncate">
-                {selectedIds.length === 0 ? "General knowledge" : `${selectedIds.length} source${selectedIds.length === 1 ? "" : "s"} selected`}
+                {selectedIds.length === 0
+                  ? "General knowledge"
+                  : `${selectedIds.length} source${selectedIds.length === 1 ? "" : "s"} selected`}
               </span>
             </span>
             <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -328,22 +340,48 @@ function MindMapSourcePopover({
         <div className="flex items-center justify-between bg-muted px-3.5 py-2.5">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Search className="size-4 shrink-0 text-muted-foreground" />
-            <input type="text" placeholder="Search sources..." value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search sources..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
           </div>
-          <button type="button" onClick={toggleAll} className="ml-2 flex shrink-0 cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+          <button
+            type="button"
+            onClick={toggleAll}
+            className="ml-2 flex shrink-0 cursor-pointer items-center gap-2 text-xs text-muted-foreground"
+          >
             Select all <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
           </button>
         </div>
         {sources.length === 0 ? (
-          <div className="p-4 text-center text-xs text-muted-foreground">No sources in notebook. General knowledge will be used.</div>
+          <div className="p-4 text-center text-xs text-muted-foreground">
+            No sources in notebook. General knowledge will be used.
+          </div>
         ) : (
           <div className="max-h-[220px] space-y-1 overflow-y-auto p-2">
             {filtered.map((source) => {
               const checked = selectedIds.includes(source.id);
               return (
-                <button key={source.id} type="button" onClick={() => toggleOne(source.id)} className={cn("flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs", checked ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted")}>
+                <button
+                  key={source.id}
+                  type="button"
+                  onClick={() => toggleOne(source.id)}
+                  className={cn(
+                    "flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs",
+                    checked ? "bg-muted font-medium" : "text-muted-foreground hover:bg-muted",
+                  )}
+                >
                   <span className="flex min-w-0 items-center gap-2 truncate pr-2">
-                    {source.kind === "web" ? <Globe className="size-4 shrink-0 text-primary" /> : source.kind === "file" ? <FileText className="size-4 shrink-0 text-primary" /> : <BookOpen className="size-4 shrink-0 text-primary" />}
+                    {source.kind === "web" ? (
+                      <Globe className="size-4 shrink-0 text-primary" />
+                    ) : source.kind === "file" ? (
+                      <FileText className="size-4 shrink-0 text-primary" />
+                    ) : (
+                      <BookOpen className="size-4 shrink-0 text-primary" />
+                    )}
                     <span className="truncate">{source.title}</span>
                   </span>
                   <Checkbox checked={checked} onCheckedChange={() => toggleOne(source.id)} />
@@ -352,7 +390,9 @@ function MindMapSourcePopover({
             })}
           </div>
         )}
-        <div className="bg-muted p-2.5 text-xs text-muted-foreground">{selectedIds.length} selected</div>
+        <div className="bg-muted p-2.5 text-xs text-muted-foreground">
+          {selectedIds.length} selected
+        </div>
       </PopoverContent>
     </Popover>
   );
@@ -375,8 +415,18 @@ export function MindMapModelPopover({
     <Popover>
       <PopoverTrigger
         render={
-          <Button variant="outline" size="sm" disabled={disabled} className="h-9 w-full justify-between gap-2 rounded-2xl bg-card px-3.5 text-xs font-medium hover:bg-muted">
-            <span className="flex min-w-0 items-center gap-2 truncate"><Cpu className="size-4 shrink-0 text-primary" /><span className="truncate">{selected?.displayName || selectedModel || "Select model"}</span></span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={disabled}
+            className="h-9 w-full justify-between gap-2 rounded-2xl bg-card px-3.5 text-xs font-medium hover:bg-muted"
+          >
+            <span className="flex min-w-0 items-center gap-2 truncate">
+              <Cpu className="size-4 shrink-0 text-primary" />
+              <span className="truncate">
+                {selected?.displayName || selectedModel || "Select model"}
+              </span>
+            </span>
             <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
           </Button>
         }
@@ -387,8 +437,19 @@ export function MindMapModelPopover({
           {models.map((model) => {
             const isSelected = model.id === selectedModel;
             return (
-              <button key={model.id} type="button" onClick={() => onModelChange(model.id)} className={cn("flex w-full cursor-pointer items-center justify-between rounded-xl p-2.5 text-left text-xs", isSelected ? "bg-muted font-semibold" : "text-muted-foreground hover:bg-muted/50")}>
-                <span className="flex min-w-0 flex-col"><span className="truncate">{model.displayName}</span><span className="text-xs font-normal text-muted-foreground">{model.id}</span></span>
+              <button
+                key={model.id}
+                type="button"
+                onClick={() => onModelChange(model.id)}
+                className={cn(
+                  "flex w-full cursor-pointer items-center justify-between rounded-xl p-2.5 text-left text-xs",
+                  isSelected ? "bg-muted font-semibold" : "text-muted-foreground hover:bg-muted/50",
+                )}
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate">{model.displayName}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{model.id}</span>
+                </span>
                 {isSelected && <Check className="size-4 shrink-0 text-primary" />}
               </button>
             );

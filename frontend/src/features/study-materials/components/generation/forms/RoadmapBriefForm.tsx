@@ -33,8 +33,18 @@ type DetailLevel = "basic" | "detailed";
 const PHASE_PRESETS = [3, 5, 7, 10];
 
 const DETAIL_OPTIONS = [
-  { id: "basic" as DetailLevel, title: "Basic", desc: "Phase titles & milestones only", icon: Compass },
-  { id: "detailed" as DetailLevel, title: "Detailed", desc: "In-depth topics & learning objectives", icon: Layers },
+  {
+    id: "basic" as DetailLevel,
+    title: "Basic",
+    desc: "Phase titles & milestones only",
+    icon: Compass,
+  },
+  {
+    id: "detailed" as DetailLevel,
+    title: "Detailed",
+    desc: "In-depth topics & learning objectives",
+    icon: Layers,
+  },
 ] as const;
 
 // ============================================================================
@@ -56,12 +66,12 @@ export function RoadmapBriefForm({
   const [phaseCount, setPhaseCount] = useState<number>(initialPhaseCount);
   const [isAutoMode, setIsAutoMode] = useState<boolean>(initialPhaseCount === 0);
   const [isCustomMode, setIsCustomMode] = useState<boolean>(
-    initialPhaseCount > 0 && !PHASE_PRESETS.includes(initialPhaseCount)
+    initialPhaseCount > 0 && !PHASE_PRESETS.includes(initialPhaseCount),
   );
   const [customVal, setCustomVal] = useState<string>(
     initialPhaseCount > 0 && !PHASE_PRESETS.includes(initialPhaseCount)
       ? String(initialPhaseCount)
-      : "12"
+      : "12",
   );
 
   const [detailLevel, setDetailLevel] = useState<DetailLevel>(
@@ -130,7 +140,7 @@ export function RoadmapBriefForm({
               "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1",
               isAutoMode
                 ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted",
             )}
           >
             <Wand2 className="size-3.5 shrink-0" />
@@ -153,7 +163,7 @@ export function RoadmapBriefForm({
                   "h-9 rounded-xl text-xs font-medium border transition-all text-center cursor-pointer flex items-center justify-center gap-1",
                   selected
                     ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
-                    : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted",
                 )}
               >
                 {selected && <Check className="size-3 shrink-0" />}
@@ -218,14 +228,18 @@ export function RoadmapBriefForm({
                     selected ? "bg-primary/10" : "bg-muted",
                   )}
                 >
-                  <Icon className={cn("size-4", selected ? "text-primary" : "text-muted-foreground")} />
+                  <Icon
+                    className={cn("size-4", selected ? "text-primary" : "text-muted-foreground")}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-foreground">{opt.title}</span>
                     {selected && <Check className="size-3.5 text-primary shrink-0" />}
                   </div>
-                  <span className="text-[11px] text-muted-foreground leading-tight">{opt.desc}</span>
+                  <span className="text-[11px] text-muted-foreground leading-tight">
+                    {opt.desc}
+                  </span>
                 </div>
               </div>
             );
@@ -313,12 +327,9 @@ function RoadmapSourcePopover({
 }) {
   const [search, setSearch] = useState("");
 
-  const filtered = sources.filter((s) =>
-    s.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = sources.filter((s) => s.title.toLowerCase().includes(search.toLowerCase()));
 
-  const allSelected =
-    filtered.length > 0 && filtered.every((s) => selectedIds.includes(s.id));
+  const allSelected = filtered.length > 0 && filtered.every((s) => selectedIds.includes(s.id));
 
   const toggleAll = () => {
     if (allSelected) {
@@ -468,9 +479,7 @@ function RoadmapModelPopover({
         align="end"
         className="w-[280px] p-2 bg-popover border-border shadow-xl rounded-2xl"
       >
-        <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
-          Select Model
-        </div>
+        <div className="px-2 py-1 text-xs font-medium text-muted-foreground">Select Model</div>
         <div className="space-y-1 mt-1">
           {models.map((m) => {
             const isSelected = m.id === selectedModel;

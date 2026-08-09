@@ -22,7 +22,11 @@
       "description": "Runs the Vitest test suite across all workspace packages"
     },
     "format": {
-      "description": "Formats source code across all workspace packages"
+      "description": "Formats source code across all workspace packages",
+      "cache": false
+    },
+    "format:check": {
+      "description": "Checks that source code is formatted without writing changes"
     }
   }
 }

@@ -23,11 +23,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog";
-import {
-  deleteNotebook,
-  type Notebook,
-  notebookQueryOptions,
-} from "@/shared/api";
+import { deleteNotebook, type Notebook, notebookQueryOptions } from "@/shared/api";
 import { fetchApi } from "@/shared/lib/utils";
 import { NotebookCardPreview } from "../shared/notebook-card-preview";
 import { ImageUploadDialog } from "./image-upload-dialog";
@@ -38,11 +34,7 @@ interface DangerZoneSectionProps {
   onDeleted: () => void;
 }
 
-function DangerZoneSection({
-  notebookId,
-  notebookTitle,
-  onDeleted,
-}: DangerZoneSectionProps) {
+function DangerZoneSection({ notebookId, notebookTitle, onDeleted }: DangerZoneSectionProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
@@ -69,9 +61,7 @@ function DangerZoneSection({
   return (
     <>
       <div className="flex flex-col gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-destructive">
-          Delete Notebook
-        </h3>
+        <h3 className="text-sm font-semibold text-destructive">Delete Notebook</h3>
         <p className="text-xs text-muted-foreground">
           Permanently delete this notebook and all associated sources and notes.
         </p>
@@ -184,8 +174,7 @@ function useNotebookSettingsSave({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
           }).then((res) => {
-            if (!res.ok)
-              throw new Error(`Failed to update notebook (${res.status})`);
+            if (!res.ok) throw new Error(`Failed to update notebook (${res.status})`);
             return res.json();
           }),
         );
@@ -203,8 +192,7 @@ function useNotebookSettingsSave({
             method: "POST",
             body: formData,
           }).then((res) => {
-            if (!res.ok)
-              throw new Error(`Failed to upload banner (${res.status})`);
+            if (!res.ok) throw new Error(`Failed to upload banner (${res.status})`);
             return res.json();
           }),
         );
@@ -213,8 +201,7 @@ function useNotebookSettingsSave({
           fetchApi(`/api/notebooks/${notebook.id}/banner`, {
             method: "DELETE",
           }).then((res) => {
-            if (!res.ok)
-              throw new Error(`Failed to remove banner (${res.status})`);
+            if (!res.ok) throw new Error(`Failed to remove banner (${res.status})`);
             return res.json();
           }),
         );
@@ -308,10 +295,7 @@ interface NotebookSettingsFormProps {
   onClose: () => void;
 }
 
-function NotebookSettingsForm({
-  notebook,
-  onClose,
-}: NotebookSettingsFormProps) {
+function NotebookSettingsForm({ notebook, onClose }: NotebookSettingsFormProps) {
   const [state, dispatch] = useReducer(formReducer, {
     title: notebook.title,
     description: notebook.description,
@@ -337,14 +321,11 @@ function NotebookSettingsForm({
   const setTitle = (val: string) => dispatch({ type: "SET_TITLE", title: val });
   const setDescription = (val: string | null) =>
     dispatch({ type: "SET_DESCRIPTION", description: val });
-  const setIcon = (val: string | null) =>
-    dispatch({ type: "SET_ICON", icon: val });
+  const setIcon = (val: string | null) => dispatch({ type: "SET_ICON", icon: val });
   const setFocalPoint = (point: { x: number; y: number }) =>
     dispatch({ type: "SET_FOCAL_POINT", focalPoint: point });
 
-  const currentBannerPreview = bannerRemoved
-    ? null
-    : (previewUrl ?? notebook.bannerUrl);
+  const currentBannerPreview = bannerRemoved ? null : (previewUrl ?? notebook.bannerUrl);
 
   const focalPointChanged = useMemo(() => {
     const current = notebook.bannerFocalPoint ?? { x: 0.5, y: 0.5 };
@@ -364,15 +345,7 @@ function NotebookSettingsForm({
       (bannerRemoved && notebook.bannerUrl !== null) ||
       focalPointChanged
     );
-  }, [
-    title,
-    description,
-    icon,
-    bannerFile,
-    bannerRemoved,
-    focalPointChanged,
-    notebook,
-  ]);
+  }, [title, description, icon, bannerFile, bannerRemoved, focalPointChanged, notebook]);
 
   useEffect(() => {
     return () => {
@@ -413,12 +386,9 @@ function NotebookSettingsForm({
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="text-xl font-bold tracking-tight">
-          Notebook Settings
-        </DialogTitle>
+        <DialogTitle className="text-xl font-bold tracking-tight">Notebook Settings</DialogTitle>
         <DialogDescription className="text-xs text-muted-foreground">
-          Update notebook title, description, icon, banner image, or delete
-          notebook.
+          Update notebook title, description, icon, banner image, or delete notebook.
         </DialogDescription>
       </DialogHeader>
 
@@ -434,9 +404,7 @@ function NotebookSettingsForm({
           focalPoint={focalPoint}
           setFocalPoint={setFocalPoint}
           createdAt={notebook.createdAt}
-          onOpenImageUpload={() =>
-            dispatch({ type: "SET_IMAGE_UPLOAD_DIALOG_OPEN", open: true })
-          }
+          onOpenImageUpload={() => dispatch({ type: "SET_IMAGE_UPLOAD_DIALOG_OPEN", open: true })}
           onRemoveBanner={() => dispatch({ type: "REMOVE_BANNER" })}
         />
 
@@ -449,9 +417,7 @@ function NotebookSettingsForm({
 
       <ImageUploadDialog
         open={imageUploadDialogOpen}
-        onOpenChange={(open) =>
-          dispatch({ type: "SET_IMAGE_UPLOAD_DIALOG_OPEN", open })
-        }
+        onOpenChange={(open) => dispatch({ type: "SET_IMAGE_UPLOAD_DIALOG_OPEN", open })}
         onSelectFile={handleSelectFile}
       />
 
@@ -471,9 +437,7 @@ export interface NotebookSettingsDialogProps {
   notebookId: string;
 }
 
-export function NotebookSettingsDialog({
-  notebookId,
-}: NotebookSettingsDialogProps) {
+export function NotebookSettingsDialog({ notebookId }: NotebookSettingsDialogProps) {
   const { data: notebook } = useQuery(notebookQueryOptions(notebookId));
   const [open, setOpen] = useState(false);
 
@@ -493,10 +457,7 @@ export function NotebookSettingsDialog({
       </DialogTrigger>
       <DialogContent className="sm:w-1/2 sm:min-w-[680px] sm:max-w-[calc(100vw-2rem)] rounded-3xl p-6">
         {open && notebook && (
-          <NotebookSettingsForm
-            notebook={notebook}
-            onClose={() => setOpen(false)}
-          />
+          <NotebookSettingsForm notebook={notebook} onClose={() => setOpen(false)} />
         )}
       </DialogContent>
     </Dialog>

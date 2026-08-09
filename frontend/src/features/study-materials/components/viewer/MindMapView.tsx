@@ -75,7 +75,11 @@ function MindMapNode({ data }: NodeProps<MindMapFlowNode>) {
         !data.selected && !isRoot && "border-border hover:border-foreground/30",
       )}
     >
-      <Handle type="target" position={Position.Left} className="!h-1 !w-1 !border-0 !bg-transparent" />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="!h-1 !w-1 !border-0 !bg-transparent"
+      />
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold leading-tight">{data.item.label}</span>
       </div>
@@ -90,10 +94,16 @@ function MindMapNode({ data }: NodeProps<MindMapFlowNode>) {
           }}
           className="absolute -right-3 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
         >
-          <ChevronRight className={cn("size-3.5 transition-transform", data.expanded && "rotate-90")} />
+          <ChevronRight
+            className={cn("size-3.5 transition-transform", data.expanded && "rotate-90")}
+          />
         </button>
       )}
-      <Handle type="source" position={Position.Right} className="!h-1 !w-1 !border-0 !bg-transparent" />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!h-1 !w-1 !border-0 !bg-transparent"
+      />
     </div>
   );
 }
@@ -105,9 +115,10 @@ function HighlightEdge(props: EdgeProps<Edge>) {
 const nodeTypes = { mindMap: MindMapNode };
 const edgeTypes = { highlight: HighlightEdge };
 
-function createTree(
-  content: MindMapViewProps["content"],
-): { root: MapItem | null; depths: Map<string, number> } {
+function createTree(content: MindMapViewProps["content"]): {
+  root: MapItem | null;
+  depths: Map<string, number>;
+} {
   const nodesById = new Map(content.nodes.map((node) => [node.id, node]));
   const childrenById = new Map<string, string[]>();
   const childIds = new Set<string>();
@@ -288,9 +299,7 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
       .map((node) => ({ id: node.id }));
     if (focusNodes.length === 0) return;
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timeout = window.setTimeout(() => {
       fitView({
         nodes: focusNodes,
@@ -313,7 +322,11 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
   };
 
   if (!root) {
-    return <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-border bg-card text-sm text-muted-foreground">This mind map has no connected nodes yet.</div>;
+    return (
+      <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-border bg-card text-sm text-muted-foreground">
+        This mind map has no connected nodes yet.
+      </div>
+    );
   }
 
   return (
@@ -339,14 +352,39 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
       </ReactFlow>
 
       <div className="absolute right-4 top-4 flex flex-col gap-1.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
-        <Button variant="ghost" size="icon" onClick={() => zoomIn({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom in"><Plus className="size-4" /></Button>
-        <Button variant="ghost" size="icon" onClick={() => zoomOut({ duration: 300 })} className="size-8 text-muted-foreground" aria-label="Zoom out"><Minus className="size-4" /></Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => zoomIn({ duration: 300 })}
+          className="size-8 text-muted-foreground"
+          aria-label="Zoom in"
+        >
+          <Plus className="size-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => zoomOut({ duration: 300 })}
+          className="size-8 text-muted-foreground"
+          aria-label="Zoom out"
+        >
+          <Minus className="size-4" />
+        </Button>
         <div className="mx-1 h-px bg-border" />
-        <Button variant="ghost" size="icon" onClick={centerSelected} className="size-8 text-muted-foreground" aria-label="Center selected node"><Crosshair className="size-4" /></Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={centerSelected}
+          className="size-8 text-muted-foreground"
+          aria-label="Center selected node"
+        >
+          <Crosshair className="size-4" />
+        </Button>
       </div>
 
       <div className="pointer-events-none absolute bottom-4 left-4 hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-[10px] text-muted-foreground sm:flex">
-        <span className="size-1.5 rounded-full bg-primary" /> Drag to pan · Scroll to zoom · Click a node to explore
+        <span className="size-1.5 rounded-full bg-primary" /> Drag to pan · Scroll to zoom · Click a
+        node to explore
       </div>
     </div>
   );

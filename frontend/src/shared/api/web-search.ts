@@ -13,11 +13,7 @@ export interface WebSearchResponse {
   sources: WebSearchCandidate[];
 }
 
-export type WebSearchImportStatus =
-  | "added"
-  | "duplicate"
-  | "limit_reached"
-  | "scrape_failed";
+export type WebSearchImportStatus = "added" | "duplicate" | "limit_reached" | "scrape_failed";
 
 export interface WebSearchImportResultItem {
   url: string;
@@ -31,10 +27,7 @@ export interface WebSearchImportResponse {
   results: WebSearchImportResultItem[];
 }
 
-export const searchWebSources = (
-  notebookId: string,
-  input: { query: string; modelId: string },
-) =>
+export const searchWebSources = (notebookId: string, input: { query: string; modelId: string }) =>
   apiPost<{ query: string; modelId: string }, WebSearchResponse>(
     `/api/notebooks/${notebookId}/sources/web-search`,
     input,

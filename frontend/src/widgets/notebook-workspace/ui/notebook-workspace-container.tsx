@@ -1,19 +1,13 @@
 import { useEffect } from "react";
 import { DesktopLayout } from "./desktop-layout";
 import { MobileNotebookLayout } from "./mobile-notebook-layout";
-import {
-  useNotebookPanels,
-  useSourcesPanel,
-  useStudioDialogs,
-} from "@/features/notebooks";
+import { useNotebookPanels, useSourcesPanel, useStudioDialogs } from "@/features/notebooks";
 
 export interface NotebookWorkspaceContainerProps {
   notebookId: string;
 }
 
-export function NotebookWorkspaceContainer({
-  notebookId,
-}: NotebookWorkspaceContainerProps) {
+export function NotebookWorkspaceContainer({ notebookId }: NotebookWorkspaceContainerProps) {
   const panels = useNotebookPanels();
   const dialogs = useStudioDialogs();
   const sources = useSourcesPanel();

@@ -9,20 +9,13 @@ function ButtonGroup({
   return (
     <div
       data-slot="button-group"
-      className={cn(
-        "flex items-center",
-        orientation === "vertical" && "flex-col",
-        className,
-      )}
+      className={cn("flex items-center", orientation === "vertical" && "flex-col", className)}
       {...props}
     />
   );
 }
 
-function ButtonGroupText({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
+function ButtonGroupText({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="button-group-text"

@@ -1,21 +1,9 @@
 import { Search, X } from "lucide-react";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { NotebookIcon } from "@/shared/ui/notebook-icon";
 import { Input } from "@/shared/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { cn } from "@/shared/lib/utils";
 
 export interface IconPickerProps {
@@ -326,15 +314,11 @@ export function IconPicker({
       setFocusedIndex((prev) => (prev > 0 ? prev - 1 : total - 1));
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      setFocusedIndex((prev) =>
-        prev + COLS < total ? prev + COLS : prev % COLS,
-      );
+      setFocusedIndex((prev) => (prev + COLS < total ? prev + COLS : prev % COLS));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setFocusedIndex((prev) =>
-        prev - COLS >= 0
-          ? prev - COLS
-          : Math.floor((total - 1) / COLS) * COLS + (prev % COLS),
+        prev - COLS >= 0 ? prev - COLS : Math.floor((total - 1) / COLS) * COLS + (prev % COLS),
       );
     } else if (e.key === "Enter" && focusedIndex >= 0 && focusedIndex < total) {
       e.preventDefault();
@@ -432,9 +416,7 @@ export function IconPicker({
               <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
                 <Search className="size-8 mb-2 stroke-1 opacity-50" />
                 <p className="text-xs font-medium">No icons found</p>
-                <p className="text-[11px] opacity-75 mt-0.5">
-                  Try searching for another keyword
-                </p>
+                <p className="text-[11px] opacity-75 mt-0.5">Try searching for another keyword</p>
               </div>
             )
           ) : (
@@ -454,9 +436,7 @@ export function IconPicker({
                           isSelected={value === iconName}
                           isFocused={focusedIndex === globalIdx}
                           onClick={handleSelect}
-                          onMouseEnter={() =>
-                            setFocusedIndex(globalIdx >= 0 ? globalIdx : -1)
-                          }
+                          onMouseEnter={() => setFocusedIndex(globalIdx >= 0 ? globalIdx : -1)}
                         />
                       );
                     })}

@@ -25,11 +25,7 @@ export function SourcesPanel({
   onSelectSource: (id: string) => void;
 }) {
   const queryClient = useQueryClient();
-  const {
-    data: sources,
-    isPending,
-    isError,
-  } = useQuery(sourcesQueryOptions(notebookId));
+  const { data: sources, isPending, isError } = useQuery(sourcesQueryOptions(notebookId));
 
   const allPendingUploads = useUploadStore((state) => state.pendingUploads);
   const pendingUploads = useMemo(
@@ -37,9 +33,7 @@ export function SourcesPanel({
     [allPendingUploads, notebookId],
   );
 
-  const cancelPendingUpload = useUploadStore(
-    (state) => state.cancelPendingUpload,
-  );
+  const cancelPendingUpload = useUploadStore((state) => state.cancelPendingUpload);
 
   const [sourceToDelete, setSourceToDelete] = useState<{
     id: string;
@@ -58,10 +52,7 @@ export function SourcesPanel({
   if (collapsed) return null;
 
   const hasNoSources =
-    !isPending &&
-    !isError &&
-    (sources?.length ?? 0) === 0 &&
-    pendingUploads.length === 0;
+    !isPending && !isError && (sources?.length ?? 0) === 0 && pendingUploads.length === 0;
 
   return (
     <div className="flex h-full min-w-0 flex-col">
@@ -69,11 +60,7 @@ export function SourcesPanel({
         <WebSearchComposer notebookId={notebookId} />
 
         {pendingUploads.map((upload) => (
-          <PendingUploadRow
-            key={upload.id}
-            upload={upload}
-            onCancel={cancelPendingUpload}
-          />
+          <PendingUploadRow key={upload.id} upload={upload} onCancel={cancelPendingUpload} />
         ))}
 
         {isPending && (
@@ -98,13 +85,8 @@ export function SourcesPanel({
               key={source.id}
               source={source}
               onClick={() => onSelectSource(source.id)}
-              onDelete={() =>
-                setSourceToDelete({ id: source.id, title: source.title })
-              }
-              deleting={
-                deleteMutation.isPending &&
-                deleteMutation.variables === source.id
-              }
+              onDelete={() => setSourceToDelete({ id: source.id, title: source.title })}
+              deleting={deleteMutation.isPending && deleteMutation.variables === source.id}
             />
           ))}
       </div>
@@ -174,11 +156,7 @@ function SourceRow({
           "absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center text-muted-foreground hover:text-destructive transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto cursor-pointer",
         )}
       >
-        {deleting ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : (
-          <Trash2 className="size-3.5" />
-        )}
+        {deleting ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
       </button>
     </div>
   );

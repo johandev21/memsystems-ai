@@ -2,17 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/ui/dialog";
-import {
-  RightPane,
-  type RightPaneMode,
-} from "@/features/notebooks";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
+import { RightPane, type RightPaneMode } from "@/features/notebooks";
 import { studyMaterialsQueryOptions } from "@/shared/api/study-materials";
 import { StudyMaterialsEmptyState } from "./study-materials-empty-state";
 
@@ -34,8 +25,7 @@ export function ExpandedStudyMaterials({
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-  const [prevInitialMaterialId, setPrevInitialMaterialId] =
-    useState(initialMaterialId);
+  const [prevInitialMaterialId, setPrevInitialMaterialId] = useState(initialMaterialId);
   const [mode, setMode] = useState<RightPaneMode>({ kind: "select" });
 
   if (isOpen !== prevIsOpen || initialMaterialId !== prevInitialMaterialId) {
@@ -43,16 +33,13 @@ export function ExpandedStudyMaterials({
     setPrevInitialMaterialId(initialMaterialId);
     if (isOpen) {
       setMode(
-        initialMaterialId
-          ? { kind: "viewer", materialId: initialMaterialId }
-          : { kind: "select" },
+        initialMaterialId ? { kind: "viewer", materialId: initialMaterialId } : { kind: "select" },
       );
     }
   }
 
   const materialsQuery = useQuery(studyMaterialsQueryOptions(notebookId));
-  const hasMaterials =
-    (materialsQuery.data?.length ?? 0) > 0 || !!initialMaterialId;
+  const hasMaterials = (materialsQuery.data?.length ?? 0) > 0 || !!initialMaterialId;
   const activeMaterial = materialsQuery.data?.find(
     (m) => m.id === (mode.kind === "viewer" ? mode.materialId : null),
   );
@@ -65,8 +52,7 @@ export function ExpandedStudyMaterials({
         if (!open) {
           if (details.reason === "outside-press") {
             const target = details.event?.target as Element | undefined;
-            const isOverlay =
-              target?.getAttribute("data-slot") === "dialog-overlay";
+            const isOverlay = target?.getAttribute("data-slot") === "dialog-overlay";
             if (!isOverlay) return;
           }
           setIsOpen(false);
@@ -108,15 +94,10 @@ export function ExpandedStudyMaterials({
           </div>
         ) : (
           <div className="flex-1 min-h-0 bg-panel-bg">
-            <RightPane
-              notebookId={notebookId}
-              mode={mode}
-              onModeChange={setMode}
-            />
+            <RightPane notebookId={notebookId} mode={mode} onModeChange={setMode} />
           </div>
         )}
       </DialogContent>
     </Dialog>
   );
 }
-

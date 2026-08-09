@@ -42,16 +42,14 @@ export function NotebookCard({
             }}
           />
         ) : (
-           <div className="flex h-full w-full items-center justify-center bg-muted" />
+          <div className="flex h-full w-full items-center justify-center bg-muted" />
         )}
       </div>
-       <div className="absolute left-4 top-36 flex size-14 -translate-y-1/2 items-center justify-center text-notebook-icon z-10 drop-shadow-sm [&_svg]:size-full">
+      <div className="absolute left-4 top-36 flex size-14 -translate-y-1/2 items-center justify-center text-notebook-icon z-10 drop-shadow-sm [&_svg]:size-full">
         {icon}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4 pt-8">
-        <h3 className="font-heading text-base font-medium text-foreground">
-          {title}
-        </h3>
+        <h3 className="font-heading text-base font-medium text-foreground">{title}</h3>
         <p className="line-clamp-2 text-sm text-foreground/75">{description}</p>
       </div>
       <div className="flex items-center px-4 pb-4 text-xs text-muted-foreground">

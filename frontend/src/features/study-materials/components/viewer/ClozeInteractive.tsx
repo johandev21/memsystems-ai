@@ -65,8 +65,10 @@ export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteract
           placeholder="Type missing word..."
           className={cn(
             "h-10 text-sm rounded-2xl text-center font-medium transition-all shadow-2xs focus-visible:ring-2",
-            status === "correct" && "border-success bg-success text-success-foreground focus-visible:ring-success",
-            status === "incorrect" && "border-destructive bg-destructive text-destructive-foreground focus-visible:ring-destructive"
+            status === "correct" &&
+              "border-success bg-success text-success-foreground focus-visible:ring-success",
+            status === "incorrect" &&
+              "border-destructive bg-destructive text-destructive-foreground focus-visible:ring-destructive",
           )}
         />
         <Button
@@ -92,10 +94,7 @@ export function ClozeInteractive({ front, back, onAnswerChecked }: ClozeInteract
             <XCircle className="size-4 shrink-0" /> Incorrect
           </div>
           <p className="text-foreground text-xs font-medium">
-            Correct Answer:{" "}
-            <span className="font-bold text-success">
-              {parsed.expected}
-            </span>
+            Correct Answer: <span className="font-bold text-success">{parsed.expected}</span>
           </p>
         </div>
       )}

@@ -15,10 +15,7 @@ export interface BuildTreeInput {
   materials: StudyMaterialDTO[];
 }
 
-export function buildStudyMaterialTree({
-  folders,
-  materials,
-}: BuildTreeInput): TreeNode[] {
+export function buildStudyMaterialTree({ folders, materials }: BuildTreeInput): TreeNode[] {
   const activeFolders = folders.filter((f) => !f.deletedAt);
   const activeMaterials = materials.filter((m) => !m.deletedAt);
 
@@ -40,14 +37,12 @@ export function buildStudyMaterialTree({
   for (const f of activeFolders) {
     const node = folderNodes.get(f.id);
     if (!node) continue;
-    const parentKey =
-      f.parentId && folderNodes.has(f.parentId) ? f.parentId : null;
+    const parentKey = f.parentId && folderNodes.has(f.parentId) ? f.parentId : null;
     childrenByFolder.get(parentKey)?.push(node);
   }
 
   for (const m of activeMaterials) {
-    const parentKey =
-      m.folderId && folderNodes.has(m.folderId) ? m.folderId : null;
+    const parentKey = m.folderId && folderNodes.has(m.folderId) ? m.folderId : null;
     const node: TreeNode = {
       id: m.id,
       name: m.title,
@@ -92,10 +87,6 @@ function sourceCreatedAt(
   return materials.find((m) => m.id === node.id)?.createdAt ?? "";
 }
 
-export function countMaterialsInFolder(
-  folderId: string,
-  materials: StudyMaterialDTO[],
-): number {
-  return materials.filter((m) => m.folderId === folderId && !m.deletedAt)
-    .length;
+export function countMaterialsInFolder(folderId: string, materials: StudyMaterialDTO[]): number {
+  return materials.filter((m) => m.folderId === folderId && !m.deletedAt).length;
 }

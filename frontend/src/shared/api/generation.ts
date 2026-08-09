@@ -49,10 +49,7 @@ export function startGeneration(
   });
 
   const requestIdPromise = promise.then(
-    (res) =>
-      res.headers.get("X-Request-Id") ??
-      res.headers.get("X-Generation-Request-Id") ??
-      "",
+    (res) => res.headers.get("X-Request-Id") ?? res.headers.get("X-Generation-Request-Id") ?? "",
   );
 
   const stream: AsyncIterable<GenerationEvent> = {
@@ -160,14 +157,9 @@ function parseLine(line: string): GenerationEvent {
   return { type: "partial", content: parsed };
 }
 
-export async function cancelGeneration(
-  notebookId: string,
-  requestId: string,
-): Promise<void> {
+export async function cancelGeneration(notebookId: string, requestId: string): Promise<void> {
   const response = await fetch(
-    getApiUrl(
-      `/api/notebooks/${notebookId}/generation-requests/${requestId}/cancel`,
-    ),
+    getApiUrl(`/api/notebooks/${notebookId}/generation-requests/${requestId}/cancel`),
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

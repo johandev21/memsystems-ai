@@ -6,4 +6,3 @@ export const Route = createFileRoute("/home")({
   beforeLoad: requireAuth,
   component: HomePage,
 });
-

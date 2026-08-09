@@ -64,11 +64,7 @@ export function UrlInputMode({
           disabled={busy}
         />
       </div>
-      <Button
-        type="submit"
-        disabled={busy || !urlValue.trim()}
-        className="cursor-pointer"
-      >
+      <Button type="submit" disabled={busy || !urlValue.trim()} className="cursor-pointer">
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />

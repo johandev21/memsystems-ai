@@ -71,25 +71,17 @@ async function resizeBannerImage(
   });
 }
 
-export function ImageUploadDialog({
-  open,
-  onOpenChange,
-  onSelectFile,
-}: ImageUploadDialogProps) {
+export function ImageUploadDialog({ open, onOpenChange, onSelectFile }: ImageUploadDialogProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File) => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      toast.error(
-        `Unsupported image format (${file.type}). Use JPG, PNG, or WebP.`,
-      );
+      toast.error(`Unsupported image format (${file.type}). Use JPG, PNG, or WebP.`);
       return;
     }
     if (file.size > MAX_BANNER_BYTES) {
-      toast.error(
-        `Image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max 2MB.`,
-      );
+      toast.error(`Image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max 2MB.`);
       return;
     }
     const processedFile = await resizeBannerImage(file);
@@ -105,8 +97,8 @@ export function ImageUploadDialog({
             Upload Banner Image
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Select an image file from your computer. You can drag & zoom it
-            directly on the banner canvas afterwards.
+            Select an image file from your computer. You can drag & zoom it directly on the banner
+            canvas afterwards.
           </DialogDescription>
         </DialogHeader>
 
@@ -157,9 +149,7 @@ export function ImageUploadDialog({
             <p className="text-xs font-semibold text-foreground">
               Click to browse or drag & drop image
             </p>
-            <p className="text-[11px] text-muted-foreground">
-              JPG, PNG, WebP up to 2MB
-            </p>
+            <p className="text-[11px] text-muted-foreground">JPG, PNG, WebP up to 2MB</p>
           </div>
 
           <Button type="button" variant="secondary" size="sm" className="mt-1 cursor-pointer">

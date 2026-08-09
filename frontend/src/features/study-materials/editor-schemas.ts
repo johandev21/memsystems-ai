@@ -115,9 +115,7 @@ export function createEmptyStudyMaterial(kind: StudyMaterialKind): unknown {
         ],
       };
     case "mind_map":
-      throw new Error(
-        `createEmptyStudyMaterial is not implemented for kind "${kind}"`,
-      );
+      throw new Error(`createEmptyStudyMaterial is not implemented for kind "${kind}"`);
   }
 }
 

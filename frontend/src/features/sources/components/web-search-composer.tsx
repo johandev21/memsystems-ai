@@ -5,13 +5,7 @@ import { useModelPersistence } from "@/features/notebooks";
 import { modelsQueryOptions } from "@/shared/api/models";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { cn } from "@/shared/lib/utils";
 import { useWebSearch } from "../model/use-web-search";
 import type { WebSearchImportResultItem } from "@/shared/api/web-search";
@@ -23,10 +17,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
   const [expanded, setExpanded] = useState(false);
   const [chosenModel, setChosenModel] = useState<string | null>(null);
 
-  const capableModels = useMemo(
-    () => (models ?? []).filter((m) => m.supportsWebSearch),
-    [models],
-  );
+  const capableModels = useMemo(() => (models ?? []).filter((m) => m.supportsWebSearch), [models]);
 
   const defaultModel = useMemo(() => {
     if (capableModels.some((m) => m.id === persistedModel)) {
@@ -37,8 +28,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
 
   const activeModel = chosenModel ?? defaultModel;
 
-  const autoSwitched =
-    persistedModel && defaultModel && persistedModel !== defaultModel;
+  const autoSwitched = persistedModel && defaultModel && persistedModel !== defaultModel;
 
   const hasCapableModel = capableModels.length > 0;
 
@@ -58,8 +48,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
   }, [importResults]);
 
   const importedCount = useMemo(
-    () =>
-      [...importResults.values()].filter((r) => r.status === "added").length,
+    () => [...importResults.values()].filter((r) => r.status === "added").length,
     [importResults],
   );
 
@@ -72,9 +61,8 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
         <div className="flex items-start gap-2 rounded-[10px] border border-warning/30 bg-warning/10 p-2.5 text-sm leading-relaxed text-warning-foreground">
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
           <span>
-            Web search isn&apos;t supported by your current models. Connect a
-            model that supports it (e.g. GPT-5 or GPT-5 Mini) in Connection
-            settings.
+            Web search isn&apos;t supported by your current models. Connect a model that supports it
+            (e.g. GPT-5 or GPT-5 Mini) in Connection settings.
           </span>
         </div>
       )}
@@ -106,8 +94,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
               >
                 <SelectTrigger className="h-6 max-w-[110px] px-1.5 text-[10px] bg-muted/50 hover:bg-muted/80 border-border/80 rounded-lg">
                   <SelectValue placeholder="Model">
-                    {capableModels.find((m) => m.id === activeModel)?.displayName ??
-                      "Select model"}
+                    {capableModels.find((m) => m.id === activeModel)?.displayName ?? "Select model"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="w-[220px]">
@@ -206,7 +193,9 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                   key={c.url}
                   className={cn(
                     "flex cursor-pointer items-start gap-1.5 rounded-xl px-1.5 py-1 hover:bg-card transition-opacity",
-                    result && (result.status === "added" || result.status === "duplicate") && "opacity-60",
+                    result &&
+                      (result.status === "added" || result.status === "duplicate") &&
+                      "opacity-60",
                   )}
                 >
                   <Checkbox
@@ -216,12 +205,8 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                     className="mt-0.5"
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-medium">
-                      {c.title}
-                    </div>
-                    <div className="truncate text-[10px] text-muted-foreground">
-                      {c.url}
-                    </div>
+                    <div className="truncate text-xs font-medium">{c.title}</div>
+                    <div className="truncate text-[10px] text-muted-foreground">{c.url}</div>
                     {result && result.status !== "added" && result.status !== "duplicate" && (
                       <div
                         className={cn(

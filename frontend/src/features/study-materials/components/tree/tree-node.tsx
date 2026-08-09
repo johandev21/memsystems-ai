@@ -1,10 +1,4 @@
-import {
-  ChevronRight,
-  Folder,
-  FolderOpen,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
+import { ChevronRight, Folder, FolderOpen, MoreVertical, Trash2 } from "lucide-react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -80,10 +74,7 @@ export function FileTreeItemNode({
       )}
       {!isFolder && <span className="w-3.5 shrink-0" />}
       <Icon
-        className={cn(
-          "h-4 w-4 shrink-0",
-          isFolder ? "text-foreground" : config.className,
-        )}
+        className={cn("h-4 w-4 shrink-0", isFolder ? "text-foreground" : config.className)}
         strokeWidth={2}
       />
       <span className="flex-1 pr-1 whitespace-nowrap">{item.name}</span>

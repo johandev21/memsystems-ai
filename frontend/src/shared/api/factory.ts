@@ -29,10 +29,7 @@ export function createQueryOptions<TData>(
   });
 }
 
-export async function apiPost<TInput, TResponse>(
-  url: string,
-  input: TInput,
-): Promise<TResponse> {
+export async function apiPost<TInput, TResponse>(url: string, input: TInput): Promise<TResponse> {
   const res = await fetchApi(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

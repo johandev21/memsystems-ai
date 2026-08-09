@@ -42,9 +42,7 @@ export function PendingUploadRow({ upload, onCancel }: PendingUploadRowProps) {
             <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
           )}
           <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground truncate">
-            {upload.title}
-          </span>
+          <span className="text-xs font-medium text-foreground truncate">{upload.title}</span>
         </div>
         <button
           type="button"
@@ -62,9 +60,7 @@ export function PendingUploadRow({ upload, onCancel }: PendingUploadRowProps) {
           {isError ? upload.errorMessage || "Failed to add source" : upload.statusText}
         </span>
         {!isError && (
-          <span className="font-semibold text-primary">
-            {Math.round(upload.progress)}%
-          </span>
+          <span className="font-semibold text-primary">{Math.round(upload.progress)}%</span>
         )}
       </div>
 

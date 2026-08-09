@@ -18,15 +18,13 @@ export interface RoadmapPhase {
 }
 
 export function useRoadmapProgress(_materialId: string, phases: RoadmapPhase[]) {
-  const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>(
-    () => {
-      const initial: Record<string, boolean> = {};
-      phases.forEach((p) => {
-        initial[p.id] = true;
-      });
-      return initial;
-    },
-  );
+  const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    phases.forEach((p) => {
+      initial[p.id] = true;
+    });
+    return initial;
+  });
 
   const togglePhase = (phaseId: string) => {
     setExpandedPhases((prev) => ({

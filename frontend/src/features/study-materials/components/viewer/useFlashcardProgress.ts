@@ -51,10 +51,7 @@ export function useFlashcardProgress(materialId: string, totalCards: number) {
         reviewCount: rootStats.reviewCount,
         status: rootStats.status,
       };
-      localStorage.setItem(
-        `flashcard-progress-${materialId}`,
-        JSON.stringify(storedObj),
-      );
+      localStorage.setItem(`flashcard-progress-${materialId}`, JSON.stringify(storedObj));
     } catch {}
   };
 
@@ -92,11 +89,8 @@ export function useFlashcardProgress(materialId: string, totalCards: number) {
     setCurrentCardIndex((prev) => (prev - 1 + totalCards) % totalCards);
   };
 
-  const masteredCount = Object.values(progress).filter(
-    (s) => s.status === "know",
-  ).length;
-  const progressPercent =
-    totalCards > 0 ? Math.round((masteredCount / totalCards) * 100) : 0;
+  const masteredCount = Object.values(progress).filter((s) => s.status === "know").length;
+  const progressPercent = totalCards > 0 ? Math.round((masteredCount / totalCards) * 100) : 0;
 
   const totalReviewsCount = Object.values(progress).reduce(
     (acc, s) => acc + (s.reviewCount || 0),

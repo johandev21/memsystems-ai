@@ -22,11 +22,7 @@ function InputGroupAddon({
   align?: "start" | "end" | "block-start" | "block-end";
 }) {
   return (
-    <div
-      data-slot="input-group-addon"
-      className={cn("flex items-center", className)}
-      {...props}
-    />
+    <div data-slot="input-group-addon" className={cn("flex items-center", className)} {...props} />
   );
 }
 
@@ -41,10 +37,8 @@ function InputGroupButton({
       data-slot="input-group-button"
       className={cn(
         "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-        variant === "default" &&
-          "bg-foreground text-background shadow-sm hover:bg-foreground/90",
-        variant === "ghost" &&
-          "text-muted-foreground hover:bg-accent hover:text-foreground",
+        variant === "default" && "bg-foreground text-background shadow-sm hover:bg-foreground/90",
+        variant === "ghost" && "text-muted-foreground hover:bg-accent hover:text-foreground",
         size === "icon-sm" && "h-8 w-8",
         className,
       )}
@@ -53,10 +47,7 @@ function InputGroupButton({
   );
 }
 
-function InputGroupTextarea({
-  className,
-  ...props
-}: React.ComponentProps<"textarea">) {
+function InputGroupTextarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
       data-slot="input-group-textarea"

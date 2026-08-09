@@ -1,13 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Key,
-  Loader2,
-  Settings2,
-} from "lucide-react";
+import { AlertCircle, ExternalLink, Eye, EyeOff, Key, Loader2, Settings2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -104,7 +96,9 @@ export function ProviderKeyPrompt({
             <Settings2 className="size-3.5" />
             Open provider settings
           </Link>
-          <span className="text-sm text-muted-foreground">OpenAI, Anthropic, Google, DeepSeek, and Kimi</span>
+          <span className="text-sm text-muted-foreground">
+            OpenAI, Anthropic, Google, DeepSeek, and Kimi
+          </span>
         </div>
       ) : (
         <form onSubmit={handleSaveKey} className="space-y-3">
@@ -112,7 +106,13 @@ export function ProviderKeyPrompt({
             <div className="relative flex-1">
               <Input
                 type={showKey ? "text" : "password"}
-                placeholder={provider === "google" ? "AIza..." : provider === "anthropic" ? "sk-ant-..." : "sk-..."}
+                placeholder={
+                  provider === "google"
+                    ? "AIza..."
+                    : provider === "anthropic"
+                      ? "sk-ant-..."
+                      : "sk-..."
+                }
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
                 disabled={isSaving}

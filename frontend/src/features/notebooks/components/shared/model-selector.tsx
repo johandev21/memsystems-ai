@@ -2,19 +2,9 @@ import { Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { Button } from "@/shared/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import type { ModelOption } from "@/shared/api/models";
 import { cn } from "@/shared/lib/utils";
 
@@ -24,11 +14,7 @@ export interface ModelSelectorProps {
   onModelChange: (model: string) => void;
 }
 
-export function ModelSelector({
-  models,
-  selectedModel,
-  onModelChange,
-}: ModelSelectorProps) {
+export function ModelSelector({ models, selectedModel, onModelChange }: ModelSelectorProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -41,9 +27,7 @@ export function ModelSelector({
     const query = search.trim().toLowerCase();
     if (!query) return models;
     return models.filter(
-      (m) =>
-        m.displayName.toLowerCase().includes(query) ||
-        m.id.toLowerCase().includes(query),
+      (m) => m.displayName.toLowerCase().includes(query) || m.id.toLowerCase().includes(query),
     );
   }, [models, search]);
 

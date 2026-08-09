@@ -6,4 +6,3 @@ export const Route = createFileRoute("/settings")({
   beforeLoad: requireAuth,
   component: SettingsLayout,
 });
-

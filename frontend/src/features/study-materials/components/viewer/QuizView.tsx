@@ -98,7 +98,7 @@ Please explain why "${correctOption.text}" is correct${
   window.dispatchEvent(
     new CustomEvent("send-chat-prompt", {
       detail: { prompt: promptText, autoSend: true },
-    })
+    }),
   );
 }
 
@@ -160,16 +160,14 @@ function ScoreDonut({
           <div className="flex items-center gap-3">
             <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
             <span className="text-muted-foreground font-medium">Right</span>
-              <span className="font-bold text-emerald-700 dark:text-emerald-300 ml-4">
+            <span className="font-bold text-emerald-700 dark:text-emerald-300 ml-4">
               {correctCount}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="size-2.5 rounded-full bg-muted-foreground/30 shrink-0" />
             <span className="text-muted-foreground font-medium">Wrong</span>
-            <span className="font-bold text-foreground ml-4">
-              {wrongCount}
-            </span>
+            <span className="font-bold text-foreground ml-4">{wrongCount}</span>
           </div>
         </div>
       </div>
@@ -181,14 +179,10 @@ function ScoreDonut({
             "px-3 py-1 text-xs font-semibold rounded-full",
             percent >= 70
               ? "bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-700"
-              : "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-700"
+              : "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-700",
           )}
         >
-          {percent === 100
-            ? "Perfect Score!"
-            : percent >= 70
-            ? "Passed"
-            : "Practice Needed"}
+          {percent === 100 ? "Perfect Score!" : percent >= 70 ? "Passed" : "Practice Needed"}
         </Badge>
       </div>
     </div>
@@ -219,9 +213,9 @@ function QuizUnansweredModal({
             <AlertCircle className="size-5" /> Unanswered Questions
           </DialogTitle>
           <DialogDescription className="pt-2 text-sm text-muted-foreground leading-relaxed">
-            You still have{" "}
-            <span className="font-bold text-foreground">{unansweredCount}</span>{" "}
-            unanswered question{unansweredCount > 1 ? "s" : ""}. Would you like to review them before submitting?
+            You still have <span className="font-bold text-foreground">{unansweredCount}</span>{" "}
+            unanswered question{unansweredCount > 1 ? "s" : ""}. Would you like to review them
+            before submitting?
           </DialogDescription>
         </DialogHeader>
 
@@ -271,9 +265,7 @@ function QuizCompletionSummary({
         <h2 className="text-2xl font-bold tracking-tight text-foreground">
           You did it! Quiz Complete.
         </h2>
-        <p className="text-xs text-muted-foreground">
-          Review your performance summary.
-        </p>
+        <p className="text-xs text-muted-foreground">Review your performance summary.</p>
       </div>
 
       {/* Donut Score Card */}
@@ -337,7 +329,7 @@ function QuizQuestionStepper({
   const q = questions[currentIdx];
   const selectedIdx = selectedOptions[q.id];
   const isChecked = checkedQuestions[q.id] || isReviewMode || selectedIdx !== undefined;
-  
+
   const correctOptionIdx = getCorrectOptionIndex(q);
   const isCorrect = selectedIdx === correctOptionIdx;
   const isLastQuestion = currentIdx === questions.length - 1;
@@ -380,7 +372,10 @@ function QuizQuestionStepper({
         </div>
 
         {/* Question Prompt */}
-        <fieldset key={currentIdx} className="flex flex-col animate-in fade-in duration-300 border-none p-0 m-0">
+        <fieldset
+          key={currentIdx}
+          className="flex flex-col animate-in fade-in duration-300 border-none p-0 m-0"
+        >
           <legend className="text-base sm:text-lg font-bold leading-relaxed text-foreground mb-6 tracking-tight">
             {currentIdx + 1}. {q.prompt}
           </legend>
@@ -392,14 +387,14 @@ function QuizQuestionStepper({
               const isCurrentCorrect = oi === correctOptionIdx;
 
               let optionStyle =
-              "border-border bg-secondary hover:bg-muted hover:border-primary text-foreground transition-all shadow-2xs";
+                "border-border bg-secondary hover:bg-muted hover:border-primary text-foreground transition-all shadow-2xs";
               let badge = (
                 <span
                   className={cn(
                     "flex size-7 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-all",
                     isCurrentSelected
                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                       : "border-border bg-background text-foreground group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                      : "border-border bg-background text-foreground group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground",
                   )}
                 >
                   {String.fromCharCode(65 + oi)}
@@ -412,8 +407,7 @@ function QuizQuestionStepper({
                 if (isCurrentCorrect) {
                   optionStyle =
                     "border-emerald-500/80 bg-emerald-50 text-emerald-950 dark:bg-emerald-950/50 dark:text-emerald-50 font-medium shadow-2xs";
-                  explanationStyle =
-                    "text-emerald-900/80 dark:text-emerald-100/80";
+                  explanationStyle = "text-emerald-900/80 dark:text-emerald-100/80";
                   badge = (
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white dark:bg-emerald-500 border-emerald-600 dark:border-emerald-500 shadow-2xs">
                       <CheckCircle2 className="size-4" />
@@ -427,8 +421,7 @@ function QuizQuestionStepper({
                 } else if (isCurrentSelected && !isCorrect) {
                   optionStyle =
                     "border-rose-500/80 bg-rose-50 text-rose-950 dark:bg-rose-950/40 dark:text-rose-50 font-medium shadow-2xs";
-                  explanationStyle =
-                    "text-rose-900/80 dark:text-rose-100/80";
+                  explanationStyle = "text-rose-900/80 dark:text-rose-100/80";
                   badge = (
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-rose-500 text-white border-rose-500 shadow-2xs">
                       <XCircle className="size-4" />
@@ -439,11 +432,11 @@ function QuizQuestionStepper({
                       <XCircle className="size-3.5" /> Not quite
                     </span>
                   );
-                  } else {
-                    optionStyle =
-                      "border-border bg-muted/60 text-foreground/70 dark:bg-muted/40 dark:text-foreground/70 pointer-events-none";
-                    badge = (
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-foreground/70 text-xs font-bold">
+                } else {
+                  optionStyle =
+                    "border-border bg-muted/60 text-foreground/70 dark:bg-muted/40 dark:text-foreground/70 pointer-events-none";
+                  badge = (
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-foreground/70 text-xs font-bold">
                       {String.fromCharCode(65 + oi)}
                     </span>
                   );
@@ -456,7 +449,7 @@ function QuizQuestionStepper({
                   className={cn(
                     "w-full p-4 rounded-xl border text-sm flex flex-col gap-2 relative overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
                     optionStyle,
-                    !isChecked && !isReviewMode && "cursor-pointer"
+                    !isChecked && !isReviewMode && "cursor-pointer",
                   )}
                   onClick={() => {
                     if (!isChecked && !isReviewMode) {
@@ -478,9 +471,7 @@ function QuizQuestionStepper({
                   {isChecked && (
                     <div className="pl-10 pt-1 flex flex-col gap-1 text-xs leading-relaxed">
                       {statusTag}
-                      <p className={explanationStyle}>
-                        {formatExplanationText(opt.explanation)}
-                      </p>
+                      <p className={explanationStyle}>{formatExplanationText(opt.explanation)}</p>
                     </div>
                   )}
                 </div>
@@ -577,8 +568,7 @@ export function QuizView({ content }: QuizViewProps) {
     return count;
   }, [questions, selectedOptions]);
 
-  const scorePercent =
-    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const scorePercent = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   const handleSelectOption = useCallback(
     (questionId: string, optionIndex: number) => {
@@ -594,7 +584,7 @@ export function QuizView({ content }: QuizViewProps) {
         [questionId]: true,
       }));
     },
-    [viewMode, selectedOptions]
+    [viewMode, selectedOptions],
   );
 
   const handleNext = useCallback(() => {
@@ -619,9 +609,7 @@ export function QuizView({ content }: QuizViewProps) {
 
   const handleReviewUnanswered = useCallback(() => {
     setShowUnansweredModal(false);
-    const firstUnansweredIndex = questions.findIndex(
-      (q) => selectedOptions[q.id] === undefined
-    );
+    const firstUnansweredIndex = questions.findIndex((q) => selectedOptions[q.id] === undefined);
     if (firstUnansweredIndex !== -1) {
       setCurrentIdx(firstUnansweredIndex);
     }
@@ -647,11 +635,7 @@ export function QuizView({ content }: QuizViewProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable
-      ) {
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
         return;
       }
 

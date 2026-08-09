@@ -1,19 +1,12 @@
 import { useState, useEffect } from "react";
-import {
-  ArrowLeft,
-  Maximize2,
-  Minimize2,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Maximize2, Minimize2, X } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import type {
   FlashcardEditorContentType,
   QuizEditorContentType,
   RoadmapEditorContentType,
 } from "@/features/study-materials/editor-schemas";
-import type {
-  MindMapContentType,
-} from "@/features/study-materials";
+import type { MindMapContentType } from "@/features/study-materials";
 import type { StudyMaterialDTO } from "@/shared/api/study-materials";
 import { FlashcardView } from "./FlashcardView";
 import { MindMapView } from "./MindMapView";
@@ -26,11 +19,7 @@ export interface MaterialViewerProps {
   showHeader?: boolean;
 }
 
-export function MaterialViewer({
-  material,
-  onClose,
-  showHeader = true,
-}: MaterialViewerProps) {
+export function MaterialViewer({ material, onClose, showHeader = true }: MaterialViewerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isExitingFullscreen, setIsExitingFullscreen] = useState(false);
 
@@ -50,9 +39,7 @@ export function MaterialViewer({
       const detail = (event as CustomEvent<{ focusChat?: boolean }>).detail;
       if (detail?.focusChat && isFullscreen) {
         setIsExitingFullscreen(true);
-        const reducedMotion = window.matchMedia(
-          "(prefers-reduced-motion: reduce)",
-        ).matches;
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         exitTimer = window.setTimeout(
           () => {
             setIsFullscreen(false);
@@ -91,17 +78,15 @@ export function MaterialViewer({
         );
       case "mind_map":
         return (
-            <MindMapView
-              materialId={material.id}
-              materialTitle={material.title}
-              content={material.content as MindMapContentType}
-            />
+          <MindMapView
+            materialId={material.id}
+            materialTitle={material.title}
+            content={material.content as MindMapContentType}
+          />
         );
       default:
         return (
-          <div className="p-8 text-center text-muted-foreground">
-            Unsupported material type
-          </div>
+          <div className="p-8 text-center text-muted-foreground">Unsupported material type</div>
         );
     }
   };
@@ -119,9 +104,7 @@ export function MaterialViewer({
         >
           <ArrowLeft className="h-3.5 w-3.5" />
         </Button>
-        <h3 className="text-sm font-semibold truncate text-foreground ml-1">
-          {material.title}
-        </h3>
+        <h3 className="text-sm font-semibold truncate text-foreground ml-1">{material.title}</h3>
       </div>
 
       <div className="flex items-center gap-1">
@@ -133,11 +116,7 @@ export function MaterialViewer({
           className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
           title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Mode"}
         >
-          {isFullscreen ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </Button>
         {isFullscreen && (
           <Button
@@ -175,9 +154,7 @@ export function MaterialViewer({
   return (
     <div className="flex h-full flex-col bg-panel-bg text-foreground overflow-hidden">
       {showHeader && header}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        {renderContent()}
-      </div>
+      <div className="flex-1 overflow-y-auto p-4 md:p-6">{renderContent()}</div>
     </div>
   );
 }

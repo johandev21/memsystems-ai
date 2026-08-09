@@ -37,9 +37,7 @@ export const useUploadStore = create<UploadStoreState>((set, get) => ({
   pendingUploads: [],
 
   addPendingUpload: (upload) => {
-    const id =
-      upload.id ||
-      `pending-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const id = upload.id || `pending-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const newItem: PendingSourceUpload = {
       ...upload,
       id,

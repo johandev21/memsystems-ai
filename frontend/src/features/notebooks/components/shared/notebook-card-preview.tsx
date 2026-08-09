@@ -70,21 +70,14 @@ export function NotebookCardPreview({
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !dragStartRef.current || !bannerContainerRef.current)
-      return;
+    if (!isDragging || !dragStartRef.current || !bannerContainerRef.current) return;
     const rect = bannerContainerRef.current.getBoundingClientRect();
 
     const deltaX = (e.clientX - dragStartRef.current.mouseX) / rect.width;
     const deltaY = (e.clientY - dragStartRef.current.mouseY) / rect.height;
 
-    const newX = Math.max(
-      0,
-      Math.min(1, dragStartRef.current.initialX - deltaX),
-    );
-    const newY = Math.max(
-      0,
-      Math.min(1, dragStartRef.current.initialY - deltaY),
-    );
+    const newX = Math.max(0, Math.min(1, dragStartRef.current.initialX - deltaX));
+    const newY = Math.max(0, Math.min(1, dragStartRef.current.initialY - deltaY));
 
     setFocalPoint({ x: newX, y: newY });
   };
@@ -109,11 +102,7 @@ export function NotebookCardPreview({
         onMouseLeave={handleMouseUp}
         className={cn(
           "group relative h-52 sm:h-60 w-full overflow-hidden rounded-2xl border border-border bg-muted/60 select-none",
-          bannerPreviewUrl
-            ? isDragging
-              ? "cursor-grabbing"
-              : "cursor-grab"
-            : "cursor-default",
+          bannerPreviewUrl ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-default",
         )}
       >
         {bannerPreviewUrl ? (
@@ -167,9 +156,7 @@ export function NotebookCardPreview({
             <ImageIcon className="size-9 stroke-1 opacity-60" />
             <div className="flex flex-col items-center gap-1">
               <p className="text-xs font-medium">No banner image set</p>
-              <p className="text-[11px] opacity-75">
-                Upload an image to customize your notebook
-              </p>
+              <p className="text-[11px] opacity-75">Upload an image to customize your notebook</p>
             </div>
             <Button
               type="button"
@@ -202,18 +189,13 @@ export function NotebookCardPreview({
               maxLength={200}
               className="h-7 border-none bg-transparent p-0 text-base sm:text-lg font-semibold tracking-tight text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
             />
-            <span className="text-xs text-muted-foreground/80 font-medium">
-              {formattedDate}
-            </span>
+            <span className="text-xs text-muted-foreground/80 font-medium">{formattedDate}</span>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5 px-1">
-        <Label
-          htmlFor="notebook-description"
-          className="text-xs font-medium text-muted-foreground"
-        >
+        <Label htmlFor="notebook-description" className="text-xs font-medium text-muted-foreground">
           Description
         </Label>
         <Textarea

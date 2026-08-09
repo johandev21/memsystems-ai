@@ -12,18 +12,12 @@ const markdownSanitizeSchema = {
   ...defaultSchema,
   attributes: {
     ...defaultSchema.attributes,
-    code: [
-      ...(defaultSchema.attributes?.code ?? []),
-      ["className", "math-inline", "math-display"],
-    ],
+    code: [...(defaultSchema.attributes?.code ?? []), ["className", "math-inline", "math-display"]],
   },
 };
 
 const defaultRemarkPlugins = [remarkGfm, remarkMath];
-const defaultRehypePlugins = [
-  [rehypeSanitize, markdownSanitizeSchema],
-  rehypeKatex,
-];
+const defaultRehypePlugins = [[rehypeSanitize, markdownSanitizeSchema], rehypeKatex];
 
 export type MarkdownRendererProps = Omit<
   ComponentProps<typeof ReactMarkdown>,
@@ -50,9 +44,7 @@ export function MarkdownRenderer({
   if (isStreaming) {
     return (
       <div className={className}>
-        <div className="whitespace-pre-wrap wrap-break-word">
-          {children}
-        </div>
+        <div className="whitespace-pre-wrap wrap-break-word">{children}</div>
       </div>
     );
   }
@@ -62,14 +54,10 @@ export function MarkdownRenderer({
       {...props}
       components={components}
       remarkPlugins={
-        remarkPlugins?.length
-          ? [...defaultRemarkPlugins, ...remarkPlugins]
-          : defaultRemarkPlugins
+        remarkPlugins?.length ? [...defaultRemarkPlugins, ...remarkPlugins] : defaultRemarkPlugins
       }
       rehypePlugins={
-        rehypePlugins?.length
-          ? [...defaultRehypePlugins, ...rehypePlugins]
-          : defaultRehypePlugins
+        rehypePlugins?.length ? [...defaultRehypePlugins, ...rehypePlugins] : defaultRehypePlugins
       }
     >
       {children}

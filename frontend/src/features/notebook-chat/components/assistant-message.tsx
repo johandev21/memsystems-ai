@@ -27,9 +27,7 @@ function isTextPart(part: UIMessage["parts"][number]): part is TextPart {
 
 function getReasoningText(parts: UIMessage["parts"]): string {
   return parts
-    .filter(
-      (p): p is { type: "reasoning"; text: string } => p.type === "reasoning",
-    )
+    .filter((p): p is { type: "reasoning"; text: string } => p.type === "reasoning")
     .map((p) => p.text)
     .join("\n\n");
 }
@@ -48,9 +46,7 @@ const messageComponents: MessageComponents = {
 };
 
 export function AssistantMessage({ message }: AssistantMessageProps) {
-  const isStreaming = message.parts.some(
-    (part) => isTextPart(part) && part.state === "streaming",
-  );
+  const isStreaming = message.parts.some((part) => isTextPart(part) && part.state === "streaming");
 
   const reasoningText = getReasoningText(message.parts);
   const hasReasoning = reasoningText.length > 0;

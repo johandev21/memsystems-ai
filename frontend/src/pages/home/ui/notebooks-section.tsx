@@ -58,28 +58,22 @@ export function NotebooksSection() {
           <h1 className="max-w-md font-heading text-2xl leading-snug font-semibold tracking-[-0.03em] text-foreground">
             Make progress on what matters.
           </h1>
-          <p className="text-sm text-muted-foreground">Pick up where you left off, or start something fresh.</p>
+          <p className="text-sm text-muted-foreground">
+            Pick up where you left off, or start something fresh.
+          </p>
         </div>
         <Button
           onClick={handleCreateNotebook}
           disabled={isCreating}
           className="w-full sm:w-auto cursor-pointer"
         >
-          {isCreating ? (
-            <Spinner className="mr-2" />
-          ) : (
-            <Plus className="mr-2 size-4" />
-          )}
+          {isCreating ? <Spinner className="mr-2" /> : <Plus className="mr-2 size-4" />}
           New notebook
         </Button>
       </section>
 
       <section className="flex flex-col gap-4 py-6">
-        <SectionHeader
-          title="Recent Notebooks"
-          viewAllHref="/notebooks"
-          viewAllLabel="View all"
-        />
+        <SectionHeader title="Recent Notebooks" viewAllHref="/notebooks" viewAllLabel="View all" />
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -112,11 +106,7 @@ export function NotebooksSection() {
               size="sm"
               className="cursor-pointer"
             >
-              {isCreating ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <Plus className="mr-2 size-4" />
-              )}
+              {isCreating ? <Spinner className="mr-2" /> : <Plus className="mr-2 size-4" />}
               New notebook
             </Button>
           </EmptyState>

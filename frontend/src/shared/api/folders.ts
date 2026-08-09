@@ -10,10 +10,6 @@ export const foldersQueryOptions = (notebookId: string) =>
   );
 
 export const createFolder = (notebookId: string, input: CreateFolderInput) =>
-  apiPost<CreateFolderInput, FolderDTO>(
-    `/api/notebooks/${notebookId}/folders`,
-    input,
-  );
+  apiPost<CreateFolderInput, FolderDTO>(`/api/notebooks/${notebookId}/folders`, input);
 
-export const deleteFolder = (folderId: string) =>
-  apiDelete(`/api/folders/${folderId}`);
+export const deleteFolder = (folderId: string) => apiDelete(`/api/folders/${folderId}`);

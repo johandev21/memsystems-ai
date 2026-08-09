@@ -29,7 +29,6 @@ function AppWithAuth() {
   );
 }
 
-
 export default function App() {
   return (
     <AppProviders>
@@ -37,4 +36,3 @@ export default function App() {
     </AppProviders>
   );
 }
-

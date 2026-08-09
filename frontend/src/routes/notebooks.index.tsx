@@ -10,4 +10,3 @@ export const Route = createFileRoute("/notebooks/")({
   }),
   component: NotebooksPage,
 });
-

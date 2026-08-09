@@ -56,7 +56,7 @@ export function FlashcardVariantB({
   const filteredCards = indexedCards.filter(
     (c) =>
       c.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.back.toLowerCase().includes(searchQuery.toLowerCase())
+      c.back.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const activeCard = indexedCards[currentIndex] || indexedCards[0];
@@ -90,7 +90,10 @@ export function FlashcardVariantB({
       <div className="flex items-center justify-between px-6 py-3.5 border-b border-border/80 bg-muted/20">
         <div className="flex items-center gap-3">
           <h2 className="text-base font-bold text-foreground truncate">{deckTitle}</h2>
-          <Badge variant="outline" className="rounded-full text-[11px] px-2.5 py-0.5 font-normal gap-1">
+          <Badge
+            variant="outline"
+            className="rounded-full text-[11px] px-2.5 py-0.5 font-normal gap-1"
+          >
             <BookOpen className="size-3 text-muted-foreground" /> {sourceCount} sources
           </Badge>
         </div>
@@ -135,7 +138,7 @@ export function FlashcardVariantB({
                     "p-3 rounded-2xl border text-xs transition-all cursor-pointer space-y-1",
                     isSelected
                       ? "bg-card border-primary/40 font-semibold shadow-2xs text-foreground ring-1 ring-primary/20"
-                      : "bg-card/50 border-border/40 hover:bg-card text-muted-foreground hover:text-foreground"
+                      : "bg-card/50 border-border/40 hover:bg-card text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <span className="text-[10px] text-muted-foreground/80 block">
@@ -162,7 +165,7 @@ export function FlashcardVariantB({
               className={cn(
                 "transition-all duration-300 ease-out",
                 swipeState === "correct" && "translate-x-12 opacity-0",
-                swipeState === "incorrect" && "-translate-x-12 opacity-0"
+                swipeState === "incorrect" && "-translate-x-12 opacity-0",
               )}
             >
               {showSideBySide ? (
@@ -292,7 +295,10 @@ export function FlashcardVariantB({
                   variant="ghost"
                   size="sm"
                   onClick={() => setFeedback(feedback === "good" ? null : "good")}
-                  className={cn("h-7 px-2.5 text-[11px] gap-1 cursor-pointer", feedback === "good" && "text-foreground font-semibold")}
+                  className={cn(
+                    "h-7 px-2.5 text-[11px] gap-1 cursor-pointer",
+                    feedback === "good" && "text-foreground font-semibold",
+                  )}
                 >
                   <ThumbsUp className="size-3" /> Good
                 </Button>
@@ -301,7 +307,10 @@ export function FlashcardVariantB({
                   variant="ghost"
                   size="sm"
                   onClick={() => setFeedback(feedback === "bad" ? null : "bad")}
-                  className={cn("h-7 px-2.5 text-[11px] gap-1 cursor-pointer", feedback === "bad" && "text-foreground font-semibold")}
+                  className={cn(
+                    "h-7 px-2.5 text-[11px] gap-1 cursor-pointer",
+                    feedback === "bad" && "text-foreground font-semibold",
+                  )}
                 >
                   <ThumbsDown className="size-3" /> Bad
                 </Button>
@@ -318,12 +327,19 @@ export function FlashcardVariantB({
             <span className="flex items-center gap-1">
               <MessageSquare className="size-3.5 text-muted-foreground" /> Static Explain Prompt
             </span>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setShowExplainModal(false)} className="h-5 px-1.5 text-[11px]">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowExplainModal(false)}
+              className="h-5 px-1.5 text-[11px]"
+            >
               <X className="size-3" />
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            &quot;On the front: &apos;{activeCard.front}&apos;. On the back: &apos;{activeCard.back}&apos;. Explain this topic in more detail.&quot;
+            &quot;On the front: &apos;{activeCard.front}&apos;. On the back: &apos;{activeCard.back}
+            &apos;. Explain this topic in more detail.&quot;
           </p>
         </div>
       )}

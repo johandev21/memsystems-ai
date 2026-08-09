@@ -89,9 +89,7 @@ export function Composer({
     const query = search.trim().toLowerCase();
     if (!query) return safeModels;
     return safeModels.filter(
-      (m) =>
-        m.displayName.toLowerCase().includes(query) ||
-        m.id.toLowerCase().includes(query),
+      (m) => m.displayName.toLowerCase().includes(query) || m.id.toLowerCase().includes(query),
     );
   }, [safeModels, search]);
 
@@ -132,10 +130,7 @@ export function Composer({
       </PromptInputBody>
       <PromptInputFooter className="px-1 pt-1 pb-0.5">
         <PromptInputTools>
-          <ModelSelector
-            open={modelSelectorOpen}
-            onOpenChange={setModelSelectorOpen}
-          >
+          <ModelSelector open={modelSelectorOpen} onOpenChange={setModelSelectorOpen}>
             <ModelSelectorTrigger
               render={
                 <PromptInputButton className="flex items-center gap-2 cursor-pointer transition-colors hover:bg-muted/60 h-8 px-2 text-xs">
@@ -154,38 +149,33 @@ export function Composer({
               />
               <ModelSelectorList>
                 <ModelSelectorEmpty>No models found</ModelSelectorEmpty>
-                {Object.entries(groupedModels).map(
-                  ([provider, providerModels]) => {
-                    const providerName =
-                      providerNames[provider] ||
-                      provider.charAt(0).toUpperCase() + provider.slice(1);
-                    return (
-                      <ModelSelectorGroup heading={providerName} key={provider}>
-                        {providerModels.map((m) => (
-                          <ModelSelectorItem
-                            key={m.id}
-                            value={m.id}
-                            onSelect={() => {
-                              onModelChange(m.id);
-                              setModelSelectorOpen(false);
-                            }}
-                            className="flex items-center gap-2 cursor-pointer"
-                          >
-                            <ModelSelectorLogo provider={provider} />
-                            <ModelSelectorName>
-                              {m.displayName}
-                            </ModelSelectorName>
-                            {selectedModel === m.id ? (
-                              <CheckIcon className="ml-auto size-4" />
-                            ) : (
-                              <div className="ml-auto size-4" />
-                            )}
-                          </ModelSelectorItem>
-                        ))}
-                      </ModelSelectorGroup>
-                    );
-                  },
-                )}
+                {Object.entries(groupedModels).map(([provider, providerModels]) => {
+                  const providerName =
+                    providerNames[provider] || provider.charAt(0).toUpperCase() + provider.slice(1);
+                  return (
+                    <ModelSelectorGroup heading={providerName} key={provider}>
+                      {providerModels.map((m) => (
+                        <ModelSelectorItem
+                          key={m.id}
+                          value={m.id}
+                          onSelect={() => {
+                            onModelChange(m.id);
+                            setModelSelectorOpen(false);
+                          }}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <ModelSelectorLogo provider={provider} />
+                          <ModelSelectorName>{m.displayName}</ModelSelectorName>
+                          {selectedModel === m.id ? (
+                            <CheckIcon className="ml-auto size-4" />
+                          ) : (
+                            <div className="ml-auto size-4" />
+                          )}
+                        </ModelSelectorItem>
+                      ))}
+                    </ModelSelectorGroup>
+                  );
+                })}
               </ModelSelectorList>
             </ModelSelectorContent>
           </ModelSelector>

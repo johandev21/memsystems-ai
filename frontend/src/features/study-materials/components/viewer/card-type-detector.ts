@@ -18,7 +18,11 @@ export function detectCardFormat(card: { front: string; back: string }): CardFor
   }
 
   // Check for Definition format: short front without question mark
-  const isQuestion = front.endsWith("?") || /^(what|how|why|where|who|when|which|explain|compare|describe|is|are|can|do|does)\b/i.test(front);
+  const isQuestion =
+    front.endsWith("?") ||
+    /^(what|how|why|where|who|when|which|explain|compare|describe|is|are|can|do|does)\b/i.test(
+      front,
+    );
   const wordCount = front.split(/\s+/).length;
 
   if (!isQuestion && (wordCount <= 6 || front.length <= 45)) {

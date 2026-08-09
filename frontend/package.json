@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "lint:fsd": "steiger src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "oxfmt src",
+    "format:check": "oxfmt --list-different src"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.208",
@@ -63,6 +65,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "oxfmt": "^0.62.0",
     "oxlint": "^1.71.0",
     "steiger": "^0.6.0",
     "typescript": "~6.0.2",

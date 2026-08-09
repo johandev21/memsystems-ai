@@ -13,9 +13,7 @@ export function NotebookHeader({ id }: { id: string }) {
         >
           <Logo className="size-6 text-foreground" />
         </Link>
-        <span className="text-muted-foreground/40 font-mono text-xs select-none">
-          /
-        </span>
+        <span className="text-muted-foreground/40 font-mono text-xs select-none">/</span>
         <EditableNotebookTitle id={id} />
       </div>
 
