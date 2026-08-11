@@ -134,6 +134,49 @@ pnpm exec drizzle-kit push
 
 Consulta [docs/database.md](docs/database.md) para conocer el esquema y la configuración de la conexión.
 
+## Docker
+
+La aplicación está dockerizada con Docker Compose. Un solo comando levanta PostgreSQL, el backend (NestJS) y el frontend (servido por nginx, que además hace de proxy inverso para `/api`):
+
+```bash
+docker compose up -d --build
+```
+
+O desde pnpm:
+
+```bash
+pnpm docker:up
+```
+
+La aplicación queda disponible en `http://localhost:3000`. Las migraciones de base de datos se aplican automáticamente al arrancar el backend.
+
+### Configuración
+
+Sin ningún `.env`, Compose funciona con valores por defecto válidos para desarrollo local. Para configurar claves de IA, autenticación social y secretos, copia `.env.example` a `.env` en la raíz del repositorio:
+
+```bash
+cp .env.example .env
+```
+
+Variables específicas de Docker (todas opcionales):
+
+| Variable | Por defecto | Descripción |
+|----------|-------------|-------------|
+| `APP_PORT` | `3000` | Puerto del frontend en el host. |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `postgres` / `superuser` / `memsystems` | Credenciales de la base de datos. |
+| `CLIENT_URL` / `BETTER_AUTH_URL` | `http://localhost:3000` | URL pública de la aplicación. |
+| `BETTER_AUTH_SECRET` | `change-me-in-production` | Secreto de Better Auth. **Cámbialo en cualquier despliegue.** |
+| `DEV_STORAGE_PUBLIC_URL` | `http://localhost:3000` | Debe apuntar al origen del frontend para que las URLs de descarga pasen por nginx. |
+
+Para usar almacenamiento S3/MinIO en vez del disco local, descomenta el servicio `minio` en `compose.yml` y define las variables `S3_*` en `.env` (ver `.env.example`).
+
+Otros comandos útiles:
+
+```bash
+pnpm docker:logs   # seguir los logs
+pnpm docker:down   # detener y eliminar contenedores
+```
+
 ## Comandos principales
 
 Ejecuta estos comandos desde la raíz:

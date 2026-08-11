@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prod": "vite build",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "lint:fsd": "steiger src",

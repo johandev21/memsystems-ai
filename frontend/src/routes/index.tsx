@@ -188,31 +188,28 @@ function LandingPage() {
           id="top"
           className="mx-auto max-w-6xl px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:pb-32 lg:pt-36"
         >
-          <div className="grid items-end gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-            <div>
-              <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-primary">
-                A notebook for making sense of things
-              </p>
-              <h1 className="max-w-2xl text-5xl font-semibold leading-none tracking-[-0.06em] text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground text-balance sm:text-7xl">
-                Think with your sources, not around them.
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-7 text-muted-foreground text-pretty sm:text-xl">
-                Memsystems brings research, notes, and AI into one quiet workspace so you can go
-                from scattered reading to a point of view.
-              </p>
-              <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-semibold text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px"
-                >
-                  Start building your notebook <ArrowUpRight />
-                </Link>
-                <span className="text-sm text-muted-foreground">
-                  Free to begin. Continue with Google.
-                </span>
-              </div>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-primary">
+              A notebook for making sense of things
+            </p>
+            <h1 className="mx-auto max-w-2xl text-5xl font-semibold leading-none tracking-[-0.06em] text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground text-balance sm:text-7xl">
+              Think with your sources, not around them.
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-7 text-muted-foreground text-pretty sm:text-xl">
+              Memsystems brings research, notes, and AI into one quiet workspace so you can go
+              from scattered reading to a point of view.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-semibold text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px"
+              >
+                Start building your notebook <ArrowUpRight />
+              </Link>
+              <span className="text-sm text-muted-foreground">
+                Free to begin. Continue with Google.
+              </span>
             </div>
-            <WorkspacePreview />
           </div>
         </section>
 
@@ -404,57 +401,3 @@ function LandingPage() {
   );
 }
 
-function WorkspacePreview() {
-  return (
-    <div
-      aria-label="Preview of a Memsystems research notebook"
-      className="relative min-h-[25rem] overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-2xl shadow-black/10 sm:min-h-[32rem] sm:p-4"
-    >
-      <div className="flex items-center justify-between border-b border-border px-2 pb-3 text-xs text-muted-foreground">
-        <span className="font-mono uppercase tracking-[0.13em]">
-          Notebook / memory and attention
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-primary" /> synced
-        </span>
-      </div>
-      <div className="grid h-[21rem] grid-cols-[0.28fr_0.72fr] gap-3 pt-3 sm:h-[27rem]">
-        <aside className="hidden border-r border-border pr-3 sm:block">
-          <p className="mb-4 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            Sources 08
-          </p>
-          <div className="space-y-3 text-xs text-muted-foreground">
-            <p className="border-l-2 border-primary pl-2 text-foreground">The extended mind</p>
-            <p>Attention and memory</p>
-            <p>Designing for recall</p>
-            <p>Notes from seminar</p>
-            <p>Open questions</p>
-          </div>
-        </aside>
-        <div className="flex min-w-0 flex-col rounded-xl bg-muted p-4 sm:p-6">
-          <div className="mb-8">
-            <p className="mb-2 font-mono text-xs uppercase tracking-[0.12em] text-primary">
-              Working note
-            </p>
-            <h3 className="max-w-md text-xl font-semibold leading-tight tracking-[-0.04em] sm:text-3xl">
-              What changes when memory has a place to go?
-            </h3>
-          </div>
-          <div className="space-y-4 text-sm leading-6 text-muted-foreground">
-            <p>
-              Externalizing a thought is not the same as losing it. The notebook becomes a second
-              surface for the work.
-            </p>
-            <p className="rounded-lg bg-secondary p-3 text-secondary-foreground">
-              A useful system should make return easier, not ask you to remember where you left off.
-            </p>
-          </div>
-          <div className="mt-auto flex items-center justify-between border-t border-border pt-3 font-mono text-xs text-muted-foreground">
-            <span>3 sources attached</span>
-            <span className="text-primary">Ask notebook ↗</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}

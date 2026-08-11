@@ -1,0 +1,38 @@
+# Docker build context exclusions (repo root)
+# ------------------------------------------------------------------
+
+# Git
+.git
+.gitignore
+
+# Dependencies (explicit paths: on Docker Desktop/Windows, bare `node_modules`
+# does not always exclude symlinks under these dirs from the build context)
+**/node_modules
+node_modules
+backend/node_modules
+frontend/node_modules
+
+# Build output & caches
+**/dist
+backend/dist
+frontend/dist
+.turbo
+**/*.tsbuildinfo
+.tanstack
+
+# Environment files (secrets must never enter the image)
+.env*
+!.env.example
+
+# Storage & temp (host-only)
+**/dev-storage
+**/.storage
+.temp
+.tmp
+*.log
+
+# Repo-local tooling & docs not needed to build/run
+.agents
+docs
+chatbot.md
+skills-lock.json
