@@ -32,7 +32,7 @@ interface GenerationState {
       model?: string;
       questionCount?: number;
       difficulty?: "easy" | "medium" | "hard";
-      cardStyle?: "qa" | "definition" | "cloze";
+      cardStyle?: "qa" | "definition" | "cloze" | "mixed";
       roadmapOptions?: RoadmapGenerationOptions;
       mindMapOptions?: MindMapGenerationOptions;
     },

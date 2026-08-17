@@ -23,7 +23,16 @@ export default defineConfig({
     },
   },
   server: {
+    host: process.env.VITE_HOST || '127.0.0.1',
     port: 3000,
+    strictPort: true,
+    watch:
+      process.env.VITE_USE_POLLING === 'true'
+        ? {
+            usePolling: true,
+            interval: Number(process.env.VITE_POLLING_INTERVAL || 500),
+          }
+        : undefined,
     proxy: {
       '/api': {
         target: process.env.NESTJS_BACKEND_URL || 'http://127.0.0.1:4000',

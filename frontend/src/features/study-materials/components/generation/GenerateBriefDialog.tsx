@@ -40,7 +40,9 @@ export function GenerateBriefDialog({
   const [folderId, setFolderId] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState<number | undefined>(10);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | undefined>("medium");
-  const [cardStyle, setCardStyle] = useState<"qa" | "definition" | "cloze" | undefined>(undefined);
+  const [cardStyle, setCardStyle] = useState<
+    "qa" | "definition" | "cloze" | "mixed" | undefined
+  >(undefined);
   const [roadmapOptions, setRoadmapOptions] = useState<RoadmapOptions | undefined>(undefined);
   const [mindMapOptions, setMindMapOptions] = useState<MindMapOptions | undefined>(undefined);
   const { model: persistedModel, setModel: setPersistedModel } = useModelPersistence(notebookId);

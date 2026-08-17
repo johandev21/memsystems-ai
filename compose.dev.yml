@@ -1,0 +1,108 @@
+name: memsystems-dev
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-superuser}
+      POSTGRES_DB: ${POSTGRES_DB:-memsystems_dev}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  migrate:
+    image: memsystems-dev-workspace
+    working_dir: /app/backend
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-superuser}@db:5432/${POSTGRES_DB:-memsystems_dev}
+    command: ["pnpm", "run", "db:migrate"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    image: memsystems-dev-workspace
+    build:
+      context: .
+      target: workspace-dev
+    working_dir: /app/backend
+    command: ["pnpm", "run", "dev"]
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: "4000"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-superuser}@db:5432/${POSTGRES_DB:-memsystems_dev}
+      CLIENT_URL: ${APP_ORIGIN:-http://localhost:3000}
+      BETTER_AUTH_URL: ${APP_ORIGIN:-http://localhost:3000}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-better-auth-secret-change-me}
+      DEV_STORAGE_DIR: /app/dev-storage
+      DEV_STORAGE_PUBLIC_URL: ${APP_ORIGIN:-http://localhost:3000}
+      DEV_STORAGE_TOKEN_SECRET: ${DEV_STORAGE_TOKEN_SECRET:-dev-only-storage-token-secret-change-me}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      TSC_WATCHFILE: PriorityPollingInterval
+      TSC_WATCHDIRECTORY: DynamicPriorityPolling
+    ports:
+      - "${API_PORT:-4000}:4000"
+    volumes:
+      - ./backend/src:/app/backend/src
+      - storage:/app/dev-storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:4000/api').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  frontend:
+    image: memsystems-dev-workspace
+    working_dir: /app/frontend
+    command: ["pnpm", "run", "dev"]
+    init: true
+    restart: unless-stopped
+    environment:
+      NESTJS_BACKEND_URL: http://backend:4000
+      VITE_HOST: 0.0.0.0
+      VITE_USE_POLLING: "true"
+      VITE_POLLING_INTERVAL: ${VITE_POLLING_INTERVAL:-500}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  pgdata:
+  storage:

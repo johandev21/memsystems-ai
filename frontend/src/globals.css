@@ -134,7 +134,7 @@
   --warning-foreground: oklch(0.145 0 0);
   --info: oklch(0.556 0 0);
   --info-foreground: oklch(0.985 0 0);
-  --background: oklch(1 0 0);
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
 }
 
@@ -191,11 +191,11 @@
   --composer-icon-color: var(--muted-foreground);
   --model-icon-color: currentColor;
   --success: oklch(0.708 0 0);
-  --success-foreground: oklch(0.145 0 0);
+  --success-foreground: oklch(0.985 0 0);
   --warning: oklch(0.708 0 0);
-  --warning-foreground: oklch(0.145 0 0);
+  --warning-foreground: oklch(0.985 0 0);
   --info: oklch(0.708 0 0);
-  --info-foreground: oklch(0.145 0 0);
+  --info-foreground: oklch(0.985 0 0);
 }
 
 /* Dialogs contain denser forms than the surrounding workspace. Keep their

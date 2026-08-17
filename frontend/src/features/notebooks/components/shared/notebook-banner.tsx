@@ -1,5 +1,5 @@
 import { AlertCircle } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { NotebookIcon } from "@/shared/ui/notebook-icon";
 
@@ -21,6 +21,13 @@ export function NotebookBanner({
   isUntitled,
 }: NotebookBannerProps) {
   const [imageError, setImageError] = useState(false);
+  const lastToastedUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setImageError(false);
+    lastToastedUrlRef.current = null;
+  }, [bannerUrl]);
+
   const formattedDate = useMemo(() => {
     try {
       const date = new Date(updatedAt);
@@ -38,11 +45,15 @@ export function NotebookBanner({
 
   const handleImageError = useCallback(() => {
     setImageError(true);
-    toast.error("Failed to load banner image");
-  }, []);
+    if (bannerUrl && lastToastedUrlRef.current !== bannerUrl) {
+      lastToastedUrlRef.current = bannerUrl;
+      toast.error("Failed to load banner image", { id: `banner-error-${bannerUrl}` });
+    }
+  }, [bannerUrl]);
 
   const handleImageLoad = useCallback(() => {
     setImageError(false);
+    lastToastedUrlRef.current = null;
   }, []);
 
   const focalX = Math.round((bannerFocalPoint?.x ?? 0.5) * 100);

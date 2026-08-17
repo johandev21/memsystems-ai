@@ -16,48 +16,54 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=memsystems-pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # ---------------------------------------------------------------------------
-# build: compile the NestJS backend and bundle the Vite frontend
+# source: shared workspace source for dev targets and production builds
 # ---------------------------------------------------------------------------
-FROM deps AS build
+FROM deps AS source
 COPY frontend ./frontend
 COPY backend ./backend
-# Run scripts from inside each package dir: `pnpm --filter <pkg> run` resolves
-# lifecycle bins from lockfile data, which is inconsistent with the install
-# layout on Linux; running from the package dir resolves via node_modules/.bin.
-# Run scripts from inside each package dir: `pnpm --filter <pkg> run` resolves
-# lifecycle bins from lockfile data, which is inconsistent with the install
-# layout on Linux; running from the package dir resolves via node_modules/.bin.
+
+# ---------------------------------------------------------------------------
+# Development workspace: Compose runs separate services from this shared image
+# ---------------------------------------------------------------------------
+FROM source AS workspace-dev
+ENV NODE_ENV=development
+EXPOSE 3000 4000
+
+# ---------------------------------------------------------------------------
+# build: compile both applications; type errors must fail the image build
+# ---------------------------------------------------------------------------
+FROM source AS build
 RUN cd backend && pnpm run build
-# vite build (esbuild) is used instead of `build` (tsc -b) so the image build
-# is not blocked by unrelated type errors; vite does not type-check.
-RUN cd frontend && pnpm run build:prod
+RUN cd frontend && pnpm run build
 
 # ---------------------------------------------------------------------------
 # backend-prod: extract production-only deps for the backend package
 # ---------------------------------------------------------------------------
-FROM build AS backend-prod
-RUN pnpm --filter=backend --prod deploy --legacy /prod/backend
+FROM build AS backend-prod-deps
+RUN --mount=type=cache,id=memsystems-pnpm-store,target=/pnpm/store \
+    pnpm --filter=backend --prod deploy --legacy /prod/backend
 
 # ---------------------------------------------------------------------------
 # backend runtime
 # ---------------------------------------------------------------------------
-FROM node:24-slim AS backend
+FROM node:24-slim AS backend-prod
 ENV NODE_ENV=production
-WORKDIR /app
-COPY --from=backend-prod /prod/backend/package.json ./package.json
-COPY --from=backend-prod /prod/backend/node_modules ./node_modules
+WORKDIR /app/backend
+COPY --from=backend-prod-deps /prod/backend/package.json ./package.json
+COPY --from=backend-prod-deps /prod/backend/node_modules ./node_modules
 COPY --from=build /app/backend/dist ./dist
 COPY --from=build /app/backend/drizzle ./drizzle
 EXPOSE 4000
-CMD ["sh", "-c", "node dist/database/migrate.js && node dist/main.js"]
+CMD ["node", "dist/main.js"]
 
 # ---------------------------------------------------------------------------
 # frontend runtime: nginx serves the SPA and reverse-proxies /api -> backend
 # ---------------------------------------------------------------------------
-FROM nginx:1.27-alpine AS frontend
+FROM nginx:1.27-alpine AS frontend-prod
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

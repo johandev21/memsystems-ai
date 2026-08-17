@@ -12,13 +12,13 @@ export interface PendingSourceUpload {
   status: "fetching" | "extracting" | "processing" | "completed" | "error";
   errorMessage?: string;
   abortController?: AbortController;
-  timerId?: NodeJS.Timeout;
+  timerId?: ReturnType<typeof setInterval>;
 }
 
 interface UploadStoreState {
   pendingUploads: PendingSourceUpload[];
   addPendingUpload: (
-    upload: Omit<PendingSourceUpload, "progress" | "status" | "statusText"> & {
+    upload: Omit<PendingSourceUpload, "id" | "progress" | "status" | "statusText"> & {
       initialProgress?: number;
       initialStatusText?: string;
     },
@@ -37,7 +37,7 @@ export const useUploadStore = create<UploadStoreState>((set, get) => ({
   pendingUploads: [],
 
   addPendingUpload: (upload) => {
-    const id = upload.id || `pending-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const id = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const newItem: PendingSourceUpload = {
       ...upload,
       id,

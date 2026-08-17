@@ -23,7 +23,7 @@ export function ChatEmptyState({ notebookTitle, description, isUntitled }: ChatE
 
   return (
     <ConversationEmptyState
-      title={`Welcome to ${notebookTitle}`}
+      title={`Welcome to your notebook: "${notebookTitle}"`}
       description={`Ask questions or generate study materials based on your added sources.\n\nUse the chat composer below to get started.`}
     />
   );

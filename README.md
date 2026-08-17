@@ -95,13 +95,13 @@ Desde la raíz del repositorio:
 pnpm install
 ```
 
-Copia `.env.example` a `.env.local` y completa los valores necesarios. Como mínimo, configura:
+Copia `backend/.env.example` a `backend/.env.local` y completa los valores necesarios. Como mínimo, configura:
 
 - `DATABASE_URL`: conexión a PostgreSQL.
 - `BETTER_AUTH_SECRET`: secreto para la autenticación.
 - `BETTER_AUTH_URL`: URL de la aplicación, normalmente `http://localhost:3000`.
 
-Para el desarrollo local se puede usar el almacenamiento en disco incluido en el proyecto. La configuración correspondiente está en `.env.example`.
+Para el desarrollo local se puede usar el almacenamiento en disco incluido en el proyecto. La configuración correspondiente está en `backend/.env.example`.
 
 ## Desarrollo
 
@@ -136,46 +136,72 @@ Consulta [docs/database.md](docs/database.md) para conocer el esquema y la confi
 
 ## Docker
 
-La aplicación está dockerizada con Docker Compose. Un solo comando levanta PostgreSQL, el backend (NestJS) y el frontend (servido por nginx, que además hace de proxy inverso para `/api`):
+Docker ofrece dos flujos aislados. Cada uno tiene sus propios contenedores, base de datos y archivos subidos.
+
+### Desarrollo con recarga automática
+
+El modo de desarrollo ejecuta Vite y NestJS dentro de Docker. Los cambios en `frontend/src` activan HMR y los cambios en `backend/src` reinician el backend automáticamente. El sondeo de archivos está habilitado para que funcione de forma fiable con Docker Desktop en Windows.
 
 ```bash
-docker compose up -d --build
+pnpm docker:dev
 ```
 
-O desde pnpm:
+No requiere configuración inicial: si `.env.docker.dev` no existe, se usan los valores desechables de `.env.docker.dev.example`. Para personalizar puertos, proveedores o secretos locales:
+
+```powershell
+Copy-Item .env.docker.dev.example .env.docker.dev
+```
+
+Servicios expuestos:
+
+- Aplicación: `http://localhost:3000`
+- Backend para depuración: `http://localhost:4000/api`
+- PostgreSQL para herramientas locales: `localhost:5432`
+
+Los puertos se pueden cambiar con `APP_PORT`, `API_PORT` y `DB_PORT`. Si cambias `APP_PORT`, actualiza también `APP_ORIGIN` para que ambos señalen al mismo origen público.
+
+### Stack local similar a producción
+
+El modo de producción local compila TypeScript, genera los assets de Vite, sirve el frontend con nginx y ejecuta el backend compilado. Solo expone el frontend; nginx envía `/api` al backend dentro de Docker.
+
+Primero crea su archivo privado de configuración:
+
+```powershell
+Copy-Item .env.docker.prod.example .env.docker.prod
+```
+
+Genera tres valores independientes ejecutando este comando tres veces:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Usa uno como `POSTGRES_PASSWORD`, otro como `BETTER_AUTH_SECRET` y el tercero como `DEV_STORAGE_TOKEN_SECRET`. Los valores hexadecimales son seguros dentro del `DATABASE_URL` que construye Compose. Para uso local puedes conservar `APP_PORT=3000` y `APP_ORIGIN=http://localhost:3000`; en un despliegue, `APP_ORIGIN` debe ser el origen HTTPS exacto que abre el navegador, sin barra final. `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` son opcionales.
+
+Después ejecuta:
 
 ```bash
-pnpm docker:up
+pnpm docker:prod
 ```
 
-La aplicación queda disponible en `http://localhost:3000`. Las migraciones de base de datos se aplican automáticamente al arrancar el backend.
+La aplicación queda disponible en `APP_ORIGIN` (`http://localhost:3000` por defecto). Este stack sirve para validación local y como base de imágenes desplegables; no incluye TLS, backups ni gestión de secretos para Internet.
+
+### Comandos Docker
+
+| Desarrollo | Producción local | Propósito |
+|-------------|------------------|-----------|
+| `pnpm docker:dev` | `pnpm docker:prod` | Construir e iniciar el stack. Desarrollo muestra los logs; producción queda en segundo plano. |
+| `pnpm docker:dev:logs` | `pnpm docker:prod:logs` | Seguir los logs. |
+| `pnpm docker:dev:ps` | `pnpm docker:prod:ps` | Mostrar el estado de los servicios. |
+| `pnpm docker:dev:migrate` | `pnpm docker:prod:migrate` | Ejecutar las migraciones manualmente. |
+| `pnpm docker:dev:down` | `pnpm docker:prod:down` | Detener el stack conservando sus datos. |
+| `pnpm docker:dev:reset` | `pnpm docker:prod:reset` | Eliminar el stack, su base de datos y sus archivos subidos. |
 
 ### Configuración
 
-Sin ningún `.env`, Compose funciona con valores por defecto válidos para desarrollo local. Para configurar claves de IA, autenticación social y secretos, copia `.env.example` a `.env` en la raíz del repositorio:
+El backend recibe un único `APP_ORIGIN`, que Compose utiliza para `CLIENT_URL`, `BETTER_AUTH_URL` y `DEV_STORAGE_PUBLIC_URL`. Así, las imágenes y descargas siempre usan el mismo origen que abre el navegador. Las direcciones internas continúan usando los nombres de servicio `backend` y `db`.
 
-```bash
-cp .env.example .env
-```
-
-Variables específicas de Docker (todas opcionales):
-
-| Variable | Por defecto | Descripción |
-|----------|-------------|-------------|
-| `APP_PORT` | `3000` | Puerto del frontend en el host. |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `postgres` / `superuser` / `memsystems` | Credenciales de la base de datos. |
-| `CLIENT_URL` / `BETTER_AUTH_URL` | `http://localhost:3000` | URL pública de la aplicación. |
-| `BETTER_AUTH_SECRET` | `change-me-in-production` | Secreto de Better Auth. **Cámbialo en cualquier despliegue.** |
-| `DEV_STORAGE_PUBLIC_URL` | `http://localhost:3000` | Debe apuntar al origen del frontend para que las URLs de descarga pasen por nginx. |
-
-Para usar almacenamiento S3/MinIO en vez del disco local, descomenta el servicio `minio` en `compose.yml` y define las variables `S3_*` en `.env` (ver `.env.example`).
-
-Otros comandos útiles:
-
-```bash
-pnpm docker:logs   # seguir los logs
-pnpm docker:down   # detener y eliminar contenedores
-```
+Los comandos Docker cargan explícitamente `.env.docker.dev` o `.env.docker.prod`; el `.env` antiguo de la raíz ya no configura Docker. El desarrollo nativo continúa usando `backend/.env.local`.
 
 ## Comandos principales
 

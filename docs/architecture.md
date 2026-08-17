@@ -21,7 +21,7 @@ pnpm workspace monorepo defined in `pnpm-workspace.yaml`. Turborepo orchestrates
 - **API client**: `src/lib/api-client/factory.ts` — `createQueryOptions` / `apiPost` / `apiDelete` typed wrappers. Per-resource files (`notebooks.ts`, `sources.ts`, etc.) call the factory.
 - **Auth**: `src/lib/auth/client.ts` — Better Auth client for React.
 - **Features**: Scoped dirs in `src/features/{ai,notebook-chat,notebooks,sources,study-materials}/` bundling components, hooks, and logic.
-- **Dev proxy**: `vite.config.ts` proxies `/api` -> `http://127.0.0.1:4000` (configurable via `NESTJS_BACKEND_URL` env).
+- **Dev proxy**: `vite.config.ts` proxies `/api` -> `http://127.0.0.1:4000` natively or `http://backend:4000` in Docker (configurable via `NESTJS_BACKEND_URL`). Docker Desktop polling is enabled only by the Docker development stack.
 - **Lint only**: oxlint (`.oxlintrc.json`). No formatter configured.
 
 ## Backend
@@ -34,7 +34,7 @@ pnpm workspace monorepo defined in `pnpm-workspace.yaml`. Turborepo orchestrates
 - **Modules**: `src/modules/{ai,auth,chat,database,notebooks,sources,storage,study-materials}/`. Each is a NestJS `@Module()`.
 - **Validation**: Zod schemas applied via `ZodValidationPipe` (in `src/common/pipes/`).
 - **Error handling**: throw `DomainError` (from `src/common/errors/`) caught by `DomainExceptionFilter` -> `{error, code}` JSON.
-- **Env loading**: `ConfigModule.forRoot()` reads `[../frontend/.env.local, .env.local, ../.env.local, .env]` in order.
+- **Env loading**: Native backend development reads `backend/.env.local` and `backend/.env`. Docker injects an explicit mode-specific environment and does not depend on the root `.env`.
 - **Lint/Format**: ESLint + Prettier (`eslint.config.mjs` + `.prettierrc`).
 
 ## Shared concepts
@@ -43,3 +43,11 @@ pnpm workspace monorepo defined in `pnpm-workspace.yaml`. Turborepo orchestrates
 - **DomainError**: Class with `status` HTTP code, used in both frontend and backend.
 - **AI**: OpenAI per-user key + OpenCode operator-configured. Frontend provider in `src/features/ai/provider.ts`, backend in `modules/ai/`.
 - **Storage**: S3-compatible (MinIO dev, R2 prod). Falls back to local filesystem when `DEV_STORAGE_DIR` is set.
+
+## Docker
+
+- `compose.dev.yml`: separate Vite, NestJS, and migration services sharing one development workspace image, with host source mounts, polling-based reload, and exposed frontend/backend/database ports.
+- `compose.prod.yml`: compiled NestJS and Vite artifacts, nginx reverse proxy, and only the frontend port exposed.
+- Each stack has its own Compose project and named volumes for PostgreSQL and uploaded files.
+- A one-shot `migrate` service must complete successfully before the backend starts.
+- `APP_ORIGIN` is the single browser-facing origin used by CORS, Better Auth, and signed local-storage URLs.

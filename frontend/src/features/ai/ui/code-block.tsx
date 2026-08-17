@@ -158,15 +158,13 @@ export const highlightCode = (
 
   getHighlighter()
     .then(async (highlighter) => {
-      let langToUse: BundledLanguage = "text";
+      let langToUse: BundledLanguage | "text" = "text";
 
-      if (language !== "text") {
-        try {
-          await highlighter.loadLanguage(language);
-          langToUse = language;
-        } catch {
-          // Unknown language identifiers fall back to plain text.
-        }
+      try {
+        await highlighter.loadLanguage(language);
+        langToUse = language;
+      } catch {
+        // Unknown language identifiers fall back to plain text.
       }
 
       const result = highlighter.codeToTokens(code, {

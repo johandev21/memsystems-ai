@@ -7,10 +7,10 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "dev": "nest start --watch",
+    "dev": "nest start --watch --no-shell",
     "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start:dev": "nest start --watch --no-shell",
+    "start:debug": "nest start --debug --watch --no-shell",
     "start:prod": "node dist/main",
     "db:migrate": "ts-node src/database/migrate.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",

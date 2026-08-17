@@ -58,9 +58,9 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
     <div className="flex flex-col gap-2">
       {/* Capability warning */}
       {!hasCapableModel && (
-        <div className="flex items-start gap-2 rounded-[10px] border border-warning/30 bg-warning/10 p-2.5 text-sm leading-relaxed text-warning-foreground">
-          <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-          <span>
+        <div className="flex items-start gap-2.5 rounded-xl border border-border/80 p-3 leading-relaxed text-foreground">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <span className="text-xs">
             Web search isn&apos;t supported by your current models. Connect a model that supports it
             (e.g. GPT-5 or GPT-5 Mini) in Connection settings.
           </span>
@@ -80,7 +80,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
           }}
           placeholder="Search sources about any topic..."
           disabled={!hasCapableModel}
-          className="field-sizing-content min-h-10 w-full resize-none rounded-xl bg-input/50 px-2.5 py-1.5 text-[13px] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-100"
+          className="field-sizing-content min-h-10 w-full resize-none rounded-xl bg-input/50 px-2.5 py-1.5 text-xs outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-100"
         />
 
         <div className="flex items-center justify-between gap-1">
@@ -92,12 +92,12 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                   if (val) setChosenModel(val);
                 }}
               >
-                <SelectTrigger className="h-6 max-w-[110px] px-1.5 text-[10px] bg-muted/50 hover:bg-muted/80 border-border/80 rounded-lg">
+                <SelectTrigger className="h-6 max-w-28 px-1.5 text-xs bg-muted/50 hover:bg-muted/80 border-border/80 rounded-lg">
                   <SelectValue placeholder="Model">
                     {capableModels.find((m) => m.id === activeModel)?.displayName ?? "Select model"}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="w-[220px]">
+                <SelectContent className="w-56">
                   {capableModels.map((model) => (
                     <SelectItem
                       key={model.id}
@@ -109,7 +109,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                         <span className="font-semibold text-foreground leading-tight truncate">
                           {model.displayName}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/70 leading-none mt-1 truncate">
+                        <span className="text-xs text-muted-foreground/70 leading-none mt-1 truncate">
                           {model.id}
                         </span>
                       </div>
@@ -137,7 +137,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
       </div>
 
       {autoSwitched && (
-        <p className="px-1 text-[10px] text-muted-foreground">
+        <p className="px-1 text-xs text-muted-foreground">
           Your selected model doesn&apos;t support web search — using{" "}
           <span className="font-semibold text-foreground">
             {capableModels.find((m) => m.id === activeModel)?.displayName}
@@ -156,7 +156,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
 
       {/* Search error */}
       {webSearch.searchError && webSearch.candidates.length === 0 && (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-2.5 text-[11px] text-destructive">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
           {webSearch.searchError}
         </div>
       )}
@@ -165,14 +165,14 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
       {webSearch.phase === "done" && webSearch.candidates.length > 0 && (
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-2">
           <div className="flex items-center justify-between px-1 pb-1.5">
-            <span className="flex items-center gap-1 text-[11px] font-semibold">
+            <span className="flex items-center gap-1 text-xs font-semibold">
               <Sparkles className="size-3 text-primary" />
               Fast Research completed!
             </span>
             {webSearch.summary && (
               <button
                 onClick={() => setExpanded((v) => !v)}
-                className="text-[11px] text-primary cursor-pointer"
+                className="text-xs text-primary cursor-pointer"
               >
                 {expanded ? "Hide" : "View"}
               </button>
@@ -180,7 +180,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
           </div>
 
           {expanded && webSearch.summary && (
-            <div className="mb-1.5 rounded-xl bg-card px-2 py-1.5 text-[11px] leading-relaxed text-muted-foreground">
+            <div className="mb-1.5 rounded-xl bg-card px-2 py-1.5 text-xs leading-relaxed text-muted-foreground">
               {webSearch.summary}
             </div>
           )}
@@ -206,11 +206,11 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-xs font-medium">{c.title}</div>
-                    <div className="truncate text-[10px] text-muted-foreground">{c.url}</div>
+                    <div className="truncate text-xs text-muted-foreground">{c.url}</div>
                     {result && result.status !== "added" && result.status !== "duplicate" && (
                       <div
                         className={cn(
-                          "mt-0.5 flex items-center gap-1 text-[10px]",
+                          "mt-0.5 flex items-center gap-1 text-xs",
                           result.status === "scrape_failed"
                             ? "text-destructive"
                             : "text-muted-foreground",
@@ -231,7 +231,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
 
           {/* Action row */}
           <div className="mt-1 flex items-center justify-between border-t border-border/50 px-1 pt-1.5">
-            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {hasImport ? (
                 <span className="flex items-center gap-1">
                   <Check className="size-3 text-success" />
@@ -247,7 +247,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 cursor-pointer text-[11px]"
+                  className="h-6 cursor-pointer text-xs"
                   onClick={() => activeModel && webSearch.retryFailed(activeModel)}
                   disabled={webSearch.importing}
                 >
@@ -269,7 +269,7 @@ export function WebSearchComposer({ notebookId }: { notebookId: string }) {
               </Button>
               <Button
                 size="sm"
-                className="h-6 cursor-pointer text-[11px]"
+                className="h-6 cursor-pointer text-xs"
                 onClick={() => activeModel && webSearch.importSelected(activeModel)}
                 disabled={selectedCount === 0 || webSearch.importing}
               >

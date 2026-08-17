@@ -24,15 +24,15 @@ export interface MindMapNodeData {
   id: string;
   label: string;
   color?: string | null;
-  position?: { x: number; y: number };
+  position?: { x: number; y: number } | null;
 }
 
 export interface MindMapEdgeData {
   id: string;
   sourceId: string;
   targetId: string;
-  label?: string;
-  directed?: boolean;
+  label?: string | null;
+  directed?: boolean | null;
 }
 
 export interface MindMapViewProps {
@@ -48,7 +48,7 @@ export interface MindMapViewProps {
 type MapItem = {
   id: string;
   label: string;
-  color?: string;
+  color?: string | null;
   children: MapItem[];
 };
 
@@ -306,7 +306,7 @@ function MindMapFlow({ content, materialTitle }: MindMapViewProps) {
         padding: 0.35,
         duration: reducedMotion ? 0 : 450,
       });
-      setViewportFocusId(null);
+      setViewportFocus(null);
     }, 0);
 
     return () => window.clearTimeout(timeout);

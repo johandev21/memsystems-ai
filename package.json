@@ -12,10 +12,18 @@
     "lint": "turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
-    "docker:up": "docker compose up -d --build",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f",
-    "docker:ps": "docker compose ps"
+    "docker:dev": "node scripts/docker.mjs dev up",
+    "docker:dev:down": "node scripts/docker.mjs dev down",
+    "docker:dev:logs": "node scripts/docker.mjs dev logs",
+    "docker:dev:ps": "node scripts/docker.mjs dev ps",
+    "docker:dev:migrate": "node scripts/docker.mjs dev migrate",
+    "docker:dev:reset": "node scripts/docker.mjs dev reset",
+    "docker:prod": "node scripts/docker.mjs prod up",
+    "docker:prod:down": "node scripts/docker.mjs prod down",
+    "docker:prod:logs": "node scripts/docker.mjs prod logs",
+    "docker:prod:ps": "node scripts/docker.mjs prod ps",
+    "docker:prod:migrate": "node scripts/docker.mjs prod migrate",
+    "docker:prod:reset": "node scripts/docker.mjs prod reset"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.10",

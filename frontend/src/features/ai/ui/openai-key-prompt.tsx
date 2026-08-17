@@ -33,7 +33,8 @@ export function ProviderKeyPrompt({
   const handleSaveKey = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanKey = apiKeyInput.trim();
-    if (!cleanKey) return;
+    const selectedProvider = provider;
+    if (!cleanKey || !selectedProvider) return;
 
     setIsSaving(true);
     setErrorMessage(null);
@@ -42,7 +43,7 @@ export function ProviderKeyPrompt({
       const res = await fetchApi("/api/ai/connection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, apiKey: cleanKey }),
+        body: JSON.stringify({ provider: selectedProvider, apiKey: cleanKey }),
       });
 
       if (!res.ok) {
@@ -51,8 +52,8 @@ export function ProviderKeyPrompt({
 
       const status = await res.json();
 
-      if (!status.providers?.[provider]?.ok) {
-        throw new Error(status.providers?.[provider]?.detail ?? "Verification failed");
+      if (!status.providers?.[selectedProvider]?.ok) {
+        throw new Error(status.providers?.[selectedProvider]?.detail ?? "Verification failed");
       }
 
       toast.success("API key verified and saved");
