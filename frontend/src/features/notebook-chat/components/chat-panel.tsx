@@ -5,6 +5,8 @@ import {
   OpenAIKeyPrompt,
 } from "@/features/ai";
 import { NotebookBanner } from "@/features/notebooks";
+import { CLEAR_NOTEBOOK_CHAT_EVENT } from "@/features/notebooks";
+import { useEffect } from "react";
 import { useChatPanel } from "../hooks/use-chat-panel";
 import { useRef } from "react";
 import { ChatEmptyState } from "./chat-empty-state";
@@ -38,6 +40,17 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
     chatAnnouncement,
   } = useChatPanel(notebookId, panelRef);
 
+  useEffect(() => {
+    const handleClearRequest = (event: Event) => {
+      const detail = (event as CustomEvent<{ notebookId?: string }>).detail;
+      if (detail?.notebookId === notebookId && messageCount > 0 && !isLoading) {
+        setIsClearDialogOpen(true);
+      }
+    };
+    window.addEventListener(CLEAR_NOTEBOOK_CHAT_EVENT, handleClearRequest);
+    return () => window.removeEventListener(CLEAR_NOTEBOOK_CHAT_EVENT, handleClearRequest);
+  }, [isLoading, messageCount, notebookId, setIsClearDialogOpen]);
+
   const notebookTitle = notebook?.title ?? "Notebook";
   const isUntitled = notebookTitle.toLowerCase() === "untitled";
   const showBannerAsUntitled = isUntitled && messageCount === 0;
@@ -53,7 +66,9 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
           <ConversationContent>
             {notebook && (
               <NotebookBanner
+                notebookId={notebook.id}
                 title={notebook.title}
+                description={notebook.description}
                 icon={notebook.icon ?? undefined}
                 bannerUrl={notebook.bannerUrl}
                 bannerFocalPoint={notebook.bannerFocalPoint}
@@ -61,14 +76,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
                 isUntitled={showBannerAsUntitled}
               />
             )}
-
-            {notebook?.description?.trim() ? (
-              <div className="mb-6 px-1">
-                <p className="text-sm text-muted-foreground leading-relaxed font-normal whitespace-pre-wrap">
-                  {notebook.description}
-                </p>
-              </div>
-            ) : null}
 
             {hasMessages ? (
               <ChatMessageList
@@ -111,9 +118,6 @@ export function ChatPanel({ notebookId }: { notebookId: string }) {
               selectedModel={selectedModel}
               onModelChange={handleModelChange}
               textareaRef={composerTextareaRef}
-              onClearHistory={() => setIsClearDialogOpen(true)}
-              canClearHistory={hasMessages && !isLoading}
-              isClearingHistory={clearHistoryMutation.isPending}
             />
           ) : (
             <OpenAIKeyPrompt

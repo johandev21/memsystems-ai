@@ -15,8 +15,8 @@ export const QuizQuestion = z.object({
   prompt: z.string().min(1).max(2000),
   options: z.array(QuizQuestionOption).min(2).max(6),
   correctOptionId: z.string(),
-  hint: z.string().optional(),
-  topic: z.string().optional(),
+  hint: z.string().max(2000).default(''),
+  topic: z.string().max(2000).default(''),
 });
 
 export const QuizContent = z.object({
@@ -50,23 +50,26 @@ export const SimpleFlashcardContent = z.preprocess(
 export const RoadmapTopic = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
-  description: z.string().max(5000),
-  estimatedMinutes: z.number().int().min(0).optional(),
+  description: z.string().max(5000).default(''),
+  estimatedMinutes: z.number().int().min(0).default(0),
   order: z.number().int().min(0),
 });
 
 export const RoadmapPhase = z.object({
   id: z.string(),
   title: z.string().min(1).max(200),
-  description: z.string().max(5000),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  description: z.string().max(5000).default(''),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .default('#64748b'),
   order: z.number().int().min(0),
   topics: z.array(RoadmapTopic).max(100),
 });
 
 export const RoadmapContent = z.object({
   title: z.string().max(200),
-  description: z.string().max(5000),
+  description: z.string().max(5000).default(''),
   phases: z.array(RoadmapPhase).min(1).max(20),
 });
 

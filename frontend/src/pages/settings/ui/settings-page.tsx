@@ -416,26 +416,6 @@ export function SettingsPage() {
               notebooks.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isPending}
-              className="h-9 rounded-xl border-border/70 bg-background text-xs"
-            >
-              <RefreshCw className={isPending ? "size-3.5 animate-spin" : "size-3.5"} /> Refresh
-              status
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleTestAll}
-              disabled={testing || isPending}
-              className="h-9 rounded-xl text-xs shadow-sm"
-            >
-              <WandSparkles className="size-3.5" /> {testing ? "Testing..." : "Test all"}
-            </Button>
-          </div>
         </header>
 
         <section className="mt-9" aria-labelledby="providers-heading">
@@ -462,7 +442,6 @@ export function SettingsPage() {
         <section className="mt-10 grid gap-5 md:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_8px_30px_rgb(15_23_42/0.025)] sm:p-6">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="size-8" />
               <div>
                 <h2 className="text-sm font-semibold">Your keys, your control</h2>
                 <p className="mt-1.5 text-xs leading-5 text-muted-foreground">

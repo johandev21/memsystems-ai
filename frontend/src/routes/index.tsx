@@ -133,7 +133,7 @@ function LandingPage() {
           </div>
           <Link
             to="/login"
-            className="hidden rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px md:inline-flex"
+            className="btn-cta hidden px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:inline-flex"
           >
             Start free
           </Link>
@@ -174,7 +174,7 @@ function LandingPage() {
             <Link
               to="/login"
               onClick={closeMenu}
-              className={`mt-4 w-fit rounded-full bg-accent px-5 py-3 text-lg text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+              className={`btn-cta mt-4 w-fit px-5 py-3 text-lg transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
               style={{ transitionDelay: "250ms" }}
             >
               Start free
@@ -202,7 +202,7 @@ function LandingPage() {
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-semibold text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px"
+                className="btn-cta inline-flex items-center gap-2 px-5 py-3 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Start building your notebook <ArrowUpRight />
               </Link>
@@ -371,7 +371,7 @@ function LandingPage() {
             </h2>
             <Link
               to="/login"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-base font-semibold text-accent-foreground transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px"
+              className="btn-cta mt-8 inline-flex items-center gap-2 px-5 py-3 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Start building your notebook <ArrowUpRight />
             </Link>

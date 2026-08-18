@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { DesktopLayout } from "./desktop-layout";
+import { DesktopLayout, REVIEW_STUDIO_SIZE } from "./desktop-layout";
 import { MobileNotebookLayout } from "./mobile-notebook-layout";
 import { useNotebookPanels, useSourcesPanel, useStudioDialogs } from "@/features/notebooks";
 
@@ -20,8 +20,7 @@ export function NotebookWorkspaceContainer({ notebookId }: NotebookWorkspaceCont
 
     const frame = requestAnimationFrame(() => {
       sourcesRef.current?.collapse();
-      chatRef.current?.resize("40%");
-      studioRef.current?.resize("60%");
+      studioRef.current?.resize(REVIEW_STUDIO_SIZE);
     });
 
     return () => cancelAnimationFrame(frame);

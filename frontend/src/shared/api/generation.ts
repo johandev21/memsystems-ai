@@ -154,6 +154,16 @@ function parseLine(line: string): GenerationEvent {
     const materialId = (parsed as { materialId?: string }).materialId;
     return { type: "done", requestId, materialId };
   }
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    typeof (parsed as { error?: unknown }).error === "string"
+  ) {
+    return {
+      type: "error",
+      error: new Error((parsed as { error: string }).error),
+    };
+  }
   return { type: "partial", content: parsed };
 }
 

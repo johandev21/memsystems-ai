@@ -387,14 +387,14 @@ function QuizQuestionStepper({
               const isCurrentCorrect = oi === correctOptionIdx;
 
               let optionStyle =
-                "border-border bg-secondary hover:bg-muted hover:border-primary text-foreground transition-all shadow-2xs";
+                "border-border bg-card hover:bg-muted hover:border-foreground/15 text-foreground transition-colors duration-200 shadow-2xs";
               let badge = (
                 <span
                   className={cn(
                     "flex size-7 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-all",
                     isCurrentSelected
                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "border-border bg-background text-foreground group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground",
+                      : "border-border bg-background text-foreground",
                   )}
                 >
                   {String.fromCharCode(65 + oi)}
@@ -447,7 +447,7 @@ function QuizQuestionStepper({
                 <div
                   key={`${q.id}-${oi}`}
                   className={cn(
-                    "w-full p-4 rounded-xl border text-sm flex flex-col gap-2 relative overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
+                    "w-full p-4 rounded-xl border text-sm flex flex-col gap-2 relative overflow-hidden focus-within:ring-2 focus-within:ring-ring/40 focus-within:ring-offset-2",
                     optionStyle,
                     !isChecked && !isReviewMode && "cursor-pointer",
                   )}

@@ -40,6 +40,8 @@ describe('quiz answer identity', () => {
             { id: 'right', text: 'Right', explanation: 'Correct.' },
           ],
           correctOptionId: 'right',
+          hint: '',
+          topic: '',
         },
       ],
     };

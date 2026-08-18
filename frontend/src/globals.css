@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "./typeset.css";
-@import "@fontsource/poppins";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
 @import "@fontsource-variable/geist-mono";
 @import "katex/dist/katex.min.css";
 @import "tw-animate-css";
@@ -136,6 +138,11 @@
   --info-foreground: oklch(0.985 0 0);
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
+  --cta-start: oklch(0.32 0.02 260);
+  --cta-end: oklch(0.12 0.02 260);
+  --cta-start-hover: oklch(0.4 0.025 260);
+  --cta-end-hover: oklch(0.2 0.025 260);
+  --cta-foreground: oklch(0.99 0 0);
 }
 
 .typeset-chat {
@@ -196,6 +203,11 @@
   --warning-foreground: oklch(0.985 0 0);
   --info: oklch(0.708 0 0);
   --info-foreground: oklch(0.985 0 0);
+  --cta-start: oklch(0.66 0.02 260);
+  --cta-end: oklch(0.85 0.015 260);
+  --cta-start-hover: oklch(0.76 0.03 260);
+  --cta-end-hover: oklch(0.97 0.01 260);
+  --cta-foreground: oklch(0.18 0.02 260);
 }
 
 /* Dialogs contain denser forms than the surrounding workspace. Keep their
@@ -218,6 +230,30 @@
 
 .gradient-text {
   color: var(--color-foreground);
+}
+
+.btn-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  color: var(--cta-foreground);
+  background-image: linear-gradient(135deg, var(--cta-start), var(--cta-end));
+}
+
+.btn-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(135deg, var(--cta-start-hover), var(--cta-end-hover));
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.btn-cta:hover::after,
+.btn-cta:focus-visible::after {
+  opacity: 1;
 }
 
 @layer base {

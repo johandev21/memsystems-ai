@@ -12,6 +12,7 @@ export interface IconPickerProps {
   disabled?: boolean;
   className?: string;
   placeholder?: string;
+  triggerVariant?: "default" | "minimal";
 }
 
 const ALL_ICON_NAMES = Object.keys(dynamicIconImports);
@@ -197,12 +198,12 @@ const IconItem = memo(function IconItem({
       onClick={() => onClick(name)}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "flex size-9 items-center justify-center rounded-md border text-foreground transition-all outline-none cursor-pointer",
+        "flex size-9 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent text-foreground outline-none transition-colors duration-150",
         isSelected
-          ? "border-primary bg-primary text-primary-foreground shadow-xs"
+          ? "bg-accent text-accent-foreground"
           : isFocused
-            ? "border-ring bg-accent text-accent-foreground ring-2 ring-ring/40"
-            : "border-transparent bg-muted/40 hover:bg-muted hover:border-border",
+            ? "bg-muted text-foreground ring-1 ring-ring/50"
+            : "hover:bg-muted/60",
       )}
     >
       <NotebookIcon name={name} className="size-4 shrink-0" />
@@ -218,6 +219,7 @@ export function IconPicker({
   disabled = false,
   className,
   placeholder = "Search for an icon",
+  triggerVariant = "default",
 }: IconPickerProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -334,20 +336,28 @@ export function IconPicker({
         aria-expanded={open}
         aria-haspopup="dialog"
         className={cn(
-          "group flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background transition-all hover:bg-muted hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer disabled:pointer-events-none disabled:opacity-50",
+          "group flex shrink-0 cursor-pointer items-center justify-center rounded-lg focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+          triggerVariant === "minimal"
+            ? "size-10 border-0 bg-transparent text-foreground transition-opacity duration-150 hover:opacity-75 focus-visible:ring-1 focus-visible:ring-ring/60 focus-visible:ring-offset-1"
+            : "size-9 border border-border bg-background transition-all hover:border-primary/50 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           className,
         )}
       >
         <NotebookIcon
           name={value}
-          className="size-4 text-foreground transition-transform group-hover:scale-110"
+          className={cn(
+            "text-foreground",
+            triggerVariant === "minimal"
+              ? "size-10 shrink-0"
+              : "size-4 transition-transform group-hover:scale-110",
+          )}
         />
       </PopoverTrigger>
 
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-[340px] p-3 gap-3 shadow-xl rounded-2xl border border-border bg-popover text-popover-foreground outline-none"
+        className="w-[340px] gap-2 rounded-xl border border-border/70 bg-popover p-2.5 text-popover-foreground shadow-lg outline-none"
         onKeyDown={handleKeyDown}
       >
         <div className="relative flex items-center">
@@ -360,7 +370,7 @@ export function IconPicker({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={placeholder}
-            className="pr-8 pl-3 h-9 text-xs border-border bg-muted/30 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+            className="h-9 rounded-md border-border/70 bg-background/30 pr-8 pl-3 text-xs shadow-none focus-visible:border-ring/70 focus-visible:bg-background/50 focus-visible:ring-1 focus-visible:ring-ring/20"
           />
           {searchQuery ? (
             <button
@@ -370,7 +380,7 @@ export function IconPicker({
                 setDebouncedQuery("");
                 inputRef.current?.focus();
               }}
-              className="absolute right-2.5 flex size-4 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
               aria-label="Clear search"
             >
               <X className="size-3" />
@@ -386,15 +396,15 @@ export function IconPicker({
           onScroll={handleScroll}
           role="listbox"
           aria-label="Icons"
-          className="max-h-[280px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+          className="max-h-[280px] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
         >
           {isSearching ? (
             matchingIcons.length > 0 ? (
               <div className="grid gap-2">
-                <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Results ({matchingIcons.length})
+                <div className="px-0.5 text-[10px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+                  Results
                 </div>
-                <div className="grid grid-cols-6 gap-1.5">
+                <div className="grid grid-cols-6 gap-1">
                   {displayedMatchingIcons.map((iconName, index) => (
                     <IconItem
                       key={iconName}
@@ -420,13 +430,13 @@ export function IconPicker({
               </div>
             )
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-2.5">
               {CURATED_CATEGORIES.map((category) => (
-                <div key={category.name} className="space-y-1.5">
-                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                <div key={category.name} className="flex flex-col gap-1">
+                  <div className="px-0.5 text-[10px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
                     {category.name}
                   </div>
-                  <div className="grid grid-cols-6 gap-1.5">
+                  <div className="grid grid-cols-6 gap-1">
                     {category.icons.map((iconName) => {
                       const globalIdx = currentIcons.indexOf(iconName);
                       return (

@@ -261,8 +261,21 @@ export class StudyMaterialsController {
 
     const reader = stream.getReader();
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      let value: Uint8Array;
+      try {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        value = chunk.value;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: message, code: 'generation_failed' });
+        } else {
+          res.write(`${JSON.stringify({ error: message, requestId })}\n`);
+        }
+        res.end();
+        return;
+      }
       if (value) res.write(value);
     }
     res.end();

@@ -1,4 +1,4 @@
-import { CheckIcon, Eraser } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { type RefObject, useMemo, useState } from "react";
 import {
   ModelSelector,
@@ -19,7 +19,6 @@ import {
   PromptInputTextarea,
   PromptInputTools,
 } from "@/features/ai";
-import { Button } from "@/shared/ui/button";
 import type { ModelOption } from "@/shared/api/models";
 
 export interface ComposerProps {
@@ -32,9 +31,6 @@ export interface ComposerProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
-  onClearHistory: () => void;
-  canClearHistory: boolean;
-  isClearingHistory: boolean;
 }
 
 const providerNames: Record<string, string> = {
@@ -57,9 +53,6 @@ export function Composer({
   selectedModel,
   onModelChange,
   textareaRef,
-  onClearHistory,
-  canClearHistory,
-  isClearingHistory,
 }: ComposerProps) {
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -179,18 +172,6 @@ export function Composer({
               </ModelSelectorList>
             </ModelSelectorContent>
           </ModelSelector>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            onClick={onClearHistory}
-            disabled={!canClearHistory || isClearingHistory}
-            aria-label="Clear chat history"
-            title="Clear chat history"
-            className="h-8 w-8 shrink-0 cursor-pointer text-[var(--composer-icon-color)] hover:text-destructive"
-          >
-            <Eraser className="h-4 w-4" />
-          </Button>
         </PromptInputTools>
         <PromptInputSubmit
           status={isLoading ? "streaming" : "ready"}

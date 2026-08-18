@@ -17,6 +17,15 @@ export class DomainExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    if (response.headersSent) {
+      this.logger.error(
+        'Exception thrown after response headers sent; aborting response.',
+        exception instanceof Error ? exception.stack : undefined,
+      );
+      response.destroy();
+      return;
+    }
+
     if (exception instanceof DomainError) {
       this.logger.warn(`DomainError [${exception.code}]: ${exception.message}`);
       return response.status(exception.status).json({

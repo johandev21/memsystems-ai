@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
-import type { PanelImperativeHandle } from "react-resizable-panels";
+import type { GroupImperativeHandle, PanelImperativeHandle } from "react-resizable-panels";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/ui/resizable";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { ChatPanel, ChatPanelHeader } from "@/features/notebook-chat";
@@ -9,6 +10,19 @@ import { StudioResources, RightPane } from "@/features/notebooks";
 import type { UseStudioDialogsReturn } from "@/features/notebooks";
 import { SourcesPanelHeader } from "./sources-panel-header";
 import { StudioPanelHeader } from "./studio-panel-header";
+
+const COLLAPSED_PANEL_SIZE = "48px";
+const SIDE_PANEL_MIN_SIZE = "220px";
+const CHAT_PANEL_MIN_SIZE = 480;
+const CHAT_PANEL_MAX_MIN_SIZE = 900;
+const CHAT_PANEL_MIN_WIDTH_RATIO = 0.35;
+const REVIEW_STUDIO_MIN_SIZE = "360px";
+export const REVIEW_STUDIO_SIZE = "1000px";
+const DEFAULT_WORKSPACE_LAYOUT = {
+  sources: 20,
+  chat: 60,
+  studio: 20,
+};
 
 export interface DesktopLayoutProps {
   notebookId: string;
@@ -38,13 +52,31 @@ export function DesktopLayout({
   onSelectSource,
 }: DesktopLayoutProps) {
   const isReviewingStudyMaterial = Boolean(dialogs.selectedStudyMaterialId);
+  const panelGroupRef = useRef<HTMLDivElement>(null);
+  const panelGroupApiRef = useRef<GroupImperativeHandle>(null);
+  const [panelGroupWidth, setPanelGroupWidth] = useState(0);
+  const responsiveChatMinSize = `${Math.min(
+    CHAT_PANEL_MAX_MIN_SIZE,
+    Math.max(CHAT_PANEL_MIN_SIZE, Math.round(panelGroupWidth * CHAT_PANEL_MIN_WIDTH_RATIO)),
+  )}px`;
+
+  useEffect(() => {
+    const panelGroup = panelGroupRef.current;
+    if (!panelGroup) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setPanelGroupWidth(Math.round(entry.contentRect.width));
+    });
+
+    observer.observe(panelGroup);
+    return () => observer.disconnect();
+  }, []);
 
   const exitStudyMaterialReview = () => {
     dialogs.setSelectedStudyMaterialId(null);
     sourcesRef.current?.expand();
     requestAnimationFrame(() => {
-      chatRef.current?.resize("60%");
-      studioRef.current?.resize("20%");
+      panelGroupApiRef.current?.setLayout(DEFAULT_WORKSPACE_LAYOUT);
     });
   };
 
@@ -85,12 +117,20 @@ export function DesktopLayout({
 
   return (
     <div className="hidden lg:block h-full scrollbar-none">
-      <ResizablePanelGroup orientation="horizontal" className="max-w-full h-full">
+      <ResizablePanelGroup
+        id="notebook-workspace"
+        orientation="horizontal"
+        elementRef={panelGroupRef}
+        groupRef={panelGroupApiRef}
+        defaultLayout={DEFAULT_WORKSPACE_LAYOUT}
+        className="max-w-full h-full"
+      >
         <ResizablePanel
+          id="sources"
           collapsible
-          collapsedSize="48px"
-          minSize="15%"
-          defaultSize="20%"
+          collapsedSize={COLLAPSED_PANEL_SIZE}
+          minSize={SIDE_PANEL_MIN_SIZE}
+          groupResizeBehavior="preserve-relative-size"
           panelRef={sourcesRef}
           onResize={handleSyncSources}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border/80 bg-card"
@@ -125,9 +165,9 @@ export function DesktopLayout({
           className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
-          minSize={isReviewingStudyMaterial ? "460px" : "40%"}
-          maxSize={isReviewingStudyMaterial ? "560px" : undefined}
-          defaultSize={isReviewingStudyMaterial ? "40%" : "60%"}
+          id="chat"
+          minSize={isReviewingStudyMaterial ? `${CHAT_PANEL_MIN_SIZE}px` : responsiveChatMinSize}
+          groupResizeBehavior="preserve-relative-size"
           panelRef={chatRef}
           className="overflow-hidden shadow-sm dark:shadow-none rounded-[min(var(--radius-4xl),24px)] border border-border/80 bg-card"
         >
@@ -144,10 +184,14 @@ export function DesktopLayout({
           className="w-2.5 bg-transparent hover:bg-border/20 active:bg-border/40 transition-colors my-[48px] rounded-xl"
         />
         <ResizablePanel
+          id="studio"
           collapsible
-          collapsedSize="48px"
-          minSize={isReviewingStudyMaterial ? "30%" : "15%"}
-          defaultSize={isReviewingStudyMaterial ? "60%" : "20%"}
+          collapsedSize={COLLAPSED_PANEL_SIZE}
+          minSize={isReviewingStudyMaterial ? REVIEW_STUDIO_MIN_SIZE : SIDE_PANEL_MIN_SIZE}
+          maxSize={isReviewingStudyMaterial ? REVIEW_STUDIO_SIZE : undefined}
+          groupResizeBehavior={
+            isReviewingStudyMaterial ? "preserve-pixel-size" : "preserve-relative-size"
+          }
           disabled={isReviewingStudyMaterial}
           panelRef={studioRef}
           onResize={handleSyncStudio}
