@@ -27,7 +27,7 @@ export function NotebookCard({
       to="/notebooks/$notebookId"
       params={{ notebookId: id }}
       className={cn(
-        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:-translate-y-0.5 hover:ring-primary/35 hover:shadow-md transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
+        "group relative flex flex-col overflow-hidden bg-card ring-1 ring-foreground/10 hover:ring-primary/35 hover:shadow-md transition-all duration-200 cursor-pointer block rounded-[min(var(--radius-4xl),24px)]",
         className,
       )}
     >

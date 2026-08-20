@@ -168,6 +168,14 @@ export class StudyMaterialsController {
     return this.studyMaterialService.move(userId, id, body);
   }
 
+  @Post('study-materials/:id/duplicate')
+  async duplicateStudyMaterial(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.studyMaterialService.duplicate(userId, id);
+  }
+
   // --- Folders ---
   @Get('notebooks/:notebookId/folders')
   async listFolders(

@@ -189,9 +189,6 @@ function LandingPage() {
           className="mx-auto max-w-6xl px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:pb-32 lg:pt-36"
         >
           <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-primary">
-              A notebook for making sense of things
-            </p>
             <h1 className="mx-auto max-w-2xl text-5xl font-semibold leading-none tracking-[-0.06em] text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground text-balance sm:text-7xl">
               Think with your sources, not around them.
             </h1>
@@ -333,9 +330,6 @@ function LandingPage() {
         <section id="faq" className="border-t border-border bg-card px-4 py-20 sm:px-6 sm:py-28">
           <div className="mx-auto max-w-3xl">
             <div className="mb-10">
-              <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Before you begin
-              </p>
               <h2 className="text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
                 Questions worth answering.
               </h2>
@@ -360,9 +354,6 @@ function LandingPage() {
 
         <section className="px-4 py-24 sm:px-6 sm:py-36">
           <div className="mx-auto max-w-4xl text-center">
-            <p className="mb-5 font-mono text-xs uppercase tracking-[0.18em] text-primary">
-              Begin with one question
-            </p>
             <h2 className="text-4xl font-semibold tracking-[-0.06em] text-balance sm:text-6xl">
               Make room for the thought after the thought.
             </h2>

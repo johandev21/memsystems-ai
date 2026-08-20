@@ -3,9 +3,14 @@ import type {
   StudyMaterialDTO,
   CreateStudyMaterialInput,
 } from "@/entities/study-material";
-import { apiDelete, apiPost, createQueryOptions } from "./factory";
+import { apiDelete, apiPatch, apiPost, createQueryOptions } from "./factory";
 
 export type { StudyMaterialKind, StudyMaterialDTO, CreateStudyMaterialInput };
+
+export interface UpdateStudyMaterialInput {
+  title?: string;
+  content?: unknown;
+}
 
 export const studyMaterialsQueryOptions = (notebookId: string) =>
   createQueryOptions<StudyMaterialDTO[]>(
@@ -25,5 +30,14 @@ export const createStudyMaterial = (notebookId: string, input: CreateStudyMateri
     input,
   );
 
+export const updateStudyMaterial = (materialId: string, input: UpdateStudyMaterialInput) =>
+  apiPatch<UpdateStudyMaterialInput, StudyMaterialDTO>(`/api/study-materials/${materialId}`, input);
+
 export const deleteStudyMaterial = (materialId: string) =>
   apiDelete(`/api/study-materials/${materialId}`);
+
+export const duplicateStudyMaterial = (materialId: string) =>
+  apiPost<Record<string, never>, StudyMaterialDTO>(`/api/study-materials/${materialId}/duplicate`, {});
+
+export const moveStudyMaterial = (materialId: string, folderId: string | null) =>
+  apiPatch<{ folderId: string | null }, StudyMaterialDTO>(`/api/study-materials/${materialId}/move`, { folderId });

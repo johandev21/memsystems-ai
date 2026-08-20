@@ -105,7 +105,11 @@ export class StudyMaterialService {
     const sm = await this.fetchOwned(userId, smId);
     const updates: Partial<typeof studyMaterials.$inferInsert> = {};
     if (input.title !== undefined) {
-      updates.title = input.title.trim().slice(0, 200);
+      const trimmed = input.title.trim();
+      if (trimmed.length === 0) {
+        throw new BadRequestError('Title cannot be empty');
+      }
+      updates.title = trimmed.slice(0, 200);
     }
     if (input.content !== undefined) {
       updates.content = validateContent(sm.kind, input.content);
@@ -183,6 +187,59 @@ export class StudyMaterialService {
       .where(eq(studyMaterials.id, smId))
       .returning();
     return moved;
+  }
+
+  async duplicate(userId: string, smId: string) {
+    const source = await this.fetchOwned(userId, smId);
+    if (source.deletedAt) {
+      throw new BadRequestError('Cannot duplicate a deleted study material');
+    }
+
+    // Validate content before copying; ensures kind/content invariant
+    const validatedContent = validateContent(source.kind, source.content);
+
+    // Title derivation: append " copy" while preserving 200 char limit
+    const suffix = ' copy';
+    const trimmedTitle = source.title.trim();
+    const maxBaseLength = 200 - suffix.length;
+    const base = trimmedTitle.slice(0, maxBaseLength);
+    const newTitle = `${base}${suffix}`;
+
+    // Folder handling: preserve active same-notebook folder, else place at root; reject impossible cross-notebook
+    let targetFolderId: string | null = source.folderId;
+    if (targetFolderId) {
+      const [folder] = await this.db
+        .select({
+          id: studyMaterialFolders.id,
+          notebookId: studyMaterialFolders.notebookId,
+          deletedAt: studyMaterialFolders.deletedAt,
+        })
+        .from(studyMaterialFolders)
+        .where(eq(studyMaterialFolders.id, targetFolderId));
+      if (!folder) {
+        targetFolderId = null;
+      } else if (folder.notebookId !== source.notebookId) {
+        throw new ForbiddenError('Folder does not belong to this notebook');
+      } else if (folder.deletedAt) {
+        targetFolderId = null;
+      }
+    }
+
+    const [copy] = await this.db
+      .insert(studyMaterials)
+      .values({
+        notebookId: source.notebookId,
+        kind: source.kind,
+        title: newTitle,
+        content: validatedContent,
+        folderId: targetFolderId,
+        options: source.options ?? null,
+      })
+      .returning();
+
+    return copy.kind === 'quiz'
+      ? { ...copy, content: normalizeContent('quiz', copy.content) }
+      : copy;
   }
 
   private async findAliveAncestor(folderId: string): Promise<string | null> {

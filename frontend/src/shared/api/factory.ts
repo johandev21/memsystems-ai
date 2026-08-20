@@ -15,6 +15,7 @@ export function createQueryOptions<TData>(
   options?: {
     staleTime?: number;
     refetchOnMount?: boolean | "always";
+    enabled?: boolean;
   },
 ) {
   return queryOptions({
@@ -26,12 +27,26 @@ export function createQueryOptions<TData>(
     },
     staleTime: options?.staleTime ?? 30_000,
     refetchOnMount: options?.refetchOnMount,
+    enabled: options?.enabled,
   });
 }
 
 export async function apiPost<TInput, TResponse>(url: string, input: TInput): Promise<TResponse> {
   const res = await fetchApi(url, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = (await res.json().catch(() => ({}))) as ApiError;
+  if (!res.ok) {
+    throw new Error(data.error ?? createApiError(res));
+  }
+  return data as TResponse;
+}
+
+export async function apiPatch<TInput, TResponse>(url: string, input: TInput): Promise<TResponse> {
+  const res = await fetchApi(url, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });

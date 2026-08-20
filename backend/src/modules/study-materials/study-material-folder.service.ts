@@ -105,7 +105,10 @@ export class StudyMaterialFolderService {
 
   async delete(userId: string, folderId: string) {
     const folder = await this.fetchOwned(userId, folderId);
-    const descendantFolderIds = await this.getDescendantFolderIds(folder.id);
+    if (folder.deletedAt) {
+      throw new BadRequestError('Folder already deleted');
+    }
+    const descendantFolderIds = await this.getDescendantFolderIds(folder);
 
     const activeMaterials = await this.db
       .select({ id: studyMaterials.id })
@@ -124,18 +127,85 @@ export class StudyMaterialFolderService {
     }
 
     const now = new Date();
-    await this.softDeleteSubtree(folderId, now);
+    // Single bulk update is atomic; transaction ensures no partial state if future logic adds steps
+    const doDelete = async (executor: typeof this.db) => {
+      await executor
+        .update(studyMaterialFolders)
+        .set({ deletedAt: now })
+        .where(inArray(studyMaterialFolders.id, descendantFolderIds));
+    };
+
+    // Use transaction when available for strict atomicity
+    const maybeTx = (
+      this.db as unknown as {
+        transaction?: (
+          cb: (tx: typeof this.db) => Promise<void>,
+        ) => Promise<void>;
+      }
+    ).transaction;
+    if (maybeTx) {
+      await maybeTx.call(this.db, async (tx: typeof this.db) => {
+        await doDelete(tx);
+      });
+    } else {
+      await doDelete(this.db);
+    }
     return { ...folder, deletedAt: now };
   }
 
-  private async getDescendantFolderIds(parentId: string): Promise<string[]> {
-    const ids: string[] = [parentId];
+  private async getDescendantFolderIds(folder: {
+    id: string;
+    notebookId: string;
+  }): Promise<string[]>;
+  private async getDescendantFolderIds(parentId: string): Promise<string[]>;
+  private async getDescendantFolderIds(
+    arg: string | { id: string; notebookId: string },
+  ): Promise<string[]> {
+    const folderId = typeof arg === 'string' ? arg : arg.id;
+    const notebookId = typeof arg === 'string' ? null : arg.notebookId;
+
+    // Efficient: one query for all active folders of the notebook, then in-memory BFS
+    if (notebookId) {
+      const allFolders = await this.db
+        .select({
+          id: studyMaterialFolders.id,
+          parentId: studyMaterialFolders.parentId,
+        })
+        .from(studyMaterialFolders)
+        .where(
+          and(
+            eq(studyMaterialFolders.notebookId, notebookId),
+            isNull(studyMaterialFolders.deletedAt),
+          ),
+        );
+      const childMap = new Map<string, string[]>();
+      for (const f of allFolders) {
+        if (f.parentId) {
+          const arr = childMap.get(f.parentId) ?? [];
+          arr.push(f.id);
+          childMap.set(f.parentId, arr);
+        }
+      }
+      const ids: string[] = [folderId];
+      const stack = [folderId];
+      while (stack.length) {
+        const cur = stack.pop()!;
+        for (const child of childMap.get(cur) ?? []) {
+          ids.push(child);
+          stack.push(child);
+        }
+      }
+      return ids;
+    }
+
+    // Fallback recursive for legacy string-only call (N+1) — kept for wouldCreateCycle style callers if ever used
+    const ids: string[] = [folderId];
     const children = await this.db
       .select({ id: studyMaterialFolders.id })
       .from(studyMaterialFolders)
       .where(
         and(
-          eq(studyMaterialFolders.parentId, parentId),
+          eq(studyMaterialFolders.parentId, folderId),
           isNull(studyMaterialFolders.deletedAt),
         ),
       );
@@ -205,6 +275,7 @@ export class StudyMaterialFolderService {
       .select({
         id: studyMaterialFolders.id,
         notebookId: studyMaterialFolders.notebookId,
+        deletedAt: studyMaterialFolders.deletedAt,
       })
       .from(studyMaterialFolders)
       .where(eq(studyMaterialFolders.id, folderId));
@@ -213,6 +284,9 @@ export class StudyMaterialFolderService {
     }
     if (folder.notebookId !== notebookId) {
       throw new ForbiddenError('Folder does not belong to this notebook');
+    }
+    if (folder.deletedAt) {
+      throw new BadRequestError('Cannot move to a folder in Trash');
     }
   }
 
