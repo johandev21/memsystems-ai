@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/core";
 import { ChevronsUpDown, Folder, FolderOpen, FolderPlus } from "lucide-react";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
 import { Card, CardContent } from "@/shared/ui/card";
 import {
@@ -47,13 +47,6 @@ import { DragPreview } from "./tree/drag-preview";
 import { TreeHeader } from "./tree/header";
 import { studyMaterialsTreeVariants } from "./tree/variants";
 
-export type StudyMaterialsPrototypeSnapshot = {
-  folderCount: number;
-  materialCount: number;
-  selectedItem: string | null;
-  lastAction: string;
-};
-
 export type StudyMaterialsTreeSize = "sm" | "default" | "lg";
 
 export interface ZedStudyMaterialsTreeProps {
@@ -63,8 +56,6 @@ export interface ZedStudyMaterialsTreeProps {
   defaultSelectedId?: string | null;
   onSelectedChange?: (id: string | null) => void;
   onCommand?: TreeCommandExecutor;
-  initialState?: PrototypeTreeState;
-  onSnapshotChange?: (snapshot: StudyMaterialsPrototypeSnapshot) => void;
   size?: StudyMaterialsTreeSize;
 }
 
@@ -75,13 +66,11 @@ export function ZedStudyMaterialsTree({
   defaultSelectedId,
   onSelectedChange,
   onCommand,
-  initialState,
-  onSnapshotChange,
   size = "sm",
 }: ZedStudyMaterialsTreeProps) {
-  const fallbackState = (initialState ??
-    (INITIAL_PROTOTYPE_TREE_STATE as unknown as PrototypeTreeState)) as PrototypeTreeState;
-  const [internalState, setInternalState] = useState<PrototypeTreeState>(fallbackState);
+  const [internalState, setInternalState] = useState<PrototypeTreeState>(
+    INITIAL_PROTOTYPE_TREE_STATE as unknown as PrototypeTreeState,
+  );
 
   const [selectedItemId, setSelectedItemId] = useControllableState<string | null>({
     prop: selectedId,
@@ -91,6 +80,7 @@ export function ZedStudyMaterialsTree({
   });
 
   const [lastAction, setLastAction] = useState("Ready to move study materials in memory.");
+  void lastAction;
 
   const effectiveState = useMemo<PrototypeTreeState>(() => {
     if (folders !== undefined && materials !== undefined) {
@@ -116,15 +106,6 @@ export function ZedStudyMaterialsTree({
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor),
   );
-
-  useEffect(() => {
-    onSnapshotChange?.({
-      folderCount: effectiveState.folders.filter((f) => !f.deletedAt).length,
-      materialCount: effectiveState.materials.filter((m) => !m.deletedAt).length,
-      selectedItem: selectedItemId ? getPrototypeItemName(effectiveState, selectedItemId) : null,
-      lastAction,
-    });
-  }, [effectiveState, lastAction, onSnapshotChange, selectedItemId]);
 
   const activeDragNode = useMemo(
     () => findTreeNode(controller.tree, controller.activeDragItemId),

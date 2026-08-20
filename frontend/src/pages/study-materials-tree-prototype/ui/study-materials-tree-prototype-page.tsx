@@ -7,10 +7,14 @@ import { Separator } from "@/shared/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { getPrototypeItemName } from "../model/study-material-tree";
 import { usePrototypeTreeAdapter } from "../model/study-material-tree.adapter";
-import {
-  ZedStudyMaterialsTree,
-  type StudyMaterialsPrototypeSnapshot,
-} from "./zed-study-materials-tree";
+import { ZedStudyMaterialsTree } from "./zed-study-materials-tree";
+
+type StudyMaterialsPrototypeSnapshot = {
+  folderCount: number;
+  materialCount: number;
+  selectedItem: string | null;
+  lastAction: string;
+};
 
 const RESOURCE_ACTIONS = [
   { label: "Quiz", icon: FileQuestion },
@@ -69,7 +73,9 @@ export function StudyMaterialsTreePrototypePage() {
               </CardHeader>
               <CardContent className="flex h-full min-h-0 flex-col justify-between gap-6 px-5 py-5">
                 <div className="max-w-md">
-                  <p className="text-sm font-medium text-foreground">A file tree that behaves like a tool.</p>
+                  <p className="text-sm font-medium text-foreground">
+                    A file tree that behaves like a tool.
+                  </p>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                     Drag folders or study materials into another folder. Right-click any row to
                     inspect the prototype actions. Nothing leaves this page.
@@ -128,7 +134,10 @@ export function StudyMaterialsTreePrototypePage() {
 function PrototypeState({ snapshot }: { snapshot: StudyMaterialsPrototypeSnapshot }) {
   const rows = [
     { label: "Selected", value: snapshot.selectedItem ?? "Nothing selected" },
-    { label: "Contents", value: `${snapshot.folderCount} folders · ${snapshot.materialCount} materials` },
+    {
+      label: "Contents",
+      value: `${snapshot.folderCount} folders · ${snapshot.materialCount} materials`,
+    },
     { label: "Last action", value: snapshot.lastAction },
   ];
 
@@ -141,7 +150,12 @@ function PrototypeState({ snapshot }: { snapshot: StudyMaterialsPrototypeSnapsho
         {rows.map((row) => (
           <div key={row.label} className="grid grid-cols-[70px_minmax(0,1fr)] gap-2 text-xs">
             <dt className="text-muted-foreground">{row.label}</dt>
-            <dd className={cn("min-w-0 truncate text-foreground", row.label === "Last action" && "text-muted-foreground")}>
+            <dd
+              className={cn(
+                "min-w-0 truncate text-foreground",
+                row.label === "Last action" && "text-muted-foreground",
+              )}
+            >
               {row.value}
             </dd>
           </div>

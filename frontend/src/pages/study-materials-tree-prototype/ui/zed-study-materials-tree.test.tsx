@@ -106,7 +106,7 @@ describe("ZedStudyMaterialsTree", () => {
   });
 
   it("shows empty state when there are no study materials", () => {
-    render(<ZedStudyMaterialsTree initialState={{ folders: [], materials: [] }} />);
+    render(<ZedStudyMaterialsTree folders={[]} materials={[]} />);
 
     expect(screen.getByText("No study materials")).toBeTruthy();
     expect(screen.getByText("Create a folder to begin the in-memory prototype.")).toBeTruthy();
@@ -708,7 +708,9 @@ describe("ZedStudyMaterialsTree", () => {
       expect(guide?.getAttribute("aria-hidden")).toBe("true");
       // guide position is derived from depth tokens via CSS variables
       // for Foundations' children (depth 0), left is calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))
-      expect(guide?.style.left).toBe("calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))");
+      expect(guide?.style.left).toBe(
+        "calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))",
+      );
     });
 
     it("keeps viewport and overlay sizing independent of row density", () => {
