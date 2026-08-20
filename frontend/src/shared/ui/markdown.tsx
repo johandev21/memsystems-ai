@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import rehypeKatex from "rehype-katex";
@@ -32,6 +32,7 @@ export type MarkdownRendererProps = Omit<
   className?: string;
   components?: MarkdownComponents;
   isStreaming?: boolean;
+  trailingContent?: ReactNode;
 };
 
 /**
@@ -45,12 +46,14 @@ export function MarkdownRenderer({
   children,
   remarkPlugins,
   rehypePlugins,
+  trailingContent,
   ...props
 }: MarkdownRendererProps) {
   if (isStreaming) {
     return (
       <div className={className}>
         <div className="whitespace-pre-wrap wrap-break-word">{children}</div>
+        {trailingContent}
       </div>
     );
   }
@@ -70,5 +73,12 @@ export function MarkdownRenderer({
     </ReactMarkdown>
   );
 
-  return className ? <div className={className}>{markdown}</div> : markdown;
+  return className || trailingContent ? (
+    <div className={className}>
+      {markdown}
+      {trailingContent}
+    </div>
+  ) : (
+    markdown
+  );
 }

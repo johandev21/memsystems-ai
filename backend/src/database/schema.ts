@@ -29,11 +29,24 @@ export const sourceIndexJobStatusEnum = pgEnum('source_index_job_status', [
   'cancelled',
 ]);
 
+export const webSearchJobStatusEnum = pgEnum('web_search_job_status', [
+  'pending',
+  'processing',
+  'ready',
+  'failed',
+]);
+
 export interface SourceMetadata {
   searchQuery?: string;
   modelId?: string;
   searchedAt?: string;
   description?: string | null;
+}
+
+export interface WebSearchCandidateRow {
+  title: string;
+  url: string;
+  description: string | null;
 }
 
 export const studyMaterialKindEnum = pgEnum('study_material_kind', [
@@ -150,6 +163,41 @@ export const sourceIndexJobs = pgTable(
     index('source_index_jobs_source_id_idx').on(table.sourceId),
     index('source_index_jobs_status_idx').on(table.status),
     index('source_index_jobs_notebook_id_idx').on(table.notebookId),
+  ],
+);
+
+export const webSearchJobs = pgTable(
+  'web_search_jobs',
+  {
+    id: varchar('id')
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    notebookId: varchar('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    query: varchar('query', { length: 500 }).notNull(),
+    modelId: varchar('model_id', { length: 200 }).notNull(),
+    status: webSearchJobStatusEnum('status').notNull().default('pending'),
+    summary: text('summary'),
+    candidates: jsonb('candidates')
+      .$type<WebSearchCandidateRow[]>()
+      .notNull()
+      .default([]),
+    lastError: text('last_error'),
+    startedAt: timestamp('started_at'),
+    completedAt: timestamp('completed_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('web_search_jobs_notebook_id_idx').on(table.notebookId),
+    index('web_search_jobs_status_idx').on(table.status),
   ],
 );
 
@@ -297,6 +345,7 @@ export const notebooksRelations = relations(notebooks, ({ many }) => ({
   sources: many(sources),
   sourceChunks: many(sourceChunks),
   sourceIndexJobs: many(sourceIndexJobs),
+  webSearchJobs: many(webSearchJobs),
   studyMaterials: many(studyMaterials),
   studyMaterialFolders: many(studyMaterialFolders),
   chatMessages: many(notebookChatMessages),
@@ -325,6 +374,13 @@ export const sourceIndexJobsRelations = relations(
     }),
   }),
 );
+
+export const webSearchJobsRelations = relations(webSearchJobs, ({ one }) => ({
+  notebook: one(notebooks, {
+    fields: [webSearchJobs.notebookId],
+    references: [notebooks.id],
+  }),
+}));
 
 export const sourceChunksRelations = relations(sourceChunks, ({ one }) => ({
   source: one(sources, {
@@ -413,6 +469,7 @@ export const table = {
   sources,
   sourceChunks,
   sourceIndexJobs,
+  webSearchJobs,
   studyMaterials,
   studyMaterialFolders,
   generationRequests,

@@ -261,6 +261,15 @@ export const MessageResponse = memo(
         )}
         isStreaming={isStreaming}
         components={mergedComponents}
+        trailingContent={
+          <span
+            aria-hidden="true"
+            className="block h-0 overflow-hidden text-[0] leading-none select-text"
+            data-slot="message-response-selection-boundary"
+          >
+            {"\u200B"}
+          </span>
+        }
         {...props}
       />
     );

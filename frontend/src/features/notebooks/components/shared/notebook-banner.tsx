@@ -4,12 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ImageUploadDialog } from "../dialogs/image-upload-dialog";
 import { EDIT_NOTEBOOK_EVENT } from "../dialogs/notebook-settings-dialog";
+import { NotebookDescription } from "./notebook-description";
 import { fetchApi, cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { IconPicker } from "@/shared/ui/icon-picker";
 import { Input } from "@/shared/ui/input";
 import { NotebookIcon } from "@/shared/ui/notebook-icon";
-import { Textarea } from "@/shared/ui/textarea";
 
 export interface NotebookBannerProps {
   notebookId: string;
@@ -359,21 +359,12 @@ export function NotebookBanner({
         </div>
       </div>
 
-      {isEditing ? (
-        <Textarea
-          value={draftDescription}
-          onChange={(event) => setDraftDescription(event.target.value)}
-          placeholder="Add a description…"
-          rows={2}
-          maxLength={500}
-          aria-label="Notebook description"
-          className="resize-none border-border/60 bg-transparent text-sm"
-        />
-      ) : description?.trim() ? (
-        <p className="px-1 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-          {description}
-        </p>
-      ) : null}
+      <NotebookDescription
+        description={isEditing ? draftDescription : (description ?? "")}
+        isEditing={isEditing}
+        onChange={setDraftDescription}
+        onCancel={handleCancel}
+      />
 
       <ImageUploadDialog
         open={imageDialogOpen}

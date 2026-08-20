@@ -53,7 +53,7 @@ export function ModelSelector({ models, selectedModel, onModelChange }: ModelSel
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[300px] p-3 overflow-hidden border border-border bg-popover text-foreground shadow-2xl rounded-2xl"
+        className="w-[300px] overflow-hidden rounded-2xl border border-border bg-popover p-3 text-foreground shadow-2xl"
       >
         <div className="relative mb-2">
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground/70" />
@@ -112,10 +112,10 @@ function ModelRow({ model, selectedModel, onSelectModel }: ModelRowProps) {
       onClick={() => onSelectModel(model.id)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "flex items-center p-2 cursor-pointer transition-colors group/row rounded-xl",
+          "group/row flex cursor-pointer items-center rounded-xl p-2 transition-colors",
         isSelected
-          ? "bg-muted/90 text-foreground"
-          : "hover:bg-muted/40 text-muted-foreground hover:text-foreground",
+          ? "bg-popover-selected text-foreground"
+          : "text-muted-foreground hover:bg-popover-hover hover:text-foreground",
       )}
     >
       <div className="flex flex-col min-w-0">

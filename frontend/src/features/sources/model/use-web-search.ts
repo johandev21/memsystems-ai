@@ -1,13 +1,15 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  dismissWebSearchJob,
   importWebSources,
-  searchWebSources,
+  startWebSearchJob,
+  webSearchJobQueryOptions,
   type WebSearchCandidate,
   type WebSearchImportResultItem,
 } from "@/shared/api/web-search";
 
-export type WebSearchPhase = "idle" | "searching" | "done";
+export type WebSearchPhase = "idle" | "searching" | "done" | "failed";
 
 export interface WebSearchState {
   query: string;
@@ -22,76 +24,73 @@ export interface WebSearchState {
 
 export function useWebSearch(notebookId: string) {
   const queryClient = useQueryClient();
-  const [state, setState] = useState<WebSearchState>({
-    query: "",
-    phase: "idle",
-    summary: null,
-    candidates: [],
-    selectedUrls: new Set(),
-    importing: false,
-    importResults: new Map(),
-    searchError: null,
-  });
+  const jobQuery = useQuery(webSearchJobQueryOptions(notebookId));
+  const job = jobQuery.data ?? null;
 
-  const setQuery = useCallback((query: string) => {
-    setState((prev) => ({ ...prev, query }));
-  }, []);
+  const [queryDraft, setQueryDraft] = useState("");
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
+  const [importResults, setImportResults] = useState<
+    Map<string, WebSearchImportResultItem>
+  >(new Map());
+  const [importing, setImporting] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  // A new job invalidates previous review-session state.
+  const jobId = job?.id ?? null;
+  useEffect(() => {
+    setSelectedUrls(new Set());
+    setImportResults(new Map());
+    setLocalError(null);
+  }, [jobId]);
+
+  const phase: WebSearchPhase = useMemo(() => {
+    if (!job) return "idle";
+    if (job.status === "pending" || job.status === "processing")
+      return "searching";
+    if (job.status === "failed") return "failed";
+    return "done";
+  }, [job]);
+
+  const candidates = useMemo(() => job?.candidates ?? [], [job]);
+
+  const searchError =
+    job?.status === "failed"
+      ? (job.lastError ?? "Web search failed")
+      : localError;
 
   const runSearch = useCallback(
     async (modelId: string) => {
-      const query = state.query.trim();
-      if (!query || state.phase === "searching") return;
-      console.info("[web-search] runSearch", { notebookId, modelId, query });
-      setState((prev) => ({
-        ...prev,
-        phase: "searching",
-        searchError: null,
-        summary: null,
-        candidates: [],
-        selectedUrls: new Set(),
-        importResults: new Map(),
-      }));
+      const query = queryDraft.trim();
+      if (!query) return;
+      setLocalError(null);
       try {
-        const result = await searchWebSources(notebookId, { query, modelId });
-        console.info("[web-search] search resolved", {
-          summary: result.summary,
-          candidateCount: result.sources.length,
-          candidates: result.sources,
-        });
-        setState((prev) => ({
-          ...prev,
-          phase: "done",
-          summary: result.summary,
-          candidates: result.sources,
-        }));
+        const job = await startWebSearchJob(notebookId, { query, modelId });
+        queryClient.setQueryData(
+          webSearchJobQueryOptions(notebookId).queryKey,
+          job,
+        );
       } catch (err) {
-        console.error("[web-search] search failed", err);
-        setState((prev) => ({
-          ...prev,
-          phase: "idle",
-          searchError: err instanceof Error ? err.message : "Web search failed",
-        }));
+        setLocalError(err instanceof Error ? err.message : "Web search failed");
       }
     },
-    [notebookId, state.query, state.phase],
+    [notebookId, queryClient, queryDraft],
   );
 
   const toggleCandidate = useCallback((url: string) => {
-    setState((prev) => {
-      const selectedUrls = new Set(prev.selectedUrls);
-      if (selectedUrls.has(url)) selectedUrls.delete(url);
-      else selectedUrls.add(url);
-      return { ...prev, selectedUrls };
+    setSelectedUrls((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
     });
   }, []);
 
   const importSelected = useCallback(
     async (modelId: string) => {
-      const query = state.query.trim();
-      const selected = state.candidates.filter((c) => state.selectedUrls.has(c.url));
-      if (selected.length === 0 || state.importing) return;
+      const selected = candidates.filter((c) => selectedUrls.has(c.url));
+      if (selected.length === 0 || importing) return;
 
-      setState((prev) => ({ ...prev, importing: true }));
+      setImporting(true);
       try {
         const result = await importWebSources(notebookId, {
           candidates: selected.map((c) => ({
@@ -100,38 +99,34 @@ export function useWebSearch(notebookId: string) {
             description: c.description,
           })),
           modelId,
-          query,
+          query: job?.query ?? "",
         });
-        console.info("[web-search] import resolved", result.results);
-        const importResults = new Map<string, WebSearchImportResultItem>();
+        const nextResults = new Map<string, WebSearchImportResultItem>();
         for (const r of result.results) {
-          importResults.set(r.url, r);
+          nextResults.set(r.url, r);
         }
-        setState((prev) => ({ ...prev, importing: false, importResults }));
+        setImportResults(nextResults);
         await queryClient.invalidateQueries({
           queryKey: ["sources", notebookId],
         });
       } catch (err) {
-        setState((prev) => ({
-          ...prev,
-          importing: false,
-          searchError: err instanceof Error ? err.message : "Import failed",
-        }));
+        setLocalError(err instanceof Error ? err.message : "Import failed");
+      } finally {
+        setImporting(false);
       }
     },
-    [notebookId, queryClient, state.query, state.candidates, state.selectedUrls, state.importing],
+    [candidates, importing, job?.query, notebookId, queryClient, selectedUrls],
   );
 
   const retryFailed = useCallback(
     async (modelId: string) => {
-      const query = state.query.trim();
-      const failed = state.candidates.filter((c) => {
-        const r = state.importResults.get(c.url);
+      const failed = candidates.filter((c) => {
+        const r = importResults.get(c.url);
         return r?.status === "scrape_failed";
       });
-      if (failed.length === 0 || state.importing) return;
+      if (failed.length === 0 || importing) return;
 
-      setState((prev) => ({ ...prev, importing: true }));
+      setImporting(true);
       try {
         const result = await importWebSources(notebookId, {
           candidates: failed.map((c) => ({
@@ -140,42 +135,60 @@ export function useWebSearch(notebookId: string) {
             description: c.description,
           })),
           modelId,
-          query,
+          query: job?.query ?? "",
         });
-        console.info("[web-search] retry resolved", result.results);
-        const importResults = new Map(state.importResults);
-        for (const r of result.results) {
-          importResults.set(r.url, r);
-        }
-        setState((prev) => ({ ...prev, importing: false, importResults }));
+        setImportResults((prev) => {
+          const next = new Map(prev);
+          for (const r of result.results) {
+            next.set(r.url, r);
+          }
+          return next;
+        });
         await queryClient.invalidateQueries({
           queryKey: ["sources", notebookId],
         });
       } catch (err) {
-        setState((prev) => ({
-          ...prev,
-          importing: false,
-          searchError: err instanceof Error ? err.message : "Retry failed",
-        }));
+        setLocalError(err instanceof Error ? err.message : "Retry failed");
+      } finally {
+        setImporting(false);
       }
     },
-    [notebookId, queryClient, state.query, state.candidates, state.importResults, state.importing],
+    [
+      candidates,
+      importResults,
+      importing,
+      job?.query,
+      notebookId,
+      queryClient,
+    ],
   );
 
-  const clearResults = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      phase: "idle",
-      summary: null,
-      candidates: [],
-      selectedUrls: new Set(),
-      importResults: new Map(),
-    }));
-  }, []);
+  const clearResults = useCallback(async () => {
+    try {
+      await dismissWebSearchJob(notebookId);
+    } catch {
+      // Local reset even if dismissal fails server-side.
+    }
+    queryClient.setQueryData(webSearchJobQueryOptions(notebookId).queryKey, null);
+    setSelectedUrls(new Set());
+    setImportResults(new Map());
+    setLocalError(null);
+  }, [notebookId, queryClient]);
+
+  const state: WebSearchState = {
+    query: queryDraft,
+    phase,
+    summary: job?.summary ?? null,
+    candidates,
+    selectedUrls,
+    importing,
+    importResults,
+    searchError,
+  };
 
   return {
     ...state,
-    setQuery,
+    setQuery: setQueryDraft,
     runSearch,
     toggleCandidate,
     importSelected,

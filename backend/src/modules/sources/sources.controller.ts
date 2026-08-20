@@ -16,6 +16,7 @@ import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SourcesService } from './sources.service';
+import { WebSearchJobsService } from './web-search-jobs.service';
 import { WebSearchService } from './web-search.service';
 
 const textSourceSchema = z.object({
@@ -54,6 +55,7 @@ export class SourcesController {
   constructor(
     private readonly sourcesService: SourcesService,
     private readonly webSearchService: WebSearchService,
+    private readonly webSearchJobsService: WebSearchJobsService,
   ) {}
 
   @Get('notebooks/:notebookId/sources')
@@ -149,7 +151,23 @@ export class SourcesController {
     @Param('notebookId') notebookId: string,
     @Body() body: z.infer<typeof webSearchSchema>,
   ) {
-    return this.webSearchService.search(userId, notebookId, body);
+    return this.webSearchJobsService.enqueue(userId, notebookId, body);
+  }
+
+  @Get('notebooks/:notebookId/sources/web-search/latest')
+  async latestWebSearchJob(
+    @CurrentUser('id') userId: string,
+    @Param('notebookId') notebookId: string,
+  ) {
+    return this.webSearchJobsService.latest(userId, notebookId);
+  }
+
+  @Delete('notebooks/:notebookId/sources/web-search/latest')
+  async dismissWebSearchJob(
+    @CurrentUser('id') userId: string,
+    @Param('notebookId') notebookId: string,
+  ) {
+    await this.webSearchJobsService.dismiss(userId, notebookId);
   }
 
   @Post('notebooks/:notebookId/sources/web-search/import')

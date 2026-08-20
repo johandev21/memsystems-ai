@@ -17,6 +17,7 @@ import {
 import { SourcesController } from './sources.controller';
 import { SourcesService } from './sources.service';
 import { WebScraperService } from './web-scraper.service';
+import { WebSearchJobsService } from './web-search-jobs.service';
 import { WebSearchService } from './web-search.service';
 
 @Module({
@@ -40,7 +41,13 @@ import { WebSearchService } from './web-search.service';
     SourceJobsService,
     SourcesService,
     WebSearchService,
+    WebSearchJobsService,
   ],
-  exports: [SourcesService, WebSearchService, SourceJobsService],
+  exports: [
+    SourcesService,
+    WebSearchService,
+    SourceJobsService,
+    WebSearchJobsService,
+  ],
 })
 export class SourcesModule {}

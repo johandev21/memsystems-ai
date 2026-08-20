@@ -1,4 +1,4 @@
-import { FileUp, HardDrive, Link as LinkIcon, Loader2, Type, Upload } from "lucide-react";
+import { FileUp, Link as LinkIcon, Loader2, Type, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
@@ -75,7 +75,7 @@ export function FileUploadMode({
 
   return (
     <div
-      className={`group relative flex flex-col items-center justify-center border-2 border-dashed py-12 px-6 transition-all duration-300 rounded-2xl ${
+      className={`relative flex flex-col items-center justify-center border border-dashed py-12 px-6 rounded-xl ${
         isDragging
           ? "border-primary bg-primary/5"
           : "border-border/60 bg-muted/20 hover:bg-primary/5 hover:border-primary/40"
@@ -96,14 +96,14 @@ export function FileUploadMode({
         onChange={handleFileChange}
       />
 
-      <div className="bg-background p-4 shadow-sm mb-4 border border-border/50 rounded-2xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-md group-hover:border-primary/30">
+      <div className="mb-4 rounded-xl border border-border/50 bg-background p-4">
         {isUploading ? (
-          <Loader2 className="h-6 w-6 text-primary animate-spin" strokeWidth={2} />
+          <Loader2 className="h-6 w-6 text-primary" strokeWidth={2} />
         ) : (
           <FileUp className="h-6 w-6 text-primary" strokeWidth={2} />
         )}
       </div>
-      <h3 className="text-[17px] font-medium text-foreground mb-1.5 transition-colors group-hover:text-primary">
+      <h3 className="mb-1.5 text-[17px] font-medium text-foreground">
         {isUploading ? "Uploading file..." : "Drop your files here"}
       </h3>
       <p className="text-sm text-muted-foreground mb-8 text-center max-w-[280px]">
@@ -114,7 +114,7 @@ export function FileUploadMode({
         <Button
           type="button"
           variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
+          className="h-10 cursor-pointer bg-background px-5 transition-none active:translate-y-0 hover:bg-muted/50"
           onClick={() => fileInputRef.current?.click()}
           disabled={busy}
         >
@@ -124,7 +124,7 @@ export function FileUploadMode({
         <Button
           type="button"
           variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
+          className="h-10 cursor-pointer bg-background px-5 transition-none active:translate-y-0 hover:bg-muted/50"
           onClick={onSelectUrlMode}
           disabled={busy}
         >
@@ -134,17 +134,7 @@ export function FileUploadMode({
         <Button
           type="button"
           variant="outline"
-          disabled
-          className="h-10 px-5 bg-background shadow-sm transition-all opacity-50 cursor-not-allowed"
-          title="Coming soon"
-        >
-          <HardDrive className="h-4 w-4 mr-2 text-success" />
-          Drive
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="h-10 px-5 bg-background shadow-sm hover:shadow-md transition-all hover:border-border cursor-pointer"
+          className="h-10 cursor-pointer bg-background px-5 transition-none active:translate-y-0 hover:bg-muted/50"
           onClick={onSelectTextMode}
           disabled={busy}
         >

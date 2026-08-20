@@ -206,9 +206,6 @@ function LandingPage() {
               >
                 Start building your notebook <ArrowUpRight />
               </Link>
-              <span className="text-sm text-muted-foreground">
-                Free to begin. Continue with Google.
-              </span>
             </div>
           </div>
         </section>
@@ -220,7 +217,7 @@ function LandingPage() {
                 <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   The difference
                 </p>
-                <h2 className="max-w-xl text-3xl font-semibold tracking-[-0.05em] text-balance sm:text-5xl">
+                <h2 className="max-w-xl text-3xl font-semibold tracking-tighter text-balance sm:text-5xl">
                   Make the work easier to return to.
                 </h2>
               </div>
@@ -400,4 +397,3 @@ function LandingPage() {
     </div>
   );
 }
-

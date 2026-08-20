@@ -82,7 +82,7 @@ export function NotebookSettingsDialog({ notebookId }: NotebookSettingsDialogPro
           <div className="flex flex-col gap-1">
             <Button
               variant="ghost"
-              className="justify-start"
+              className="justify-start hover:!bg-popover-hover focus-visible:!bg-popover-hover"
               onClick={() => dispatchNotebookAction(EDIT_NOTEBOOK_EVENT)}
             >
               <Pencil data-icon="inline-start" />
@@ -90,7 +90,7 @@ export function NotebookSettingsDialog({ notebookId }: NotebookSettingsDialogPro
             </Button>
             <Button
               variant="ghost"
-              className="justify-start"
+              className="justify-start hover:!bg-popover-hover focus-visible:!bg-popover-hover"
               onClick={() => dispatchNotebookAction(CLEAR_NOTEBOOK_CHAT_EVENT)}
             >
               <Eraser data-icon="inline-start" />
@@ -98,7 +98,7 @@ export function NotebookSettingsDialog({ notebookId }: NotebookSettingsDialogPro
             </Button>
             <Button
               variant="ghost"
-              className="justify-start text-destructive hover:text-destructive"
+              className="justify-start text-destructive hover:!bg-popover-hover hover:!text-destructive focus-visible:!bg-popover-hover"
               onClick={() => {
                 setOpen(false);
                 setDeleteDialogOpen(true);

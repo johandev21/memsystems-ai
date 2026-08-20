@@ -44,6 +44,8 @@
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
+  --color-popover-hover: var(--popover-hover);
+  --color-popover-selected: var(--popover-selected);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-panel-bg: var(--panel-bg);
@@ -93,6 +95,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
+  --popover-hover: oklch(0.96 0 0);
+  --popover-selected: oklch(0.94 0 0);
   --primary: oklch(0 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
@@ -161,6 +165,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.269 0 0);
   --popover-foreground: oklch(0.985 0 0);
+  --popover-hover: oklch(0.34 0 0);
+  --popover-selected: oklch(0.371 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
@@ -224,8 +230,20 @@
 
 /* Give interactive popover rows enough separation from the dark surface. */
 .dark [data-slot="popover-content"] .cursor-pointer:is(:hover, :focus-visible) {
-  background-color: var(--input);
+  background-color: var(--popover-hover);
   color: var(--foreground);
+}
+
+.dark [data-slot="popover-content"] [data-slot="button"]:is(:hover, :focus-visible) {
+  background-color: var(--popover-hover) !important;
+  color: var(--foreground);
+}
+
+.dark [data-slot="popover-content"] [data-slot="button"].text-destructive:is(
+    :hover,
+    :focus-visible
+  ) {
+  color: var(--destructive) !important;
 }
 
 .gradient-text {
