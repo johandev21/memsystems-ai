@@ -1,10 +1,12 @@
 import { Brain, FileQuestion, Map, Network, PanelRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/ui/resizable";
 import { Separator } from "@/shared/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { getPrototypeItemName } from "../model/study-material-tree";
+import { usePrototypeTreeAdapter } from "../model/study-material-tree.adapter";
 import {
   ZedStudyMaterialsTree,
   type StudyMaterialsPrototypeSnapshot,
@@ -17,19 +19,22 @@ const RESOURCE_ACTIONS = [
   { label: "Mind map", icon: Network },
 ];
 
-const INITIAL_SNAPSHOT: StudyMaterialsPrototypeSnapshot = {
-  folderCount: 4,
-  materialCount: 9,
-  selectedItem: "Metafilosofía occidental: conceptos y tradiciones",
-  lastAction: "Ready to move study materials in memory.",
-};
-
 /**
  * PROTOTYPE — one faithful Zed-inspired Study Materials tree at
  * /prototype/study-materials-tree. State is intentionally local and disposable.
  */
 export function StudyMaterialsTreePrototypePage() {
-  const [snapshot, setSnapshot] = useState<StudyMaterialsPrototypeSnapshot>(INITIAL_SNAPSHOT);
+  const adapter = usePrototypeTreeAdapter();
+  const [selectedId, setSelectedId] = useState<string | null>("material-metaphilosophy-quiz");
+  const snapshot: StudyMaterialsPrototypeSnapshot = useMemo(
+    () => ({
+      folderCount: adapter.folders.filter((folder) => !folder.deletedAt).length,
+      materialCount: adapter.materials.filter((material) => !material.deletedAt).length,
+      selectedItem: selectedId ? getPrototypeItemName(adapter.state, selectedId) : null,
+      lastAction: adapter.lastAction,
+    }),
+    [adapter.folders, adapter.materials, adapter.lastAction, adapter.state, selectedId],
+  );
 
   return (
     <main className="dark min-h-screen bg-background p-3 text-foreground sm:p-4">
@@ -104,7 +109,13 @@ export function StudyMaterialsTreePrototypePage() {
                   ))}
                 </div>
                 <Separator className="mb-2" />
-                <ZedStudyMaterialsTree onSnapshotChange={setSnapshot} />
+                <ZedStudyMaterialsTree
+                  folders={adapter.folders}
+                  materials={adapter.materials}
+                  selectedId={selectedId}
+                  onSelectedChange={setSelectedId}
+                  onCommand={adapter.execute}
+                />
               </CardContent>
             </Card>
           </ResizablePanel>

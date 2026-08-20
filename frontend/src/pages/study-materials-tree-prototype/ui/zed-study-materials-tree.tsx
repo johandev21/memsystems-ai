@@ -27,6 +27,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react";
+import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { ConfirmDeleteDialog } from "@/shared/ui/confirm-delete-dialog";
@@ -61,9 +62,16 @@ import {
   movePrototypeItem,
   renamePrototypeItem,
   softDeletePrototypeItem,
+  type PrototypeFolder,
+  type PrototypeMaterial,
   type PrototypeTreeNode,
   type PrototypeTreeState,
 } from "../model/study-material-tree";
+import {
+  getCommandPendingKey,
+  type TreeCommand,
+  type TreeCommandExecutor,
+} from "../model/study-material-tree.commands";
 
 const ROOT_DROP_ID = "prototype-study-materials-root";
 const DRAG_ID_PREFIX = "prototype-study-materials-drag:";
@@ -92,31 +100,55 @@ export type StudyMaterialsPrototypeSnapshot = {
 };
 
 export interface ZedStudyMaterialsTreeProps {
+  folders?: readonly PrototypeFolder[];
+  materials?: readonly PrototypeMaterial[];
+  selectedId?: string | null;
+  defaultSelectedId?: string | null;
+  onSelectedChange?: (id: string | null) => void;
+  onCommand?: TreeCommandExecutor;
   initialState?: PrototypeTreeState;
   onSnapshotChange?: (snapshot: StudyMaterialsPrototypeSnapshot) => void;
 }
 
-export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStudyMaterialsTreeProps) {
-  const initialTreeState = initialState ?? INITIAL_PROTOTYPE_TREE_STATE;
-  const [treeState, setTreeState] = useState<PrototypeTreeState>(initialTreeState);
+export function ZedStudyMaterialsTree({
+  folders,
+  materials,
+  selectedId,
+  defaultSelectedId,
+  onSelectedChange,
+  onCommand,
+  initialState,
+  onSnapshotChange,
+}: ZedStudyMaterialsTreeProps) {
+  const fallbackState = (initialState ??
+    (INITIAL_PROTOTYPE_TREE_STATE as unknown as PrototypeTreeState)) as PrototypeTreeState;
+  const [internalState, setInternalState] = useState<PrototypeTreeState>(fallbackState);
+  const isControlledData = folders !== undefined && materials !== undefined;
+  const effectiveState: PrototypeTreeState = isControlledData
+    ? { folders: folders as readonly PrototypeFolder[], materials: materials as readonly PrototypeMaterial[] }
+    : internalState;
   const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(
-    () => new Set(initialTreeState.folders.map((folder) => folder.id)),
+    () => new Set(effectiveState.folders.map((folder) => folder.id)),
   );
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(
-    "material-metaphilosophy-quiz",
-  );
+  const [selectedItemId, setSelectedItemId] = useControllableState<string | null>({
+    prop: selectedId,
+    defaultProp: defaultSelectedId !== undefined ? defaultSelectedId : "material-metaphilosophy-quiz",
+    onChange: onSelectedChange,
+  });
   const [treeHasFocus, setTreeHasFocus] = useState(true);
   const [focusedItemId, setFocusedItemId] = useState<string | null>(
-    "material-metaphilosophy-quiz",
+    selectedId !== undefined ? (selectedId ?? null) : (defaultSelectedId ?? "material-metaphilosophy-quiz"),
   );
   const [renamingItemId, setRenamingItemId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [activeDragItemId, setActiveDragItemId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState("Ready to move study materials in memory.");
+  const [pendingKeys, setPendingKeys] = useState<Set<string>>(new Set());
+  const pendingByKey = useRef(new Map<string, boolean>());
   const treeSurfaceElement = useRef<HTMLDivElement>(null);
   const nodeElements = useRef(new Map<string, HTMLElement>());
 
-  const tree = useMemo(() => buildPrototypeTree(treeState), [treeState]);
+  const tree = useMemo(() => buildPrototypeTree(effectiveState), [effectiveState]);
   const visibleItems = useMemo(
     () => flattenVisibleTree(tree, openFolderIds),
     [openFolderIds, tree],
@@ -133,14 +165,35 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
     useSensor(KeyboardSensor),
   );
 
+  // Safe fallback when the selected item is removed from canonical data
+  useEffect(() => {
+    if (selectedItemId == null) return;
+    if (pendingByKey.current.size > 0) return;
+    const exists =
+      effectiveState.folders.some((f) => f.id === selectedItemId) ||
+      effectiveState.materials.some((m) => m.id === selectedItemId);
+    if (!exists) {
+      setSelectedItemId(null);
+      setFocusedItemId(null);
+    }
+  }, [effectiveState.folders, effectiveState.materials, pendingKeys, selectedItemId, setSelectedItemId]);
+
+  const setPending = useCallback((key: string, pending: boolean) => {
+    if (pending) pendingByKey.current.set(key, true);
+    else pendingByKey.current.delete(key);
+    setPendingKeys(new Set(pendingByKey.current.keys()));
+  }, []);
+
+  void pendingKeys;
+
   useEffect(() => {
     onSnapshotChange?.({
-      folderCount: treeState.folders.filter((folder) => !folder.deletedAt).length,
-      materialCount: treeState.materials.filter((material) => !material.deletedAt).length,
-      selectedItem: selectedItemId ? getPrototypeItemName(treeState, selectedItemId) : null,
+      folderCount: effectiveState.folders.filter((folder) => !folder.deletedAt).length,
+      materialCount: effectiveState.materials.filter((material) => !material.deletedAt).length,
+      selectedItem: selectedItemId ? getPrototypeItemName(effectiveState, selectedItemId) : null,
       lastAction,
     });
-  }, [lastAction, onSnapshotChange, selectedItemId, treeState]);
+  }, [effectiveState, lastAction, onSnapshotChange, selectedItemId]);
 
   useEffect(() => {
     const isTreeRow = (target: EventTarget | null) =>
@@ -205,59 +258,166 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
   );
 
   const createFolder = useCallback(
-    (parentId: string | null) => {
+    async (parentId: string | null) => {
+      if (onCommand) {
+        const command: TreeCommand = { type: "createFolder", parentId };
+        const key = getCommandPendingKey(command);
+        if (pendingByKey.current.has(key)) return;
+        setPending(key, true);
+        try {
+          const result = await onCommand(command);
+          if (!result.ok) {
+            // preserve focus on parent if creation failed
+            if (parentId) focusItem(parentId);
+            return;
+          }
+          const newId = result.newId;
+          if (!newId) return;
+          // stale check: parent still exists?
+          const parentExists =
+            parentId === null ||
+            effectiveState.folders.some((f) => f.id === parentId && !f.deletedAt);
+          if (parentId && !parentExists) return;
+          if (parentId) setFolderOpen(parentId, true);
+          setSelectedItemId(newId);
+          setFocusedItemId(newId);
+          setRenamingItemId(newId);
+        } finally {
+          setPending(key, false);
+        }
+        return;
+      }
       const now = new Date().toISOString();
       const id = `folder-${crypto.randomUUID()}`;
       const folder = createPrototypeFolder(parentId, id, now);
-      setTreeState((previous) => ({ ...previous, folders: [...previous.folders, folder] }));
+      setInternalState((previous) => ({ ...previous, folders: [...previous.folders, folder] }));
       if (parentId) setFolderOpen(parentId, true);
       setSelectedItemId(folder.id);
       setFocusedItemId(folder.id);
       setRenamingItemId(folder.id);
       setLastAction(`Created ${folder.name}.`);
     },
-    [setFolderOpen],
+    [effectiveState.folders, focusItem, onCommand, setFolderOpen, setPending, setSelectedItemId],
   );
 
-  const commitRename = useCallback((itemId: string, name: string) => {
-    const previousName = getPrototypeItemName(treeState, itemId) ?? "Item";
-    const nextName = name.trim();
-    setRenamingItemId(null);
-    if (!nextName || previousName === nextName) {
+  const commitRename = useCallback(
+    async (itemId: string, name: string) => {
+      const previousName = getPrototypeItemName(effectiveState, itemId) ?? "Item";
+      const nextName = name.trim();
+      if (!nextName || previousName === nextName) {
+        setRenamingItemId(null);
+        focusItem(itemId);
+        return;
+      }
+
+      if (onCommand) {
+        const command: TreeCommand = { type: "renameItem", id: itemId, name: nextName };
+        const key = getCommandPendingKey(command);
+        if (pendingByKey.current.has(key)) return;
+        setPending(key, true);
+        // keep renaming until result to preserve draft on failure
+        try {
+          const result = await onCommand(command);
+          if (!result.ok) {
+            // preserve rename input and focus for recovery
+            focusItem(itemId);
+            return;
+          }
+          // stale check: item still exists?
+          const exists =
+            effectiveState.folders.some((f) => f.id === itemId) ||
+            effectiveState.materials.some((m) => m.id === itemId);
+          if (!exists) {
+            setRenamingItemId(null);
+            return;
+          }
+          setRenamingItemId(null);
+          focusItem(itemId);
+        } finally {
+          setPending(key, false);
+        }
+        return;
+      }
+
+      setRenamingItemId(null);
+      const now = new Date().toISOString();
+      setInternalState((previous) => renamePrototypeItem(previous, itemId, nextName, now));
+      setLastAction(`Renamed ${previousName} to ${nextName}.`);
       focusItem(itemId);
-      return;
-    }
+    },
+    [effectiveState, focusItem, onCommand, setPending],
+  );
 
-    const now = new Date().toISOString();
-    setTreeState((previous) => renamePrototypeItem(previous, itemId, nextName, now));
-    setLastAction(`Renamed ${previousName} to ${nextName}.`);
-    focusItem(itemId);
-  }, [focusItem, treeState]);
+  const duplicateMaterial = useCallback(
+    async (itemId: string) => {
+      const name = getPrototypeItemName(effectiveState, itemId) ?? "Study material";
+      if (onCommand) {
+        const command: TreeCommand = { type: "duplicateMaterial", id: itemId };
+        const key = getCommandPendingKey(command);
+        if (pendingByKey.current.has(key)) return;
+        setPending(key, true);
+        try {
+          const result = await onCommand(command);
+          if (!result.ok) return;
+          // stale check: original still exists?
+          const exists = effectiveState.materials.some((m) => m.id === itemId && !m.deletedAt);
+          if (!exists) return;
+          if (result.newId) {
+            // focus the new copy? keep as before (no focus change for duplicate)
+          }
+        } finally {
+          setPending(key, false);
+        }
+        return;
+      }
+      const now = new Date().toISOString();
+      const newId = `material-${crypto.randomUUID()}`;
+      setInternalState((previous) => duplicatePrototypeMaterial(previous, itemId, newId, now));
+      setLastAction(`Duplicated ${name}.`);
+    },
+    [effectiveState, onCommand, setPending],
+  );
 
-  const duplicateMaterial = useCallback((itemId: string) => {
-    const name = getPrototypeItemName(treeState, itemId) ?? "Study material";
-    const now = new Date().toISOString();
-    const newId = `material-${crypto.randomUUID()}`;
-    setTreeState((previous) => duplicatePrototypeMaterial(previous, itemId, newId, now));
-    setLastAction(`Duplicated ${name}.`);
-  }, [treeState]);
-
-  const moveToRoot = useCallback((itemId: string) => {
-    const name = getPrototypeItemName(treeState, itemId) ?? "Item";
-    if (!canMovePrototypeItem(treeState, itemId, null)) return;
-    const now = new Date().toISOString();
-    setTreeState((previous) => movePrototypeItem(previous, itemId, null, now));
-    setLastAction(`Moved ${name} to Study Materials.`);
-  }, [treeState]);
+  const moveToRoot = useCallback(
+    async (itemId: string) => {
+      const name = getPrototypeItemName(effectiveState, itemId) ?? "Item";
+      if (!canMovePrototypeItem(effectiveState, itemId, null)) return;
+      if (onCommand) {
+        const command: TreeCommand = { type: "moveItem", id: itemId, targetFolderId: null };
+        const key = getCommandPendingKey(command);
+        if (pendingByKey.current.has(key)) return;
+        setPending(key, true);
+        try {
+          const result = await onCommand(command);
+          if (!result.ok) {
+            focusItem(itemId);
+            return;
+          }
+          const exists =
+            effectiveState.folders.some((f) => f.id === itemId) ||
+            effectiveState.materials.some((m) => m.id === itemId);
+          if (!exists) return;
+          focusItem(itemId);
+        } finally {
+          setPending(key, false);
+        }
+        return;
+      }
+      const now = new Date().toISOString();
+      setInternalState((previous) => movePrototypeItem(previous, itemId, null, now));
+      setLastAction(`Moved ${name} to Study Materials.`);
+    },
+    [effectiveState, focusItem, onCommand, setPending],
+  );
 
   const expandAll = useCallback(() => {
     setOpenFolderIds(
       new Set(
-        treeState.folders.filter((folder) => !folder.deletedAt).map((folder) => folder.id),
+        effectiveState.folders.filter((folder) => !folder.deletedAt).map((folder) => folder.id),
       ),
     );
     setLastAction("Expanded all folders.");
-  }, [treeState.folders]);
+  }, [effectiveState.folders]);
 
   const collapseAll = useCallback(() => {
     setOpenFolderIds(new Set());
@@ -270,29 +430,59 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
     setRenamingItemId(null);
     setActiveDragItemId(dragData.itemId);
     setSelectedItemId(dragData.itemId);
-    setLastAction(`Moving ${getPrototypeItemName(treeState, dragData.itemId) ?? "item"}.`);
-  }, [treeState]);
+    setLastAction(`Moving ${getPrototypeItemName(effectiveState, dragData.itemId) ?? "item"}.`);
+  }, [effectiveState, setSelectedItemId]);
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const dragData = getTreeDragData(event.active.data.current);
-    const dropData = getTreeDropData(event.over?.data.current);
-    setActiveDragItemId(null);
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const dragData = getTreeDragData(event.active.data.current);
+      const dropData = getTreeDropData(event.over?.data.current);
+      setActiveDragItemId(null);
 
-    if (!dragData || !dropData) return;
-    if (!canMovePrototypeItem(treeState, dragData.itemId, dropData.folderId)) return;
+      if (!dragData || !dropData) return;
+      if (!canMovePrototypeItem(effectiveState, dragData.itemId, dropData.folderId)) return;
 
-    const itemName = getPrototypeItemName(treeState, dragData.itemId) ?? "Item";
-    const targetName =
-      dropData.folderId === null
-        ? "Study Materials"
-        : getPrototypeItemName(treeState, dropData.folderId) ?? "folder";
+      const itemName = getPrototypeItemName(effectiveState, dragData.itemId) ?? "Item";
+      const targetName =
+        dropData.folderId === null
+          ? "Study Materials"
+          : (getPrototypeItemName(effectiveState, dropData.folderId) ?? "folder");
 
-    const now = new Date().toISOString();
-    setTreeState((previous) => movePrototypeItem(previous, dragData.itemId, dropData.folderId, now));
-    if (dropData.folderId) setFolderOpen(dropData.folderId, true);
-    setLastAction(`Moved ${itemName} to ${targetName}.`);
-    focusItem(dragData.itemId);
-  }, [focusItem, setFolderOpen, treeState]);
+      if (onCommand) {
+        const command: TreeCommand = {
+          type: "moveItem",
+          id: dragData.itemId,
+          targetFolderId: dropData.folderId,
+        };
+        const key = getCommandPendingKey(command);
+        if (pendingByKey.current.has(key)) return;
+        setPending(key, true);
+        try {
+          const result = await onCommand(command);
+          if (!result.ok) {
+            focusItem(dragData.itemId);
+            return;
+          }
+          const exists =
+            effectiveState.folders.some((f) => f.id === dragData.itemId) ||
+            effectiveState.materials.some((m) => m.id === dragData.itemId);
+          if (!exists) return;
+          if (dropData.folderId) setFolderOpen(dropData.folderId, true);
+          focusItem(dragData.itemId);
+        } finally {
+          setPending(key, false);
+        }
+        return;
+      }
+
+      const now = new Date().toISOString();
+      setInternalState((previous) => movePrototypeItem(previous, dragData.itemId, dropData.folderId, now));
+      if (dropData.folderId) setFolderOpen(dropData.folderId, true);
+      setLastAction(`Moved ${itemName} to ${targetName}.`);
+      focusItem(dragData.itemId);
+    },
+    [effectiveState, focusItem, onCommand, setFolderOpen, setPending],
+  );
 
   const handleDragCancel = useCallback(() => {
     setActiveDragItemId(null);
@@ -369,16 +559,48 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
     [activeDragItemId, activateItem, focusItem, openFolderIds, setFolderOpen, visibleItems],
   );
 
-  const confirmDelete = useCallback(() => {
+  const confirmDelete = useCallback(async () => {
     if (!pendingDelete) return;
+    const deleteId = pendingDelete.id;
+    const deleteName = pendingDelete.name;
+
+    if (onCommand) {
+      const command: TreeCommand = { type: "deleteItem", id: deleteId };
+      const key = getCommandPendingKey(command);
+      if (pendingByKey.current.has(key)) return;
+      setPending(key, true);
+      try {
+        const result = await onCommand(command);
+        if (!result.ok) {
+          focusItem(deleteId);
+          return;
+        }
+        // stale check: if item already gone, just clear pendingDelete
+        const exists =
+          effectiveState.folders.some((f) => f.id === deleteId) ||
+          effectiveState.materials.some((m) => m.id === deleteId);
+        if (!exists) {
+          setPendingDelete(null);
+          return;
+        }
+        setSelectedItemId(null);
+        setFocusedItemId(null);
+        setRenamingItemId(null);
+        setPendingDelete(null);
+      } finally {
+        setPending(key, false);
+      }
+      return;
+    }
+
     const now = new Date().toISOString();
-    setTreeState((previous) => softDeletePrototypeItem(previous, pendingDelete.id, now));
+    setInternalState((previous) => softDeletePrototypeItem(previous, deleteId, now));
     setSelectedItemId(null);
     setFocusedItemId(null);
     setRenamingItemId(null);
-    setLastAction(`Deleted ${pendingDelete.name} from the local prototype.`);
+    setLastAction(`Deleted ${deleteName} from the local prototype.`);
     setPendingDelete(null);
-  }, [pendingDelete]);
+  }, [effectiveState, focusItem, onCommand, pendingDelete, setPending, setSelectedItemId]);
 
   return (
     <TooltipProvider>
@@ -399,7 +621,7 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
           >
       <TreeHeader
         activeDragItemId={activeDragItemId}
-        canMoveToRoot={(itemId) => canMovePrototypeItem(treeState, itemId, null)}
+        canMoveToRoot={(itemId) => canMovePrototypeItem(effectiveState, itemId, null)}
         onCreateFolder={() => createFolder(null)}
         onExpandAll={expandAll}
         onCollapseAll={collapseAll}
@@ -426,7 +648,7 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
                           key={node.id}
                           node={node}
                           depth={0}
-                          state={treeState}
+                          state={effectiveState}
                           activeDragItemId={activeDragItemId}
                           focusedItemId={focusedItemId}
                           isFolderOpen={(folderId) => openFolderIds.has(folderId)}
