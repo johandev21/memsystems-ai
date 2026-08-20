@@ -18,9 +18,10 @@ export function DragPreview({ node }: DragPreviewProps) {
   return (
     <div
       data-slot="study-materials-tree-drag-preview"
-      className="inline-flex w-fit max-w-[min(18rem,calc(100vw-2rem))] items-center gap-1.5 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-xl ring-1 ring-background/50"
+      data-size="sm"
+      className="inline-flex w-fit max-w-[min(18rem,calc(100vw-2rem))] items-center gap-1.5 rounded-md border border-border bg-popover px-[var(--tree-drag-preview-px)] py-[var(--tree-drag-preview-py)] text-[var(--tree-font-size)] text-popover-foreground shadow-xl ring-1 ring-background/50"
     >
-      <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
+      <Icon className="size-[var(--tree-icon-size)] shrink-0" strokeWidth={1.7} />
       <span className="truncate">{node.name}</span>
     </div>
   );

@@ -81,6 +81,7 @@ export function Row({ node, depth }: RowProps) {
       {...attributes}
       {...listeners}
       data-slot="study-materials-tree-row"
+      data-size="sm"
       data-selected={isSelected ? "true" : undefined}
       data-focused={isFocused ? "true" : undefined}
       data-renaming={isRenaming ? "true" : undefined}
@@ -91,9 +92,9 @@ export function Row({ node, depth }: RowProps) {
       aria-selected={isSelected}
       role="treeitem"
       tabIndex={isFocused ? 0 : -1}
-      style={{ paddingLeft: `${8 + depth * 12}px` }}
+      style={{ paddingLeft: `calc(var(--tree-root-inset) + ${depth} * var(--tree-indent-step))` }}
       className={cn(
-        "group/tree-row relative flex h-6 w-full min-w-0 items-center gap-1.5 pr-2 text-left text-xs outline-none select-none",
+        "group/tree-row relative flex h-[var(--tree-row-height)] w-full min-w-0 items-center gap-1.5 pr-2 text-left text-[var(--tree-font-size)] outline-none select-none",
         "text-muted-foreground transition-colors focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring",
         "hover:bg-muted/70 hover:text-foreground",
         isSelected &&
@@ -112,7 +113,7 @@ export function Row({ node, depth }: RowProps) {
       onFocus={() => controller.select(node)}
       onKeyDown={(event) => controller.handleKeyDown(event, node)}
     >
-      <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
+      <Icon className="size-[var(--tree-icon-size)] shrink-0" strokeWidth={1.7} />
       {isRenaming ? (
         <InlineRename
           initialValue={node.name}

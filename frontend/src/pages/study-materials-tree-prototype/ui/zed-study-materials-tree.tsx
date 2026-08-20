@@ -26,6 +26,7 @@ import {
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { TooltipProvider } from "@/shared/ui/tooltip";
+import { cn } from "@/shared/lib/utils";
 import { INITIAL_PROTOTYPE_TREE_STATE } from "../model/study-material-tree.fixture";
 import {
   getPrototypeItemName,
@@ -44,6 +45,7 @@ import {
 import { Branch } from "./tree/branch";
 import { DragPreview } from "./tree/drag-preview";
 import { TreeHeader } from "./tree/header";
+import { studyMaterialsTreeVariants } from "./tree/variants";
 
 export type StudyMaterialsPrototypeSnapshot = {
   folderCount: number;
@@ -165,7 +167,12 @@ export function ZedStudyMaterialsTree({
         onDragCancel={handleDragCancel}
       >
         <TreeControllerProvider controller={controller}>
-          <div ref={controller.registerTreeSurface} data-slot="study-materials-tree">
+          <div
+            ref={controller.registerTreeSurface}
+            data-slot="study-materials-tree"
+            data-size="sm"
+            className={cn(studyMaterialsTreeVariants({ size: "sm" }))}
+          >
             <Card
               size="sm"
               className="gap-0 overflow-hidden bg-study-materials-panel py-0 shadow-none"

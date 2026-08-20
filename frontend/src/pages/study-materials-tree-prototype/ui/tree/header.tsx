@@ -20,18 +20,21 @@ export function TreeHeader() {
   const isValidRootTarget = Boolean(activeData && controller.canMove(activeData.itemId, null));
 
   return (
-    <CardHeader data-slot="study-materials-tree-header" className="p-0">
+    <CardHeader data-slot="study-materials-tree-header" data-size="sm" className="p-0">
       <div
         ref={setNodeRef}
         data-slot="study-materials-tree-header-drop-target"
+        data-size="sm"
         data-valid-drop-target={isOver && isValidRootTarget ? "true" : undefined}
         className={cn(
-          "flex min-h-8 items-center justify-between gap-2 bg-panel-header-bg px-2.5 transition-colors",
+          "flex min-h-[var(--tree-header-min-height)] items-center justify-between gap-2 bg-panel-header-bg px-2.5 transition-colors",
           isOver && isValidRootTarget && "bg-accent",
         )}
       >
         <div className="flex min-w-0 items-center gap-1.5">
-          <span className="truncate text-xs font-semibold text-foreground">Study Materials</span>
+          <span className="truncate text-[var(--tree-font-size)] font-semibold text-foreground">
+            Study Materials
+          </span>
           {controller.activeDragItemId && (
             <span className="text-[10px] text-muted-foreground">
               {isOver && isValidRootTarget ? "Drop to move to root" : "Drag to a folder"}

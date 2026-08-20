@@ -706,9 +706,9 @@ describe("ZedStudyMaterialsTree", () => {
       const guide = document.querySelector(".group\\/tree-guide") as HTMLElement | null;
       expect(guide).toBeTruthy();
       expect(guide?.getAttribute("aria-hidden")).toBe("true");
-      // guide position is derived from depth tokens: left = 10 + depth*12
-      // for Foundations' children (depth 0), guide should be at 10px
-      expect(guide?.style.left).toBe("10px");
+      // guide position is derived from depth tokens via CSS variables
+      // for Foundations' children (depth 0), left is calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))
+      expect(guide?.style.left).toBe("calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))");
     });
 
     it("keeps viewport and overlay sizing independent of row density", () => {
