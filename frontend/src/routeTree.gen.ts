@@ -15,7 +15,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotebooksIndexRouteImport } from './routes/notebooks.index'
 import { Route as NotebooksNotebookIdRouteImport } from './routes/notebooks.$notebookId'
-import { Route as PrototypeStudyMaterialsTreeRouteImport } from './routes/prototype.study-materials-tree'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsConnectionRouteImport } from './routes/settings.connection'
 
@@ -49,12 +48,6 @@ const NotebooksNotebookIdRoute = NotebooksNotebookIdRouteImport.update({
   path: '/notebooks/$notebookId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrototypeStudyMaterialsTreeRoute =
-  PrototypeStudyMaterialsTreeRouteImport.update({
-    id: '/prototype/study-materials-tree',
-    path: '/prototype/study-materials-tree',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,7 +65,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/study-materials-tree': typeof PrototypeStudyMaterialsTreeRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -82,7 +74,6 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/study-materials-tree': typeof PrototypeStudyMaterialsTreeRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks': typeof NotebooksIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -94,7 +85,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRouteWithChildren
   '/notebooks/$notebookId': typeof NotebooksNotebookIdRoute
-  '/prototype/study-materials-tree': typeof PrototypeStudyMaterialsTreeRoute
   '/settings/connection': typeof SettingsConnectionRoute
   '/notebooks/': typeof NotebooksIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -107,7 +97,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
-    | '/prototype/study-materials-tree'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -117,7 +106,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/notebooks/$notebookId'
-    | '/prototype/study-materials-tree'
     | '/settings/connection'
     | '/notebooks'
     | '/settings'
@@ -128,7 +116,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/notebooks/$notebookId'
-    | '/prototype/study-materials-tree'
     | '/settings/connection'
     | '/notebooks/'
     | '/settings/'
@@ -140,7 +127,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   NotebooksNotebookIdRoute: typeof NotebooksNotebookIdRoute
-  PrototypeStudyMaterialsTreeRoute: typeof PrototypeStudyMaterialsTreeRoute
   NotebooksIndexRoute: typeof NotebooksIndexRoute
 }
 
@@ -188,13 +174,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotebooksNotebookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/prototype/study-materials-tree': {
-      id: '/prototype/study-materials-tree'
-      path: '/prototype/study-materials-tree'
-      fullPath: '/prototype/study-materials-tree'
-      preLoaderRoute: typeof PrototypeStudyMaterialsTreeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/': {
       id: '/settings/'
       path: '/'
@@ -232,7 +211,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRouteWithChildren,
   NotebooksNotebookIdRoute: NotebooksNotebookIdRoute,
-  PrototypeStudyMaterialsTreeRoute: PrototypeStudyMaterialsTreeRoute,
   NotebooksIndexRoute: NotebooksIndexRoute,
 }
 export const routeTree = rootRouteImport
