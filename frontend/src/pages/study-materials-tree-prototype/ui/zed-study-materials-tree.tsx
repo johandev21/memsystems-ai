@@ -50,8 +50,8 @@ import { Input } from "@/shared/ui/input";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
+import { INITIAL_PROTOTYPE_TREE_STATE } from "../model/study-material-tree.fixture";
 import {
-  INITIAL_PROTOTYPE_TREE_STATE,
   buildPrototypeTree,
   canMovePrototypeItem,
   createPrototypeFolder,
@@ -206,7 +206,9 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
 
   const createFolder = useCallback(
     (parentId: string | null) => {
-      const folder = createPrototypeFolder(parentId);
+      const now = new Date().toISOString();
+      const id = `folder-${crypto.randomUUID()}`;
+      const folder = createPrototypeFolder(parentId, id, now);
       setTreeState((previous) => ({ ...previous, folders: [...previous.folders, folder] }));
       if (parentId) setFolderOpen(parentId, true);
       setSelectedItemId(folder.id);
@@ -226,21 +228,25 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
       return;
     }
 
-    setTreeState((previous) => renamePrototypeItem(previous, itemId, nextName));
+    const now = new Date().toISOString();
+    setTreeState((previous) => renamePrototypeItem(previous, itemId, nextName, now));
     setLastAction(`Renamed ${previousName} to ${nextName}.`);
     focusItem(itemId);
   }, [focusItem, treeState]);
 
   const duplicateMaterial = useCallback((itemId: string) => {
     const name = getPrototypeItemName(treeState, itemId) ?? "Study material";
-    setTreeState((previous) => duplicatePrototypeMaterial(previous, itemId));
+    const now = new Date().toISOString();
+    const newId = `material-${crypto.randomUUID()}`;
+    setTreeState((previous) => duplicatePrototypeMaterial(previous, itemId, newId, now));
     setLastAction(`Duplicated ${name}.`);
   }, [treeState]);
 
   const moveToRoot = useCallback((itemId: string) => {
     const name = getPrototypeItemName(treeState, itemId) ?? "Item";
     if (!canMovePrototypeItem(treeState, itemId, null)) return;
-    setTreeState((previous) => movePrototypeItem(previous, itemId, null));
+    const now = new Date().toISOString();
+    setTreeState((previous) => movePrototypeItem(previous, itemId, null, now));
     setLastAction(`Moved ${name} to Study Materials.`);
   }, [treeState]);
 
@@ -281,7 +287,8 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
         ? "Study Materials"
         : getPrototypeItemName(treeState, dropData.folderId) ?? "folder";
 
-    setTreeState((previous) => movePrototypeItem(previous, dragData.itemId, dropData.folderId));
+    const now = new Date().toISOString();
+    setTreeState((previous) => movePrototypeItem(previous, dragData.itemId, dropData.folderId, now));
     if (dropData.folderId) setFolderOpen(dropData.folderId, true);
     setLastAction(`Moved ${itemName} to ${targetName}.`);
     focusItem(dragData.itemId);
@@ -364,7 +371,8 @@ export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStu
 
   const confirmDelete = useCallback(() => {
     if (!pendingDelete) return;
-    setTreeState((previous) => softDeletePrototypeItem(previous, pendingDelete.id));
+    const now = new Date().toISOString();
+    setTreeState((previous) => softDeletePrototypeItem(previous, pendingDelete.id, now));
     setSelectedItemId(null);
     setFocusedItemId(null);
     setRenamingItemId(null);
@@ -882,7 +890,7 @@ function getTreeIcon(node: PrototypeTreeNode, isOpen: boolean): LucideIcon {
   }
 }
 
-function findTreeNode(nodes: PrototypeTreeNode[], id: string | null): PrototypeTreeNode | null {
+function findTreeNode(nodes: readonly PrototypeTreeNode[], id: string | null): PrototypeTreeNode | null {
   if (!id) return null;
 
   for (const node of nodes) {

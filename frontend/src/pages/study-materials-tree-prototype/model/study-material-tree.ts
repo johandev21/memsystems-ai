@@ -1,157 +1,47 @@
-import type { FolderDTO } from "@/entities/folder";
-import type { StudyMaterialDTO, StudyMaterialKind } from "@/entities/study-material";
+import type { StudyMaterialKind } from "@/entities/study-material";
 
-export const PROTOTYPE_NOTEBOOK_ID = "notebook-philosophy-2026";
+export { INITIAL_PROTOTYPE_TREE_STATE, PROTOTYPE_NOTEBOOK_ID } from "./study-material-tree.fixture";
+
+export type PrototypeFolder = {
+  readonly id: string;
+  readonly parentId: string | null;
+  readonly name: string;
+  readonly deletedAt: string | null;
+  readonly createdAt: string;
+  readonly updatedAt?: string | null;
+};
+
+export type PrototypeMaterial = {
+  readonly id: string;
+  readonly folderId: string | null;
+  readonly title: string;
+  readonly kind: StudyMaterialKind;
+  readonly deletedAt: string | null;
+  readonly createdAt: string;
+  readonly updatedAt?: string | null;
+};
 
 export type PrototypeTreeState = {
-  folders: FolderDTO[];
-  materials: StudyMaterialDTO[];
+  readonly folders: readonly PrototypeFolder[];
+  readonly materials: readonly PrototypeMaterial[];
 };
 
 export type PrototypeTreeNode = {
-  id: string;
-  type: "folder" | "material";
-  name: string;
-  parentId: string | null;
-  createdAt: string;
-  children: PrototypeTreeNode[];
-  materialKind?: StudyMaterialKind;
+  readonly id: string;
+  readonly type: "folder" | "material";
+  readonly name: string;
+  readonly parentId: string | null;
+  readonly createdAt: string;
+  readonly children: readonly PrototypeTreeNode[];
+  readonly materialKind?: StudyMaterialKind;
 };
 
-const prototypeDate = "2026-08-18T14:00:00.000Z";
+export function buildPrototypeTree(state: PrototypeTreeState): PrototypeTreeNode[] {
+  const activeFolders = state.folders.filter((folder) => !folder.deletedAt);
+  const activeMaterials = state.materials.filter((material) => !material.deletedAt);
 
-export const INITIAL_PROTOTYPE_TREE_STATE: PrototypeTreeState = {
-  folders: [
-    {
-      id: "folder-foundations",
-      notebookId: PROTOTYPE_NOTEBOOK_ID,
-      parentId: null,
-      name: "Foundations",
-      deletedAt: null,
-      createdAt: "2026-08-11T09:00:00.000Z",
-      updatedAt: prototypeDate,
-    },
-    {
-      id: "folder-metaphysics",
-      notebookId: PROTOTYPE_NOTEBOOK_ID,
-      parentId: "folder-foundations",
-      name: "Metaphysics",
-      deletedAt: null,
-      createdAt: "2026-08-11T09:05:00.000Z",
-      updatedAt: prototypeDate,
-    },
-    {
-      id: "folder-western-traditions",
-      notebookId: PROTOTYPE_NOTEBOOK_ID,
-      parentId: "folder-metaphysics",
-      name: "Western traditions",
-      deletedAt: null,
-      createdAt: "2026-08-11T09:10:00.000Z",
-      updatedAt: prototypeDate,
-    },
-    {
-      id: "folder-exam-review",
-      notebookId: PROTOTYPE_NOTEBOOK_ID,
-      parentId: null,
-      name: "Exam review",
-      deletedAt: null,
-      createdAt: "2026-08-13T10:00:00.000Z",
-      updatedAt: prototypeDate,
-    },
-  ],
-  materials: [
-    createMaterial({
-      id: "material-metaphilosophy-quiz",
-      title: "Metafilosofía occidental: conceptos y tradiciones",
-      kind: "quiz",
-      folderId: "folder-western-traditions",
-      createdAt: "2026-08-11T10:00:00.000Z",
-    }),
-    createMaterial({
-      id: "material-being-flashcards",
-      title: "Ser, esencia y existencia",
-      kind: "simple_flashcard",
-      folderId: "folder-western-traditions",
-      createdAt: "2026-08-11T10:10:00.000Z",
-    }),
-    createMaterial({
-      id: "material-aristotle-roadmap",
-      title: "Ruta de estudio: Aristóteles y la metafísica",
-      kind: "roadmap",
-      folderId: "folder-metaphysics",
-      createdAt: "2026-08-11T10:20:00.000Z",
-    }),
-    createMaterial({
-      id: "material-ontology-map",
-      title: "Ontología: mapa de conceptos",
-      kind: "mind_map",
-      folderId: "folder-metaphysics",
-      createdAt: "2026-08-11T10:30:00.000Z",
-    }),
-    createMaterial({
-      id: "material-logic-quiz",
-      title: "Argumentación, validez y falacias",
-      kind: "quiz",
-      folderId: "folder-foundations",
-      createdAt: "2026-08-12T08:00:00.000Z",
-    }),
-    createMaterial({
-      id: "material-reading-plan",
-      title: "Plan de lectura para el examen final",
-      kind: "roadmap",
-      folderId: "folder-exam-review",
-      createdAt: "2026-08-13T10:20:00.000Z",
-    }),
-    createMaterial({
-      id: "material-exam-flashcards",
-      title: "Repaso rápido: autores y obras",
-      kind: "simple_flashcard",
-      folderId: "folder-exam-review",
-      createdAt: "2026-08-13T10:30:00.000Z",
-    }),
-    createMaterial({
-      id: "material-epistemology-map",
-      title: "Epistemología comparada",
-      kind: "mind_map",
-      folderId: null,
-      createdAt: "2026-08-14T11:00:00.000Z",
-    }),
-    createMaterial({
-      id: "material-seminar-quiz",
-      title: "Seminario 4: conocimiento y justificación",
-      kind: "quiz",
-      folderId: null,
-      createdAt: "2026-08-15T11:30:00.000Z",
-    }),
-  ],
-};
-
-function createMaterial({
-  id,
-  title,
-  kind,
-  folderId,
-  createdAt,
-}: Pick<StudyMaterialDTO, "id" | "title" | "kind" | "folderId" | "createdAt">): StudyMaterialDTO {
-  return {
-    id,
-    notebookId: PROTOTYPE_NOTEBOOK_ID,
-    kind,
-    title,
-    folderId,
-    content: {},
-    options: {},
-    deletedAt: null,
-    createdAt,
-    updatedAt: prototypeDate,
-  };
-}
-
-export function buildPrototypeTree({ folders, materials }: PrototypeTreeState): PrototypeTreeNode[] {
-  const activeFolders = folders.filter((folder) => !folder.deletedAt);
-  const activeMaterials = materials.filter((material) => !material.deletedAt);
-  const foldersByParent = new Map<string | null, FolderDTO[]>();
-  const materialsByParent = new Map<string | null, StudyMaterialDTO[]>();
+  const foldersByParent = new Map<string | null, PrototypeFolder[]>();
+  const materialsByParent = new Map<string | null, PrototypeMaterial[]>();
   const folderIds = new Set(activeFolders.map((folder) => folder.id));
 
   for (const folder of activeFolders) {
@@ -160,7 +50,8 @@ export function buildPrototypeTree({ folders, materials }: PrototypeTreeState): 
   }
 
   for (const material of activeMaterials) {
-    const parentId = material.folderId && folderIds.has(material.folderId) ? material.folderId : null;
+    const parentId =
+      material.folderId && folderIds.has(material.folderId) ? material.folderId : null;
     addToMap(materialsByParent, parentId, material);
   }
 
@@ -184,7 +75,7 @@ export function buildPrototypeTree({ folders, materials }: PrototypeTreeState): 
         parentId: material.folderId,
         createdAt: material.createdAt,
         materialKind: material.kind,
-        children: [],
+        children: [] as PrototypeTreeNode[],
       })),
     ];
   };
@@ -193,12 +84,12 @@ export function buildPrototypeTree({ folders, materials }: PrototypeTreeState): 
 }
 
 export function flattenVisibleTree(
-  nodes: PrototypeTreeNode[],
+  nodes: readonly PrototypeTreeNode[],
   openFolderIds: ReadonlySet<string>,
 ): PrototypeTreeNode[] {
   const visibleNodes: PrototypeTreeNode[] = [];
 
-  const visit = (items: PrototypeTreeNode[]) => {
+  const visit = (items: readonly PrototypeTreeNode[]) => {
     for (const item of items) {
       visibleNodes.push(item);
       if (item.type === "folder" && openFolderIds.has(item.id)) {
@@ -211,7 +102,10 @@ export function flattenVisibleTree(
   return visibleNodes;
 }
 
-export function getDescendantFolderIds(folders: FolderDTO[], folderId: string): Set<string> {
+export function getDescendantFolderIds(
+  folders: readonly PrototypeFolder[],
+  folderId: string,
+): Set<string> {
   const descendants = new Set<string>();
   const childFolderIds = new Map<string, string[]>();
 
@@ -237,15 +131,25 @@ export function canMovePrototypeItem(
   itemId: string,
   targetFolderId: string | null,
 ): boolean {
-  const folder = state.folders.find((candidate) => candidate.id === itemId && !candidate.deletedAt);
-  if (folder) {
-    if (folder.parentId === targetFolderId || folder.id === targetFolderId) return false;
-    return !targetFolderId || !getDescendantFolderIds(state.folders, folder.id).has(targetFolderId);
+  const folderById = new Map<string, PrototypeFolder>();
+  for (const folder of state.folders) {
+    if (!folder.deletedAt) folderById.set(folder.id, folder);
   }
 
-  const material = state.materials.find(
-    (candidate) => candidate.id === itemId && !candidate.deletedAt,
-  );
+  const folder = folderById.get(itemId);
+  if (folder) {
+    if (folder.parentId === targetFolderId || folder.id === targetFolderId) return false;
+    if (!targetFolderId) return true;
+    const descendants = getDescendantFolderIds(state.folders, folder.id);
+    return !descendants.has(targetFolderId);
+  }
+
+  const materialById = new Map<string, PrototypeMaterial>();
+  for (const material of state.materials) {
+    if (!material.deletedAt) materialById.set(material.id, material);
+  }
+
+  const material = materialById.get(itemId);
   return Boolean(material && material.folderId !== targetFolderId);
 }
 
@@ -253,19 +157,16 @@ export function movePrototypeItem(
   state: PrototypeTreeState,
   itemId: string,
   targetFolderId: string | null,
+  now: string = new Date().toISOString(),
 ): PrototypeTreeState {
   if (!canMovePrototypeItem(state, itemId, targetFolderId)) return state;
 
   return {
     folders: state.folders.map((folder) =>
-      folder.id === itemId
-        ? { ...folder, parentId: targetFolderId, updatedAt: new Date().toISOString() }
-        : folder,
+      folder.id === itemId ? { ...folder, parentId: targetFolderId, updatedAt: now } : folder,
     ),
     materials: state.materials.map((material) =>
-      material.id === itemId
-        ? { ...material, folderId: targetFolderId, updatedAt: new Date().toISOString() }
-        : material,
+      material.id === itemId ? { ...material, folderId: targetFolderId, updatedAt: now } : material,
     ),
   };
 }
@@ -274,29 +175,34 @@ export function renamePrototypeItem(
   state: PrototypeTreeState,
   itemId: string,
   name: string,
+  now: string = new Date().toISOString(),
 ): PrototypeTreeState {
   const trimmedName = name.trim();
   if (!trimmedName) return state;
 
+  // no-op if name unchanged (check both folder and material)
+  const folder = state.folders.find((candidate) => candidate.id === itemId);
+  if (folder && folder.name === trimmedName) return state;
+  const material = state.materials.find((candidate) => candidate.id === itemId);
+  if (material && material.title === trimmedName) return state;
+
   return {
     folders: state.folders.map((folder) =>
-      folder.id === itemId
-        ? { ...folder, name: trimmedName, updatedAt: new Date().toISOString() }
-        : folder,
+      folder.id === itemId ? { ...folder, name: trimmedName, updatedAt: now } : folder,
     ),
     materials: state.materials.map((material) =>
-      material.id === itemId
-        ? { ...material, title: trimmedName, updatedAt: new Date().toISOString() }
-        : material,
+      material.id === itemId ? { ...material, title: trimmedName, updatedAt: now } : material,
     ),
   };
 }
 
-export function createPrototypeFolder(parentId: string | null): FolderDTO {
-  const now = new Date().toISOString();
+export function createPrototypeFolder(
+  parentId: string | null,
+  id: string = `folder-${crypto.randomUUID()}`,
+  now: string = new Date().toISOString(),
+): PrototypeFolder {
   return {
-    id: createPrototypeId("folder"),
-    notebookId: PROTOTYPE_NOTEBOOK_ID,
+    id,
     parentId,
     name: "Untitled folder",
     deletedAt: null,
@@ -308,18 +214,21 @@ export function createPrototypeFolder(parentId: string | null): FolderDTO {
 export function duplicatePrototypeMaterial(
   state: PrototypeTreeState,
   materialId: string,
+  newId: string = `material-${crypto.randomUUID()}`,
+  now: string = new Date().toISOString(),
 ): PrototypeTreeState {
-  const material = state.materials.find((candidate) => candidate.id === materialId && !candidate.deletedAt);
+  const material = state.materials.find(
+    (candidate) => candidate.id === materialId && !candidate.deletedAt,
+  );
   if (!material) return state;
 
-  const now = new Date().toISOString();
   return {
     ...state,
     materials: [
       ...state.materials,
       {
         ...material,
-        id: createPrototypeId("material"),
+        id: newId,
         title: `${material.title} copy`,
         createdAt: now,
         updatedAt: now,
@@ -331,40 +240,49 @@ export function duplicatePrototypeMaterial(
 export function softDeletePrototypeItem(
   state: PrototypeTreeState,
   itemId: string,
+  now: string = new Date().toISOString(),
 ): PrototypeTreeState {
-  const deletedAt = new Date().toISOString();
-  const folder = state.folders.find((candidate) => candidate.id === itemId && !candidate.deletedAt);
+  const folderById = new Map<string, PrototypeFolder>();
+  for (const folder of state.folders) {
+    if (!folder.deletedAt) folderById.set(folder.id, folder);
+  }
+
+  const folder = folderById.get(itemId);
 
   if (!folder) {
     return {
       ...state,
       materials: state.materials.map((material) =>
-        material.id === itemId ? { ...material, deletedAt, updatedAt: deletedAt } : material,
+        material.id === itemId ? { ...material, deletedAt: now, updatedAt: now } : material,
       ),
     };
   }
 
-  const deletedFolderIds = new Set([folder.id, ...getDescendantFolderIds(state.folders, folder.id)]);
+  const deletedFolderIds = new Set<string>([
+    folder.id,
+    ...getDescendantFolderIds(state.folders, folder.id),
+  ]);
   return {
     folders: state.folders.map((candidate) =>
       deletedFolderIds.has(candidate.id)
-        ? { ...candidate, deletedAt, updatedAt: deletedAt }
+        ? { ...candidate, deletedAt: now, updatedAt: now }
         : candidate,
     ),
     materials: state.materials.map((material) =>
       material.folderId && deletedFolderIds.has(material.folderId)
-        ? { ...material, deletedAt, updatedAt: deletedAt }
+        ? { ...material, deletedAt: now, updatedAt: now }
         : material,
     ),
   };
 }
 
 export function getPrototypeItemName(state: PrototypeTreeState, itemId: string): string | null {
-  return (
-    state.folders.find((folder) => folder.id === itemId)?.name ??
-    state.materials.find((material) => material.id === itemId)?.title ??
-    null
-  );
+  const folderById = new Map<string, PrototypeFolder>();
+  for (const folder of state.folders) folderById.set(folder.id, folder);
+  const materialById = new Map<string, PrototypeMaterial>();
+  for (const material of state.materials) materialById.set(material.id, material);
+
+  return folderById.get(itemId)?.name ?? materialById.get(itemId)?.title ?? null;
 }
 
 function addToMap<T>(map: Map<string | null, T[]>, key: string | null, value: T) {
@@ -375,8 +293,4 @@ function addToMap<T>(map: Map<string | null, T[]>, key: string | null, value: T)
 
 function byCreatedAt<T extends { createdAt: string }>(first: T, second: T) {
   return first.createdAt.localeCompare(second.createdAt);
-}
-
-function createPrototypeId(prefix: string) {
-  return `${prefix}-${crypto.randomUUID()}`;
 }
