@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Input } from "@/shared/ui/input";
+import { Input as InputPrimitive } from "@base-ui/react/input";
+import { useEffect, useRef, useState } from "react";
 import { useTreeControllerContext } from "../study-materials-tree.controller";
 
 type InlineRenameProps = {
@@ -11,18 +11,26 @@ type InlineRenameProps = {
 export function InlineRename({ initialValue, onCancel, onCommit }: InlineRenameProps) {
   const [value, setValue] = useState(initialValue);
   const controller = useTreeControllerContext();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Select all text on mount (e.g. "Untitled folder") so typing immediately replaces.
+    inputRef.current?.select();
+  }, []);
 
   return (
-    <Input
+    <InputPrimitive
+      ref={inputRef}
       data-slot="study-materials-tree-inline-rename"
       data-size={controller.size}
       autoFocus
       aria-label="Item name"
-      className="h-[var(--tree-rename-height)] min-w-0 rounded-md px-1.5 py-0 text-[var(--tree-font-size)]"
+      className="min-w-0 flex-1 truncate h-auto rounded-none border-0 bg-transparent px-0 py-0 font-mono text-[var(--tree-font-size)] font-normal leading-none tracking-normal outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 selection:text-foreground focus:border-0 focus:bg-transparent focus:outline-none focus:ring-0 focus-visible:border-0 focus-visible:outline-none focus-visible:ring-0"
       value={value}
       onBlur={() => onCommit(value)}
       onChange={(event) => setValue(event.target.value)}
       onClick={(event) => event.stopPropagation()}
+      onFocus={(event) => event.currentTarget.select()}
       onKeyDown={(event) => {
         event.stopPropagation();
         if (event.key === "Enter") {

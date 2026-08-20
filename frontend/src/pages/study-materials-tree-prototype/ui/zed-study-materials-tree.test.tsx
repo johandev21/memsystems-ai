@@ -702,15 +702,9 @@ describe("ZedStudyMaterialsTree", () => {
 
       // full-row hover is via hover:bg-muted/70 already checked
 
-      // indentation guide lives inside a branch with children
+      // indentation guides removed for Zed-like flat appearance — no vertical lines
       const guide = document.querySelector(".group\\/tree-guide") as HTMLElement | null;
-      expect(guide).toBeTruthy();
-      expect(guide?.getAttribute("aria-hidden")).toBe("true");
-      // guide position is derived from depth tokens via CSS variables
-      // for Foundations' children (depth 0), left is calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))
-      expect(guide?.style.left).toBe(
-        "calc(var(--tree-root-inset) + 2px + 0 * var(--tree-indent-step))",
-      );
+      expect(guide).toBeNull();
     });
 
     it("keeps viewport and overlay sizing independent of row density", () => {

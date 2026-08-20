@@ -41,7 +41,7 @@ export function StudyMaterialsTreePrototypePage() {
   );
 
   return (
-    <main className="dark min-h-screen bg-background p-3 text-foreground sm:p-4">
+    <main className="min-h-screen bg-background p-3 text-foreground sm:p-4">
       <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-7xl min-w-[840px] flex-col gap-2 sm:min-h-[calc(100vh-2rem)]">
         <header className="flex shrink-0 items-center justify-between gap-4 px-1">
           <div>

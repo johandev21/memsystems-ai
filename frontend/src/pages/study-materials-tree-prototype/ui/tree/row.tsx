@@ -94,8 +94,8 @@ export function Row({ node, depth }: RowProps) {
       tabIndex={isFocused ? 0 : -1}
       style={{ paddingLeft: `calc(var(--tree-root-inset) + ${depth} * var(--tree-indent-step))` }}
       className={cn(
-        "group/tree-row relative flex h-[var(--tree-row-height)] w-full min-w-0 items-center gap-1.5 pr-2 text-left text-[var(--tree-font-size)] outline-none select-none",
-        "text-muted-foreground transition-colors focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring",
+        "group/tree-row relative flex h-[var(--tree-row-height)] w-full min-w-0 items-center gap-1.5 pr-2 text-left font-mono text-[var(--tree-font-size)] outline-none select-none",
+        "text-muted-foreground focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-1 focus-visible:ring-ring",
         "hover:bg-muted/70 hover:text-foreground",
         isSelected &&
           controller.treeHasFocus &&
@@ -106,8 +106,23 @@ export function Row({ node, depth }: RowProps) {
         !isRenaming && !isDragging && !isActiveItem && "cursor-pointer",
         !isRenaming && (isDragging || isActiveItem) && "cursor-grabbing",
       )}
-      onClick={() => {
-        if (!isRenaming) controller.activate(node);
+      onPointerDown={(event) => {
+        (listeners as unknown as { onPointerDown?: (e: React.PointerEvent) => void })?.onPointerDown?.(
+          event as unknown as React.PointerEvent,
+        );
+        if (event.button !== 0) return;
+        if (isRenaming) return;
+        // Select immediately on pointer down so a subsequent F2 targets the clicked item
+        // even if the browser doesn't move focus for tabindex="-1" or the click is swallowed by drag.
+        // Don't break DndKit's drag initiation — we already forwarded the event above.
+        (event.currentTarget as HTMLElement).focus();
+        controller.select(node);
+      }}
+      onClick={(event) => {
+        if (isRenaming) return;
+        // Ensure DOM focus follows selection synchronously for F2 (tabIndex="-1" rows aren't auto-focused on click)
+        event.currentTarget.focus();
+        controller.activate(node);
       }}
       onContextMenu={() => controller.select(node)}
       onFocus={() => controller.select(node)}

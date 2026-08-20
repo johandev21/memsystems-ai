@@ -27,12 +27,12 @@ export function TreeHeader() {
         data-size={controller.size}
         data-valid-drop-target={isOver && isValidRootTarget ? "true" : undefined}
         className={cn(
-          "flex min-h-[var(--tree-header-min-height)] items-center justify-between gap-2 bg-panel-header-bg px-2.5 transition-colors",
+          "flex min-h-[var(--tree-header-min-height)] items-center justify-between gap-2 bg-panel-header-bg px-2.5",
           isOver && isValidRootTarget && "bg-accent",
         )}
       >
         <div className="flex min-w-0 items-center gap-1.5">
-          <span className="truncate text-[var(--tree-font-size)] font-semibold text-foreground">
+          <span className="truncate font-sans text-[var(--tree-font-size)] font-semibold text-foreground">
             Study Materials
           </span>
           {controller.activeDragItemId && (

@@ -1,7 +1,5 @@
-import { Collapsible, CollapsibleContent } from "@/shared/ui/collapsible";
 import type { PrototypeTreeNode } from "../../model/study-material-tree";
 import { useTreeControllerContext } from "../study-materials-tree.controller";
-import { IndentationGuide } from "./indentation-guide";
 import { Row } from "./row";
 
 type BranchProps = {
@@ -19,30 +17,19 @@ export function Branch({ node, depth }: BranchProps) {
   const isOpen = controller.isFolderOpen(node.id);
 
   return (
-    <Collapsible
-      data-slot="study-materials-tree-branch"
-      data-size={controller.size}
-      open={isOpen}
-      onOpenChange={(open) => controller.setFolderOpen(node.id, open)}
-    >
+    <div data-slot="study-materials-tree-branch" data-size={controller.size}>
       <Row node={node} depth={depth} />
-      <CollapsibleContent
-        data-slot="study-materials-tree-branch-content"
-        data-size={controller.size}
-      >
-        {node.children.length > 0 && (
-          <div
-            className="relative"
-            data-slot="study-materials-tree-branch-children"
-            data-size={controller.size}
-          >
-            <IndentationGuide depth={depth} />
-            {node.children.map((child) => (
-              <Branch key={child.id} node={child} depth={depth + 1} />
-            ))}
-          </div>
-        )}
-      </CollapsibleContent>
-    </Collapsible>
+      {isOpen && node.children.length > 0 && (
+        <div
+          className="relative"
+          data-slot="study-materials-tree-branch-children"
+          data-size={controller.size}
+        >
+          {node.children.map((child) => (
+            <Branch key={child.id} node={child} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

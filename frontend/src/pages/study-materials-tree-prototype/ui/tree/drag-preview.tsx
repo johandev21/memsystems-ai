@@ -7,8 +7,10 @@ import {
   Network,
   type LucideIcon,
 } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
 import type { PrototypeTreeNode } from "../../model/study-material-tree";
 import { useTreeControllerContext } from "../study-materials-tree.controller";
+import { studyMaterialsTreeVariants } from "./variants";
 
 type DragPreviewProps = {
   node: PrototypeTreeNode;
@@ -21,10 +23,13 @@ export function DragPreview({ node }: DragPreviewProps) {
     <div
       data-slot="study-materials-tree-drag-preview"
       data-size={controller.size}
-      className="inline-flex w-fit max-w-[min(18rem,calc(100vw-2rem))] items-center gap-1.5 rounded-md border border-border bg-popover px-[var(--tree-drag-preview-px)] py-[var(--tree-drag-preview-py)] text-[var(--tree-font-size)] text-popover-foreground shadow-xl ring-1 ring-background/50"
+      className={cn(
+        studyMaterialsTreeVariants({ size: controller.size }),
+        "inline-flex w-fit max-w-[min(18rem,calc(100vw-2rem))] items-center gap-1.5 rounded-xl border border-transparent bg-popover/95 px-[var(--tree-drag-preview-px)] py-[var(--tree-drag-preview-py)] font-mono text-[var(--tree-font-size)] font-medium leading-none tracking-normal text-popover-foreground shadow-[0_8px_24px_oklch(0_0_0/0.14)] ring-1 ring-foreground/8 backdrop-blur-[6px] dark:shadow-[0_8px_24px_oklch(0_0_0/0.35)] dark:ring-white/10",
+      )}
     >
-      <Icon className="size-[var(--tree-icon-size)] shrink-0" strokeWidth={1.7} />
-      <span className="truncate">{node.name}</span>
+      <Icon className="size-[var(--tree-icon-size)] shrink-0 opacity-80" strokeWidth={1.7} />
+      <span className="truncate leading-none">{node.name}</span>
     </div>
   );
 }

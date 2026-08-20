@@ -54,12 +54,11 @@ describe("ZedStudyMaterialsTree size variants", () => {
       expect(row.getAttribute("data-size")).toBe("default");
     }
 
-    // guide
+    // guide — removed for Zed-like flat appearance (no vertical lines)
     const guide = document.querySelector(
       '[data-slot="study-materials-tree-indentation-guide"]',
     ) as HTMLElement | null;
-    expect(guide?.getAttribute("data-size")).toBe("default");
-    expect(guide?.style.left).toContain("var(--tree-root-inset)");
+    expect(guide).toBeNull();
 
     // header controls are still icon-xs but should be inside a header with data-size default
     expect(getHeader().getAttribute("data-size")).toBe("default");
@@ -70,7 +69,12 @@ describe("ZedStudyMaterialsTree size variants", () => {
     fireEvent.keyDown(target, { key: "F2" });
     const input = await screen.findByLabelText("Item name");
     expect(input.getAttribute("data-size")).toBe("default");
-    expect(input.className).toContain("h-[var(--tree-rename-height)]");
+    // rename is now borderless and height-auto to avoid shift vs span (min-w-0 truncate leading-none)
+    expect(input.className).toContain("min-w-0");
+    expect(input.className).toContain("truncate");
+    expect(input.className).toContain("h-auto");
+    expect(input.className).toContain("border-0");
+    expect(input.className).toContain("bg-transparent");
     await user.keyboard("{Escape}");
 
     // drag preview inherits size via controller (check controller size)
@@ -91,7 +95,7 @@ describe("ZedStudyMaterialsTree size variants", () => {
     const guide = document.querySelector(
       '[data-slot="study-materials-tree-indentation-guide"]',
     ) as HTMLElement | null;
-    expect(guide?.getAttribute("data-size")).toBe("lg");
+    expect(guide).toBeNull();
   });
 
   it("keeps recursive guide alignment via shared tokens", () => {
@@ -100,20 +104,8 @@ describe("ZedStudyMaterialsTree size variants", () => {
     const guides = Array.from(
       document.querySelectorAll('[data-slot="study-materials-tree-indentation-guide"]'),
     ) as HTMLElement[];
-    // all guides should use the same token-based left
-    for (const guide of guides) {
-      expect(guide.style.left).toContain("var(--tree-root-inset)");
-      expect(guide.style.left).toContain("var(--tree-indent-step)");
-    }
-    // depth 0 and depth 1 should differ by one indent step
-    if (guides.length >= 2) {
-      // depth 0 guide is for branch at depth 0, depth 1 guide is for depth 1
-      // we check that both contain the calc with depth
-      expect(guides[0].style.left).toContain("0 * var(--tree-indent-step)");
-      // second guide (if exists) should contain 1 * ...
-      const hasDepth1 = guides.some((g) => g.style.left.includes("1 * var(--tree-indent-step)"));
-      expect(hasDepth1).toBe(true);
-    }
+    // guides removed for Zed-like flat appearance — no vertical lines
+    expect(guides.length).toBe(0);
   });
 
   it("keeps viewport, context-menu and dialog independent of size", () => {

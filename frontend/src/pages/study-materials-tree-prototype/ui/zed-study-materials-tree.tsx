@@ -1,5 +1,4 @@
 import {
-  closestCenter,
   DndContext,
   DragOverlay,
   KeyboardSensor,
@@ -143,10 +142,7 @@ export function ZedStudyMaterialsTree({
   return (
     <TooltipProvider>
       <DndContext
-        collisionDetection={(args) => {
-          const pointerCollisions = pointerWithin(args);
-          return pointerCollisions.length > 0 ? pointerCollisions : closestCenter(args);
-        }}
+        collisionDetection={pointerWithin}
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -213,7 +209,7 @@ export function ZedStudyMaterialsTree({
               </CardContent>
             </Card>
           </div>
-          <DragOverlay>{activeDragNode ? <DragPreview node={activeDragNode} /> : null}</DragOverlay>
+          <DragOverlay dropAnimation={null}>{activeDragNode ? <DragPreview node={activeDragNode} /> : null}</DragOverlay>
         </TreeControllerProvider>
       </DndContext>
       <ConfirmDeleteDialog
