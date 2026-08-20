@@ -54,6 +54,8 @@ export type StudyMaterialsPrototypeSnapshot = {
   lastAction: string;
 };
 
+export type StudyMaterialsTreeSize = "sm" | "default" | "lg";
+
 export interface ZedStudyMaterialsTreeProps {
   folders?: readonly PrototypeFolder[];
   materials?: readonly PrototypeMaterial[];
@@ -63,6 +65,7 @@ export interface ZedStudyMaterialsTreeProps {
   onCommand?: TreeCommandExecutor;
   initialState?: PrototypeTreeState;
   onSnapshotChange?: (snapshot: StudyMaterialsPrototypeSnapshot) => void;
+  size?: StudyMaterialsTreeSize;
 }
 
 export function ZedStudyMaterialsTree({
@@ -74,6 +77,7 @@ export function ZedStudyMaterialsTree({
   onCommand,
   initialState,
   onSnapshotChange,
+  size = "sm",
 }: ZedStudyMaterialsTreeProps) {
   const fallbackState = (initialState ??
     (INITIAL_PROTOTYPE_TREE_STATE as unknown as PrototypeTreeState)) as PrototypeTreeState;
@@ -105,6 +109,7 @@ export function ZedStudyMaterialsTree({
     onCommand,
     onInternalStateChange: setInternalState,
     setLastAction,
+    size,
   });
 
   const sensors = useSensors(
@@ -170,8 +175,8 @@ export function ZedStudyMaterialsTree({
           <div
             ref={controller.registerTreeSurface}
             data-slot="study-materials-tree"
-            data-size="sm"
-            className={cn(studyMaterialsTreeVariants({ size: "sm" }))}
+            data-size={size}
+            className={cn(studyMaterialsTreeVariants({ size }))}
           >
             <Card
               size="sm"

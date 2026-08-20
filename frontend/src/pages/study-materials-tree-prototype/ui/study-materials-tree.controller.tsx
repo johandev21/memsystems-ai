@@ -53,6 +53,7 @@ type ControllerParams = {
   onCommand?: TreeCommandExecutor;
   onInternalStateChange?: (updater: (prev: PrototypeTreeState) => PrototypeTreeState) => void;
   setLastAction?: (action: string) => void;
+  size?: import("./tree/variants").StudyMaterialsTreeSize;
 };
 
 type TreeControllerState = {
@@ -68,6 +69,7 @@ type TreeControllerState = {
 type TreeController = TreeControllerState & {
   tree: PrototypeTreeNode[];
   visibleItems: PrototypeTreeNode[];
+  size: import("./tree/variants").StudyMaterialsTreeSize;
   // derived helpers
   isFolderOpen: (id: string) => boolean;
   isSelected: (id: string) => boolean;
@@ -124,6 +126,7 @@ export function useStudyMaterialsTreeController(params: ControllerParams): TreeC
     onCommand,
     onInternalStateChange,
     setLastAction,
+    size = "sm",
   } = params;
 
   const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(
@@ -593,6 +596,7 @@ export function useStudyMaterialsTreeController(params: ControllerParams): TreeC
   );
 
   return {
+    size,
     openFolderIds,
     focusedItemId,
     renamingItemId,

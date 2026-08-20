@@ -21,14 +21,21 @@ export function Branch({ node, depth }: BranchProps) {
   return (
     <Collapsible
       data-slot="study-materials-tree-branch"
-      data-size="sm"
+      data-size={controller.size}
       open={isOpen}
       onOpenChange={(open) => controller.setFolderOpen(node.id, open)}
     >
       <Row node={node} depth={depth} />
-      <CollapsibleContent data-slot="study-materials-tree-branch-content" data-size="sm">
+      <CollapsibleContent
+        data-slot="study-materials-tree-branch-content"
+        data-size={controller.size}
+      >
         {node.children.length > 0 && (
-          <div className="relative" data-slot="study-materials-tree-branch-children" data-size="sm">
+          <div
+            className="relative"
+            data-slot="study-materials-tree-branch-children"
+            data-size={controller.size}
+          >
             <IndentationGuide depth={depth} />
             {node.children.map((child) => (
               <Branch key={child.id} node={child} depth={depth + 1} />

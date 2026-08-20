@@ -20,11 +20,11 @@ export function TreeHeader() {
   const isValidRootTarget = Boolean(activeData && controller.canMove(activeData.itemId, null));
 
   return (
-    <CardHeader data-slot="study-materials-tree-header" data-size="sm" className="p-0">
+    <CardHeader data-slot="study-materials-tree-header" data-size={controller.size} className="p-0">
       <div
         ref={setNodeRef}
         data-slot="study-materials-tree-header-drop-target"
-        data-size="sm"
+        data-size={controller.size}
         data-valid-drop-target={isOver && isValidRootTarget ? "true" : undefined}
         className={cn(
           "flex min-h-[var(--tree-header-min-height)] items-center justify-between gap-2 bg-panel-header-bg px-2.5 transition-colors",

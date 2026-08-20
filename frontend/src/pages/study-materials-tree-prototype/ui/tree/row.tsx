@@ -81,7 +81,7 @@ export function Row({ node, depth }: RowProps) {
       {...attributes}
       {...listeners}
       data-slot="study-materials-tree-row"
-      data-size="sm"
+      data-size={controller.size}
       data-selected={isSelected ? "true" : undefined}
       data-focused={isFocused ? "true" : undefined}
       data-renaming={isRenaming ? "true" : undefined}
