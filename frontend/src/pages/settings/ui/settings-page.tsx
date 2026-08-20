@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   Sun,
   Trash2,
-  WandSparkles,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type FormEvent } from "react";
@@ -386,21 +385,26 @@ function ProviderRow({ provider }: { provider: Provider }) {
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const { isPending } = useConnectionStatus();
+  const { isPending: _isPending } = useConnectionStatus();
   const queryClient = useQueryClient();
-  const [testing, setTesting] = useState(false);
+  const [_testing, _setTesting] = useState(false);
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["connection-status"] });
     queryClient.invalidateQueries({ queryKey: ["models"] });
   };
 
-  const handleTestAll = async () => {
-    setTesting(true);
+  const _handleTestAll = async () => {
+    _setTesting(true);
     await queryClient.invalidateQueries({ queryKey: ["connection-status"] });
-    setTesting(false);
+    _setTesting(false);
     toast.success("Connection checks complete");
   };
+
+  void _isPending;
+  void _testing;
+  void _handleRefresh;
+  void _handleTestAll;
 
   return (
     <div className="min-h-screen bg-background">

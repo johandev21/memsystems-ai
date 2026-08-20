@@ -92,13 +92,15 @@ export type StudyMaterialsPrototypeSnapshot = {
 };
 
 export interface ZedStudyMaterialsTreeProps {
+  initialState?: PrototypeTreeState;
   onSnapshotChange?: (snapshot: StudyMaterialsPrototypeSnapshot) => void;
 }
 
-export function ZedStudyMaterialsTree({ onSnapshotChange }: ZedStudyMaterialsTreeProps) {
-  const [treeState, setTreeState] = useState<PrototypeTreeState>(INITIAL_PROTOTYPE_TREE_STATE);
+export function ZedStudyMaterialsTree({ initialState, onSnapshotChange }: ZedStudyMaterialsTreeProps) {
+  const initialTreeState = initialState ?? INITIAL_PROTOTYPE_TREE_STATE;
+  const [treeState, setTreeState] = useState<PrototypeTreeState>(initialTreeState);
   const [openFolderIds, setOpenFolderIds] = useState<Set<string>>(
-    () => new Set(INITIAL_PROTOTYPE_TREE_STATE.folders.map((folder) => folder.id)),
+    () => new Set(initialTreeState.folders.map((folder) => folder.id)),
   );
   const [selectedItemId, setSelectedItemId] = useState<string | null>(
     "material-metaphilosophy-quiz",
