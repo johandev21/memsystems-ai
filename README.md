@@ -1,4 +1,4 @@
-# Memsystems
+# Memsystems-AI
 
 Memsystems es una aplicación para organizar notebooks, consultar fuentes y generar materiales de estudio con modelos de inteligencia artificial.
 
